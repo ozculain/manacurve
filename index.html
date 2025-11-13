@@ -1804,7 +1804,6 @@ function continueToStage2() {
 
 function startS2(candidates) {
   const scenarios = [];
-  const seenIds = new Set(); // Track which scenarios we've already added
   
   // Store trigger info for debug
   state.stage2Trigger = {
@@ -1812,41 +1811,23 @@ function startS2(candidates) {
     candidates: candidates
   };
   
-  // Build scenarios from valid candidates only, with deduplication
+  // Build scenarios from valid candidates only
   candidates.forEach(cand => {
     const id = cand.id;
     
     if (POOL_C[id]) {
-      POOL_C[id].forEach(scenario => {
-        const scenarioId = scenario.id || JSON.stringify(scenario); // Use scenario ID or stringify as fallback
-        if (!seenIds.has(scenarioId)) {
-          scenarios.push(scenario);
-          seenIds.add(scenarioId);
-        }
-      });
+      scenarios.push(...POOL_C[id]);
     }
     
     if (POOL_B[id]) {
-      POOL_B[id].forEach(scenario => {
-        const scenarioId = scenario.id || JSON.stringify(scenario);
-        if (!seenIds.has(scenarioId)) {
-          scenarios.push(scenario);
-          seenIds.add(scenarioId);
-        }
-      });
+      scenarios.push(...POOL_B[id]);
     }
   });
   
-  // Add fallback scenarios if needed, with deduplication
   if (scenarios.length < 6) {
     ['AZORIUS','SELESNYA','DIMIR'].forEach(g => {
       if (POOL_B[g] && scenarios.length < 10) {
-        const scenario = POOL_B[g][0];
-        const scenarioId = scenario.id || JSON.stringify(scenario);
-        if (!seenIds.has(scenarioId)) {
-          scenarios.push(scenario);
-          seenIds.add(scenarioId);
-        }
+        scenarios.push(POOL_B[g][0]);
       }
     });
   }
