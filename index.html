@@ -1,0 +1,2295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Mana Colors Assessment</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  color: #e0e0e0;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.container { max-width: 900px; margin: 0 auto; }
+
+.mana-symbol {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-weight: 800;
+  font-size: 18px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  border: 2px solid;
+}
+
+.mana-W { background: linear-gradient(135deg, #FEF3C7, #FDE047); color: #713F12; border-color: #F59E0B; }
+.mana-U { background: linear-gradient(135deg, #DBEAFE, #93C5FD); color: #1E3A8A; border-color: #3B82F6; }
+.mana-B { background: linear-gradient(135deg, #E5E7EB, #D1D5DB); color: #1F2937; border-color: #6B7280; }
+.mana-R { background: linear-gradient(135deg, #FEE2E2, #FCA5A5); color: #7F1D1D; border-color: #EF4444; }
+.mana-G { background: linear-gradient(135deg, #D1FAE5, #6EE7B7); color: #064E3B; border-color: #10B981; }
+
+.card {
+  background: rgba(30, 30, 46, 0.95);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.choice-button {
+  width: 100%;
+  padding: 24px;
+  margin: 12px 0;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: #e0e0e0;
+  font-size: 16px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.choice-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  padding: 16px 32px;
+  border: none;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.4);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+}
+
+.hidden { display: none !important; }
+
+.result-card {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+  border: 2px solid rgba(139, 92, 246, 0.3);
+  padding: 40px;
+  border-radius: 20px;
+  margin: 24px 0;
+}
+
+.confidence-badge {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.confidence-HIGH { background: rgba(16, 185, 129, 0.2); color: #10B981; border: 1px solid #10B981; }
+.confidence-MODERATE { background: rgba(59, 130, 246, 0.2); color: #3B82F6; border: 1px solid #3B82F6; }
+.confidence-LOW { background: rgba(245, 158, 11, 0.2); color: #F59E0B; border: 1px solid #F59E0B; }
+
+.fade-in { animation: fadeIn 0.5s ease-in; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.bounce-symbol {
+  animation: bounce 1s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
+}
+
+.archetype-plaque {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(99, 102, 241, 0.15));
+  border: 3px solid rgba(139, 92, 246, 0.4);
+  border-radius: 16px;
+  padding: 32px;
+  margin: 32px 0;
+  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.2);
+  position: relative;
+}
+
+.archetype-plaque::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, rgba(139, 92, 246, 0.3), rgba(99, 102, 241, 0.3));
+  border-radius: 18px;
+  z-index: -1;
+}
+
+@media (max-width: 768px) {
+  body { padding: 12px; }
+  .card { padding: 20px; }
+  .choice-button { padding: 16px; font-size: 14px; }
+  .strengths-grid { grid-template-columns: 1fr !important; }
+  #archetype-of-month > div[style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div id="screen-welcome" class="fade-in">
+    <div class="card" style="text-align: center;">
+      <div style="display: flex; justify-content: center; gap: 12px; margin-bottom: 24px;">
+        <span class="mana-symbol mana-W">W</span>
+        <span class="mana-symbol mana-U">U</span>
+        <span class="mana-symbol mana-B">B</span>
+        <span class="mana-symbol mana-R">R</span>
+        <span class="mana-symbol mana-G">G</span>
+      </div>
+      
+      <h1 style="font-size: 48px; margin-bottom: 16px;">THE MANA CURVE</h1>
+      <p style="font-size: 24px; color: #a0a0b0; margin-bottom: 8px; font-weight: 600;">Workplace Personality Framework</p>
+      <p style="font-size: 16px; color: #808090; margin-bottom: 40px;">Because you remember your first mythic rare, but forgot your personality type</p>
+      
+      <div style="background: rgba(255,255,255,0.05); padding: 32px; border-radius: 12px; margin-bottom: 32px; text-align: left;">
+        <p style="margin-bottom: 16px; line-height: 1.6;">Many successful personality frameworks use colors. DISC uses four. True Colors uses four. Colors tend to be more memorable than 4 letters or a few numbers.</p>
+        <p style="margin-bottom: 16px; line-height: 1.6;">If you've done one or more of these you might have noticed, like us, that those colors bear an awful resemblance to a certain trading card game...</p>
+        <p style="margin-bottom: 16px; line-height: 1.6;">So we asked ourselves—could we create a personality framework using <strong style="color: #93C5FD;">five colors from Magic: The Gathering?</strong> We started this as a joke, but the more we looked at it the more it made sense!</p>
+        <p style="margin-bottom: 16px; line-height: 1.6;">We're not here to say it's science, but over 30+ years, millions of players have raged at control-freak Blue players, gotten stomped by massive Green creatures, watched White go wide with tokens, felt Black's ruthless plays, and experienced Red's chaotic aggression. The way we play relates to how we think about the world.</p>
+        <p style="margin-bottom: 0; line-height: 1.6;"><strong>We think the game accidentally created a workplace psychology framework. So we turned it into one.</strong></p>
+      </div>
+      
+      <!-- Mana Archetype of the Month -->
+      <div id="archetype-of-month" class="archetype-plaque" style="text-align: left;"></div>
+      
+      <div style="background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); padding: 24px; border-radius: 12px; margin-bottom: 32px; text-align: left;">
+        <h3 style="font-size: 18px; margin-bottom: 16px; color: #a78bfa;">How This Works</h3>
+        <div style="display: grid; gap: 12px;">
+          <div style="display: flex; gap: 12px; align-items: start;">
+            <div style="background: rgba(139, 92, 246, 0.3); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 700;">1</div>
+            <div>
+              <strong>Round 1: The Gauntlet</strong> (30 questions, ~10 min)<br>
+              <span style="color: #a0a0b0; font-size: 14px;">Pick between two terrible options. We measure all five colors.</span>
+            </div>
+          </div>
+          <div style="display: flex; gap: 12px; align-items: start;">
+            <div style="background: rgba(139, 92, 246, 0.2); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-weight: 700; color: #a0a0b0;">2</div>
+            <div>
+              <strong style="color: #a0a0b0;">Round 2: The Tiebreaker</strong> (5-12 questions, maybe)<br>
+              <span style="color: #808090; font-size: 14px;">Only if your pattern is ambiguous. We test specific combinations.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div style="margin: 24px 0; padding: 20px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px;">
+        <p style="font-size: 12px; color: #F59E0B; font-weight: 600; margin-bottom: 8px;">⚠️ WARNING: NOT FOR OFFICIAL USE</p>
+        <p style="font-size: 11px; color: #d0a070; line-height: 1.6; margin-bottom: 6px;">Do not use this for hiring, firing, promoting, demoting, or any decision affecting actual humans.</p>
+        <p style="font-size: 11px; color: #d0a070; line-height: 1.6; margin-bottom: 6px;">This is a personality framework based on a trading card game about wizards fighting each other.</p>
+        <p style="font-size: 11px; color: #c09060; line-height: 1.6; font-style: italic;">Is this a joke? Unclear. But it's 30 years of game design about strategic philosophy, so it's not nothing.</p>
+      </div>
+      
+      <button class="btn-primary" onclick="startAssessment()">Enter the Arena</button>
+      <p style="margin-top: 16px; color: #808090; font-size: 14px;">~13-15 minutes • You'll actually remember this one</p>
+      <p style="margin-top: 8px; color: #606070; font-size: 12px;">31 possible results because limiting yourself to 16 personality types is for cowards</p>
+    </div>
+  </div>
+
+  <div id="screen-assessment" class="hidden">
+    <div class="card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div style="display: flex; gap: 8px;">
+          <span class="mana-symbol mana-W" style="width: 28px; height: 28px; font-size: 14px;">W</span>
+          <span class="mana-symbol mana-U" style="width: 28px; height: 28px; font-size: 14px;">U</span>
+          <span class="mana-symbol mana-B" style="width: 28px; height: 28px; font-size: 14px;">B</span>
+          <span class="mana-symbol mana-R" style="width: 28px; height: 28px; font-size: 14px;">R</span>
+          <span class="mana-symbol mana-G" style="width: 28px; height: 28px; font-size: 14px;">G</span>
+        </div>
+        <div style="display: flex; gap: 12px; align-items: center;">
+          <button onclick="toggleDebug()" style="background: rgba(139, 92, 246, 0.2); border: 1px solid rgba(139, 92, 246, 0.4); color: #a78bfa; padding: 4px 12px; border-radius: 6px; font-size: 11px; cursor: pointer; text-transform: uppercase; font-weight: 600;">Debug</button>
+          <div style="text-align: right;">
+            <div style="font-weight: 700; font-size: 14px;">Question <span id="q-num">1</span> of <span id="q-tot">30</span></div>
+            <div style="font-size: 12px; color: #808090;" id="stage-label">Stage 1</div>
+          </div>
+        </div>
+      </div>
+      
+      <div style="margin-bottom: 8px;">
+        <div style="display: flex; justify-content: space-between; font-size: 11px; color: #606070; margin-bottom: 4px;">
+          <span>Stage 1: Initial (30q)</span>
+          <span id="s2-hint" style="opacity: 0.5;">Stage 2: Refinement (varies)</span>
+        </div>
+        <div style="position: relative; height: 12px;">
+          <div style="position: absolute; width: 100%; height: 12px; background: rgba(255,255,255,0.05); border-radius: 6px;"></div>
+          <div id="prog-s1" style="position: absolute; height: 12px; background: linear-gradient(90deg, #FDE047, #93C5FD, #D1D5DB, #FCA5A5, #6EE7B7); border-radius: 6px; transition: width 0.3s; width: 0%;"></div>
+          <div id="prog-s2" style="position: absolute; height: 12px; background: rgba(139, 92, 246, 0.6); border-radius: 6px; transition: width 0.3s; width: 0%;"></div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card" style="min-height: 280px; display: flex; flex-direction: column;">
+      <div style="font-size: 12px; text-transform: uppercase; color: #808090; margin-bottom: 8px;" id="ctx">Context</div>
+      <h2 style="font-size: 24px; margin-bottom: 24px; line-height: 1.4; flex-grow: 1;" id="scenario">Scenario</h2>
+      <p style="color: #a0a0b0; margin-bottom: 24px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);" id="instr">Choose the response <strong>more like you</strong>.</p>
+      <div id="choices"></div>
+    </div>
+    
+    <div id="debug-section" class="card" style="background: rgba(139, 92, 246, 0.05); border-color: rgba(139, 92, 246, 0.2); display: none;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h4 style="font-size: 14px; color: #a78bfa; text-transform: uppercase; letter-spacing: 1px;">🔍 Debug Info</h4>
+        <button onclick="document.getElementById('debug-section').style.display='none'" style="background: none; border: none; color: #808090; cursor: pointer; font-size: 20px; padding: 0 8px;">×</button>
+      </div>
+      <div id="debug-content" style="font-family: monospace; font-size: 12px; color: #d0d0d0; line-height: 1.8;"></div>
+    </div>
+  </div>
+
+  <div id="screen-interstitial" class="hidden">
+    <div class="card fade-in" style="text-align: center;">
+      <div style="display: flex; justify-content: center; gap: 12px; margin-bottom: 24px;">
+        <span class="mana-symbol mana-W">W</span>
+        <span class="mana-symbol mana-U">U</span>
+        <span class="mana-symbol mana-B">B</span>
+        <span class="mana-symbol mana-R">R</span>
+        <span class="mana-symbol mana-G">G</span>
+      </div>
+      
+      <h2 style="font-size: 36px; margin-bottom: 24px;">Stage 1 Complete</h2>
+      
+      <div style="background: rgba(255,255,255,0.05); padding: 32px; border-radius: 12px; margin-bottom: 32px; text-align: left;">
+        <p style="font-size: 18px; margin-bottom: 20px; font-weight: 600; text-align: center;">We've identified your strongest colors</p>
+        
+        <div style="margin: 20px 0; padding: 20px; background: rgba(139, 92, 246, 0.1); border-radius: 8px; text-align: center;">
+          <div id="inter-scores" style="font-size: 15px; line-height: 1.8; color: #d0d0d0;"></div>
+        </div>
+        
+        <p style="line-height: 1.8; margin-bottom: 20px; font-size: 15px; color: #d0d0d0;" id="inter-explanation">Explanation</p>
+        <p style="line-height: 1.8; font-size: 15px; color: #a0a0b0; font-weight: 500;" id="inter-next">Next step</p>
+      </div>
+      
+      <button class="btn-primary" onclick="continueToStage2()">Continue to Refinement</button>
+      <p style="margin-top: 16px; color: #808090; font-size: 13px;">A few more questions to clarify your exact combination</p>
+    </div>
+  </div>
+
+  <div id="screen-calculating" class="hidden">
+    <div class="card fade-in" style="text-align: center; min-height: 400px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+      <h2 style="font-size: 36px; margin-bottom: 32px;">Calculating Your Mana Curve...</h2>
+      
+      <div id="bouncing-symbols" style="display: flex; gap: 16px; margin-bottom: 32px;">
+        <span class="mana-symbol mana-W bounce-symbol" style="animation-delay: 0s;">W</span>
+        <span class="mana-symbol mana-U bounce-symbol" style="animation-delay: 0.1s;">U</span>
+        <span class="mana-symbol mana-B bounce-symbol" style="animation-delay: 0.2s;">B</span>
+        <span class="mana-symbol mana-R bounce-symbol" style="animation-delay: 0.3s;">R</span>
+        <span class="mana-symbol mana-G bounce-symbol" style="animation-delay: 0.4s;">G</span>
+      </div>
+      
+      <p style="color: #808090; font-size: 14px;">Analyzing your color distribution...</p>
+    </div>
+  </div>
+
+  <div id="screen-results" class="hidden">
+    <div class="card fade-in" style="text-align: center;">
+      <div style="display: flex; justify-content: center; gap: 12px; margin-bottom: 24px;">
+        <span class="mana-symbol mana-W">W</span>
+        <span class="mana-symbol mana-U">U</span>
+        <span class="mana-symbol mana-B">B</span>
+        <span class="mana-symbol mana-R">R</span>
+        <span class="mana-symbol mana-G">G</span>
+      </div>
+      <h1 style="font-size: 42px; margin-bottom: 16px;">Your Color Identity</h1>
+      <p style="color: #a0a0b0;">Based on <span id="tot-q">30</span> workplace decisions</p>
+    </div>
+    
+    <div class="result-card fade-in">
+      <div style="text-align: center;">
+        <div style="display: flex; justify-content: center; gap: 12px; margin-bottom: 24px;" id="res-syms"></div>
+        <h2 style="font-size: 48px; margin-bottom: 12px;" id="res-id">IDENTITY</h2>
+        <p style="font-size: 24px; color: #a0a0b0; margin-bottom: 16px;" id="res-tag">Tagline</p>
+        <span class="confidence-badge" id="conf-badge">CONFIDENCE</span>
+        <p style="margin-top: 12px; font-size: 13px; color: #808090; font-style: italic;" id="conf-exp">Explanation</p>
+      </div>
+      
+      <!-- LOW confidence alternatives - shown right here if LOW -->
+      <div id="alternative-results" style="display: none; margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.1);">
+        <div style="font-size: 14px; font-weight: 600; color: #a78bfa; margin-bottom: 16px;">🔀 You're Borderline. Could Also Be:</div>
+        <div style="background: rgba(139, 92, 246, 0.15); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+          <p style="font-size: 14px; color: #e0e0e0; line-height: 1.6;" id="why-explanation">Explanation</p>
+        </div>
+        <div id="alternatives-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px;"></div>
+      </div>
+      
+      <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.1);">
+        <div style="font-size: 13px; font-weight: 600; color: #a0a0b0; margin-bottom: 8px;">Why this identity:</div>
+        <p style="font-size: 14px; line-height: 1.6; color: #d0d0d0;" id="identity-exp">Explanation</p>
+      </div>
+    </div>
+    
+    <div class="card fade-in">
+      <h3 style="font-size: 24px; margin-bottom: 8px;">Your Profile</h3>
+      <p style="font-size: 13px; color: #808090; margin-bottom: 24px; font-style: italic;">What your colleagues already know but are too polite to say.</p>
+      
+      <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 10px; margin-bottom: 16px; border-left: 3px solid rgba(99, 102, 241, 0.5);">
+        <div style="font-size: 11px; font-weight: 600; color: #6366f1; text-transform: uppercase; margin-bottom: 8px;">💼 How Magic players might describe you to your face</div>
+        <p style="line-height: 1.8; font-size: 16px;" id="res-desc">Description</p>
+      </div>
+      
+      <div style="background: rgba(245, 158, 11, 0.08); padding: 20px; border-radius: 10px; margin-bottom: 24px; border-left: 3px solid rgba(245, 158, 11, 0.5);">
+        <div style="font-size: 11px; font-weight: 600; color: #F59E0B; text-transform: uppercase; margin-bottom: 8px;">🍺 How they describe you behind your back</div>
+        <p style="line-height: 1.6; font-size: 14px; color: #d0a070; font-style: italic;" id="res-counter">Counter description</p>
+      </div>
+      
+      <div style="background: rgba(255,255,255,0.05); padding: 24px; border-radius: 12px; margin: 24px 0; border: 1px solid rgba(255,255,255,0.1);">
+        <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #808090; margin-bottom: 12px;">⚡ Legendary Commander</div>
+        
+        <!-- Card Frame -->
+        <div style="background: linear-gradient(135deg, #2a2a3e 0%, #1f1f2e 100%); border: 3px solid rgba(139, 92, 246, 0.4); border-radius: 12px; padding: 16px; max-width: 500px;">
+          
+          <!-- Name and Mana Cost (top bar) -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 8px 12px; background: rgba(0,0,0,0.3); border-radius: 6px;">
+            <div style="font-size: 18px; font-weight: 700; color: #fff;" id="cmd-name">Commander</div>
+            <div id="cmd-cost" style="display: flex; gap: 3px;"></div>
+          </div>
+          
+          <!-- Type Line -->
+          <div style="padding: 6px 12px; background: rgba(0,0,0,0.2); border-radius: 4px; margin-bottom: 12px;">
+            <div style="font-size: 13px; color: #d0d0d0; font-weight: 600;">Legendary Creature</div>
+          </div>
+          
+          <!-- Card Text Box -->
+          <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; min-height: 120px; position: relative;">
+            <!-- Flavor text (our description) -->
+            <p style="color: #b0b0c0; font-size: 13px; font-style: italic; line-height: 1.5; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;" id="cmd-desc">Description</p>
+            
+            <!-- Oracle text (abilities) -->
+            <div id="cmd-oracle-text" style="font-size: 13px; color: #e0e0e0; line-height: 1.7;"></div>
+            
+            <!-- P/T in bottom right corner -->
+            <div id="cmd-pt" style="position: absolute; bottom: 12px; right: 12px; font-size: 20px; font-weight: 800; color: #fff; background: rgba(0,0,0,0.4); padding: 4px 12px; border-radius: 4px;"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 32px 0;" class="strengths-grid">
+        <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 20px;">
+          <h4 style="font-size: 18px; margin-bottom: 8px; color: #10B981;">⚔ Strengths</h4>
+          <p style="font-size: 11px; color: #6b9080; margin-bottom: 12px; font-style: italic;">Use them shamelessly</p>
+          <ul style="list-style: none; padding: 0;" id="strengths"></ul>
+        </div>
+        
+        <div style="background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 20px;">
+          <h4 style="font-size: 18px; margin-bottom: 8px; color: #EF4444;">⚠ Shadows</h4>
+          <p style="font-size: 11px; color: #9b6b6b; margin-bottom: 12px; font-style: italic;">Your colleagues see this, but give you credit anyway</p>
+          <ul style="list-style: none; padding: 0;" id="weaknesses"></ul>
+        </div>
+      </div>
+      
+      <div style="margin: 32px 0;">
+        <h4 style="font-size: 18px; margin-bottom: 8px;">📋 Stereotypical Roles</h4>
+        <p style="font-size: 12px; color: #808090; margin-bottom: 12px; font-style: italic;">Where this identity typically thrives:</p>
+        <p style="color: #a0a0b0; margin-bottom: 12px;" id="roles">Roles</p>
+      </div>
+    </div>
+    
+    <div class="card fade-in">
+      <h3 style="font-size: 24px; margin-bottom: 8px;">Your Mana Pool</h3>
+      <p style="font-size: 13px; color: #808090; margin-bottom: 24px; font-style: italic;">Your philosophical mana base. How you're actually built.</p>
+      <div id="breakdown"></div>
+    </div>
+    
+    <div style="text-align: center; margin-top: 32px;" class="fade-in">
+      <button class="btn-primary" onclick="restart()">Take It Again</button>
+      <p style="margin-top: 16px; color: #808090; font-size: 13px;">Retake it to get the result you wanted instead of who you actually are?</p>
+      <div style="margin-top: 20px; padding: 20px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; max-width: 600px; margin-left: auto; margin-right: auto;">
+        <p style="font-size: 12px; color: #F59E0B; font-weight: 600; margin-bottom: 8px;">⚠️ WARNING: NOT FOR OFFICIAL USE</p>
+        <p style="font-size: 11px; color: #d0a070; line-height: 1.6; margin-bottom: 6px;">Do not use this for hiring, firing, promoting, demoting, or any decision affecting actual humans.</p>
+        <p style="font-size: 11px; color: #d0a070; line-height: 1.6; margin-bottom: 6px;">This is a personality framework based on a trading card game about wizards fighting each other.</p>
+        <p style="font-size: 11px; color: #c09060; line-height: 1.6; font-style: italic;">Is this a joke? Unclear. But it's 30 years of game design about strategic philosophy, so it's not nothing.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+console.log('=== SCRIPT START ===');
+
+// ============================================================================
+// 40 RANDOM NAMES FOR QUOTE ATTRIBUTION
+// ============================================================================
+const QUOTE_NAMES = [
+  'Sarah', 'Marcus', 'Jennifer', 'David', 'Emily', 'James', 'Lisa', 'Michael',
+  'Amanda', 'Chris', 'Rachel', 'Tom', 'Nicole', 'Kevin', 'Ashley', 'Brian',
+  'Lauren', 'Matt', 'Stephanie', 'Dan', 'Michelle', 'Alex', 'Jessica', 'Ryan',
+  'Megan', 'John', 'Katie', 'Steve', 'Heather', 'Mark', 'Brittany', 'Paul',
+  'Crystal', 'Tim', 'Amber', 'Greg', 'Melissa', 'Josh', 'Rebecca', 'Scott'
+];
+
+function getRandomName() {
+  return QUOTE_NAMES[Math.floor(Math.random() * QUOTE_NAMES.length)];
+}
+
+// ============================================================================
+// MANA COST PARSER
+// ============================================================================
+function renderManaCost(costString) {
+  // Parse {2}{U}{U}{R} into individual symbols
+  const symbols = costString.match(/{[^}]+}/g) || [];
+  const html = symbols.map(symbol => {
+    const content = symbol.slice(1, -1); // Remove { }
+    
+    // Check if it's a number (generic mana)
+    if (/^\d+$/.test(content)) {
+      return `<span class="mana-symbol" style="background: linear-gradient(135deg, #9CA3AF, #6B7280); color: #1F2937; border-color: #4B5563; width: 28px; height: 28px; font-size: 14px; font-weight: 800;">${content}</span>`;
+    }
+    // Check if it's hybrid mana like {G/W}
+    else if (content.includes('/')) {
+      const [c1, c2] = content.split('/');
+      return `<span class="mana-symbol mana-${c1}" style="width: 28px; height: 28px; font-size: 14px; position: relative;">
+        <span style="position: absolute; top: 0; left: 0; width: 50%; height: 100%; overflow: hidden;">${c1}</span>
+        <span style="position: absolute; top: 0; right: 0; width: 50%; height: 100%; overflow: hidden;">${c2}</span>
+      </span>`;
+    }
+    // Regular colored mana
+    else {
+      return `<span class="mana-symbol mana-${content}" style="width: 28px; height: 28px; font-size: 14px;">${content}</span>`;
+    }
+  }).join('');
+  
+  return html;
+}
+
+const POOL_A = [
+  {id:'A-WB-001',pair:'W-B',ctx:'Team Leadership',sc:'Your project succeeded largely due to two star performers, though the whole team contributed.',r:[{t:'Celebrate it as a team victory and ensure everyone shares in the recognition and rewards',c:'W'},{t:'Ensure the star performers receive differentiated recognition reflecting their disproportionate impact',c:'B'}]},
+  {id:'A-WB-002',pair:'W-B',ctx:'Personal Development',sc:'You are offered a significant promotion requiring relocation away from your established community and family.',r:[{t:'Decline if it would disrupt important relationships and community connections',c:'W'},{t:'Accept if the career advancement and compensation justify the personal trade-offs',c:'B'}]},
+  {id:'A-WB-003',pair:'W-B',ctx:'Resource Allocation',sc:'Two initiatives need funding but budget only covers one. Both have merit but serve different stakeholder groups.',r:[{t:'Choose the initiative that benefits the broader group and serves more people fairly',c:'W'},{t:'Choose the initiative that best advances your department\'s strategic objectives',c:'B'}]},
+  {id:'A-WB-004',pair:'W-B',ctx:'Performance Management',sc:'You need to deliver feedback to a colleague whose work quality has declined noticeably.',r:[{t:'Focus on understanding what support they need and how the team can help them improve',c:'W'},{t:'Be direct about whether their current performance serves what you need from this role',c:'B'}]},
+  {id:'A-WB-005',pair:'W-B',ctx:'Conflict Resolution',sc:'A teammate bypasses the standard approval process to accelerate their project timeline.',r:[{t:'Address it to maintain procedural fairness and trust in our established systems',c:'W'},{t:'Assess whether their results justify the approach before deciding how to respond',c:'B'}]},
+  {id:'A-WB-006',pair:'W-B',ctx:'Strategic Planning',sc:'You are selecting a strategic partner. One shares your values and culture; another offers superior capabilities.',r:[{t:'Choose the partner whose values and culture align with your organization\'s principles',c:'W'},{t:'Choose the partner whose capabilities best serve your strategic objectives',c:'B'}]},
+  {id:'A-UR-001',pair:'U-R',ctx:'Crisis Management',sc:'A critical system is failing and customers are affected. Your team is looking to you for direction.',r:[{t:'Take 15 minutes to diagram the system architecture and identify root cause before acting',c:'U'},{t:'Trust your technical instinct and start trying solutions immediately to restore service',c:'R'}]},
+  {id:'A-UR-002',pair:'U-R',ctx:'Strategic Planning',sc:'A significant market opportunity appears but the window is closing quickly.',r:[{t:'Spend time analyzing market fit, competitive position, and resource requirements before committing',c:'U'},{t:'Move fast to capture the opportunity and figure out the details as you execute',c:'R'}]},
+  {id:'A-UR-003',pair:'U-R',ctx:'Innovation',sc:'Your team is developing a new solution to a complex customer problem.',r:[{t:'Research similar solutions, build prototypes, and test systematically before launch',c:'U'},{t:'Build something quickly, get it in customers\' hands, and iterate based on real feedback',c:'R'}]},
+  {id:'A-UR-004',pair:'U-R',ctx:'Conflict Resolution',sc:'Two team members have been arguing for 30 minutes in your meeting with no resolution in sight.',r:[{t:'Table the discussion, ask both parties to document their positions, and reconvene with analysis',c:'U'},{t:'Push for a decision right now even if imperfect—continuing the argument is wasting everyone\'s time',c:'R'}]},
+  {id:'A-UR-005',pair:'U-R',ctx:'Team Leadership',sc:'You are choosing between two final candidates: one has perfect credentials, one just feels right for the team.',r:[{t:'Choose based on objective qualifications, experience, and systematic evaluation of fit',c:'U'},{t:'Trust your gut instinct about who will actually succeed in your specific team culture',c:'R'}]},
+  {id:'A-UR-006',pair:'U-R',ctx:'Strategic Planning',sc:'Your leadership team is setting strategy for the next 18 months.',r:[{t:'Build detailed roadmaps with milestones, dependencies, and contingency plans before committing',c:'U'},{t:'Set ambitious directional goals and trust the team to figure out the path as opportunities emerge',c:'R'}]},
+  {id:'A-GU-007',pair:'G-U',ctx:'Change Management',sc:'Someone proposes replacing an established process with a new approach that theoretically improves efficiency.',r:[{t:'Be cautious—the current process works and has proven itself over time',c:'G'},{t:'Analyze whether the new approach genuinely optimizes outcomes before deciding',c:'U'}]},
+  {id:'A-GU-008',pair:'G-U',ctx:'Strategic Planning',sc:'Your organization is evaluating whether to adopt a new technology platform.',r:[{t:'Proceed carefully—current tools work fine and transitions are disruptive',c:'G'},{t:'Systematically evaluate whether the new platform delivers measurable improvements',c:'U'}]},
+  {id:'A-GU-009',pair:'G-U',ctx:'Team Leadership',sc:'You are designing a development program for your team\'s skill building.',r:[{t:'Build on existing expertise through mentorship and gradual skill deepening over time',c:'G'},{t:'Identify skill gaps systematically and design targeted training to optimize capabilities',c:'U'}]},
+  {id:'A-GU-010',pair:'G-U',ctx:'Innovation',sc:'Your team faces a complex operational challenge.',r:[{t:'Look at how similar challenges were successfully resolved in the past',c:'G'},{t:'Analyze the specific problem systematically to identify the optimal new solution',c:'U'}]},
+  {id:'A-GU-011',pair:'G-U',ctx:'Change Management',sc:'Leadership wants to reorganize team structure for better efficiency.',r:[{t:'Proceed slowly—current relationships and patterns have value that may be lost',c:'G'},{t:'Study the org structure analytically to determine what would genuinely improve performance',c:'U'}]},
+  {id:'A-GU-012',pair:'G-U',ctx:'Strategic Planning',sc:'Your company is considering entering a new market segment.',r:[{t:'Stick with core competencies and markets where you have proven track record',c:'G'},{t:'Analyze the new market opportunity systematically to determine strategic fit',c:'U'}]},
+  {id:'A-WR-007',pair:'W-R',ctx:'Crisis Management',sc:'A major issue requires immediate team response.',r:[{t:'Quickly organize a coordinated response ensuring everyone knows their role',c:'W'},{t:'Act decisively right now and coordinate as you go',c:'R'}]},
+  {id:'A-WR-008',pair:'W-R',ctx:'Strategic Planning',sc:'An unexpected opportunity appears requiring rapid decision-making.',r:[{t:'Convene stakeholders quickly to ensure alignment before committing',c:'W'},{t:'Seize it immediately before the window closes',c:'R'}]},
+  {id:'A-WR-009',pair:'W-R',ctx:'Performance',sc:'You need to give difficult feedback about team collaboration.',r:[{t:'Frame it in terms of team impact and collective improvement',c:'W'},{t:'Be direct and passionate about what needs to change immediately',c:'R'}]},
+  {id:'A-WR-010',pair:'W-R',ctx:'Conflict Resolution',sc:'Two team members have fundamentally different working styles causing friction.',r:[{t:'Facilitate a structured process for finding common ground and shared norms',c:'W'},{t:'Push them to address it directly and authentically right now',c:'R'}]},
+  {id:'A-WR-011',pair:'W-R',ctx:'Innovation',sc:'Your team is launching a bold new initiative.',r:[{t:'Ensure everyone is aligned on approach and coordinated in execution',c:'W'},{t:'Move fast with passion and adjust based on what you discover',c:'R'}]},
+  {id:'A-WR-012',pair:'W-R',ctx:'Team Leadership',sc:'Setting the culture and norms for your team.',r:[{t:'Establish clear shared values and processes that create fairness for everyone',c:'W'},{t:'Encourage authentic expression and trust people to be themselves',c:'R'}]},
+  {id:'A-BG-007',pair:'B-G',ctx:'Strategic Planning',sc:'An initiative has run 18 months with mediocre results.',r:[{t:'Cut losses now and reallocate resources to higher-potential opportunities',c:'B'},{t:'Give it more time—meaningful initiatives often take longer than expected',c:'G'}]},
+  {id:'A-BG-008',pair:'B-G',ctx:'Team Leadership',sc:'A member with unique expertise is becoming difficult, creating friction.',r:[{t:'Assess objectively whether their specialized value outweighs the disruption they cause',c:'B'},{t:'Invest in the relationship patiently—people evolve and team dynamics naturally improve',c:'G'}]},
+  {id:'A-BG-009',pair:'B-G',ctx:'Strategic Planning',sc:'Your market position is gradually eroding as competitors adopt more aggressive pricing strategies.',r:[{t:'Make decisive pricing moves now to regain competitive position even if margins suffer temporarily',c:'B'},{t:'Maintain pricing strategy and trust that quality and customer relationships will sustain the business',c:'G'}]},
+  {id:'A-BG-010',pair:'B-G',ctx:'Resource Allocation',sc:'Your organization needs critical capabilities quickly to compete effectively.',r:[{t:'Acquire them immediately through strategic hiring, partnerships, or acquisition',c:'B'},{t:'Develop them organically from within through patient mentorship and gradual skill building',c:'G'}]},
+  {id:'A-BG-011',pair:'B-G',ctx:'Innovation',sc:'Your flagship product has aging architecture and mounting technical debt but stable revenue and loyal customers.',r:[{t:'Invest in rebuilding it properly now even if it disrupts current customers temporarily',c:'B'},{t:'Continue evolving it incrementally to avoid disrupting what\'s working',c:'G'}]},
+  {id:'A-BG-012',pair:'B-G',ctx:'Strategic Planning',sc:'A long-standing partnership is providing diminishing returns as your strategic priorities evolve.',r:[{t:'Renegotiate terms aggressively or exit to reallocate resources to better opportunities',c:'B'},{t:'Maintain the relationship—partnerships often develop unexpected value over extended time',c:'G'}]}
+];
+const POOL_B = {
+  AZORIUS:[{sc:'Your organization needs new decision-making frameworks that work for everyone.',r:[{t:'Design comprehensive systematic processes ensuring both analytical rigor and equitable outcomes for all stakeholders',g:'AZORIUS'},{t:'Build inclusive community structures that allow people to develop shared approaches naturally over time',g:'SELESNYA'},{t:'Create analytical governance systems that strategically position your function for maximum influence',g:'DIMIR'}]},{sc:'You are implementing new policies that will affect how the entire team operates.',r:[{t:'Roll out systematic fair procedures with thorough documentation ensuring everyone understands and can apply them consistently',g:'AZORIUS'},{t:'Establish clear hierarchical protocols that serve organizational authority while maintaining fairness',g:'ORZHOV'},{t:'Let decision-making processes evolve organically based on what proves most effective in practice',g:'SIMIC'}]}],
+  SELESNYA:[{sc:'Shaping how your team works together and develops.',r:[{t:'Foster inclusive environment where people naturally support each other and grow sustainably',g:'SELESNYA'},{t:'Design systematic fair processes ensuring coordinated development',g:'AZORIUS'},{t:'Allow organic growth while thoughtfully optimizing team effectiveness',g:'SIMIC'}]},{sc:'Two team members have tension affecting group harmony.',r:[{t:'Create supportive space for the relationship to heal naturally while protecting team cohesion',g:'SELESNYA'},{t:'Mediate fairly while clarifying authority and what serves the organization',g:'ORZHOV'},{t:'Let them resolve it directly through authentic interaction',g:'GRUUL'}]}],
+  ORZHOV:[{sc:'Designing governance for a cross-functional initiative.',r:[{t:'Create transparent fair hierarchy ensuring authority serves both team and strategic needs',g:'ORZHOV'},{t:'Build inclusive consensus-based structure from community values',g:'SELESNYA'},{t:'Design governance appearing fair while strategically positioning you',g:'DIMIR'}]},{sc:'Setting performance standards balancing consistency with pragmatism.',r:[{t:'Establish equitable standards fairly while making pragmatic exceptions when necessary',g:'ORZHOV'},{t:'Create systematic objective criteria ensuring consistent fair evaluation',g:'AZORIUS'},{t:'Set realistic bars and pragmatically cycle out underperformers',g:'GOLGARI'}]}],
+  DIMIR:[{sc:'You have discovered valuable competitive information that could give you a significant advantage.',r:[{t:'Analyze it thoroughly and hold it strategically, only revealing when you can extract maximum positional advantage from the timing',g:'DIMIR'},{t:'Share it through appropriate channels while ensuring your role in discovering it is properly recognized by leadership',g:'ORZHOV'},{t:'Run rapid experiments to test what new approaches this information might enable for your work',g:'IZZET'}]},{sc:'You are deciding how much information to share with various stakeholders about your project progress and challenges.',r:[{t:'Share information selectively, revealing only what advances your strategic position while maintaining analytical understanding of impacts',g:'DIMIR'},{t:'Communicate progress thoughtfully and patiently, allowing stakeholders to naturally develop their own understanding over time',g:'SIMIC'},{t:'Be pragmatically transparent about what is working while letting less essential implementation details remain vague',g:'GOLGARI'}]}],
+  IZZET:[{sc:'Developing a new solution to a complex problem.',r:[{t:'Try multiple rapid experiments learning what works through iteration',g:'IZZET'},{t:'Research systematically then execute with passionate commitment',g:'JESKAI'},{t:'Test boldly while directing energy toward strategic objectives',g:'GRIXIS'}]},{sc:'Your approach to innovation and improvement.',r:[{t:'Experiment rapidly with novel approaches and learn from results',g:'IZZET'},{t:'Design optimal systems through thorough analysis',g:'AZORIUS'},{t:'Thoughtfully enhance existing solutions through understanding patterns',g:'SIMIC'}]}],
+  GRUUL:[{sc:'Your team is facing a high-stakes challenge that demands immediate powerful action.',r:[{t:'Apply overwhelming force directly, trusting the deep domain expertise and battle-tested approaches your team has proven over time',g:'GRUUL'},{t:'Rally everyone into passionate coordinated commitment, ensuring each person executes their role decisively as a unified force',g:'BOROS'},{t:'Foster an inclusive supportive environment where people can contribute naturally, building collaborative solutions together patiently',g:'SELESNYA'}]},{sc:'Your team needs to deliver critical results while working under significant time pressure and resource constraints.',r:[{t:'Leverage your proven strength and instinctive expertise to apply overwhelming force where it matters most',g:'GRUUL'},{t:'Experiment with multiple different approaches rapidly, learning quickly from each attempt to find what actually works',g:'IZZET'},{t:'Focus pragmatically on the sustainable high-impact areas where you can extract maximum value without burning out',g:'GOLGARI'}]}],
+  RAKDOS:[{sc:'Your organization is stuck in comfortable patterns.',r:[{t:'Force immediate disruptive change to break free and create opportunities for yourself',g:'RAKDOS'},{t:'Position strategically to capitalize when the status quo inevitably shifts',g:'DIMIR'},{t:'Smash through restrictions directly using your strength',g:'GRUUL'}]},{sc:'An opportunity to advance requires breaking conventions.',r:[{t:'Seize it passionately regardless of rules limiting you',g:'RAKDOS'},{t:'Experiment boldly with unconventional methods',g:'IZZET'},{t:'Make pragmatic moves positioning you in emerging landscape',g:'GOLGARI'}]}],
+  GOLGARI:[{sc:'Some organizational areas thrive while others decline.',r:[{t:'Harvest value from declining areas to sustainably fuel growing ones',g:'GOLGARI'},{t:'Analyze which to extract from and position in growth areas',g:'DIMIR'},{t:'Let natural evolution occur while optimizing what works',g:'SIMIC'}]},{sc:'Managing team at different career stages.',r:[{t:'Make pragmatic investment decisions while accepting natural career cycles',g:'GOLGARI'},{t:'Replace declining performers decisively to keep competitive',g:'RAKDOS'},{t:'Manage transitions fairly while ensuring organizational needs are met',g:'ORZHOV'}]}],
+  SIMIC:[{sc:'Current processes work but could theoretically improve.',r:[{t:'Analyze carefully and evolve gradually without disrupting what works',g:'SIMIC'},{t:'Let improvements emerge naturally from community while maintaining harmony',g:'SELESNYA'},{t:'Design systematic optimization ensuring fair efficient outcomes',g:'AZORIUS'}]},{sc:'Deciding your approach to innovation.',r:[{t:'Thoughtfully enhance existing solutions through deep understanding of patterns',g:'SIMIC'},{t:'Trust powerful instincts proven through experience',g:'GRUUL'},{t:'Systematically innovate for competitive advantage',g:'DIMIR'}]}],
+  BOROS:[{sc:'Leading a critical high-stakes initiative.',r:[{t:'Rally passionate coordinated commitment where everyone executes decisively together',g:'BOROS'},{t:'Drive powerful direct action based on proven approaches',g:'GRUUL'},{t:'Build inclusive supportive collaboration allowing natural contributions',g:'SELESNYA'}]},{sc:'Core values are challenged by external pressures.',r:[{t:'Fight passionately to defend what the community stands for with coordinated action',g:'BOROS'},{t:'Push back aggressively to protect your freedom and autonomy',g:'RAKDOS'},{t:'Systematically defend principles through proper procedures',g:'AZORIUS'}]}]
+};
+const POOL_C = {
+  BANT:[{sc:'Leading a complex cross-functional team.',r:[{t:'Foster inclusive patient community with systematic analytical coordination',g:'BANT'},{t:'Build supportive harmonious team developing naturally together',g:'SELESNYA'},{t:'Create comprehensive fair processes with optimal systematic structure',g:'AZORIUS'},{t:'Allow organic team evolution while thoughtfully optimizing effectiveness',g:'SIMIC'}]},{sc:'Planning a major initiative requiring coordination, analysis, and sustainability.',r:[{t:'Design systematic inclusive approach allowing patient strategic development for everyone',g:'BANT'},{t:'Create analytically optimal fair procedures ensuring coordinated execution',g:'AZORIUS'},{t:'Build community-based strategy emerging naturally from collective wisdom',g:'SELESNYA'}]}],
+  ESPER:[{sc:'Designing systems for maximum effectiveness and control.',r:[{t:'Create comprehensive calculated systems that are fair yet ruthlessly optimized for results',g:'ESPER'},{t:'Design systematic equitable processes ensuring analytical coordination',g:'AZORIUS'},{t:'Build fair hierarchy serving organizational power and strategic goals',g:'ORZHOV'},{t:'Develop analytical positioning systems serving competitive advantage',g:'DIMIR'}]},{sc:'Managing team performance with focus on efficiency.',r:[{t:'Implement fair systematic metrics making pragmatic calls on who delivers optimal outcomes',g:'ESPER'},{t:'Set equitable standards while making tough pragmatic decisions',g:'ORZHOV'},{t:'Create comprehensive analytical evaluation ensuring fair consistent assessment',g:'AZORIUS'}]}],
+  GRIXIS:[{sc:'Developing strategy to dominate a competitive situation.',r:[{t:'Analyze systematically and execute aggressive ruthless moves that position you to win',g:'GRIXIS'},{t:'Position strategically through patient analytical intelligence',g:'DIMIR'},{t:'Disrupt aggressively and break constraints to advance your interests',g:'RAKDOS'},{t:'Experiment boldly with innovative approaches and iterate rapidly',g:'IZZET'}]},{sc:'Executing a turnaround requiring smart aggressive moves.',r:[{t:'Execute analytically ruthless decisions with immediate decisive action',g:'GRIXIS'},{t:'Try multiple bold approaches rapidly learning what works',g:'IZZET'},{t:'Act immediately and aggressively to force transformation',g:'RAKDOS'}]}],
+  JUND:[{sc:'High-stakes competition requiring aggression and proven instincts.',r:[{t:'Trust battle-tested predatory instincts and pragmatically devour the competition',g:'JUND'},{t:'Attack immediately with disruptive aggressive action',g:'RAKDOS'},{t:'Make patient pragmatic extraction moves',g:'GOLGARI'},{t:'Apply overwhelming instinctive force',g:'GRUUL'}]},{sc:'Facing rivals for a critical resource.',r:[{t:'Leverage proven predatory instincts to ruthlessly outcompete',g:'JUND'},{t:'Attack immediately and disrupt their position aggressively',g:'RAKDOS'},{t:'Make patient pragmatic moves as they naturally weaken',g:'GOLGARI'}]}],
+  NAYA:[{sc:'Rallying organization around shared mission requiring collective strength.',r:[{t:'Mobilize passionate coordinated community action leveraging natural collective power',g:'NAYA'},{t:'Rally aggressive disciplined unified commitment to the mission',g:'BOROS'},{t:'Trust the group\'s powerful instincts and act forcefully together',g:'GRUUL'},{t:'Foster inclusive patient community building harmonious support',g:'SELESNYA'}]},{sc:'Defending community values through decisive coordinated action.',r:[{t:'Execute passionate unified action grounded in shared natural community strength',g:'NAYA'},{t:'Protect community values through inclusive patient collective support',g:'SELESNYA'},{t:'Fight aggressively with disciplined coordination for what the team stands for',g:'BOROS'}]}],
+  ABZAN:[{sc:'Making decisions affecting your organization for generations.',r:[{t:'Build enduring fair structures through pragmatic patient multi-generational thinking',g:'ABZAN'},{t:'Create inclusive sustainable community that develops naturally over time',g:'SELESNYA'},{t:'Establish fair hierarchy with pragmatic succession serving institutional power',g:'ORZHOV'},{t:'Make pragmatic investments in what survives natural cycles',g:'GOLGARI'}]},{sc:'Building capacity to endure through changing conditions.',r:[{t:'Create fair resilient systems through pragmatic acceptance of natural cycles',g:'ABZAN'},{t:'Build sustainability through pragmatic extraction and patient regeneration',g:'GOLGARI'},{t:'Design fair institutional frameworks serving long-term survival',g:'ORZHOV'}]}],
+  JESKAI:[{sc:'Leading high-performance team requiring excellence and discipline.',r:[{t:'Drive passionate systematic excellence through disciplined coordinated mastery',g:'JESKAI'},{t:'Rally aggressive coordinated commitment with intense disciplined execution',g:'BOROS'},{t:'Create comprehensive systematic processes ensuring fair optimal performance',g:'AZORIUS'},{t:'Experiment passionately with analytical learning and rapid iteration',g:'IZZET'}]},{sc:'Mastering complex skills through practice.',r:[{t:'Train passionately with systematic discipline until technique becomes instinct',g:'JESKAI'},{t:'Execute aggressively with coordinated disciplined commitment',g:'BOROS'},{t:'Study analytically to optimize approaches systematically',g:'AZORIUS'}]}],
+  SULTAI:[{sc:'Extracting maximum value while ensuring sustainability.',r:[{t:'Systematically extract optimal value through patient intelligent understanding of cycles',g:'SULTAI'},{t:'Position analytically to capitalize on opportunities methodically',g:'DIMIR'},{t:'Harvest pragmatically while accepting natural regenerative cycles',g:'GOLGARI'},{t:'Optimize thoughtfully for sustainable gradual evolution',g:'SIMIC'}]},{sc:'Managing resources for long-term value.',r:[{t:'Extract intelligently through patient pragmatic understanding of natural systems',g:'SULTAI'},{t:'Make pragmatic patient moves accepting natural cycles',g:'GOLGARI'},{t:'Position strategically through analytical intelligence',g:'DIMIR'}]}],
+  MARDU:[{sc:'Fast aggressive execution requiring coordination and pragmatism.',r:[{t:'Execute aggressive coordinated action with pragmatic focus on winning quickly',g:'MARDU'},{t:'Rally passionate unified disciplined assault',g:'BOROS'},{t:'Attack immediately and disruptively to force advantage',g:'RAKDOS'},{t:'Navigate strategically within structures to secure position',g:'ORZHOV'}]},{sc:'Seizing opportunities through speed and coordination.',r:[{t:'Move aggressively with coordinated pragmatic strikes to win fast',g:'MARDU'},{t:'Attack passionately with disciplined unified force',g:'BOROS'},{t:'Seize immediately and disrupt aggressively',g:'RAKDOS'}]}],
+  TEMUR:[{sc:'Solving problems through adaptive strength and intelligence.',r:[{t:'Apply powerful instinctive intelligence adapting rapidly to conditions',g:'TEMUR'},{t:'Trust overwhelming natural instincts and proven strength',g:'GRUUL'},{t:'Evolve thoughtfully through analytical understanding',g:'SIMIC'},{t:'Experiment boldly with adaptive innovative approaches',g:'IZZET'}]},{sc:'Adapting to change through intelligent natural strength.',r:[{t:'Leverage powerful adaptive intelligence responding to evolving conditions',g:'TEMUR'},{t:'Apply instinctive proven strength directly',g:'GRUUL'},{t:'Adapt incrementally through thoughtful analytical evolution',g:'SIMIC'}]}]
+};
+
+// ============================================================================
+// PROFILES WITH NORMAL AND PUB BANTER DESCRIPTIONS + ARCHETYPE EXAMPLES
+// ============================================================================
+const ARCHETYPE_EXAMPLES = [
+  {id: 'MONO-W', name: 'MONO-WHITE', colors: ['W'], 
+    normal: "They're really into making sure everything is fair and everyone follows the same rules. Very by-the-book.", 
+    banter: "Honestly they bog down every single decision with rule-checking. Can we just DO something without forming a committee?"},
+  {id: 'MONO-U', name: 'MONO-BLUE', colors: ['U'], 
+    normal: "They're the analytical type who likes to really think through problems systematically before acting.", 
+    banter: "Oh they're brilliant sure but good luck getting anything done. It's always Well actually we should analyze this more first."},
+  {id: 'MONO-B', name: 'MONO-BLACK', colors: ['B'], 
+    normal: "They're pretty pragmatic and not afraid to make tough calls when needed.", 
+    banter: "Look I'm just saying they'd absolutely throw you under the bus if it helped them. Everything's transactional with them."},
+  {id: 'MONO-R', name: 'MONO-RED', colors: ['R'], 
+    normal: "They're really passionate and tend to act quickly on their instincts.", 
+    banter: "They just DO things without thinking first. Half the time we're cleaning up after whatever they impulsively decided to blow up this week."},
+  {id: 'MONO-G', name: 'MONO-GREEN', colors: ['G'], 
+    normal: "They're patient and like to stick with approaches that have proven to work over time.", 
+    banter: "They resist literally every change. Their entire argument is We've always done it this way so why would we do it differently."},
+  {id: 'AZORIUS', name: 'AZORIUS', colors: ['W', 'U'], 
+    normal: "They're organized and systematic. They like clear processes that work for everyone.", 
+    banter: "I swear they will cite the handbook chapter and verse before letting us make any decision. Everything needs a policy document first."},
+  {id: 'DIMIR', name: 'DIMIR', colors: ['U', 'B'], 
+    normal: "They're strategic and tend to think several steps ahead about positioning.", 
+    banter: "Why do they know everything about everyone and never share what they know? Pretty sure they're BCCing leadership on literally every email."},
+  {id: 'RAKDOS', name: 'RAKDOS', colors: ['B', 'R'], 
+    normal: "They're bold and not afraid to shake things up to get results.", 
+    banter: "They're legitimately chaotic. They'll burn down the whole project for the drama and then laugh while we put out fires. It's unhinged."},
+  {id: 'GRUUL', name: 'GRUUL', colors: ['R', 'G'], 
+    normal: "They're direct and rely on proven strength to solve problems head-on.", 
+    banter: "Subtlety? Strategy? Never heard of it. They just smash through everything and ignore feedback like it doesn't exist."},
+  {id: 'SELESNYA', name: 'SELESNYA', colors: ['W', 'G'], 
+    normal: "They're really focused on team harmony and making sure everyone feels included.", 
+    banter: "We cannot make a single decision without a team-building exercise. Everything has to be consensus and it takes forever."},
+  {id: 'ORZHOV', name: 'ORZHOV', colors: ['W', 'B'], 
+    normal: "They're good at navigating organizational politics while maintaining fairness.", 
+    banter: "Every favor comes with interest later. They keep score on everything and weaponize policy the second it benefits them."},
+  {id: 'IZZET', name: 'IZZET', colors: ['U', 'R'], 
+    normal: "They're innovative and like to experiment with new approaches rapidly.", 
+    banter: "Did they test this? No. They just experimented on production again. And now they're yelling SCIENCE while everything's broken."},
+  {id: 'GOLGARI', name: 'GOLGARI', colors: ['B', 'G'], 
+    normal: "They're good at extracting value from situations and working with long cycles.", 
+    banter: "Why do they hoard every failed project? This workspace is a graveyard of ideas that died three years ago and won't stay buried."},
+  {id: 'SIMIC', name: 'SIMIC', colors: ['G', 'U'], 
+    normal: "They're thoughtful about improving existing systems without disrupting what works.", 
+    banter: "They optimize everything to death. Six months to improve a two-week process and somehow it's worse now."},
+  {id: 'BOROS', name: 'BOROS', colors: ['R', 'W'], 
+    normal: "They're passionate about team goals and rally people around shared missions.", 
+    banter: "Not everything is a crusade but they treat quarterly planning like D-Day. The intensity is just a lot."},
+  {id: 'BANT', name: 'BANT', colors: ['W', 'U', 'G'], 
+    normal: "They're balanced and strategic about building sustainable team outcomes.", 
+    banter: "Great another two-hour planning session for a ten-minute task. Yes we all need to weigh in for the good of the team apparently."},
+  {id: 'ESPER', name: 'ESPER', colors: ['W', 'U', 'B'], 
+    normal: "They're systematic and effective at creating well-designed processes.", 
+    banter: "Do they feel anything? Every conversation is like talking to a spreadsheet. Literally optimized the humanity out of this place."},
+  {id: 'GRIXIS', name: 'GRIXIS', colors: ['U', 'B', 'R'], 
+    normal: "They're strategically decisive and comfortable making bold moves.", 
+    banter: "Pretty sure they create half the crises just to solve them dramatically. The evil laugh in the break room is not helping their case."},
+  {id: 'JUND', name: 'JUND', colors: ['B', 'R', 'G'], 
+    normal: "They're competitive and trust their proven instincts in high-stakes situations.", 
+    banter: "Everything is a competition. They turn meetings into cage matches and dominate every single conversation. Exhausting."},
+  {id: 'NAYA', name: 'NAYA', colors: ['R', 'G', 'W'], 
+    normal: "They're enthusiastic team builders who bring a lot of energy to initiatives.", 
+    banter: "Why does every task need pep talks and a literal marching band. We just needed to update a spreadsheet not plan a parade."},
+  {id: 'ABZAN', name: 'ABZAN', colors: ['W', 'B', 'G'], 
+    normal: "They're traditional and good at building enduring organizational structures.", 
+    banter: "They block every new idea with We've always done it this way. Also they definitely keep a ledger of who owes them what."},
+  {id: 'JESKAI', name: 'JESKAI', colors: ['U', 'R', 'W'], 
+    normal: "They're skilled and pursue excellence through disciplined practice.", 
+    banter: "So smug about their technique. Everything you do is basic and they make sure you feel it. Working with them is like being in a seminar you didn't sign up for."},
+  {id: 'SULTAI', name: 'SULTAI', colors: ['B', 'G', 'U'], 
+    normal: "They're patient strategists who build influence methodically over time.", 
+    banter: "They co-opt your work and somehow it becomes part of their little empire. Very smooth about it. Very slimy."},
+  {id: 'MARDU', name: 'MARDU', colors: ['R', 'W', 'B'], 
+    normal: "They're intense about execution and will push hard to meet goals.", 
+    banter: "Every deadline is life or death. They glorify burnout as dedication and yes they will flip tables if things aren't moving fast enough."},
+  {id: 'TEMUR', name: 'TEMUR', colors: ['G', 'U', 'R'], 
+    normal: "They're adaptive and combine creative thinking with strong instincts.", 
+    banter: "Hold on tight because they'll pivot the entire strategy three times this week and you'll just have to deal with the whiplash."},
+  {id: 'WITCH', name: 'FOUR-COLOR (No Red)', colors: ['W', 'U', 'B', 'G'], 
+    normal: "They're comprehensive thinkers who approach things methodically without getting emotional.", 
+    banter: "It's like they're running a simulation. Zero passion zero urgency just spreadsheets making Monday last all week."},
+  {id: 'YORE', name: 'FOUR-COLOR (No Green)', colors: ['W', 'U', 'B', 'R'], 
+    normal: "They're innovative and like to redesign things rather than use traditional approaches.", 
+    banter: "They over-engineer everything. Simple solution? Nope needs seventeen moving parts and will break in two weeks requiring emergency fixes."},
+  {id: 'GLINT', name: 'FOUR-COLOR (No White)', colors: ['U', 'B', 'R', 'G'], 
+    normal: "They're creative and willing to work outside conventional boundaries.", 
+    banter: "Rules are for suckers according to them. They hijack projects for fun and leave smoking wreckage of what used to be a plan."},
+  {id: 'DUNE', name: 'FOUR-COLOR (No Blue)', colors: ['W', 'B', 'R', 'G'], 
+    normal: "They're action-oriented and trust their gut feelings over extended analysis.", 
+    banter: "They charge in on impulse every time. Planning never happens. Already yelling NO TIME NEXT while you're picking up pieces."},
+  {id: 'INK', name: 'FOUR-COLOR (No Black)', colors: ['W', 'U', 'R', 'G'], 
+    normal: "They're idealistic and genuinely want everyone to succeed.", 
+    banter: "They're trying to help everyone at once and it's a circus. Unintended confetti explosions everywhere. So chaotic but they mean well I guess."},
+  {id: 'WUBRG', name: 'FIVE-COLOR', colors: ['W', 'U', 'B', 'R', 'G'], 
+    normal: "They're versatile and can work with pretty much any approach or person.", 
+    banter: "They want everything at once. Kitchen sink in every project. I'm taking bets on which spinning plate crashes first."}
+];
+
+// ============================================================================
+// COMMANDER ORACLE TEXT - ALL COMMANDERS
+// ============================================================================
+const COMMANDER_ORACLE = {
+  // MONO-COLOR
+  'Heliod, God of the Sun': {
+    cost: '{3}{W}',
+    pt: '5/6',
+    text: ['Indestructible', 'As long as your devotion to white is less than five, Heliod isn\'t a creature.', 'Other creatures you control have vigilance.', '{2}{W}{W}: Create a 2/1 white Cleric enchantment creature token.']
+  },
+  'Urza, Lord High Artificer': {
+    cost: '{2}{U}{U}',
+    pt: '1/4',
+    text: ['When Urza enters, create a 0/0 colorless Construct artifact creature token with "This creature gets +1/+1 for each artifact you control."', 'Tap an untapped artifact you control: Add {U}.', '{5}: Shuffle your library, then exile the top card. Until end of turn, you may play that card without paying its mana cost.']
+  },
+  "K'rrik, Son of Yawgmoth": {
+    cost: '{4}{B/P}{B/P}{B/P}',
+    pt: '2/2',
+    text: ['({B/P} can be paid with either {B} or 2 life.)', 'Lifelink', 'For each {B} in a cost, you may pay 2 life rather than pay that mana.', 'Whenever you cast a black spell, put a +1/+1 counter on K\'rrik.']
+  },
+  'Krenko, Mob Boss': {
+    cost: '{2}{R}{R}',
+    pt: '3/3',
+    text: ['{T}: Create X 1/1 red Goblin creature tokens, where X is the number of Goblins you control.']
+  },
+  'Omnath, Locus of Mana': {
+    cost: '{2}{G}',
+    pt: '1/1',
+    text: ['You don\'t lose unspent green mana as steps and phases end.', 'Omnath gets +1/+1 for each unspent green mana you have.']
+  },
+  
+  // TWO-COLOR GUILDS
+  'Grand Arbiter Augustin IV': {
+    cost: '{2}{W}{U}',
+    pt: '2/3',
+    text: ['White spells you cast cost {1} less to cast.', 'Blue spells you cast cost {1} less to cast.', 'Spells your opponents cast cost {1} more to cast.']
+  },
+  'Obzedat, Ghost Council': {
+    cost: '{1}{W}{W}{B}{B}',
+    pt: '5/5',
+    text: ['When Obzedat enters, target opponent loses 2 life and you gain 2 life.', 'At the beginning of your end step, you may exile Obzedat. If you do, return it to the battlefield under your control at the beginning of your next upkeep. It gains haste.']
+  },
+  'Niv-Mizzet, Parun': {
+    cost: '{U}{U}{U}{R}{R}{R}',
+    pt: '5/5',
+    text: ['This spell can\'t be countered.', 'Flying', 'Whenever you draw a card, Niv-Mizzet deals 1 damage to any target.', 'Whenever a player casts an instant or sorcery spell, you draw a card.']
+  },
+  'Borborygmos Enraged': {
+    cost: '{4}{R}{R}{G}{G}',
+    pt: '7/6',
+    text: ['Trample', 'Whenever Borborygmos Enraged deals combat damage to a player, reveal the top three cards of your library. Put all land cards revealed this way into your hand and the rest into your graveyard.', 'Discard a land card: Borborygmos Enraged deals 3 damage to any target.']
+  },
+  'Rakdos, Lord of Riots': {
+    cost: '{B}{B}{R}{R}',
+    pt: '6/6',
+    text: ['You can\'t cast this spell unless an opponent lost life this turn.', 'Flying, trample', 'Creature spells you cast cost {1} less to cast for each 1 life your opponents have lost this turn.']
+  },
+  'Meren of Clan Nel Toth': {
+    cost: '{2}{B}{G}',
+    pt: '3/4',
+    text: ['Whenever another creature you control dies, you get an experience counter.', 'At the beginning of your end step, choose target creature card in your graveyard. If that card\'s mana value is less than or equal to the number of experience counters you have, return it to the battlefield. Otherwise, put it into your hand.']
+  },
+  'Prime Speaker Vannifar': {
+    cost: '{2}{G}{U}',
+    pt: '2/4',
+    text: ['{T}, Sacrifice another creature: Search your library for a creature card with mana value equal to 1 plus the sacrificed creature\'s mana value, put that card onto the battlefield, then shuffle. Activate only as a sorcery.']
+  },
+  'Aurelia, the Warleader': {
+    cost: '{2}{R}{R}{W}{W}',
+    pt: '3/4',
+    text: ['Flying, vigilance, haste', 'Whenever Aurelia attacks for the first time each turn, untap all creatures you control. After this phase, there is an additional combat phase.']
+  },
+  
+  // THREE-COLOR
+  'Rafiq of the Many': {
+    cost: '{1}{G}{W}{U}',
+    pt: '3/3',
+    text: ['Exalted (Whenever a creature you control attacks alone, that creature gets +1/+1 until end of turn.)', 'Whenever a creature you control attacks alone, it gains double strike until end of turn.']
+  },
+  'Oloro, Ageless Ascetic': {
+    cost: '{3}{W}{U}{B}',
+    pt: '4/5',
+    text: ['At the beginning of your upkeep, if Oloro is on the battlefield, you gain 2 life.', 'At the beginning of your upkeep, if Oloro is in the command zone, you gain 2 life.', 'Pay 3 life: Draw a card.']
+  },
+  'Nekusar, the Mindrazer': {
+    cost: '{2}{U}{B}{R}',
+    pt: '2/4',
+    text: ['At the beginning of each player\'s draw step, that player draws an additional card.', 'Whenever an opponent draws a card, Nekusar deals 1 damage to that player.']
+  },
+  'Prossh, Skyraider of Kher': {
+    cost: '{3}{B}{R}{G}',
+    pt: '5/5',
+    text: ['When you cast this spell, create X 0/1 red Kobold creature tokens named Kobolds of Kher Keep, where X is the amount of mana spent to cast it.', 'Flying', 'Sacrifice another creature: Prossh gets +1/+0 until end of turn.']
+  },
+  'Samut, Voice of Dissent': {
+    cost: '{3}{R}{G}{W}',
+    pt: '3/4',
+    text: ['Flash', 'Double strike, vigilance, haste', 'Other creatures you control have haste.', '{W}: Untap another target creature.']
+  },
+  'Anafenza, the Foremost': {
+    cost: '{W}{B}{G}',
+    pt: '4/4',
+    text: ['Whenever Anafenza attacks, put a +1/+1 counter on another target tapped creature you control.', 'If a nontoken creature an opponent owns would die or a creature card not on the battlefield would be put into an opponent\'s graveyard, exile that card instead.']
+  },
+  'Narset, Enlightened Master': {
+    cost: '{3}{U}{R}{W}',
+    pt: '3/2',
+    text: ['First strike, hexproof', 'Whenever Narset attacks, exile the top four cards of your library. Until end of turn, you may cast noncreature spells from among those cards without paying their mana costs.']
+  },
+  'Sidisi, Brood Tyrant': {
+    cost: '{1}{B}{G}{U}',
+    pt: '3/3',
+    text: ['Whenever Sidisi enters or attacks, mill three cards.', 'Whenever one or more creature cards are put into your graveyard from your library, create a 2/2 black Zombie creature token.']
+  },
+  'Queen Marchesa': {
+    cost: '{1}{R}{W}{B}',
+    pt: '3/3',
+    text: ['Deathtouch, haste', 'When Queen Marchesa enters, you become the monarch.', 'At the beginning of your upkeep, if an opponent is the monarch, create a 1/1 black Assassin creature token with deathtouch and haste.']
+  },
+  'Surrak Dragonclaw': {
+    cost: '{2}{G}{U}{R}',
+    pt: '6/6',
+    text: ['Flash', 'This spell can\'t be countered.', 'Creature spells you control can\'t be countered.', 'Other creatures you control have trample.']
+  },
+  
+  // FOUR-COLOR
+  'Breya, Etherium Shaper': {
+    cost: '{W}{U}{B}{R}',
+    pt: '4/4',
+    text: ['When Breya enters, create two 1/1 blue Thopter artifact creature tokens with flying.', '{2}, Sacrifice two artifacts: Choose one —', '• Breya deals 3 damage to target player or planeswalker.', '• Target creature gets -4/-4 until end of turn.', '• You gain 5 life.']
+  },
+  'Yidris, Maelstrom Wielder': {
+    cost: '{U}{B}{R}{G}',
+    pt: '5/4',
+    text: ['Trample', 'Whenever Yidris deals combat damage to a player, as you cast spells from your hand this turn, they gain cascade.']
+  },
+  'Saskia the Unyielding': {
+    cost: '{B}{R}{G}{W}',
+    pt: '3/4',
+    text: ['Vigilance, haste', 'As Saskia enters, choose a player.', 'Whenever a creature you control deals combat damage to a player, it deals that much damage to the chosen player.']
+  },
+  'Kynaios and Tiro of Meletis': {
+    cost: '{R}{G}{W}{U}',
+    pt: '2/8',
+    text: ['At the beginning of your end step, draw a card.', 'Each player may put a land card from their hand onto the battlefield, then each opponent who didn\'t draws a card.']
+  },
+  
+  // FIVE-COLOR
+  'Kenrith, the Returned King': {
+    cost: '{4}{W}',
+    pt: '5/5',
+    text: ['{R}: All creatures gain trample and haste until end of turn.', '{1}{G}: Put a +1/+1 counter on target creature.', '{2}{W}: Target player gains 5 life.', '{3}{U}: Target player draws a card.', '{4}{B}: Put target creature card from a graveyard onto the battlefield under its owner\'s control.']
+  }
+};
+
+const PROFILES = {
+  'MONO-W':{
+    name:'MONO-WHITE',
+    tag:'Peace Through Structure',
+    colors:['W'],
+    desc:"You're someone who believes in community, fairness, and moral order. You build systems that protect everyone and ensure justice.",
+    pubBanter:"You're an absolute stickler who bogs down every decision with rule-checking. Can we just make a decision without consulting the entire team?",
+    cmd:'Heliod, God of the Sun',
+    cmdDesc:'Protects the team through structure and moral authority, creating systems everyone follows',
+    str:['Exceptional at building cohesive teams','Strong ethical compass guides decisions','Creates stable fair systems','Makes decisions everyone accepts as fair','Builds institutions that last'],
+    weak:['Gets stuck enforcing rules rigidly','Struggles with moral gray areas','Can be naive about bad actors','Slow to adapt to change','Sometimes sacrifices efficiency for fairness'],
+    roles:'HR Leadership, Master of Ceremonies, Compliance, Ethics, Community Management'
+  },
+  'MONO-U':{
+    name:'MONO-BLUE',
+    tag:'Perfection Through Knowledge',
+    colors:['U'],
+    desc:"You're someone who believes knowledge and analysis lead to optimal outcomes. You solve problems through systematic thinking and continuous improvement.",
+    pubBanter:"You're an insufferable know-it-all. It's always Well actually before every decision. Can we stop analyzing and just DO something?",
+    cmd:'Urza, Lord High Artificer',
+    cmdDesc:'Solves every problem through analysis and systematic thinking, always optimizing',
+    str:['Superior analytical and strategic thinking','Continuously learns and improves','Plans strategically before acting','Excellent at solving complex problems','Makes objective data-driven decisions'],
+    weak:['Paralyzes through over-analysis','Comes across as emotionally distant','Over-complicates simple problems','Can be arrogant about intelligence','Struggles when there is no clear answer'],
+    roles:'Strategy, Research, Minister of Inquiries, Analytics, Architecture'
+  },
+  'MONO-B':{
+    name:'MONO-BLACK',
+    tag:'Power Through Agency',
+    colors:['B'],
+    desc:"You're someone who believes in pragmatic self-interest and making hard calls. You achieve goals through clear-eyed assessment of reality.",
+    pubBanter:"You're ruthlessly pragmatic and everything is transactional. Does everything have to be a calculation about what you get out of it?",
+    cmd:"K'rrik, Son of Yawgmoth",
+    cmdDesc:'Power at any cost—pays life for mana, ruthless ambition',
+    str:['Takes decisive action','Clear about priorities and trade-offs','Politically savvy and strategic','Makes tough calls others avoid','Relentlessly results-oriented'],
+    weak:['Amoral pragmatism','Has serious trust issues','Exploits people and situations','Focuses too much on short-term gains','Alienates people through self-interest'],
+    roles:'Executive Leadership, Gravedigger, M&A, Private Equity, Strategy'
+  },
+  'MONO-R':{
+    name:'MONO-RED',
+    tag:'Freedom Through Action',
+    colors:['R'],
+    desc:"You're someone who believes in authentic expression and immediate action. You trust your instincts and act with passion.",
+    pubBanter:"You're a complete loose cannon. Could you think about things for like five minutes first? We're always cleaning up after your impulsive decisions.",
+    cmd:'Krenko, Mob Boss',
+    cmdDesc:'Acts on instinct and passion immediately, creating chaotic momentum',
+    str:['Executes incredibly fast','Engages authentically with real passion','Brings energizing disruptive presence','Comfortable taking big risks','Has strong bias toward action'],
+    weak:['Makes impulsive poor decisions','Terrible at planning ahead','Creates chaos everywhere','Burns out quickly','Lacks strategic thinking completely'],
+    roles:'Startups, Sales, Professional Face-Breaker, Crisis Response, Creative Roles'
+  },
+  'MONO-G':{
+    name:'MONO-GREEN',
+    tag:'Growth Through Acceptance',
+    colors:['G'],
+    desc:"You're someone who believes in natural growth, patience, and respecting what works. You trust proven patterns and organic development.",
+    pubBanter:"You're a stubborn bulldozer who resists every change. Your entire argument is We've always done it this way. That's it. That's the whole argument.",
+    cmd:'Omnath, Locus of Mana',
+    cmdDesc:"Doesn't lose mana, grows from accumulated green—patient compound power",
+    str:['Patient with long-term development','Respects what has worked before','Builds sustainable lasting practices','Develops from existing strengths','Thinks long-term instinctively'],
+    weak:['Resists necessary changes','Too passive about problems','Actively anti-innovation','Makes decisions painfully slowly','Gets stuck in the past'],
+    roles:'Operations, Master Chef, Agriculture, Sustainability, Mentorship'
+  },
+  'AZORIUS':{
+    name:'AZORIUS',
+    tag:'Order Through Knowledge',
+    colors:['W','U'],
+    desc:"You're someone who combines moral order with logical perfection for systematic control. You build comprehensive rules fairly and efficiently applied.",
+    pubBanter:"They become the walking pile of red tape who will cite chapter and verse of the rulebook to veto anything fun, turning even a trivial task into a drawn-out committee meeting that could have been an email.",
+    cmd:'Grand Arbiter Augustin IV',
+    cmdDesc:'Controls through comprehensive fair systems, combining law and logic',
+    str:['Exceptional at governance and structure','Plans comprehensively before acting','Makes systematic fair decisions','Creates stable reliable environments','Thinks strategically'],
+    weak:['Paralyzes through over-analysis','Bureaucratically slow at everything','Worships rules over actual outcomes','Stifles innovation and creativity','Needs the perfect plan before moving'],
+    roles:'COO, Deputy of Detention, Compliance, Strategic Planning, Governance'
+  },
+  'SELESNYA':{
+    name:'SELESNYA',
+    tag:'Community Through Nature',
+    colors:['W','G'],
+    desc:"You're someone who combines organized community with organic interconnection for living harmony. Communities that are both alive and coordinated.",
+    pubBanter:"You're an overbearing team-builder. Can we fire anyone? Ever? Every conflict needs healing and patience. Every 1-on-1 becomes a team retreat.",
+    cmd:"Trostani, Selesnya's Voice",
+    cmdDesc:'Builds living community where everyone grows together harmoniously',
+    str:['Exceptional at building cohesive teams','Develops people and systems sustainably','Resolves conflicts naturally','Creates psychologically safe spaces','Patient mentor to everyone'],
+    weak:['Seeks excessive consensus for everything','Can be naive about bad actors','Resists necessary accountability','Can become cult-like about team','Slow to cut obvious losses'],
+    roles:'Chief People Officer, Centaur Peacemaker, HR, Culture & Values, Team Leads'
+  },
+  'ORZHOV':{
+    name:'ORZHOV',
+    tag:'Structure Through Power',
+    colors:['W','B'],
+    desc:"You're someone who combines systematic structure with self-interested ambition for organized extraction. Fair hierarchies serving strategic goals.",
+    pubBanter:"They become a soul-sucking bureaucrat in a fancy suit, the type who enforces every policy to the letter when it benefits them, extorts favors under the guise of procedure, and generally taxes everyone time and energy like a one-person corporate vampire.",
+    cmd:'Obzedat, Ghost Council',
+    cmdDesc:'Extracts value through fair-seeming hierarchies and political leverage',
+    str:['Building lasting institutions','Allocates resources pragmatically','Navigates politics expertly','Creates clear advancement paths','Balances ambition with sustainability'],
+    weak:['Enables corruption and exploitation','Treats people as extractable resources','Creates Byzantine political games','Favors well-connected over capable people','Preserves genuinely unjust hierarchies'],
+    roles:'COO, Finance, High Priest of Penance, Legal/Compliance, Senior Management'
+  },
+  'DIMIR':{
+    name:'DIMIR',
+    tag:'Intelligence Through Control',
+    colors:['U','B'],
+    desc:"You're someone who combines knowledge-seeking with power-seeking to weaponize information. You win through patient strategic positioning.",
+    pubBanter:"You're an information hoarder. Why do you know that? Why won't you share what you know? Always playing 4D chess when we're playing checkers.",
+    cmd:"Yuriko, the Tiger's Shadow",
+    cmdDesc:'Wins through information control and patient strategic positioning',
+    str:['Masters strategic positioning','Gathers information systematically','Reads situations and people expertly','Plays the long game patiently','Masters political maneuvering'],
+    weak:['Has serious trust issues','Over-complicates everything unnecessarily','Alienates people through secrecy','Has serious ethical blind spots','Becomes paranoid easily'],
+    roles:'Strategic Planning, Hostage Taker, M&A, Competitive Intelligence, VC/PE'
+  },
+  'IZZET':{
+    name:'IZZET',
+    tag:'Discovery Through Experimentation',
+    colors:['U','R'],
+    desc:"You're someone who combines analytical curiosity with experimental courage for mad science. You innovate through bold testing.",
+    pubBanter:"You're a scatterbrained mad scientist. Did you test this? At all? You experiment on production and yell SCIENCE when it breaks.",
+    cmd:'Niv-Mizzet, Parun',
+    cmdDesc:'Innovates through rapid experimentation and bold testing',
+    str:['Achieves genuine breakthrough innovation','Learns fast through rapid iteration','Solves problems creatively','Has high tolerance for failure','Brings energizing disruptive presence'],
+    weak:['Experiments recklessly on people','Lacks follow-through completely','Has serious ethical blind spots','Creates exhausting chaos','Moves fast and breaks everything'],
+    roles:'R&D, Goblin Electromancer, Innovation Labs, Product Development, Startups'
+  },
+  'GRUUL':{
+    name:'GRUUL',
+    tag:'Power Through Instinct',
+    colors:['R','G'],
+    desc:"You're someone who combines passionate action with primal strength for unstoppable force. You trust gut instinct and apply overwhelming power.",
+    pubBanter:"You're a rampaging barbarian. Have you considered thinking about things? Spreadsheets are the enemy. Smash first ask questions never.",
+    cmd:'Borborygmos Enraged',
+    cmdDesc:'Applies overwhelming direct force based on gut instinct',
+    str:['Takes decisive action','Has physical and moral courage','Communicates with authentic directness','Fights hard for what matters','Cuts through complexity fast'],
+    weak:['Anti-intellectual by default','Destroys more than builds','Terrible at long-term planning','Uncomfortable with any politics','Defaults to smashing through problems'],
+    roles:'Operations, Sales, Grand Warlord Radha, Construction, Military, Crisis Response'
+  },
+  'RAKDOS':{
+    name:'RAKDOS',
+    tag:'Freedom Through Chaos',
+    colors:['B','R'],
+    desc:"You're someone who combines self-interest with passionate action for uninhibited pursuit. You do what you want without apology.",
+    pubBanter:"You're the chaos-loving prankster who treats coworkers like an unwitting audience for destructive antics, gleefully burning down hours of work for the LOLs while everyone else scrambles to put out the fires.",
+    cmd:'Rakdos, Lord of Riots',
+    cmdDesc:'Pursues self-interest passionately without restraint or apology',
+    str:['Takes decisive bold action','Engages authentically with real passion','Cuts through pretense instantly','Brings energizing disruptive presence','Breaks rules that actually need breaking'],
+    weak:['Recklessly destroys things','Burns out everyone around them','Creates zero sustainability','Has serious ethical blind spots','Creates exhausting constant chaos'],
+    roles:'Disruptive Startups, Master of Cruelties, Aggressive Sales, Entertainment, Activism'
+  },
+  'GOLGARI':{
+    name:'GOLGARI',
+    tag:'Growth Through Decay',
+    colors:['B','G'],
+    desc:"You're someone who combines use of death with acceptance of cycles for sustainable extraction. You harvest without killing the host.",
+    pubBanter:"You're a morbid hoarder. Why is everything a metaphor about death and compost? You view layoffs as natural cycles which is unsettling.",
+    cmd:'Meren of Clan Nel Toth',
+    cmdDesc:'Extracts sustainable value from death and decay cycles',
+    str:['Long-term patient building','Resource efficiency','Comfortable with endings','Builds sustainable lasting practices','Resilient through cycles'],
+    weak:['Morbid focus on death','Can be parasitic','Passive about injustice','Slow to act','Fatalistic'],
+    roles:'Sustainability, Deathrite Shaman, Turnaround/Restructuring, Operations'
+  },
+  'SIMIC':{
+    name:'SIMIC',
+    tag:'Evolution Through Design',
+    colors:['G','U'],
+    desc:"You're someone who combines organic growth with optimization for directed evolution. You carefully improve natural systems.",
+    pubBanter:"You're an overzealous lab geek. Can we ship something that's 80 percent instead of waiting for perfect? You optimize everything to death.",
+    cmd:'Prime Speaker Vannifar',
+    cmdDesc:'Evolves systems through careful optimization and adaptation',
+    str:['Innovates sustainably over time','Improves things patiently and thoughtfully','Respects and works with existing systems','Develops capabilities for the long-term','Experiments thoughtfully not recklessly'],
+    weak:['Paralyzes through over-analysis','Arrogance about knowledge','Playing god','Too slow when urgent','Constant internal conflict'],
+    roles:'Product Management, Coiling Oracle, Process Improvement, Biotech, UX Research'
+  },
+  'BOROS':{
+    name:'BOROS',
+    tag:'Justice Through Action',
+    colors:['R','W'],
+    desc:"You're someone who combines passionate action with moral purpose for zealous execution. You fight passionately for just causes.",
+    pubBanter:"You're an overzealous drill sergeant. Not everything is a crusade. You treat quarterly planning like D-Day. The intensity is exhausting.",
+    cmd:'Aurelia, the Warleader',
+    cmdDesc:'Executes passionately for just causes with relentless force',
+    str:['Takes decisive mission-driven action','Builds high-performing intense teams','Confronts problems courageously','Commits passionately to goals','Excellent in actual crisis situations'],
+    weak:['Violence as only solution','Zealotry','Poor at subtle navigation','Struggles with patience','With us or against us'],
+    roles:'Military, Sunhome Enforcer, Crisis Management, Mission Nonprofits, Sales Leadership'
+  },
+  'BANT':{
+    name:'BANT',
+    tag:'Harmony Through Structure',
+    colors:['W','U','G'],
+    desc:"You're someone who combines order, analysis, and natural growth for harmonious civilization. Patient coordinated excellence.",
+    pubBanter:"They become the sanctimonious project manager who wraps micromanagement in a smiley for the good of the team blanket, relentlessly organizing, scheduling team yoga sessions, and smothering any creative spark under so many best practices and polite check-ins that you long for one un-scheduled hour to actually get work done.",
+    cmd:'Rafiq of the Many',
+    cmdDesc:'Coordinates patient strategic excellence through harmony',
+    str:['Exceptional balanced leadership','Patient sustainable development','Strategic and people-focused','Psychologically safe environments','Combines three colors'],
+    weak:['Excessively slow','Naive about conflict','Cannot make tough calls','Too process-heavy','Lacks urgency'],
+    roles:'Executive Leadership, Empyrial Archangel, Strategic HR, Educational Leadership'
+  },
+  'ESPER':{
+    name:'ESPER',
+    tag:'Perfection Through Control',
+    colors:['W','U','B'],
+    desc:"You're someone who combines order, analysis, and ruthless power for cold calculated dominance. Excellence without emotion or nature.",
+    pubBanter:"You're a high-handed micromanager. Do you feel anything? You optimize everything including human relationships. Spreadsheets have feelings people don't.",
+    cmd:'Oloro, Ageless Ascetic',
+    cmdDesc:'Dominates through emotionless calculated perfection',
+    str:['Superior systematic and strategic thinking','Ruthlessly effective at execution','Exercises comprehensive control','Positions strategically with patience','Achieves excellence in governance'],
+    weak:['Emotionally sterile and cold','Optimizes amorally without conscience','Slow to act','Actively destroys innovation and creativity','Treats people like replaceable components'],
+    roles:'CFO/Finance, Ethersworn Adjudicator, Chief Compliance, Strategic Operations'
+  },
+  'GRIXIS':{
+    name:'GRIXIS',
+    tag:'Power Through Ruthless Action',
+    colors:['U','B','R'],
+    desc:"You're someone who combines intelligence, ruthlessness, and decisive action for amoral competence. Smart and ruthless.",
+    pubBanter:"You're a cackling instigator. Are you the villain? You create crises to solve them dramatically. The laugh doesn't help.",
+    cmd:'Nekusar, the Mindrazer',
+    cmdDesc:'Combines intelligence with ruthless decisive action',
+    str:['Decisive strategic action','Comfortable with difficult decisions','Masters political maneuvering','Rapid learning','High-performance culture'],
+    weak:['Cruel and actively destructive','Makes trust completely impossible','Burns out team members','Creates genuine ethical disasters','Creates unstable competitive culture'],
+    roles:'Turnaround CEO, Sedris the Traitor King, Competitive Strategy, High-Stakes Trading'
+  },
+  'JUND':{
+    name:'JUND',
+    tag:'Survival Through Hunger',
+    colors:['B','R','G'],
+    desc:"You're someone who combines predation, passion, and natural selection for brutal survival. The food chain incarnate.",
+    pubBanter:"You're an office predator. Is everything a competition? You turn meetings into cage matches and dominate every conversation.",
+    cmd:'Prossh, Skyraider of Kher',
+    cmdDesc:'Survives through predatory instinct and brutal competition',
+    str:['Has aggressive competitive drive','Solves problems directly and forcefully','Drives high performance through competition','Brutally honest about power dynamics','Has strong survivor mentality'],
+    weak:['Brutal and actively exploitative','Creates zero sustainability','Practices actual social Darwinism','Completely lacks sophistication','Creates genuinely toxic competitive culture'],
+    roles:'Aggressive Sales, Karrthus Tyrant of Jund, Competitive Industries, Startups, Sports, PE'
+  },
+  'NAYA':{
+    name:'NAYA',
+    tag:'Power Through Community',
+    colors:['R','G','W'],
+    desc:"You're someone who combines passion, strength, and community for exuberant collective power. Big hearts, big ideas.",
+    pubBanter:"You're an overenthusiastic steamroller. Why does every task need to be an EPIC ADVENTURE? We just needed to update a spreadsheet.",
+    cmd:'Samut, Voice of Dissent',
+    cmdDesc:'Builds exuberant collective power through passionate community',
+    str:['Provides inspiring genuine leadership','Creates high-energy enthusiastic teams','Builds strong vibrant communities','Launches bold ambitious initiatives','Engages with authentic real passion'],
+    weak:['Exhausting enthusiasm','Lacks subtlety','Can be naive','Overwhelming','Ignores details'],
+    roles:'Startups, Marketing, Atla Palani Nest Tender, Sales, Event Planning, Community Building'
+  },
+  'ABZAN':{
+    name:'ABZAN',
+    tag:'Endurance Through Tradition',
+    colors:['W','B','G'],
+    desc:"You're someone who combines community, pragmatism, and patience for lasting institutions. Traditional power that endures.",
+    pubBanter:"You're an immovable curmudgeon. You block every new idea with We've always done it this way. Also you definitely keep a ledger of favors.",
+    cmd:'Anafenza, the Foremost',
+    cmdDesc:'Endures through traditional power structures and pragmatic loyalty',
+    str:['Builds long-term lasting institutions','Politically resilient and savvy','Practices sustainable pragmatism','Creates loyal deep relationships','Has strong survivor mentality'],
+    weak:['Resists necessary changes','Can be actively exploitative','Dangerously slow to innovate anything','Holds grudges forever','Creates Byzantine political games'],
+    roles:'Family Businesses, Ghave Guru of Spores, Legal, Traditional Industries, Politics'
+  },
+  'JESKAI':{
+    name:'JESKAI',
+    tag:'Excellence Through Discipline',
+    colors:['U','R','W'],
+    desc:"You're someone who combines knowledge, passion, and order for disciplined excellence. Mastery through practice.",
+    pubBanter:"You're a pretentious prodigy. Everything we do is basic apparently. You roll your eyes at our approach constantly. Very smug.",
+    cmd:'Narset, Enlightened Master',
+    cmdDesc:'Achieves disciplined excellence through practiced mastery',
+    str:['Achieves balanced multi-faceted excellence','Masters technical details completely','Thinks strategically','Inspires others through personal example','Executes adaptively and flexibly'],
+    weak:['Arrogant about their skill level','Dismissive of basics and fundamentals','Can be genuinely elitist','Perfectionist to an unhealthy degree','Impatient and dismissive with novices'],
+    roles:'Consulting, Narset Enlightened Master, Teaching, Professional Services, Strategy'
+  },
+  'SULTAI':{
+    name:'SULTAI',
+    tag:'Growth Through Exploitation',
+    colors:['B','G','U'],
+    desc:"You're someone who combines ruthlessness, patience, and intelligence for patient empire-building. You cultivate power.",
+    pubBanter:"You're a slimy empire-builder. You co-opt everyone's work as fertilizer for your success. Very friendly about it though. Very slimy.",
+    cmd:'Sidisi, Brood Tyrant',
+    cmdDesc:'Cultivates empire through patient intelligent exploitation',
+    str:['Builds strategic empires methodically','Positions patiently for advantage','Masters resource extraction and use','Navigates politics expertly','Thinks long-term instinctively'],
+    weak:['Has parasitic exploitative tendencies','Makes trust completely impossible','Morally dubious at best','Slow to act','Alienates people'],
+    roles:'Private Equity, VC, Leovold Emissary of Trest, Corporate Development, Real Estate'
+  },
+  'MARDU':{
+    name:'MARDU',
+    tag:'Victory Through Sacrifice',
+    colors:['R','W','B'],
+    desc:"You're someone who combines passion, order, and ruthlessness for relentless execution. Glory through any means.",
+    pubBanter:"You're a tyrannical taskmaster. Every deadline is life or death. You glorify burnout and will flip tables to make us move faster.",
+    cmd:'Queen Marchesa',
+    cmdDesc:'Achieves victory through passionate sacrifice and ruthless will',
+    str:['Executes decisions decisively','Performs well under high pressure','Masters political warfare','Gets results at any cost','Inspires people under fire'],
+    weak:['Burns out team members','Glorifies unhealthy sacrifice','Believes ends justify means','Exhausting to work with','Leaves casualties behind'],
+    roles:'Turnarounds, Queen Marchesa, Crisis Management, Sales, Competitive Markets'
+  },
+  'TEMUR':{
+    name:'TEMUR',
+    tag:'Power Through Adaptation',
+    colors:['G','U','R'],
+    desc:"You're someone who combines strength, intelligence, and passion for adaptive innovation. Wild creativity.",
+    pubBanter:"You're an erratic adrenaline junkie. The pivot whiplash is real. We're just constantly adapting to whatever idea pounced out this week.",
+    cmd:'Surrak Dragonclaw',
+    cmdDesc:"Cannot be countered, creatures cannot be countered, flash—unstoppable force",
+    str:['Innovates adaptively in any situation','Solves problems creatively','Brings consistently high energy','Thrives in genuinely chaotic environments','Experiments boldly and fearlessly'],
+    weak:['Executes chaotically and unpredictably','Creates exhausting constant pivots','Terrible at planning ahead','Completely unpredictable and unstable','Genuinely hard to work with'],
+    roles:'Startups, Surrak Dragonclaw, Innovation, R&D, Creative Industries'
+  },
+  'WITCH':{
+    name:'FOUR-COLOR (No Red)',
+    tag:'Perfection Without Passion',
+    colors:['W','U','B','G'],
+    desc:"You're someone who combines order, knowledge, ambition, and growth without passion. Patient calculated excellence.",
+    pubBanter:"You're an emotionless overlord running things like a spreadsheet simulation. You dismiss any passionate idea as inefficient. Joyless.",
+    cmd:"Atraxa, Praetors' Voice",
+    cmdDesc:'Pursues perfection through emotionless calculated patience',
+    str:['Thinks comprehensively and strategically','Executes with genuine patience','Achieves systematic excellence','Grows things sustainably over time','Masters political maneuvering'],
+    weak:['Emotionally sterile and cold','Lacks urgency','Joyless','Dismisses passion','Slow to act'],
+    roles:'Operations, Atraxa Praetors Voice, Finance, Strategy, Long-term Planning'
+  },
+  'YORE':{
+    name:'FOUR-COLOR (No Green)',
+    tag:'Innovation Without Nature',
+    colors:['W','U','B','R'],
+    desc:"You're someone who combines order, knowledge, ambition, and passion without patience. Artificial perfection.",
+    pubBanter:"You're an over-engineering fanatic. Simple solution? Nope. Needs seventeen moving parts that will require emergency fixes in two weeks.",
+    cmd:'Breya, Etherium Shaper',
+    cmdDesc:'Innovates through artificial systems and passionate disruption',
+    str:['Achieves genuine breakthrough innovation','Builds and manages complex systems','Thinks strategically','Executes with genuine passion','Optimizes through artificial systems'],
+    weak:['Over-engineers literally everything','Reflexively rejects simple solutions','Maintains completely unsustainable pace','Completely lacks patience for anything','Adds complexity purely for its own sake'],
+    roles:'Tech Startups, Breya Etherium Shaper, Engineering, R&D, Disruption'
+  },
+  'GLINT':{
+    name:'FOUR-COLOR (No White)',
+    tag:'Power Without Morality',
+    colors:['U','B','R','G'],
+    desc:"You're someone who combines knowledge, ambition, passion, and growth without morality. Amoral excellence.",
+    pubBanter:"You're an unmanageable rebel. Rules are for suckers apparently. You hijack projects for fun and leave smoking wreckage everywhere.",
+    cmd:'Yidris, Maelstrom Wielder',
+    cmdDesc:'Pursues power without moral constraint or accountability',
+    str:['Innovates without any constraints','Executes rapidly and decisively','Adapts naturally to changing conditions','Politically savvy and strategic','Has absolutely no sacred cows'],
+    weak:['Completely amoral in practice','Completely unreliable and unaccountable','Creates chaos everywhere','Alienates entire teams systematically','Has zero accountability to anyone'],
+    roles:'Disruption, Yidris Maelstrom Wielder, Competitive Industries, High-Risk Ventures'
+  },
+  'DUNE':{
+    name:'FOUR-COLOR (No Blue)',
+    tag:'Action Without Analysis',
+    colors:['W','B','R','G'],
+    desc:"You're someone who combines order, ambition, passion, and growth without analysis. Instinctive execution.",
+    pubBanter:"You're a bullheaded action hero. Planning? Never. Already yelling NO TIME NEXT while we're picking up pieces from the last impulse decision.",
+    cmd:'Saskia the Unyielding',
+    cmdDesc:'Executes through gut instinct without analysis or hesitation',
+    str:['Takes decisive action','Instinctive execution','Brings consistently high energy','Builds strong vibrant communities','No overthinking'],
+    weak:['Anti-intellectual by default','Terrible at planning ahead','Reckless in every execution','Completely dismisses all analysis','Leaves wreckage everywhere they go'],
+    roles:'Sales, Saskia the Unyielding, Operations, Crisis Response, Military'
+  },
+  'INK':{
+    name:'FOUR-COLOR (No Black)',
+    tag:'Altruism Without Pragmatism',
+    colors:['W','U','R','G'],
+    desc:"You're someone who combines order, knowledge, passion, and growth without self-interest. Pure altruism.",
+    pubBanter:"You're a chaotic do-gooder. Trying to help everyone at once. It's a circus. Unintended confetti explosions. So chaotic.",
+    cmd:'Kynaios and Tiro of Meletis',
+    cmdDesc:'Pursues altruism without pragmatism or self-interest',
+    str:['Inspiring idealism','Thinks strategically','Brings energizing disruptive presence','Community focus','Solves problems creatively'],
+    weak:['Dangerously naive about self-interest','Can be easily exploited','Executes chaotically and unpredictably','Too trusting of literally everyone','Completely lacks competitive edge'],
+    roles:'Nonprofits, Kynaios and Tiro of Meletis, Education, Community Building, Social Enterprise'
+  },
+  'WUBRG':{
+    name:'FIVE-COLOR',
+    tag:'Chaos or Mastery',
+    colors:['W','U','B','R','G'],
+    desc:"You're someone who has access to everything—all strategies, all tools, all philosophies. Renaissance person or unfocused generalist.",
+    pubBanter:"You're an overambitious jack-of-all-trades. Kitchen sink into every project. Taking bets on which spinning plate crashes first.",
+    cmd:'Kenrith, the Returned King',
+    cmdDesc:'Accesses every strategy and tool, either mastery or scattered chaos',
+    str:['Has ultimate versatility and flexibility','Thinks adaptively about everything','Has comprehensive broad perspective','Works effectively with anyone','Has genuinely no blind spots'],
+    weak:['Lacks focus completely','Master of absolutely none','Highly context-dependent in identity','Hard to pin down identity','May be genuinely scattered'],
+    roles:'Consulting, General Tazri, Generalist Leadership, Facilitation, Portfolio Management'
+  }
+};
+
+// ============================================================================
+// STATE & INITIALIZATION
+// ============================================================================
+let state = {
+  stage: 1,
+  qNum: 0,
+  qTot: 30,
+  responses: [],
+  colorScores: {W:0, U:0, B:0, R:0, G:0},
+  pairwise: {
+    'W-B': {W:0, B:0},
+    'U-R': {U:0, R:0},
+    'G-U': {G:0, U:0},
+    'W-R': {W:0, R:0},
+    'B-G': {B:0, G:0}
+  },
+  poolA: [],
+  poolS2: [],
+  s2Track: {appear: {}, select: {}},
+  activationSorted: [],
+  result: null,
+  candidates: null,
+  originalResult: null
+};
+
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function initArchetypeOfMonth() {
+  const container = document.getElementById('archetype-of-month');
+  
+  const archetype = ARCHETYPE_EXAMPLES[Math.floor(Math.random() * ARCHETYPE_EXAMPLES.length)];
+  
+  const name1 = getRandomName();
+  let name2 = getRandomName();
+  while (name2 === name1) {
+    name2 = getRandomName();
+  }
+  
+  let symbolsHTML = '<div style="display: flex; justify-content: center; gap: 8px; margin: 20px 0;">';
+  archetype.colors.forEach(c => {
+    symbolsHTML += `<span class="mana-symbol mana-${c}" style="width: 48px; height: 48px; font-size: 24px;">${c}</span>`;
+  });
+  symbolsHTML += '</div>';
+  
+  // Randomize which quote appears on left vs right
+  const normalFirst = Math.random() < 0.5;
+  
+  const normalQuote = `
+    <div style="background: rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 10px; text-align: left;">
+      <p style="font-size: 15px; line-height: 1.7; color: #d0d0d0; font-style: italic;">
+        "${archetype.normal}"
+      </p>
+      <div style="text-align: right; margin-top: 8px; font-size: 13px; color: #a0a0b0;">— ${name1}</div>
+    </div>
+  `;
+  
+  const banterQuote = `
+    <div style="background: rgba(245, 158, 11, 0.08); padding: 20px; border-radius: 10px; text-align: left;">
+      <p style="font-size: 15px; line-height: 1.7; color: #d0a070; font-style: italic;">
+        "${archetype.banter}"
+      </p>
+      <div style="text-align: right; margin-top: 8px; font-size: 13px; color: #d0a070;">— ${name2}</div>
+    </div>
+  `;
+  
+  container.innerHTML = `
+    <div style="text-align: center; margin-bottom: 16px;">
+      <div style="font-size: 14px; font-weight: 700; color: #a78bfa; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 16px;">🏆 Mana Archetype Employee of the Month 🏆</div>
+      <h3 style="font-size: 32px; font-weight: 800; margin-bottom: 12px; color: #e0e0e0;">${archetype.name}</h3>
+      ${symbolsHTML}
+    </div>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+      ${normalFirst ? normalQuote + banterQuote : banterQuote + normalQuote}
+    </div>
+  `;
+}
+
+// Initialize on load
+window.addEventListener('DOMContentLoaded', function() {
+  console.log('DOMContentLoaded fired');
+  try {
+    initArchetypeOfMonth();
+    console.log('initArchetypeOfMonth completed successfully');
+  } catch(e) {
+    console.error('Error in initArchetypeOfMonth:', e);
+    // Continue anyway so rest of page works
+  }
+});
+
+console.log('Script file loaded successfully');
+
+function startAssessment() {
+  console.log('startAssessment called');
+  console.log('POOL_A length:', POOL_A.length);
+  state.poolA = shuffleArray(POOL_A);
+  console.log('state.poolA shuffled, length:', state.poolA.length);
+  document.getElementById('screen-welcome').classList.add('hidden');
+  document.getElementById('screen-assessment').classList.remove('hidden');
+  console.log('Screens toggled, calling showQ');
+  showQ();
+}
+
+let debug = false;
+function toggleDebug() {
+  debug = !debug;
+  const debugSection = document.getElementById('debug-section');
+  if (debug) {
+    debugSection.style.display = 'block';
+    updateDebug();
+  } else {
+    debugSection.style.display = 'none';
+  }
+}
+
+function updateDebug() {
+  const debugSection = document.getElementById('debug-section');
+  const debugContent = document.getElementById('debug-content');
+  
+  if (!debug) return;
+  if (debugSection.style.display === 'none') return;
+  
+  let html = '';
+  
+  if (state.stage === 1) {
+    html += '<div style="margin-bottom: 16px;"><strong style="color: #a78bfa;">STAGE 1 PROGRESS</strong></div>';
+    html += `<div>Questions: ${state.qNum}/30</div>`;
+    html += '<div style="margin-top: 12px;"><strong>Color Scores:</strong></div>';
+    Object.entries(state.colorScores).sort((a,b) => b[1] - a[1]).forEach(([c, s]) => {
+      html += `<div>${c}: ${s}/12 (${Math.round(s/12*100)}%)</div>`;
+    });
+    
+    html += '<div style="margin-top: 12px;"><strong>Pairwise Results:</strong></div>';
+    Object.entries(state.pairwise).forEach(([pair, scores]) => {
+      const [c1, c2] = pair.split('-');
+      html += `<div>${pair}: ${c1}=${scores[c1]}/6, ${c2}=${scores[c2]}/6</div>`;
+    });
+    
+    if (state.qNum >= 12) {
+      html += '<div style="margin-top: 12px;"><strong>Activation Strength:</strong></div>';
+      const act = {
+        W: (state.pairwise['W-B'].W / 6 + state.pairwise['W-R'].W / 6) / 2,
+        U: (state.pairwise['U-R'].U / 6 + state.pairwise['G-U'].U / 6) / 2,
+        B: (state.pairwise['W-B'].B / 6 + state.pairwise['B-G'].B / 6) / 2,
+        R: (state.pairwise['U-R'].R / 6 + state.pairwise['W-R'].R / 6) / 2,
+        G: (state.pairwise['G-U'].G / 6 + state.pairwise['B-G'].G / 6) / 2
+      };
+      Object.entries(act).sort((a,b) => b[1] - a[1]).forEach(([c, a]) => {
+        html += `<div>${c}: ${Math.round(a*100)}% activated</div>`;
+      });
+    }
+  }
+  
+  if (state.stage === 2) {
+    html += '<div style="margin-bottom: 16px;"><strong style="color: #a78bfa;">STAGE 2 REFINEMENT</strong></div>';
+    html += `<div>Questions: ${state.qNum}/${state.qTot}</div>`;
+    
+    if (state.stage2Trigger) {
+      html += '<div style="margin-top: 12px;"><strong>Why Stage 2:</strong></div>';
+      html += `<div style="color: #c0c0d0; font-style: italic;">${state.stage2Trigger.reason}</div>`;
+    }
+    
+    if (state.candidates) {
+      html += '<div style="margin-top: 12px;"><strong>Testing Candidates:</strong></div>';
+      state.candidates.forEach(cand => {
+        html += `<div>${cand.id} (S1 strength: ${Math.round(cand.s1*100)}%)</div>`;
+      });
+    }
+    
+    html += '<div style="margin-top: 12px;"><strong>Stage 2 Tracking:</strong></div>';
+    const s2Sorted = Object.entries(state.s2Track.select).sort((a,b) => {
+      const rateA = (state.s2Track.appear[a[0]] || 0) > 0 ? a[1] / state.s2Track.appear[a[0]] : 0;
+      const rateB = (state.s2Track.appear[b[0]] || 0) > 0 ? b[1] / state.s2Track.appear[b[0]] : 0;
+      return rateB - rateA;
+    });
+    s2Sorted.forEach(([guild, count]) => {
+      const appeared = state.s2Track.appear[guild] || 0;
+      const rate = appeared > 0 ? Math.round((count/appeared)*100) : 0;
+      html += `<div>${guild}: ${count}/${appeared} selected (${rate}%)</div>`;
+    });
+  }
+  
+  debugContent.innerHTML = html;
+}
+
+function showQ() {
+  console.log('showQ called, stage:', state.stage, 'qNum:', state.qNum);
+  const q = state.stage === 1 ? state.poolA[state.qNum] : state.poolS2[state.qNum];
+  console.log('Question:', q);
+  
+  if (!q) {
+    console.error('No question available at index', state.qNum);
+    alert('Error: No question found. Check console.');
+    return;
+  }
+  
+  document.getElementById('q-num').textContent = state.qNum + 1;
+  document.getElementById('q-tot').textContent = state.qTot;
+  
+  if (state.stage === 1) {
+    document.getElementById('stage-label').textContent = 'Stage 1';
+    const pct = Math.round((state.qNum / 30) * 100);
+    document.getElementById('prog-s1').style.width = pct + '%';
+    document.getElementById('prog-s2').style.width = '0%';
+  } else {
+    document.getElementById('stage-label').textContent = 'Stage 2';
+    document.getElementById('prog-s1').style.width = '100%';
+    const pct = Math.round((state.qNum / state.qTot) * 100);
+    document.getElementById('prog-s2').style.width = pct + '%';
+  }
+  
+  document.getElementById('ctx').textContent = q.ctx || 'Context';
+  
+  // Build scenario with mana symbols for Stage 1
+  const scenarioText = q.sc || q.scenario || 'Scenario';
+  if (state.stage === 1 && q.pair) {
+    const pair = q.pair;
+    const colors = pair.split('-');
+    let symbolsHTML = '<div style="display: flex; gap: 8px; justify-content: center; margin: 16px 0;">';
+    colors.forEach(c => {
+      symbolsHTML += `<span class="mana-symbol mana-${c}" style="width: 32px; height: 32px; font-size: 16px;">${c}</span>`;
+    });
+    symbolsHTML += '</div>';
+    document.getElementById('scenario').innerHTML = scenarioText + symbolsHTML;
+  } else {
+    document.getElementById('scenario').textContent = scenarioText;
+  }
+  
+  document.getElementById('instr').innerHTML = 'Choose the response <strong>more like you</strong>.';
+
+  // Track Stage 2 appearances
+  if (state.stage === 2 && state.s2Track && q.r) {
+    q.r.forEach(resp => {
+      const guild = resp.g || resp.guild;
+      if (guild) {
+        state.s2Track.appear[guild] = (state.s2Track.appear[guild] || 0) + 1;
+      }
+    });
+  }
+  
+  const choicesDiv = document.getElementById('choices');
+  choicesDiv.innerHTML = '';
+  
+  const shuffled = shuffleArray(q.r);
+  shuffled.forEach(resp => {
+    const btn = document.createElement('button');
+    btn.className = 'choice-button';
+    
+    // Get color(s) for this response
+    let symbolColors = [];
+    if (state.stage === 1 && resp.c) {
+      // Stage 1: Single color
+      symbolColors = [resp.c];
+    } else if (state.stage === 2 && resp.g) {
+      // Stage 2: Guild colors
+      const guildColors = getGuildColors(resp.g);
+      if (guildColors) symbolColors = guildColors;
+    }
+    
+    // Add mana symbols
+    if (symbolColors.length > 0) {
+      symbolColors.forEach(color => {
+        const symbolSpan = document.createElement('span');
+        symbolSpan.className = `mana-symbol mana-${color}`;
+        symbolSpan.style.cssText = 'width: 28px; height: 28px; font-size: 14px; flex-shrink: 0;';
+        symbolSpan.textContent = color;
+        btn.appendChild(symbolSpan);
+      });
+    }
+    
+    const contentDiv = document.createElement('div');
+    contentDiv.style.cssText = 'flex: 1; text-align: left;';
+    contentDiv.textContent = resp.t;
+    btn.appendChild(contentDiv);
+    
+    btn.onclick = () => answerQ(resp);
+    choicesDiv.appendChild(btn);
+  });
+}
+
+function answerQ(resp) {
+  state.responses.push(resp);
+  
+  // Stage 1: Track color scores and pairwise
+  if (state.stage === 1) {
+    state.colorScores[resp.c]++;
+    
+    const q = state.poolA[state.qNum];
+    const pair = q.pair;
+    const color = resp.c;
+    state.pairwise[pair][color]++;
+  }
+  
+  // Stage 2: Track guild selections
+  if (state.stage === 2) {
+    const guild = resp.g || resp.guild;
+    if (guild) {
+      state.s2Track.select[guild] = (state.s2Track.select[guild] || 0) + 1;
+    }
+  }
+  
+  state.qNum++;
+  
+  updateDebug();
+  
+  if (state.qNum < state.qTot) {
+    showQ();
+  } else if (state.stage === 1) {
+    finishS1();
+  } else {
+    finishS2();
+  }
+}
+function finishS1() {
+  // Calculate activation strength
+  const activation = {
+    W: (state.pairwise['W-B'].W / 6 + state.pairwise['W-R'].W / 6) / 2,
+    U: (state.pairwise['U-R'].U / 6 + state.pairwise['G-U'].U / 6) / 2,
+    B: (state.pairwise['W-B'].B / 6 + state.pairwise['B-G'].B / 6) / 2,
+    R: (state.pairwise['U-R'].R / 6 + state.pairwise['W-R'].R / 6) / 2,
+    G: (state.pairwise['G-U'].G / 6 + state.pairwise['B-G'].G / 6) / 2
+  };
+  
+  const sorted = Object.entries(activation).sort((a,b) => b[1] - a[1]);
+  state.activationSorted = sorted; // Store for results explanation
+  
+  // Find gaps - but be smarter about tied colors
+  const gaps = sorted.slice(0,4).map((c,i) => ({idx:i, gap: c[1] - sorted[i+1][1]}));
+  gaps.sort((a,b) => b.gap - a.gap);
+  
+  // If biggest gap is tiny (<0.15), look for the next significant gap
+  let bigGap = gaps[0];
+  if (bigGap.gap < 0.15 && gaps.length > 1) {
+    const significantGap = gaps.find(g => g.gap >= 0.15);
+    if (significantGap) {
+      bigGap = significantGap;
+    }
+  }
+  
+  let numTop = bigGap.idx + 1;
+  
+  // CRITICAL: Check for ties AFTER the gap
+  // If colors immediately after the gap are tied (within 2%), include them all
+  const TIE_THRESHOLD = 0.02; // 2% difference = tied
+  while (numTop < sorted.length - 1) {
+    const currentColor = sorted[numTop - 1][1];
+    const nextColor = sorted[numTop][1];
+    if (Math.abs(currentColor - nextColor) <= TIE_THRESHOLD) {
+      // They're tied, include the next color too
+      numTop++;
+    } else {
+      break;
+    }
+  }
+  
+  // ADDITIONAL CHECK: If top 4 colors are all within 12% of each other, it's 4-color
+  if (sorted.length >= 4 && (sorted[0][1] - sorted[3][1]) < 0.12) {
+    numTop = 4;
+    bigGap = {idx: 3, gap: sorted[3][1] - sorted[4][1]};
+  }
+  // If top 3 colors are all within 10% of each other, it's 3-color
+  else if (sorted.length >= 3 && (sorted[0][1] - sorted[2][1]) < 0.10 && numTop < 3) {
+    numTop = 3;
+    bigGap = {idx: 2, gap: sorted[2][1] - sorted[3][1]};
+  }
+  
+  const top = sorted.slice(0, numTop);
+  const [t1, t2, t3, t4] = sorted.map(c => c[1]);
+  
+  let identity = null;
+  let confidence = 'MODERATE';
+  let needsS2 = false;
+  let candidates = [];
+  
+  // MONO (1 dominant)
+  if (numTop === 1 || (t1 >= 0.83 && t2 <= 0.42)) {
+    identity = 'MONO-' + sorted[0][0];
+    if (t1 >= 0.83 && bigGap.gap >= 0.4 && t2 < 0.5) {
+      confidence = 'HIGH';
+    } else if (t2 >= 0.5) {
+      needsS2 = true;
+      candidates = [{id: identity, s1: t1}];
+      findGuildsWithColor(sorted[0][0]).slice(0,3).forEach(g => 
+        candidates.push({id: g, s1: t1 * 0.5})
+      );
+    }
+  }
+  // GUILD (2 colors)
+  else if (numTop === 2) {
+    identity = getGuild([top[0][0], top[1][0]].sort().join(''));
+    
+    if (t1 >= 0.75 && t2 >= 0.75 && bigGap.gap >= 0.33 && Math.abs(t1-t2) < 0.17) {
+      confidence = 'HIGH';
+    } else if (t1 >= 0.67 && t2 >= 0.67 && bigGap.gap >= 0.17) {
+      confidence = 'MODERATE';  
+    } else {
+      needsS2 = true;
+      candidates = [{id: identity, s1: (t1+t2)/2}];
+      
+      // ONLY add guilds using the ACTUAL top 3 colors, not adjacent guilds with 4th/5th colors
+      // If third color is reasonably close (>45%), include guilds with it
+      if (t3 >= 0.45) {
+        // Can include guilds made from top 3 colors
+        for (let i = 0; i < 3; i++) {
+          for (let j = i+1; j < 3; j++) {
+            const gc = [sorted[i][0], sorted[j][0]].sort().join('');
+            const guildId = getGuild(gc);
+            if (guildId !== identity && !candidates.find(c => c.id === guildId)) {
+              candidates.push({id: guildId, s1: (sorted[i][1] + sorted[j][1])/2});
+            }
+          }
+        }
+      }
+      // Otherwise only test the primary guild (top 2 colors)
+    }
+  }
+  // THREE-COLOR (3 colors)
+  else if (numTop === 3) {
+    identity = getThree([top[0][0], top[1][0], top[2][0]].sort().join(''));
+    
+    if (t1 >= 0.75 && t2 >= 0.75 && t3 >= 0.75 && bigGap.gap >= 0.33) {
+      confidence = 'HIGH';
+    } else if (t1 >= 0.67 && t2 >= 0.67 && t3 >= 0.58 && bigGap.gap >= 0.25) {
+      confidence = 'MODERATE';
+    } else {
+      needsS2 = true;
+      candidates = [{id: identity, s1: (t1+t2+t3)/3}];
+      // STRICT: Only component guilds from THE ACTUAL TOP 3 COLORS
+      // top[0], top[1], top[2] are the three colors before the gap
+      for (let i = 0; i < top.length && i < 3; i++) {
+        for (let j = i+1; j < top.length && j < 3; j++) {
+          // Check if these two from top 3 are close
+          if (Math.abs(top[i][1] - top[j][1]) < 0.10) {
+            const gc = [top[i][0], top[j][0]].sort().join('');
+            candidates.push({id: getGuild(gc), s1: (top[i][1] + top[j][1])/2});
+          }
+        }
+      }
+    }
+  }
+  // FOUR-COLOR (4 colors, 1 absent)
+  else if (numTop === 4) {
+    identity = getFour(sorted[4][0]);
+    if (t1 >= 0.75 && t4 >= 0.67 && bigGap.gap >= 0.33) {
+      confidence = 'HIGH';
+    } else {
+      needsS2 = true;
+      candidates = [{id: identity, s1: (t1+t2+t3+t4)/4}];
+    }
+  }
+  // FIVE-COLOR (all balanced)
+  else {
+    identity = 'WUBRG';
+    const variance = t1 - sorted[4][1];
+    confidence = variance < 0.25 ? 'MODERATE' : 'LOW';
+  }
+  
+  // Force Stage 2 if gap too small or scores not high enough
+  if (bigGap.gap < 0.25 || (numTop >= 2 && t1 < 0.75)) {
+    needsS2 = true;
+  }
+  
+  if (!needsS2 && confidence === 'HIGH') {
+    state.result = {identity, confidence};
+    showCalculating();
+  } else if (needsS2) {
+    showInterstitial(candidates.length > 0 ? candidates : [{id: identity, s1: 0}]);
+  } else {
+    state.result = {identity, confidence};
+    showCalculating();
+  }
+}
+
+function showInterstitial(candidates) {
+  state.pendingCandidates = candidates;
+  
+  document.getElementById('screen-assessment').classList.add('hidden');
+  document.getElementById('screen-interstitial').classList.remove('hidden');
+  
+  const sorted = state.activationSorted;
+  const colorNames = {W:'White', U:'Blue', B:'Black', R:'Red', G:'Green'};
+  const pct = (v) => Math.round(v * 100);
+  
+  // Find the biggest gap to determine how many colors are actually activated
+  const gaps = sorted.slice(0,4).map((c,i) => ({idx:i, gap: c[1] - sorted[i+1][1]}));
+  gaps.sort((a,b) => b.gap - a.gap);
+  const numTop = gaps[0].idx + 1;
+  
+  // Show color symbols for the colors ABOVE the gap
+  const scoresDiv = document.getElementById('inter-scores');
+  scoresDiv.innerHTML = '';
+  scoresDiv.style.cssText = 'display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;';
+  sorted.slice(0, numTop).forEach(([c, act]) => {
+    const sym = document.createElement('span');
+    sym.className = `mana-symbol mana-${c}`;
+    sym.textContent = c;
+    sym.style.width = '44px';
+    sym.style.height = '44px';
+    sym.style.fontSize = '22px';
+    scoresDiv.appendChild(sym);
+  });
+  
+  const [t1, t2, t3, t4, t5] = sorted.map(c => c[1]);
+  let explanation = '';
+  let nextStep = '';
+  
+  // Generate explanation based on ACTUAL pattern detected
+  if (numTop === 1) {
+    // ONE color dominant
+    explanation = `${colorNames[sorted[0][0]]} is clearly your dominant color (${pct(t1)}%), significantly higher than your next color (${pct(t2)}%).`;
+    if (t2 >= 0.42) {
+      nextStep = `We'll test to confirm if you're purely mono-${colorNames[sorted[0][0]]} or if you blend in a second color.`;
+    } else {
+      nextStep = `We'll verify you're mono-${colorNames[sorted[0][0]]} with targeted scenarios.`;
+    }
+  } else if (numTop === 2) {
+    // TWO colors above the gap
+    const names = sorted.slice(0,2).map(c => colorNames[c[0]]);
+    explanation = `Your top two colors are ${names[0]} (${pct(t1)}%) and ${names[1]} (${pct(t2)}%), both clearly above your other colors.`;
+    nextStep = `We'll test specific two-color guild scenarios to determine which combination fits you best.`;
+  } else if (numTop === 3) {
+    // THREE colors above the gap
+    const names = sorted.slice(0,3).map(c => colorNames[c[0]]);
+    explanation = `Your top three colors cluster together: ${names[0]} (${pct(t1)}%), ${names[1]} (${pct(t2)}%), ${names[2]} (${pct(t3)}%).`;
+    nextStep = `We'll test to see if you're a three-color identity or primarily one of the component two-color guilds.`;
+  } else if (numTop === 4) {
+    // FOUR colors above the gap
+    const absentColor = sorted[4][0];
+    explanation = `Four colors are activated (${pct(t1)}%, ${pct(t2)}%, ${pct(t3)}%, ${pct(t4)}%) with ${colorNames[absentColor]} clearly lower (${pct(t5)}%).`;
+    nextStep = `We'll verify this rare four-color pattern with targeted scenarios.`;
+  } else {
+    // ALL FIVE balanced
+    explanation = `All five colors show balanced activation (range: ${pct(t5)}%-${pct(t1)}%).`;
+    nextStep = `We'll test to determine if you're truly five-color or have a clearer pattern emerge.`;
+  }
+  
+  document.getElementById('inter-explanation').textContent = explanation;
+  document.getElementById('inter-next').textContent = nextStep;
+  
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function continueToStage2() {
+  document.getElementById('screen-interstitial').classList.add('hidden');
+  document.getElementById('screen-assessment').classList.remove('hidden');
+  startS2(state.pendingCandidates);
+}
+
+function startS2(candidates) {
+  const scenarios = [];
+  
+  // Store trigger info for debug
+  state.stage2Trigger = {
+    reason: generateStage2Reason(state.activationSorted, candidates),
+    candidates: candidates
+  };
+  
+  // Build scenarios from valid candidates only
+  candidates.forEach(cand => {
+    const id = cand.id;
+    
+    if (POOL_C[id]) {
+      scenarios.push(...POOL_C[id]);
+    }
+    
+    if (POOL_B[id]) {
+      scenarios.push(...POOL_B[id]);
+    }
+  });
+  
+  if (scenarios.length < 6) {
+    ['AZORIUS','SELESNYA','DIMIR'].forEach(g => {
+      if (POOL_B[g] && scenarios.length < 10) {
+        scenarios.push(POOL_B[g][0]);
+      }
+    });
+  }
+  
+  const shuffled = shuffleArray(scenarios).slice(0, Math.min(12, scenarios.length));
+  
+  state.stage = 2;
+  state.qNum = 0;
+  state.poolS2 = shuffled;
+  state.qTot = shuffled.length;
+  state.s2Track = {appear:{}, select:{}};
+  state.candidates = candidates;
+  
+  updateDebug(); // Show Stage 2 info
+  showQ();
+}
+
+function generateStage2Reason(sorted, candidates) {
+  const pct = (v) => Math.round(v * 100);
+  const top3 = sorted.slice(0, 3);
+  const gaps = sorted.slice(0,4).map((c,i) => c[1] - sorted[i+1][1]);
+  const maxGap = Math.max(...gaps);
+  
+  if (maxGap < 0.25) {
+    return `Close scores (${pct(top3[0][1])}%, ${pct(top3[1][1])}%, ${pct(top3[2][1])}%)—need to distinguish between similar combinations`;
+  } else if (sorted[1][1] >= 0.5 && sorted[0][1] < 0.9) {
+    return `Second color at ${pct(sorted[1][1])}%—testing if mono-color or guild`;
+  } else if (top3.every(c => c[1] >= 0.58) && top3.every(c => c[1] <= 0.75)) {
+    return `Three colors activated (${pct(top3[0][1])}%, ${pct(top3[1][1])}%, ${pct(top3[2][1])}%)—testing guild vs three-color`;
+  } else {
+    return `Pattern requires clarification—testing ${candidates.length} possible identities`;
+  }
+}
+
+function finishS2() {
+  const validResults = {};
+  
+  state.candidates.forEach(cand => {
+    const id = cand.id;
+    const s1Score = cand.s1;
+    
+    const appeared = state.s2Track.appear[id] || 0;
+    if (appeared === 0) return;
+    
+    const selected = state.s2Track.select[id] || 0;
+    const s2Rate = selected / appeared;
+    
+    // Stage 1 is PRIMARY (80/20) - Stage 2 just confirms
+    const combined = s1Score * 0.8 + s2Rate * 0.2;
+    
+    validResults[id] = {combined, s1: s1Score, s2: s2Rate, appeared, selected};
+  });
+  
+  const ranked = Object.entries(validResults).sort((a,b) => b[1].combined - a[1].combined);
+  
+  if (ranked.length === 0) {
+    const sorted = state.activationSorted;
+    const guild = getGuild([sorted[0][0], sorted[1][0]].sort().join(''));
+    state.result = {identity: guild, confidence: 'LOW', allResults: []};
+  } else {
+    const winner = ranked[0];
+    
+    // SANITY CHECK: Ensure winner uses actual top colors, not 4th/5th colors
+    const sorted = state.activationSorted;
+    const top3Colors = sorted.slice(0, 3).map(c => c[0]);
+    const winnerColors = PROFILES[winner[0]]?.colors || [];
+    
+    // If winner uses a color NOT in top 3, and there's a candidate that DOES use top colors, pick that instead
+    const winnerUsesLowColor = winnerColors.some(c => !top3Colors.includes(c));
+    
+    if (winnerUsesLowColor) {
+      // Find alternative that uses only top 3 colors
+      const betterAlt = ranked.find(r => {
+        const altColors = PROFILES[r[0]]?.colors || [];
+        return altColors.every(c => top3Colors.includes(c));
+      });
+      
+      if (betterAlt) {
+        // Use the alternative that respects top colors
+        let conf = 'LOW';
+        if (betterAlt[1].s1 >= 0.70 && betterAlt[1].s2 >= 0.6) conf = 'HIGH';
+        else if (betterAlt[1].combined >= 0.60 && betterAlt[1].s2 >= 0.5) conf = 'MODERATE';
+        
+        state.result = {identity: betterAlt[0], confidence: conf, s2Data: betterAlt[1], allResults: ranked};
+      } else {
+        // No good alternative, use winner but mark as LOW confidence
+        state.result = {identity: winner[0], confidence: 'LOW', s2Data: winner[1], allResults: ranked};
+      }
+    } else {
+      // Winner uses top colors, proceed normally
+      let conf = 'LOW';
+      if (winner[1].s1 >= 0.70 && winner[1].s2 >= 0.6) conf = 'HIGH';
+      else if (winner[1].combined >= 0.60 && winner[1].s2 >= 0.5) conf = 'MODERATE';
+      
+      state.result = {identity: winner[0], confidence: conf, s2Data: winner[1], allResults: ranked};
+    }
+  }
+  
+  showCalculating();
+}
+
+function showCalculating() {
+  document.getElementById('screen-assessment').classList.add('hidden');
+  document.getElementById('screen-calculating').classList.remove('hidden');
+  
+  // Show calculating for 2 seconds then show results
+  setTimeout(() => {
+    document.getElementById('screen-calculating').classList.add('hidden');
+    showResults();
+  }, 2000);
+}
+
+function generateIdentityExplanation(identity, activationSorted) {
+  const pct = (act) => Math.round(act * 100);
+  const colorName = {W:'White', U:'Blue', B:'Black', R:'Red', G:'Green'};
+  
+  // Get guild/three-color/etc colors
+  let idColors = [];
+  if (identity.startsWith('MONO-')) {
+    idColors = [identity.split('-')[1]];
+  } else if (PROFILES[identity]) {
+    idColors = PROFILES[identity].colors;
+  }
+  
+  const top3 = activationSorted.slice(0, 3);
+  const top2 = activationSorted.slice(0, 2);
+  
+  // Generate explanation based on pattern
+  if (identity.startsWith('MONO-')) {
+    const color = idColors[0];
+    const topPct = pct(activationSorted[0][1]);
+    const secondPct = pct(activationSorted[1][1]);
+    return `Your dominant color is ${colorName[color]} (${topPct}%), significantly stronger than your next color (${secondPct}%). This makes you mono-${colorName[color]}.`;
+  }
+  else if (idColors.length === 2) {
+    // Guild - check for tied colors
+    const c1 = idColors[0], c2 = idColors[1];
+    const c1Pct = pct(activationSorted.find(c => c[0] === c1)?.[1] || 0);
+    const c2Pct = pct(activationSorted.find(c => c[0] === c2)?.[1] || 0);
+    
+    // Check if other colors are very close to the guild colors
+    const sorted = activationSorted;
+    const thirdPct = sorted[2] ? pct(sorted[2][1]) : 0;
+    const fourthPct = sorted[3] ? pct(sorted[3][1]) : 0;
+    
+    // If 3rd or 4th color is within 10% of guild colors, acknowledge the tie
+    if (Math.abs(thirdPct - c2Pct) < 10 || Math.abs(fourthPct - c2Pct) < 10) {
+      const top2Names = sorted.slice(0, 2).map(c => colorName[c[0]]);
+      const top2Pcts = sorted.slice(0, 2).map(c => pct(c[1]));
+      return `Your top colors are ${top2Names[0]} (${top2Pcts[0]}%) and ${top2Names[1]} (${top2Pcts[1]}%), making you ${identity}. However, you have multiple colors close together—you're genuinely borderline.`;
+    }
+    
+    const diff = Math.abs(c1Pct - c2Pct);
+    if (diff < 8) {
+      return `Your top two colors are ${colorName[c1]} (${c1Pct}%) and ${colorName[c2]} (${c2Pct}%)—nearly equal, making you ${identity}.`;
+    } else {
+      return `Your top two colors are ${colorName[c1]} (${c1Pct}%) and ${colorName[c2]} (${c2Pct}%), making you ${identity}.`;
+    }
+  }
+  else if (idColors.length === 3) {
+    // Three-color
+    const pcts = idColors.map(c => pct(activationSorted.find(ac => ac[0] === c)?.[1] || 0));
+    const names = idColors.map(c => colorName[c]);
+    return `Your top three colors are ${names[0]} (${pcts[0]}%), ${names[1]} (${pcts[1]}%), and ${names[2]} (${pcts[2]})—all clustered together, making you ${identity}. You blend all three rather than focusing on just two.`;
+  }
+  else if (idColors.length === 4) {
+    const absent = ['W','U','B','R','G'].find(c => !idColors.includes(c));
+    const absentPct = pct(activationSorted.find(c => c[0] === absent)?.[1] || 0);
+    return `You have four colors activated, with ${colorName[absent]} clearly absent (${absentPct}%). This makes you four-color (no ${colorName[absent]}).`;
+  }
+  else {
+    const variance = pct(top3[0][1]) - pct(activationSorted[4][1]);
+    return `All five colors are active and balanced (${pct(activationSorted[4][1])}-${pct(top3[0][1])}%), making you five-color. You are genuinely versatile or context-dependent.`;
+  }
+}
+
+function showResults() {
+  document.getElementById('screen-assessment').classList.add('hidden');
+  document.getElementById('screen-results').classList.remove('hidden');
+  
+  const p = PROFILES[state.result.identity];
+  
+  document.getElementById('res-id').textContent = p.name;
+  document.getElementById('res-tag').textContent = p.tag;
+  document.getElementById('tot-q').textContent = state.responses.length;
+  
+  const badge = document.getElementById('conf-badge');
+  badge.textContent = state.result.confidence + ' CONFIDENCE';
+  badge.className = 'confidence-badge confidence-' + state.result.confidence;
+  
+  const expl = {
+    HIGH: 'Clear, consistent pattern across stages.',
+    MODERATE: 'Strong pattern with some variation.',
+    LOW: 'Less clear—balanced or context-dependent.'
+  };
+  document.getElementById('conf-exp').textContent = expl[state.result.confidence];
+  
+  // Generate identity explanation
+  const sorted = state.activationSorted;
+  const id = state.result.identity;
+  const idExp = generateIdentityExplanation(id, sorted);
+  document.getElementById('identity-exp').textContent = idExp;
+  
+  const syms = document.getElementById('res-syms');
+  syms.innerHTML = '';
+  p.colors.forEach(c => {
+    const s = document.createElement('span');
+    s.className = `mana-symbol mana-${c}`;
+    s.textContent = c;
+    s.style.width = '44px';
+    s.style.height = '44px';
+    s.style.fontSize = '22px';
+    syms.appendChild(s);
+  });
+  
+  document.getElementById('res-desc').textContent = p.desc;
+  document.getElementById('res-counter').textContent = p.pubBanter || '';
+  
+  // Show alternatives for LOW confidence
+  const allResults = state.result.allResults || [];
+  
+  // Check if top colors are very close (tied pattern)
+  const colorsTied = sorted.length >= 3 && Math.abs(sorted[1][1] - sorted[2][1]) < 0.10;
+  
+  // Show if LOW confidence AND (colors are tied OR we have actual alternatives)
+  if (state.result.confidence === 'LOW' && (colorsTied || allResults.length > 1)) {
+    document.getElementById('alternative-results').style.display = 'block';
+    
+    let whyText = '';
+    
+    if (allResults.length > 1) {
+      const winner = allResults[0];
+      const topAlt = allResults[1];
+      const winnerData = winner[1];
+      const altData = topAlt[1];
+      
+      whyText = `We're calling you ${state.result.identity} because `;
+      
+      if (winnerData.s1 > altData.s1 && winnerData.s2 > altData.s2) {
+        whyText += `it scored higher in both rounds (Round 1: ${Math.round(winnerData.s1*100)}% vs ${Math.round(altData.s1*100)}%, Round 2: ${Math.round(winnerData.s2*100)}% vs ${Math.round(altData.s2*100)}%).`;
+      } else if (winnerData.s1 > altData.s1) {
+        whyText += `your color pattern in Round 1 pointed more strongly to it (${Math.round(winnerData.s1*100)}% vs ${Math.round(altData.s1*100)}%), and Round 1 carries more weight.`;
+      } else if (winnerData.s2 > altData.s2) {
+        whyText += `you picked it more consistently in Round 2 (${Math.round(winnerData.s2*100)}% vs ${Math.round(altData.s2*100)}%).`;
+      } else {
+        whyText += `the overall pattern across both rounds pointed to it.`;
+      }
+      
+      whyText += ` That said, you're borderline—you could legitimately be any of these:`;
+    } else {
+      whyText = 'Your pattern was borderline. You could legitimately be any of these:';
+    }
+    
+    document.getElementById('why-explanation').textContent = whyText;
+    
+    const altList = document.getElementById('alternatives-list');
+    altList.innerHTML = '';
+    
+    // Get alternatives from allResults (ranked Stage 2 results), excluding winner
+    const alternatives = allResults.slice(1, 4);
+    console.log('Alternatives to display:', alternatives.length, alternatives);
+    
+    alternatives.forEach(alt => {
+      console.log('Processing alternative:', alt[0]);
+      const altProfile = PROFILES[alt[0]];
+      console.log('Profile found:', !!altProfile);
+      if (!altProfile) return;
+      
+      const altCard = document.createElement('div');
+      altCard.style.cssText = 'background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 10px; padding: 16px; cursor: pointer; transition: all 0.2s;';
+      altCard.onmouseover = () => altCard.style.background = 'rgba(139, 92, 246, 0.15)';
+      altCard.onmouseout = () => altCard.style.background = 'rgba(139, 92, 246, 0.1)';
+      altCard.onclick = () => switchToAlternative(alt[0]);
+      
+      const symbolsDiv = document.createElement('div');
+      symbolsDiv.style.cssText = 'display: flex; gap: 6px; margin-bottom: 12px;';
+      altProfile.colors.forEach(c => {
+        const sym = document.createElement('span');
+        sym.className = `mana-symbol mana-${c}`;
+        sym.textContent = c;
+        sym.style.width = '24px';
+        sym.style.height = '24px';
+        sym.style.fontSize = '12px';
+        symbolsDiv.appendChild(sym);
+      });
+      
+      const nameDiv = document.createElement('div');
+      nameDiv.style.cssText = 'font-weight: 700; font-size: 16px; margin-bottom: 8px;';
+      nameDiv.textContent = altProfile.name;
+      
+      const descDiv = document.createElement('div');
+      descDiv.style.cssText = 'font-size: 13px; color: #c0c0d0; line-height: 1.6;';
+      descDiv.textContent = altProfile.tag;
+      
+      altCard.appendChild(symbolsDiv);
+      altCard.appendChild(nameDiv);
+      altCard.appendChild(descDiv);
+      altList.appendChild(altCard);
+    });
+  } else {
+    // Hide alternatives if not genuinely borderline
+    document.getElementById('alternative-results').style.display = 'none';
+  }
+  
+  document.getElementById('cmd-name').textContent = p.cmd;
+  document.getElementById('cmd-desc').textContent = p.cmdDesc;
+  
+  // Display commander oracle text if available
+  const oracleData = COMMANDER_ORACLE[p.cmd];
+  const oracleText = document.getElementById('cmd-oracle-text');
+  
+  if (oracleData) {
+    // Display mana cost
+    const costDiv = document.getElementById('cmd-cost');
+    costDiv.innerHTML = renderManaCost(oracleData.cost);
+    
+    // Display P/T
+    const ptDiv = document.getElementById('cmd-pt');
+    ptDiv.textContent = oracleData.pt;
+    
+    // Display oracle text - each ability on its own line
+    oracleText.innerHTML = oracleData.text.map(line => 
+      `<div style="margin-bottom: 8px;">${line}</div>`
+    ).join('');
+  } else {
+    // Clear cost and P/T if no oracle data
+    document.getElementById('cmd-cost').innerHTML = '';
+    document.getElementById('cmd-pt').textContent = '';
+    oracleText.innerHTML = '';
+  }
+  
+  // Strengths
+  const strList = document.getElementById('strengths');
+  strList.innerHTML = '';
+  p.str.forEach(s => {
+    const li = document.createElement('li');
+    li.style.cssText = 'padding: 6px 0; color: #10B981; font-size: 14px;';
+    li.textContent = '• ' + s;
+    strList.appendChild(li);
+  });
+  
+  // Weaknesses
+  const weakList = document.getElementById('weaknesses');
+  weakList.innerHTML = '';
+  p.weak.forEach(w => {
+    const li = document.createElement('li');
+    li.style.cssText = 'padding: 6px 0; color: #EF4444; font-size: 14px;';
+    li.textContent = '• ' + w;
+    weakList.appendChild(li);
+  });
+  
+  document.getElementById('roles').textContent = p.roles;
+  
+  // Color breakdown
+  const names = {W:'White',U:'Blue',B:'Black',R:'Red',G:'Green'};
+  const grads = {
+    W:'linear-gradient(90deg, #FDE047, #F59E0B)',
+    U:'linear-gradient(90deg, #93C5FD, #3B82F6)',
+    B:'linear-gradient(90deg, #D1D5DB, #6B7280)',
+    R:'linear-gradient(90deg, #FCA5A5, #EF4444)',
+    G:'linear-gradient(90deg, #6EE7B7, #10B981)'
+  };
+  
+  const bd = document.getElementById('breakdown');
+  bd.innerHTML = '';
+  
+  const cs = Object.entries(state.colorScores).sort((a,b) => b[1] - a[1]);
+  cs.forEach(([color, score]) => {
+    const pct = Math.round((score / 12) * 100);
+    
+    const bar = document.createElement('div');
+    bar.style.cssText = 'margin: 16px 0;';
+    bar.innerHTML = `
+      <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: 600;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span class="mana-symbol mana-${color}" style="width: 28px; height: 28px; font-size: 14px;">${color}</span>
+          <span>${names[color]}</span>
+        </div>
+        <span style="font-size: 20px; font-weight: 800;">${pct}%</span>
+      </div>
+      <div style="width: 100%; height: 12px; background: rgba(255,255,255,0.1); border-radius: 6px; overflow: hidden;">
+        <div style="height: 100%; width: ${pct}%; background: ${grads[color]}; border-radius: 6px; transition: width 0.5s;"></div>
+      </div>
+    `;
+    bd.appendChild(bar);
+  });
+  
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function switchToAlternative(altIdentity) {
+  // Store original result
+  if (!state.originalResult) {
+    state.originalResult = state.result.identity;
+  }
+  
+  // Switch to alternative
+  state.result.identity = altIdentity;
+  
+  // Re-render results with new identity
+  const p = PROFILES[altIdentity];
+  
+  document.getElementById('res-id').textContent = p.name;
+  document.getElementById('res-tag').textContent = p.tag;
+  
+  const syms = document.getElementById('res-syms');
+  syms.innerHTML = '';
+  p.colors.forEach(c => {
+    const s = document.createElement('span');
+    s.className = `mana-symbol mana-${c}`;
+    s.textContent = c;
+    s.style.width = '44px';
+    s.style.height = '44px';
+    s.style.fontSize = '22px';
+    syms.appendChild(s);
+  });
+  
+  document.getElementById('res-desc').textContent = p.desc;
+  document.getElementById('res-counter').textContent = p.pubBanter || '';
+  document.getElementById('cmd-name').textContent = p.cmd;
+  document.getElementById('cmd-desc').textContent = p.cmdDesc;
+  
+  // Display commander oracle text if available
+  const oracleData = COMMANDER_ORACLE[p.cmd];
+  const oracleText = document.getElementById('cmd-oracle-text');
+  
+  if (oracleData) {
+    // Display mana cost
+    const costDiv = document.getElementById('cmd-cost');
+    costDiv.innerHTML = renderManaCost(oracleData.cost);
+    
+    // Display P/T
+    const ptDiv = document.getElementById('cmd-pt');
+    ptDiv.textContent = oracleData.pt;
+    
+    // Display oracle text - each ability on its own line
+    oracleText.innerHTML = oracleData.text.map(line => 
+      `<div style="margin-bottom: 8px;">${line}</div>`
+    ).join('');
+  } else {
+    // Clear cost and P/T if no oracle data
+    document.getElementById('cmd-cost').innerHTML = '';
+    document.getElementById('cmd-pt').textContent = '';
+    oracleText.innerHTML = '';
+  }
+  
+  const strList = document.getElementById('strengths');
+  strList.innerHTML = '';
+  p.str.forEach(s => {
+    const li = document.createElement('li');
+    li.style.cssText = 'padding: 6px 0; color: #10B981; font-size: 14px;';
+    li.textContent = '• ' + s;
+    strList.appendChild(li);
+  });
+  
+  const weakList = document.getElementById('weaknesses');
+  weakList.innerHTML = '';
+  p.weak.forEach(w => {
+    const li = document.createElement('li');
+    li.style.cssText = 'padding: 6px 0; color: #EF4444; font-size: 14px;';
+    li.textContent = '• ' + w;
+    weakList.appendChild(li);
+  });
+  
+  document.getElementById('roles').textContent = p.roles;
+  
+  // Update identity explanation for this alternative
+  if (state.activationSorted) {
+    const idExp = generateIdentityExplanation(altIdentity, state.activationSorted);
+    document.getElementById('identity-exp').textContent = idExp;
+  }
+  
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function restart() {
+  // Reset state completely
+  state = {
+    stage: 1,
+    qNum: 0,
+    qTot: 30,
+    responses: [],
+    colorScores: {W:0, U:0, B:0, R:0, G:0},
+    pairwise: {
+      'W-B': {W:0, B:0},
+      'U-R': {U:0, R:0},
+      'G-U': {G:0, U:0},
+      'W-R': {W:0, R:0},
+      'B-G': {B:0, G:0}
+    },
+    poolA: [],
+    poolS2: [],
+    s2Track: {appear: {}, select: {}},
+    activationSorted: [],
+    result: null,
+    candidates: null,
+    originalResult: null
+  };
+  
+  document.getElementById('screen-results').classList.add('hidden');
+  document.getElementById('screen-welcome').classList.remove('hidden');
+  window.scrollTo({top: 0});
+  
+  // Reinitialize front page
+  initArchetypeOfMonth();
+}
+
+// HELPER FUNCTIONS
+function getGuild(c) {
+  const m = {UW:'AZORIUS',WU:'AZORIUS',UB:'DIMIR',BU:'DIMIR',BR:'RAKDOS',RB:'RAKDOS',RG:'GRUUL',GR:'GRUUL',GW:'SELESNYA',WG:'SELESNYA',WB:'ORZHOV',BW:'ORZHOV',UR:'IZZET',RU:'IZZET',BG:'GOLGARI',GB:'GOLGARI',GU:'SIMIC',UG:'SIMIC',RW:'BOROS',WR:'BOROS'};
+  return m[c] || 'AZORIUS';
+}
+
+function getThree(c) {
+  const m = {GUW:'BANT',GWU:'BANT',UGW:'BANT',UWG:'BANT',WGU:'BANT',WUG:'BANT',UWB:'ESPER',UBW:'ESPER',WUB:'ESPER',WBU:'ESPER',BUW:'ESPER',BWU:'ESPER',UBR:'GRIXIS',URB:'GRIXIS',BUR:'GRIXIS',BRU:'GRIXIS',RUB:'GRIXIS',RBU:'GRIXIS',BRG:'JUND',BGR:'JUND',RBG:'JUND',RGB:'JUND',GBR:'JUND',GRB:'JUND',RGW:'NAYA',RWG:'NAYA',GRW:'NAYA',GWR:'NAYA',WRG:'NAYA',WGR:'NAYA',WBG:'ABZAN',WGB:'ABZAN',BWG:'ABZAN',BGW:'ABZAN',GWB:'ABZAN',GBW:'ABZAN',URW:'JESKAI',UWR:'JESKAI',RUW:'JESKAI',RWU:'JESKAI',WUR:'JESKAI',WRU:'JESKAI',BGU:'SULTAI',BUG:'SULTAI',GBU:'SULTAI',GUB:'SULTAI',UBG:'SULTAI',UGB:'SULTAI',RWB:'MARDU',RBW:'MARDU',WRB:'MARDU',WBR:'MARDU',BRW:'MARDU',BWR:'MARDU',GUR:'TEMUR',GRU:'TEMUR',UGR:'TEMUR',URG:'TEMUR',RGU:'TEMUR',RUG:'TEMUR'};
+  return m[c] || 'BANT';
+}
+
+function getFour(absent) {
+  const m = {R:'WITCH',G:'YORE',W:'GLINT',U:'DUNE',B:'INK'};
+  return m[absent] || 'WITCH';
+}
+
+function getGuildColors(guild) {
+  const m = {AZORIUS:['W','U'],SELESNYA:['W','G'],ORZHOV:['W','B'],DIMIR:['U','B'],IZZET:['U','R'],SIMIC:['U','G'],RAKDOS:['B','R'],GOLGARI:['B','G'],GRUUL:['R','G'],BOROS:['R','W']};
+  return m[guild] || ['W','U'];
+}
+
+function findAdjacentGuilds(colors, exclude) {
+  const all = ['AZORIUS','SELESNYA','ORZHOV','DIMIR','IZZET','SIMIC','RAKDOS','GOLGARI','GRUUL','BOROS'];
+  return all.filter(g => {
+    if (g === exclude) return false;
+    const gc = getGuildColors(g);
+    return (gc.includes(colors[0]) || gc.includes(colors[1])) && !(gc.includes(colors[0]) && gc.includes(colors[1]));
+  });
+}
+
+function findGuildsWithColor(color) {
+  const all = ['AZORIUS','SELESNYA','ORZHOV','DIMIR','IZZET','SIMIC','RAKDOS','GOLGARI','GRUUL','BOROS'];
+  return all.filter(g => getGuildColors(g).includes(color));
+}
+
+console.log('=== SCRIPT END - All functions defined ===');
+</script>
+</body>
+</html>
