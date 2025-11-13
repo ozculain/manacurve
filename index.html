@@ -85,24 +85,6 @@ body {
   transform: translateY(-2px);
 }
 
-.explorer-btn {
-  background: rgba(255,255,255,0.05);
-  border: 2px solid rgba(139, 92, 246, 0.3);
-  color: #a78bfa;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.explorer-btn:hover {
-  background: rgba(139, 92, 246, 0.15);
-  border-color: rgba(139, 92, 246, 0.6);
-  transform: translateY(-2px);
-}
-
 .btn-primary {
   background: linear-gradient(135deg, #6366f1, #8b5cf6);
   color: white;
@@ -189,22 +171,6 @@ body {
   #archetype-of-month > div[style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
   .mode-card { padding: 16px !important; }
   #mode-constructed, #mode-draft { grid-column: span 1; }
-  #explorer-mono, #explorer-guilds, #explorer-three, #explorer-four, #explorer-five {
-    grid-template-columns: 1fr !important;
-  }
-  /* Stack explorer columns on mobile */
-  #screen-explorer > div:nth-child(2) {
-    grid-template-columns: 1fr !important;
-  }
-  #detail-panel {
-    position: static !important;
-    margin-top: 20px;
-  }
-  /* Stack pub descriptions on mobile */
-  #detail-content > div:nth-child(3),
-  #detail-content > div:nth-child(5) {
-    grid-template-columns: 1fr !important;
-  }
 }
 </style>
 </head>
@@ -299,12 +265,6 @@ body {
       <button class="btn-primary" onclick="startAssessment()">Enter the Arena</button>
       <p style="margin-top: 16px; color: #808090; font-size: 14px;">~13-15 minutes • You'll actually remember this one</p>
       <p style="margin-top: 8px; color: #606070; font-size: 12px;">31 possible results because limiting yourself to 16 personality types is for cowards</p>
-      
-      <div style="margin-top: 24px; text-align: center;">
-        <button onclick="showExplorer()" class="explorer-btn">
-          📚 Explore All 31 Personality Types
-        </button>
-      </div>
     </div>
   </div>
 
@@ -511,142 +471,14 @@ body {
     </div>
     
     <div style="text-align: center; margin-top: 32px;" class="fade-in">
-      <button class="btn-primary" onclick="restart()" id="restart-btn">Take It Again</button>
-      <p style="margin-top: 16px; color: #808090; font-size: 13px;" id="restart-text">Retake it to get the result you wanted instead of who you actually are?</p>
-      
-      <div style="margin-top: 24px;">
-        <button onclick="showExplorer()" class="explorer-btn">
-          📚 Explore All 31 Personality Types
-        </button>
-        <p style="margin-top: 12px; font-size: 12px; color: #808090; font-style: italic;" id="explorer-hint"></p>
-      </div>
-      
+      <button class="btn-primary" onclick="restart()">Take It Again</button>
+      <p style="margin-top: 16px; color: #808090; font-size: 13px;">Retake it to get the result you wanted instead of who you actually are?</p>
       <div style="margin-top: 20px; padding: 20px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; max-width: 600px; margin-left: auto; margin-right: auto;">
         <p style="font-size: 12px; color: #F59E0B; font-weight: 600; margin-bottom: 8px;">⚠️ WARNING: NOT FOR OFFICIAL USE</p>
         <p style="font-size: 11px; color: #d0a070; line-height: 1.6; margin-bottom: 6px;">Do not use this for hiring, firing, promoting, demoting, or any decision affecting actual humans.</p>
         <p style="font-size: 11px; color: #d0a070; line-height: 1.6; margin-bottom: 6px;">This is a personality framework based on a trading card game about wizards fighting each other.</p>
         <p style="font-size: 11px; color: #c09060; line-height: 1.6; font-style: italic;">Is this a joke? Unclear. But it's 30 years of game design about strategic philosophy, so it's not nothing.</p>
       </div>
-    </div>
-  </div>
-  
-  <!-- EXPLORER SCREEN -->
-  <div id="screen-explorer" class="hidden">
-    <div class="card fade-in" style="text-align: center;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-        <button onclick="closeExplorer()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: #a0a0b0; padding: 8px 16px; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: 600;">
-          ← Back
-        </button>
-        <h1 style="font-size: 32px; margin: 0;">The Complete Framework</h1>
-        <div style="width: 80px;"></div>
-      </div>
-      
-      <p style="color: #a0a0b0; margin-bottom: 8px;">All 31 color identities in the Mana Curve framework</p>
-      <p style="color: #808090; font-size: 13px; font-style: italic;">Click any identity to view its complete profile</p>
-    </div>
-    
-    <!-- Two Column Layout: Grid + Detail -->
-    <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 24px; align-items: start;">
-      
-      <!-- LEFT: Identity Grid -->
-      <div>
-        <!-- Mono-Colors -->
-        <div class="card fade-in" style="margin-bottom: 20px;">
-          <h3 style="font-size: 16px; margin-bottom: 8px; color: #a78bfa; text-transform: uppercase; letter-spacing: 1px;">Mono-Color (5)</h3>
-          <p style="font-size: 12px; color: #808090; margin-bottom: 16px; font-style: italic;">Pure, focused, uncompromising</p>
-          <div style="display: grid; gap: 10px;" id="explorer-mono"></div>
-        </div>
-        
-        <!-- Two-Color Guilds -->
-        <div class="card fade-in" style="margin-bottom: 20px;">
-          <h3 style="font-size: 16px; margin-bottom: 8px; color: #a78bfa; text-transform: uppercase; letter-spacing: 1px;">Two-Color Guilds (10)</h3>
-          <p style="font-size: 12px; color: #808090; margin-bottom: 16px; font-style: italic;">Allied and enemy pairs</p>
-          <div style="display: grid; gap: 10px;" id="explorer-guilds"></div>
-        </div>
-        
-        <!-- Three-Color -->
-        <div class="card fade-in" style="margin-bottom: 20px;">
-          <h3 style="font-size: 16px; margin-bottom: 8px; color: #a78bfa; text-transform: uppercase; letter-spacing: 1px;">Three-Color (10)</h3>
-          <p style="font-size: 12px; color: #808090; margin-bottom: 16px; font-style: italic;">Shards and wedges</p>
-          <div style="display: grid; gap: 10px;" id="explorer-three"></div>
-        </div>
-        
-        <!-- Four-Color -->
-        <div class="card fade-in" style="margin-bottom: 20px;">
-          <h3 style="font-size: 16px; margin-bottom: 8px; color: #a78bfa; text-transform: uppercase; letter-spacing: 1px;">Four-Color (5)</h3>
-          <p style="font-size: 12px; color: #808090; margin-bottom: 16px; font-style: italic;">Defined by what's missing</p>
-          <div style="display: grid; gap: 10px;" id="explorer-four"></div>
-        </div>
-        
-        <!-- Five-Color -->
-        <div class="card fade-in" style="margin-bottom: 20px;">
-          <h3 style="font-size: 16px; margin-bottom: 8px; color: #a78bfa; text-transform: uppercase; letter-spacing: 1px;">Five-Color (1)</h3>
-          <p style="font-size: 12px; color: #808090; margin-bottom: 16px; font-style: italic;">Everything at once</p>
-          <div style="display: grid; gap: 10px;" id="explorer-five"></div>
-        </div>
-      </div>
-      
-      <!-- RIGHT: Detail Panel -->
-      <div id="detail-panel" class="card fade-in" style="position: sticky; top: 20px; min-height: 600px;">
-        <div id="detail-placeholder" style="text-align: center; padding: 60px 20px; color: #808090;">
-          <div style="font-size: 48px; margin-bottom: 16px; opacity: 0.3;">👈</div>
-          <p style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">Select an Identity</p>
-          <p style="font-size: 13px;">Click any personality type to view its complete profile</p>
-        </div>
-        
-        <div id="detail-content" style="display: none;">
-          <!-- Identity Header -->
-          <div style="text-align: center; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 2px solid rgba(255,255,255,0.1);">
-            <div id="detail-symbols" style="display: flex; justify-content: center; gap: 8px; margin-bottom: 16px;"></div>
-            <h2 id="detail-name" style="font-size: 32px; margin-bottom: 8px;">Identity Name</h2>
-            <p id="detail-tag" style="font-size: 16px; color: #a78bfa; font-style: italic;">Tagline</p>
-          </div>
-          
-          <!-- The Pitch -->
-          <div style="margin-bottom: 24px;">
-            <h4 style="font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #808090; margin-bottom: 12px;">What This Is</h4>
-            <p id="detail-desc" style="font-size: 15px; color: #d0d0d0; line-height: 1.7;"></p>
-          </div>
-          
-          <!-- Pub Descriptions -->
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
-            <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 16px;">
-              <div style="font-size: 11px; font-weight: 600; color: #10B981; text-transform: uppercase; margin-bottom: 8px;">💼 To Your Face</div>
-              <p id="detail-normal" style="font-size: 13px; color: #b0d0c0; line-height: 1.6; font-style: italic;"></p>
-            </div>
-            <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 16px;">
-              <div style="font-size: 11px; font-weight: 600; color: #F59E0B; text-transform: uppercase; margin-bottom: 8px;">🍺 Behind Your Back</div>
-              <p id="detail-banter" style="font-size: 13px; color: #d0a070; line-height: 1.6; font-style: italic;"></p>
-            </div>
-          </div>
-          
-          <!-- Commander Reference -->
-          <div style="background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 8px; padding: 16px; margin-bottom: 24px;">
-            <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #a78bfa; margin-bottom: 8px;">⚡ Legendary Commander</div>
-            <div style="font-weight: 700; font-size: 16px; margin-bottom: 4px;" id="detail-cmd-name"></div>
-            <p style="font-size: 13px; color: #b0b0c0; font-style: italic;" id="detail-cmd-desc"></p>
-          </div>
-          
-          <!-- Quick Reference -->
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
-            <div>
-              <h4 style="font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #808090; margin-bottom: 8px;">⚔ Key Strengths</h4>
-              <ul id="detail-strengths" style="list-style: none; padding: 0; font-size: 13px; color: #10B981;"></ul>
-            </div>
-            <div>
-              <h4 style="font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #808090; margin-bottom: 8px;">⚠ Key Shadows</h4>
-              <ul id="detail-shadows" style="list-style: none; padding: 0; font-size: 13px; color: #EF4444;"></ul>
-            </div>
-          </div>
-          
-          <!-- Typical Roles -->
-          <div>
-            <h4 style="font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #808090; margin-bottom: 8px;">📋 Typical Roles</h4>
-            <p id="detail-roles" style="font-size: 14px; color: #a0a0b0;"></p>
-          </div>
-        </div>
-      </div>
-      
     </div>
   </div>
 </div>
@@ -2205,11 +2037,6 @@ function showResults() {
   const modeText = state.mode === 'constructed' ? 'Constructed (mana symbols visible)' : 'Blind Draft (pure instinct)';
   document.getElementById('mode-used').textContent = modeText;
   
-  // Set restart button text for assessment results
-  document.getElementById('restart-btn').textContent = 'Take It Again';
-  document.getElementById('restart-text').textContent = 'Retake it to get the result you wanted instead of who you actually are?';
-  document.getElementById('explorer-hint').textContent = '';
-  
   const badge = document.getElementById('conf-badge');
   badge.textContent = state.result.confidence + ' CONFIDENCE';
   badge.className = 'confidence-badge confidence-' + state.result.confidence;
@@ -2533,155 +2360,6 @@ function restart() {
   
   // Reset mode selection to draft
   selectMode('draft');
-}
-
-// ============================================================================
-// EXPLORER FUNCTIONS
-// ============================================================================
-function showExplorer() {
-  // Hide current screen
-  document.getElementById('screen-welcome').classList.add('hidden');
-  document.getElementById('screen-results').classList.add('hidden');
-  document.getElementById('screen-explorer').classList.remove('hidden');
-  
-  // Populate explorer cards
-  populateExplorer();
-  window.scrollTo({top: 0, behavior: 'smooth'});
-}
-
-function closeExplorer() {
-  document.getElementById('screen-explorer').classList.add('hidden');
-  
-  // Return to previous screen
-  if (state.result && !state.result.isExplorer) {
-    document.getElementById('screen-results').classList.remove('hidden');
-  } else {
-    document.getElementById('screen-welcome').classList.remove('hidden');
-  }
-  
-  window.scrollTo({top: 0, behavior: 'smooth'});
-}
-
-function populateExplorer() {
-  const monoIds = ['MONO-W', 'MONO-U', 'MONO-B', 'MONO-R', 'MONO-G'];
-  const guildIds = ['AZORIUS', 'DIMIR', 'RAKDOS', 'GRUUL', 'SELESNYA', 'ORZHOV', 'IZZET', 'GOLGARI', 'SIMIC', 'BOROS'];
-  const threeIds = ['BANT', 'ESPER', 'GRIXIS', 'JUND', 'NAYA', 'ABZAN', 'JESKAI', 'SULTAI', 'MARDU', 'TEMUR'];
-  const fourIds = ['WITCH', 'YORE', 'GLINT', 'DUNE', 'INK'];
-  const fiveIds = ['WUBRG'];
-  
-  document.getElementById('explorer-mono').innerHTML = monoIds.map(id => createExplorerCard(id)).join('');
-  document.getElementById('explorer-guilds').innerHTML = guildIds.map(id => createExplorerCard(id)).join('');
-  document.getElementById('explorer-three').innerHTML = threeIds.map(id => createExplorerCard(id)).join('');
-  document.getElementById('explorer-four').innerHTML = fourIds.map(id => createExplorerCard(id)).join('');
-  document.getElementById('explorer-five').innerHTML = fiveIds.map(id => createExplorerCard(id)).join('');
-}
-
-function createExplorerCard(id) {
-  const p = PROFILES[id];
-  if (!p) return '';
-  
-  const symbolsHTML = p.colors.map(c => 
-    `<span class="mana-symbol mana-${c}" style="width: 24px; height: 24px; font-size: 12px;">${c}</span>`
-  ).join('');
-  
-  return `
-    <div id="card-${id}" onclick="showDetail('${id}')" style="
-      background: rgba(255,255,255,0.03);
-      border: 2px solid rgba(255,255,255,0.1);
-      border-radius: 8px;
-      padding: 12px;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    " 
-    onmouseover="this.style.background='rgba(139, 92, 246, 0.1)'; this.style.borderColor='rgba(139, 92, 246, 0.4)';"
-    onmouseout="if(!this.classList.contains('selected')) { this.style.background='rgba(255,255,255,0.03)'; this.style.borderColor='rgba(255,255,255,0.1)'; }">
-      
-      <div style="display: flex; gap: 4px;">
-        ${symbolsHTML}
-      </div>
-      
-      <div style="flex: 1; min-width: 0;">
-        <div style="font-size: 14px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${p.name}</div>
-        <div style="font-size: 11px; color: #a0a0b0; font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${p.tag}</div>
-      </div>
-    </div>
-  `;
-}
-
-function showDetail(id) {
-  const p = PROFILES[id];
-  if (!p) return;
-  
-  // Clear previous selection
-  document.querySelectorAll('[id^="card-"]').forEach(card => {
-    card.classList.remove('selected');
-    card.style.background = 'rgba(255,255,255,0.03)';
-    card.style.borderColor = 'rgba(255,255,255,0.1)';
-  });
-  
-  // Highlight selected card
-  const selectedCard = document.getElementById(`card-${id}`);
-  if (selectedCard) {
-    selectedCard.classList.add('selected');
-    selectedCard.style.background = 'rgba(139, 92, 246, 0.15)';
-    selectedCard.style.borderColor = 'rgba(139, 92, 246, 0.6)';
-  }
-  
-  // Hide placeholder, show content
-  document.getElementById('detail-placeholder').style.display = 'none';
-  document.getElementById('detail-content').style.display = 'block';
-  
-  // Populate detail panel
-  const symbolsDiv = document.getElementById('detail-symbols');
-  symbolsDiv.innerHTML = '';
-  p.colors.forEach(c => {
-    const s = document.createElement('span');
-    s.className = `mana-symbol mana-${c}`;
-    s.style.cssText = 'width: 40px; height: 40px; font-size: 20px;';
-    s.textContent = c;
-    symbolsDiv.appendChild(s);
-  });
-  
-  document.getElementById('detail-name').textContent = p.name;
-  document.getElementById('detail-tag').textContent = p.tag;
-  document.getElementById('detail-desc').textContent = p.desc;
-  
-  // Get archetype example descriptions
-  const example = ARCHETYPE_EXAMPLES.find(e => e.id === id);
-  document.getElementById('detail-normal').textContent = example ? example.normal : p.desc;
-  document.getElementById('detail-banter').textContent = example ? example.banter : p.pubBanter;
-  
-  // Commander
-  document.getElementById('detail-cmd-name').textContent = p.cmd;
-  document.getElementById('detail-cmd-desc').textContent = p.cmdDesc;
-  
-  // Strengths (show first 3)
-  const strList = document.getElementById('detail-strengths');
-  strList.innerHTML = '';
-  p.str.slice(0, 3).forEach(s => {
-    const li = document.createElement('li');
-    li.style.cssText = 'padding: 4px 0; font-size: 13px;';
-    li.textContent = '• ' + s;
-    strList.appendChild(li);
-  });
-  
-  // Shadows (show first 3)
-  const shadowList = document.getElementById('detail-shadows');
-  shadowList.innerHTML = '';
-  p.weak.slice(0, 3).forEach(w => {
-    const li = document.createElement('li');
-    li.style.cssText = 'padding: 4px 0; font-size: 13px;';
-    li.textContent = '• ' + w;
-    shadowList.appendChild(li);
-  });
-  
-  document.getElementById('detail-roles').textContent = p.roles;
-  
-  // Scroll detail panel to top
-  document.getElementById('detail-panel').scrollTop = 0;
 }
 
 // HELPER FUNCTIONS
