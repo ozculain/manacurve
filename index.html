@@ -70,6 +70,21 @@ body {
   transform: translateY(-2px);
 }
 
+.mode-card {
+  padding: 20px;
+  background: rgba(255,255,255,0.05);
+  border: 2px solid rgba(139, 92, 246, 0.3);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mode-card:hover {
+  background: rgba(139, 92, 246, 0.1);
+  border-color: rgba(139, 92, 246, 0.5);
+  transform: translateY(-2px);
+}
+
 .btn-primary {
   background: linear-gradient(135deg, #6366f1, #8b5cf6);
   color: white;
@@ -154,6 +169,8 @@ body {
   .choice-button { padding: 16px; font-size: 14px; }
   .strengths-grid { grid-template-columns: 1fr !important; }
   #archetype-of-month > div[style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
+  .mode-card { padding: 16px !important; }
+  #mode-constructed, #mode-draft { grid-column: span 1; }
 }
 </style>
 </head>
@@ -210,6 +227,39 @@ body {
         <p style="font-size: 11px; color: #d0a070; line-height: 1.6; margin-bottom: 6px;">Do not use this for hiring, firing, promoting, demoting, or any decision affecting actual humans.</p>
         <p style="font-size: 11px; color: #d0a070; line-height: 1.6; margin-bottom: 6px;">This is a personality framework based on a trading card game about wizards fighting each other.</p>
         <p style="font-size: 11px; color: #c09060; line-height: 1.6; font-style: italic;">Is this a joke? Unclear. But it's 30 years of game design about strategic philosophy, so it's not nothing.</p>
+      </div>
+      
+      <!-- Mode Selection -->
+      <div style="margin: 32px 0; padding: 24px; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 12px;">
+        <h3 style="font-size: 18px; margin-bottom: 16px; color: #a78bfa;">Choose Your Format</h3>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+          <!-- Constructed Mode -->
+          <div id="mode-constructed" onclick="selectMode('constructed')" class="mode-card">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+              <div style="width: 24px; height: 24px; border: 2px solid rgba(139, 92, 246, 0.5); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                <div id="constructed-check" style="width: 12px; height: 12px; background: rgba(139, 92, 246, 0.8); border-radius: 50%; display: none;"></div>
+              </div>
+              <div style="font-size: 16px; font-weight: 700; color: #e0e0e0;">🏗️ Constructed</div>
+            </div>
+            <p style="font-size: 13px; color: #a0a0b0; line-height: 1.5; margin-bottom: 8px;">See the mana symbols for each choice. Understand exactly what colors you're picking.</p>
+            <p style="font-size: 12px; color: #808090; font-style: italic;">For people who want to know what they're selecting.</p>
+          </div>
+          
+          <!-- Draft Mode -->
+          <div id="mode-draft" onclick="selectMode('draft')" class="mode-card" style="border: 2px solid rgba(139, 92, 246, 0.8); background: rgba(139, 92, 246, 0.15);">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+              <div style="width: 24px; height: 24px; border: 2px solid rgba(139, 92, 246, 0.5); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                <div id="draft-check" style="width: 12px; height: 12px; background: rgba(139, 92, 246, 0.8); border-radius: 50%;"></div>
+              </div>
+              <div style="font-size: 16px; font-weight: 700; color: #e0e0e0;">📦 Blind Draft</div>
+            </div>
+            <p style="font-size: 13px; color: #a0a0b0; line-height: 1.5; margin-bottom: 8px;">Make choices blind. No mana symbols shown. The test as it's meant to be played.</p>
+            <p style="font-size: 12px; color: #808090; font-style: italic;">Recommended: Reveals your actual decision-making patterns.</p>
+          </div>
+        </div>
+        
+        <p style="font-size: 12px; color: #808090; text-align: center; font-style: italic;">You can always retake it in the other mode.</p>
       </div>
       
       <button class="btn-primary" onclick="startAssessment()">Enter the Arena</button>
@@ -321,6 +371,7 @@ body {
       </div>
       <h1 style="font-size: 42px; margin-bottom: 16px;">Your Color Identity</h1>
       <p style="color: #a0a0b0;">Based on <span id="tot-q">30</span> workplace decisions</p>
+      <p style="color: #808090; font-size: 13px; margin-top: 8px; font-style: italic;" id="mode-used"></p>
     </div>
     
     <div class="result-card fade-in">
@@ -1173,6 +1224,7 @@ let state = {
   stage: 1,
   qNum: 0,
   qTot: 30,
+  mode: 'draft', // 'constructed' or 'draft'
   responses: [],
   colorScores: {W:0, U:0, B:0, R:0, G:0},
   pairwise: {
@@ -1264,6 +1316,35 @@ window.addEventListener('DOMContentLoaded', function() {
 });
 
 console.log('Script file loaded successfully');
+
+// ============================================================================
+// MODE SELECTION
+// ============================================================================
+function selectMode(mode) {
+  state.mode = mode;
+  
+  // Update visual selection
+  const constructedCard = document.getElementById('mode-constructed');
+  const draftCard = document.getElementById('mode-draft');
+  const constructedCheck = document.getElementById('constructed-check');
+  const draftCheck = document.getElementById('draft-check');
+  
+  if (mode === 'constructed') {
+    constructedCard.style.border = '2px solid rgba(139, 92, 246, 0.8)';
+    constructedCard.style.background = 'rgba(139, 92, 246, 0.15)';
+    draftCard.style.border = '2px solid rgba(139, 92, 246, 0.3)';
+    draftCard.style.background = 'rgba(255,255,255,0.05)';
+    constructedCheck.style.display = 'flex';
+    draftCheck.style.display = 'none';
+  } else {
+    draftCard.style.border = '2px solid rgba(139, 92, 246, 0.8)';
+    draftCard.style.background = 'rgba(139, 92, 246, 0.15)';
+    constructedCard.style.border = '2px solid rgba(139, 92, 246, 0.3)';
+    constructedCard.style.background = 'rgba(255,255,255,0.05)';
+    draftCheck.style.display = 'flex';
+    constructedCheck.style.display = 'none';
+  }
+}
 
 function startAssessment() {
   console.log('startAssessment called');
@@ -1386,9 +1467,9 @@ function showQ() {
   
   document.getElementById('ctx').textContent = q.ctx || 'Context';
   
-  // Build scenario with mana symbols for Stage 1
+  // Build scenario with mana symbols for Stage 1 (only in constructed mode)
   const scenarioText = q.sc || q.scenario || 'Scenario';
-  if (state.stage === 1 && q.pair) {
+  if (state.stage === 1 && q.pair && state.mode === 'constructed') {
     const pair = q.pair;
     const colors = pair.split('-');
     let symbolsHTML = '<div style="display: flex; gap: 8px; justify-content: center; margin: 16px 0;">';
@@ -1432,8 +1513,8 @@ function showQ() {
       if (guildColors) symbolColors = guildColors;
     }
     
-    // Add mana symbols
-    if (symbolColors.length > 0) {
+    // Add mana symbols (only in constructed mode)
+    if (state.mode === 'constructed' && symbolColors.length > 0) {
       symbolColors.forEach(color => {
         const symbolSpan = document.createElement('span');
         symbolSpan.className = `mana-symbol mana-${color}`;
@@ -1933,6 +2014,10 @@ function showResults() {
   document.getElementById('res-tag').textContent = p.tag;
   document.getElementById('tot-q').textContent = state.responses.length;
   
+  // Show which mode was used
+  const modeText = state.mode === 'constructed' ? 'Constructed (mana symbols visible)' : 'Blind Draft (pure instinct)';
+  document.getElementById('mode-used').textContent = modeText;
+  
   const badge = document.getElementById('conf-badge');
   badge.textContent = state.result.confidence + ' CONFIDENCE';
   badge.className = 'confidence-badge confidence-' + state.result.confidence;
@@ -2228,6 +2313,7 @@ function restart() {
     stage: 1,
     qNum: 0,
     qTot: 30,
+    mode: 'draft', // Reset to default mode
     responses: [],
     colorScores: {W:0, U:0, B:0, R:0, G:0},
     pairwise: {
@@ -2252,6 +2338,9 @@ function restart() {
   
   // Reinitialize front page
   initArchetypeOfMonth();
+  
+  // Reset mode selection to draft
+  selectMode('draft');
 }
 
 // HELPER FUNCTIONS
