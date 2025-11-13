@@ -458,15 +458,15 @@ body {
         <p style="line-height: 1.6; font-size: 14px; color: #d0a070; font-style: italic;" id="res-counter">Counter description</p>
       </div>
       
-      <div style="background: rgba(255,255,255,0.05); padding: 24px; border-radius: 12px; margin: 24px 0; border: 1px solid rgba(255,255,255,0.1);">
+      <div style="background: rgba(255,255,255,0.05); padding: 24px; border-radius: 12px; margin: 24px 0; border: 1px solid rgba(255,255,255,0.1);" id="cmd-container">
         <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #808090; margin-bottom: 12px;">⚡ Legendary Commander</div>
         
-        <!-- Card Frame -->
-        <div style="background: linear-gradient(135deg, #2a2a3e 0%, #1f1f2e 100%); border: 3px solid rgba(139, 92, 246, 0.4); border-radius: 12px; padding: 16px; max-width: 500px;">
+        <!-- Card Frame (only if oracle data exists) -->
+        <div id="cmd-card-frame" style="background: linear-gradient(135deg, #2a2a3e 0%, #1f1f2e 100%); border: 3px solid rgba(139, 92, 246, 0.4); border-radius: 12px; padding: 16px; max-width: 500px; display: none;">
           
           <!-- Name and Mana Cost (top bar) -->
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 8px 12px; background: rgba(0,0,0,0.3); border-radius: 6px;">
-            <div style="font-size: 18px; font-weight: 700; color: #fff;" id="cmd-name">Commander</div>
+            <div style="font-size: 18px; font-weight: 700; color: #fff;" id="cmd-name-card">Commander</div>
             <div id="cmd-cost" style="display: flex; gap: 3px;"></div>
           </div>
           
@@ -476,16 +476,23 @@ body {
           </div>
           
           <!-- Card Text Box -->
-          <div style="background: rgba(0,0,0,0.25); padding: 12px; border-radius: 6px; min-height: 120px; position: relative;">
+          <div style="background: rgba(0,0,0,0.25); padding: 16px; padding-bottom: 48px; border-radius: 6px; min-height: 180px; position: relative;">
             <!-- Flavor text (our description) -->
-            <p style="color: #b0b0c0; font-size: 13px; font-style: italic; line-height: 1.5; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;" id="cmd-desc">Description</p>
+            <p style="color: #b0b0c0; font-size: 13px; font-style: italic; line-height: 1.5; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;" id="cmd-desc-card">Description</p>
             
             <!-- Oracle text (abilities) -->
-            <div id="cmd-oracle-text" style="font-size: 13px; color: #e0e0e0; line-height: 1.7;"></div>
+            <div id="cmd-oracle-text" style="font-size: 13px; color: #e0e0e0; line-height: 1.7; margin-bottom: 8px;"></div>
             
             <!-- P/T in bottom right corner -->
-            <div id="cmd-pt" style="position: absolute; bottom: 12px; right: 12px; font-size: 20px; font-weight: 800; color: #fff; background: rgba(0,0,0,0.4); padding: 4px 12px; border-radius: 4px;"></div>
+            <div id="cmd-pt" style="position: absolute; bottom: 12px; right: 12px; font-size: 20px; font-weight: 800; color: #fff; background: rgba(0,0,0,0.6); padding: 6px 14px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2);"></div>
           </div>
+        </div>
+        
+        <!-- Simple Reference (if no oracle data) -->
+        <div id="cmd-simple" style="display: none;">
+          <div style="font-weight: 700; font-size: 20px; margin-bottom: 8px; color: #fff;" id="cmd-name-simple">Commander</div>
+          <p style="font-size: 14px; color: #b0b0c0; font-style: italic; line-height: 1.6;" id="cmd-desc-simple">Description</p>
+          <p style="font-size: 12px; color: #808090; margin-top: 12px; font-style: italic;">Full card details coming soon...</p>
         </div>
       </div>
       
@@ -1746,7 +1753,7 @@ function initArchetypeOfMonth() {
   
   container.innerHTML = `
     <div style="text-align: center; margin-bottom: 16px;">
-      <div style="font-size: 14px; font-weight: 700; color: #a78bfa; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 16px;">🏆 Mana Archetype Employee of the Month 🏆</div>
+      <div style="font-size: 14px; font-weight: 700; color: #a78bfa; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 16px;">🏆 Employee of the Month 🏆</div>
       <h3 style="font-size: 32px; font-weight: 800; margin-bottom: 12px; color: #e0e0e0;">${archetype.name}</h3>
       ${symbolsHTML}
     </div>
@@ -2049,27 +2056,48 @@ function finishS1() {
   
   let numTop = bigGap.idx + 1;
   
+  console.log('=== GAP & TIE DETECTION ===');
+  console.log('Sorted scores:', sorted.map(([c,v]) => `${c}:${Math.round(v*100)}%`).join(', '));
+  console.log('Biggest gap:', bigGap.gap.toFixed(2), 'at index', bigGap.idx);
+  console.log('Initial numTop:', numTop);
+  
   // CRITICAL: Check for ties AFTER the gap
-  // If colors immediately after the gap are tied (within 2%), include them all
+  // If multiple colors right after the gap are all tied with each other, include them ALL
   const TIE_THRESHOLD = 0.02; // 2% difference = tied
-  while (numTop < sorted.length - 1) {
-    const currentColor = sorted[numTop - 1][1];
-    const nextColor = sorted[numTop][1];
-    if (Math.abs(currentColor - nextColor) <= TIE_THRESHOLD) {
-      // They're tied, include the next color too
-      numTop++;
-    } else {
-      break;
+  
+  if (numTop < sorted.length) {
+    const valueAfterGap = sorted[numTop][1]; // First color after the gap
+    console.log('Value after gap:', Math.round(valueAfterGap*100) + '%', `(${sorted[numTop][0]})`);
+    let tiedCount = 0;
+    
+    // Count how many consecutive colors are tied at this value
+    for (let i = numTop; i < sorted.length; i++) {
+      if (Math.abs(sorted[i][1] - valueAfterGap) <= TIE_THRESHOLD) {
+        console.log(`  sorted[${i}] (${sorted[i][0]}: ${Math.round(sorted[i][1]*100)}%) is tied with ${Math.round(valueAfterGap*100)}%`);
+        tiedCount++;
+      } else {
+        console.log(`  sorted[${i}] (${sorted[i][0]}: ${Math.round(sorted[i][1]*100)}%) is NOT tied, stopping`);
+        break;
+      }
+    }
+    
+    // If we found 2+ tied colors after the gap, include ALL of them
+    if (tiedCount >= 2) {
+      console.log(`Found ${tiedCount} tied colors after gap, expanding numTop from ${numTop} to ${numTop + tiedCount}`);
+      numTop += tiedCount;
     }
   }
+  
+  console.log('Final numTop:', numTop, '→ Top colors:', sorted.slice(0, numTop).map(c => c[0]).join(', '));
+  console.log('==========================');
   
   // ADDITIONAL CHECK: If top 4 colors are all within 12% of each other, it's 4-color
   if (sorted.length >= 4 && (sorted[0][1] - sorted[3][1]) < 0.12) {
     numTop = 4;
     bigGap = {idx: 3, gap: sorted[3][1] - sorted[4][1]};
   }
-  // If top 3 colors are all within 10% of each other, it's 3-color
-  else if (sorted.length >= 3 && (sorted[0][1] - sorted[2][1]) < 0.10 && numTop < 3) {
+  // If top 3 colors are all within 20% of each other, it's 3-color
+  else if (sorted.length >= 3 && (sorted[0][1] - sorted[2][1]) < 0.20 && numTop < 3) {
     numTop = 3;
     bigGap = {idx: 2, gap: sorted[2][1] - sorted[3][1]};
   }
@@ -2436,7 +2464,7 @@ function generateIdentityExplanation(identity, activationSorted) {
     return `Your dominant color is ${colorName[color]} (${topPct}%), significantly stronger than your next color (${secondPct}%). This makes you mono-${colorName[color]}.`;
   }
   else if (idColors.length === 2) {
-    // Guild - check for tied colors
+    // Guild - use the IDENTITY'S colors, not just top 2 from sorted
     const c1 = idColors[0], c2 = idColors[1];
     const c1Pct = pct(activationSorted.find(c => c[0] === c1)?.[1] || 0);
     const c2Pct = pct(activationSorted.find(c => c[0] === c2)?.[1] || 0);
@@ -2448,9 +2476,8 @@ function generateIdentityExplanation(identity, activationSorted) {
     
     // If 3rd or 4th color is within 10% of guild colors, acknowledge the tie
     if (Math.abs(thirdPct - c2Pct) < 10 || Math.abs(fourthPct - c2Pct) < 10) {
-      const top2Names = sorted.slice(0, 2).map(c => colorName[c[0]]);
-      const top2Pcts = sorted.slice(0, 2).map(c => pct(c[1]));
-      return `Your top colors are ${top2Names[0]} (${top2Pcts[0]}%) and ${top2Names[1]} (${top2Pcts[1]}%), making you ${identity}. However, you have multiple colors close together—you're genuinely borderline.`;
+      // Use the ACTUAL identity colors, not top 2 from sorted
+      return `Your top colors are ${colorName[c1]} (${c1Pct}%) and ${colorName[c2]} (${c2Pct}%), making you ${identity}. However, you have multiple colors close together—you're genuinely borderline.`;
     }
     
     const diff = Math.abs(c1Pct - c2Pct);
@@ -2630,31 +2657,35 @@ function showResults() {
     document.getElementById('alternative-results').style.display = 'none';
   }
   
-  document.getElementById('cmd-name').textContent = p.cmd;
-  document.getElementById('cmd-desc').textContent = p.cmdDesc;
-  
-  // Display commander oracle text if available
+  // Display commander with conditional formatting
   const oracleData = COMMANDER_ORACLE[p.cmd];
-  const oracleText = document.getElementById('cmd-oracle-text');
   
   if (oracleData) {
-    // Display mana cost
+    // Show full card frame
+    document.getElementById('cmd-card-frame').style.display = 'block';
+    document.getElementById('cmd-simple').style.display = 'none';
+    
+    // Populate card frame
+    document.getElementById('cmd-name-card').textContent = p.cmd;
+    document.getElementById('cmd-desc-card').textContent = p.cmdDesc;
+    
     const costDiv = document.getElementById('cmd-cost');
     costDiv.innerHTML = renderManaCost(oracleData.cost);
     
-    // Display P/T
     const ptDiv = document.getElementById('cmd-pt');
     ptDiv.textContent = oracleData.pt;
     
-    // Display oracle text - each ability on its own line
+    const oracleText = document.getElementById('cmd-oracle-text');
     oracleText.innerHTML = oracleData.text.map(line => 
       `<div style="margin-bottom: 8px;">${line}</div>`
     ).join('');
   } else {
-    // Clear cost and P/T if no oracle data
-    document.getElementById('cmd-cost').innerHTML = '';
-    document.getElementById('cmd-pt').textContent = '';
-    oracleText.innerHTML = '';
+    // Show simple reference
+    document.getElementById('cmd-card-frame').style.display = 'none';
+    document.getElementById('cmd-simple').style.display = 'block';
+    
+    document.getElementById('cmd-name-simple').textContent = p.cmd;
+    document.getElementById('cmd-desc-simple').textContent = p.cmdDesc;
   }
   
   // Strengths
@@ -2752,31 +2783,35 @@ function switchToAlternative(altIdentity) {
   
   document.getElementById('res-desc').textContent = p.desc;
   document.getElementById('res-counter').textContent = p.pubBanter || '';
-  document.getElementById('cmd-name').textContent = p.cmd;
-  document.getElementById('cmd-desc').textContent = p.cmdDesc;
   
-  // Display commander oracle text if available
+  // Display commander with conditional formatting
   const oracleData = COMMANDER_ORACLE[p.cmd];
-  const oracleText = document.getElementById('cmd-oracle-text');
   
   if (oracleData) {
-    // Display mana cost
+    // Show full card frame
+    document.getElementById('cmd-card-frame').style.display = 'block';
+    document.getElementById('cmd-simple').style.display = 'none';
+    
+    document.getElementById('cmd-name-card').textContent = p.cmd;
+    document.getElementById('cmd-desc-card').textContent = p.cmdDesc;
+    
     const costDiv = document.getElementById('cmd-cost');
     costDiv.innerHTML = renderManaCost(oracleData.cost);
     
-    // Display P/T
     const ptDiv = document.getElementById('cmd-pt');
     ptDiv.textContent = oracleData.pt;
     
-    // Display oracle text - each ability on its own line
+    const oracleText = document.getElementById('cmd-oracle-text');
     oracleText.innerHTML = oracleData.text.map(line => 
       `<div style="margin-bottom: 8px;">${line}</div>`
     ).join('');
   } else {
-    // Clear cost and P/T if no oracle data
-    document.getElementById('cmd-cost').innerHTML = '';
-    document.getElementById('cmd-pt').textContent = '';
-    oracleText.innerHTML = '';
+    // Show simple reference
+    document.getElementById('cmd-card-frame').style.display = 'none';
+    document.getElementById('cmd-simple').style.display = 'block';
+    
+    document.getElementById('cmd-name-simple').textContent = p.cmd;
+    document.getElementById('cmd-desc-simple').textContent = p.cmdDesc;
   }
   
   const strList = document.getElementById('strengths');
