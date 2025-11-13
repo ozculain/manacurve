@@ -305,6 +305,12 @@ body {
           📚 Explore All 31 Personality Types
         </button>
       </div>
+      
+      <div style="margin-top: 12px; text-align: center;">
+        <button onclick="showInteractions()" class="explorer-btn">
+          🤝 How Colors Interact
+        </button>
+      </div>
     </div>
   </div>
 
@@ -521,6 +527,12 @@ body {
         <p style="margin-top: 12px; font-size: 12px; color: #808090; font-style: italic;" id="explorer-hint"></p>
       </div>
       
+      <div style="margin-top: 12px;">
+        <button onclick="showInteractions()" class="explorer-btn">
+          🤝 How Your Colors Interact With Others
+        </button>
+      </div>
+      
       <div style="margin-top: 20px; padding: 20px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; max-width: 600px; margin-left: auto; margin-right: auto;">
         <p style="font-size: 12px; color: #F59E0B; font-weight: 600; margin-bottom: 8px;">⚠️ WARNING: NOT FOR OFFICIAL USE</p>
         <p style="font-size: 11px; color: #d0a070; line-height: 1.6; margin-bottom: 6px;">Do not use this for hiring, firing, promoting, demoting, or any decision affecting actual humans.</p>
@@ -647,6 +659,280 @@ body {
         </div>
       </div>
       
+    </div>
+  </div>
+  
+  <!-- INTERACTIONS GUIDE SCREEN -->
+  <div id="screen-interactions" class="hidden">
+    <div class="card fade-in" style="text-align: center;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+        <button onclick="closeInteractions()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: #a0a0b0; padding: 8px 16px; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: 600;">
+          ← Back
+        </button>
+        <h1 style="font-size: 32px; margin: 0;">How Colors Interact</h1>
+        <div style="width: 80px;"></div>
+      </div>
+      
+      <p style="color: #a0a0b0; margin-bottom: 8px;">Communication and conflict resolution across the five colors</p>
+    </div>
+    
+    <!-- Communication Strategies -->
+    <div class="card fade-in">
+      <h3 style="font-size: 20px; margin-bottom: 16px; color: #a78bfa;">Communication Strategies</h3>
+      <p style="font-size: 13px; color: #808090; margin-bottom: 24px; font-style: italic;">How to effectively communicate with each color</p>
+      
+      <div style="display: grid; gap: 16px;">
+        <!-- White -->
+        <div style="background: rgba(255,255,255,0.03); border-left: 4px solid #F59E0B; padding: 16px; border-radius: 8px;">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+            <span class="mana-symbol mana-W" style="width: 32px; height: 32px; font-size: 16px;">W</span>
+            <h4 style="font-size: 16px; font-weight: 700; margin: 0;">Talking to WHITE</h4>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div>
+              <div style="font-size: 12px; color: #10B981; text-transform: uppercase; margin-bottom: 8px; font-weight: 600;">✓ DO</div>
+              <ul style="list-style: none; padding: 0; font-size: 13px; color: #d0d0d0; line-height: 1.7;">
+                <li>• Frame in terms of team benefit</li>
+                <li>• Acknowledge fairness concerns</li>
+                <li>• Show proper process</li>
+                <li>• Build consensus</li>
+              </ul>
+            </div>
+            <div>
+              <div style="font-size: 12px; color: #EF4444; text-transform: uppercase; margin-bottom: 8px; font-weight: 600;">✗ DON'T</div>
+              <ul style="list-style: none; padding: 0; font-size: 13px; color: #d0d0d0; line-height: 1.7;">
+                <li>• Present as purely self-serving</li>
+                <li>• Skip process or ignore rules</li>
+                <li>• Make unilateral decisions</li>
+                <li>• Rush without buy-in</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Blue -->
+        <div style="background: rgba(255,255,255,0.03); border-left: 4px solid #3B82F6; padding: 16px; border-radius: 8px;">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+            <span class="mana-symbol mana-U" style="width: 32px; height: 32px; font-size: 16px;">U</span>
+            <h4 style="font-size: 16px; font-weight: 700; margin: 0;">Talking to BLUE</h4>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div>
+              <div style="font-size: 12px; color: #10B981; text-transform: uppercase; margin-bottom: 8px; font-weight: 600;">✓ DO</div>
+              <ul style="list-style: none; padding: 0; font-size: 13px; color: #d0d0d0; line-height: 1.7;">
+                <li>• Provide data and analysis</li>
+                <li>• Explain the logic</li>
+                <li>• Give time to think</li>
+                <li>• Respect expertise</li>
+              </ul>
+            </div>
+            <div>
+              <div style="font-size: 12px; color: #EF4444; text-transform: uppercase; margin-bottom: 8px; font-weight: 600;">✗ DON'T</div>
+              <ul style="list-style: none; padding: 0; font-size: 13px; color: #d0d0d0; line-height: 1.7;">
+                <li>• Rush without analysis</li>
+                <li>• Appeal only to emotion</li>
+                <li>• Make unsubstantiated claims</li>
+                <li>• Be imprecise or vague</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Black -->
+        <div style="background: rgba(255,255,255,0.03); border-left: 4px solid #6B7280; padding: 16px; border-radius: 8px;">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+            <span class="mana-symbol mana-B" style="width: 32px; height: 32px; font-size: 16px;">B</span>
+            <h4 style="font-size: 16px; font-weight: 700; margin: 0;">Talking to BLACK</h4>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div>
+              <div style="font-size: 12px; color: #10B981; text-transform: uppercase; margin-bottom: 8px; font-weight: 600;">✓ DO</div>
+              <ul style="list-style: none; padding: 0; font-size: 13px; color: #d0d0d0; line-height: 1.7;">
+                <li>• Be direct about mutual benefit</li>
+                <li>• Respect boundaries</li>
+                <li>• Negotiate clearly</li>
+                <li>• Don't waste time</li>
+              </ul>
+            </div>
+            <div>
+              <div style="font-size: 12px; color: #EF4444; text-transform: uppercase; margin-bottom: 8px; font-weight: 600;">✗ DON'T</div>
+              <ul style="list-style: none; padding: 0; font-size: 13px; color: #d0d0d0; line-height: 1.7;">
+                <li>• Expect altruism</li>
+                <li>• Be indirect or hint</li>
+                <li>• Appeal only to morality</li>
+                <li>• Assume they'll help for free</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Red -->
+        <div style="background: rgba(255,255,255,0.03); border-left: 4px solid #EF4444; padding: 16px; border-radius: 8px;">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+            <span class="mana-symbol mana-R" style="width: 32px; height: 32px; font-size: 16px;">R</span>
+            <h4 style="font-size: 16px; font-weight: 700; margin: 0;">Talking to RED</h4>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div>
+              <div style="font-size: 12px; color: #10B981; text-transform: uppercase; margin-bottom: 8px; font-weight: 600;">✓ DO</div>
+              <ul style="list-style: none; padding: 0; font-size: 13px; color: #d0d0d0; line-height: 1.7;">
+                <li>• Be authentic and passionate</li>
+                <li>• Get to the point quickly</li>
+                <li>• Bring energy</li>
+                <li>• Act, don't just plan</li>
+              </ul>
+            </div>
+            <div>
+              <div style="font-size: 12px; color: #EF4444; text-transform: uppercase; margin-bottom: 8px; font-weight: 600;">✗ DON'T</div>
+              <ul style="list-style: none; padding: 0; font-size: 13px; color: #d0d0d0; line-height: 1.7;">
+                <li>• Over-analyze everything</li>
+                <li>• Be cold or emotionless</li>
+                <li>• Make them wait unnecessarily</li>
+                <li>• Constrain their freedom</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Green -->
+        <div style="background: rgba(255,255,255,0.03); border-left: 4px solid #10B981; padding: 16px; border-radius: 8px;">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+            <span class="mana-symbol mana-G" style="width: 32px; height: 32px; font-size: 16px;">G</span>
+            <h4 style="font-size: 16px; font-weight: 700; margin: 0;">Talking to GREEN</h4>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div>
+              <div style="font-size: 12px; color: #10B981; text-transform: uppercase; margin-bottom: 8px; font-weight: 600;">✓ DO</div>
+              <ul style="list-style: none; padding: 0; font-size: 13px; color: #d0d0d0; line-height: 1.7;">
+                <li>• Give them time</li>
+                <li>• Respect precedent</li>
+                <li>• Don't force immediate change</li>
+                <li>• Value their experience</li>
+              </ul>
+            </div>
+            <div>
+              <div style="font-size: 12px; color: #EF4444; text-transform: uppercase; margin-bottom: 8px; font-weight: 600;">✗ DON'T</div>
+              <ul style="list-style: none; padding: 0; font-size: 13px; color: #d0d0d0; line-height: 1.7;">
+                <li>• Rush or pressure</li>
+                <li>• Dismiss tradition</li>
+                <li>• Force artificial solutions</li>
+                <li>• Ignore accumulated wisdom</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Conflict Resolution -->
+    <div class="card fade-in">
+      <h3 style="font-size: 20px; margin-bottom: 16px; color: #a78bfa;">Conflict Resolution</h3>
+      <p style="font-size: 13px; color: #808090; margin-bottom: 24px; font-style: italic;">Understanding and resolving the five core color tensions</p>
+      
+      <div style="display: grid; gap: 16px;">
+        <div style="background: rgba(255,255,255,0.03); padding: 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+            <span class="mana-symbol mana-W" style="width: 28px; height: 28px; font-size: 14px;">W</span>
+            <span style="font-size: 20px; color: #808090;">↔</span>
+            <span class="mana-symbol mana-B" style="width: 28px; height: 28px; font-size: 14px;">B</span>
+            <h4 style="font-size: 16px; font-weight: 700; margin: 0;">Community vs. Self-Interest</h4>
+          </div>
+          <p style="font-size: 13px; color: #b0b0b0; margin-bottom: 8px;"><strong>Source:</strong> White prioritizes team, Black prioritizes self</p>
+          <p style="font-size: 13px; color: #10B981;"><strong>Resolution:</strong> Clarify when each value applies ("our people first" = Black's tribe, broader community = White's fairness)</p>
+        </div>
+        
+        <div style="background: rgba(255,255,255,0.03); padding: 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+            <span class="mana-symbol mana-U" style="width: 28px; height: 28px; font-size: 14px;">U</span>
+            <span style="font-size: 20px; color: #808090;">↔</span>
+            <span class="mana-symbol mana-R" style="width: 28px; height: 28px; font-size: 14px;">R</span>
+            <h4 style="font-size: 16px; font-weight: 700; margin: 0;">Planning vs. Action</h4>
+          </div>
+          <p style="font-size: 13px; color: #b0b0b0; margin-bottom: 8px;"><strong>Source:</strong> Blue wants more analysis, Red wants to act now</p>
+          <p style="font-size: 13px; color: #10B981;"><strong>Resolution:</strong> Time-box planning phase, then execute with learning loops</p>
+        </div>
+        
+        <div style="background: rgba(255,255,255,0.03); padding: 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+            <span class="mana-symbol mana-B" style="width: 28px; height: 28px; font-size: 14px;">B</span>
+            <span style="font-size: 20px; color: #808090;">↔</span>
+            <span class="mana-symbol mana-G" style="width: 28px; height: 28px; font-size: 14px;">G</span>
+            <h4 style="font-size: 16px; font-weight: 700; margin: 0;">Extraction vs. Sustainability</h4>
+          </div>
+          <p style="font-size: 13px; color: #b0b0b0; margin-bottom: 8px;"><strong>Source:</strong> Black maximizes short-term, Green preserves long-term</p>
+          <p style="font-size: 13px; color: #10B981;"><strong>Resolution:</strong> Define regeneration rate, extract within sustainable limits</p>
+        </div>
+        
+        <div style="background: rgba(255,255,255,0.03); padding: 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+            <span class="mana-symbol mana-R" style="width: 28px; height: 28px; font-size: 14px;">R</span>
+            <span style="font-size: 20px; color: #808090;">↔</span>
+            <span class="mana-symbol mana-W" style="width: 28px; height: 28px; font-size: 14px;">W</span>
+            <h4 style="font-size: 16px; font-weight: 700; margin: 0;">Freedom vs. Order</h4>
+          </div>
+          <p style="font-size: 13px; color: #b0b0b0; margin-bottom: 8px;"><strong>Source:</strong> Red wants autonomy, White wants coordination</p>
+          <p style="font-size: 13px; color: #10B981;"><strong>Resolution:</strong> Minimum viable structure with clear boundaries but freedom inside</p>
+        </div>
+        
+        <div style="background: rgba(255,255,255,0.03); padding: 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+            <span class="mana-symbol mana-G" style="width: 28px; height: 28px; font-size: 14px;">G</span>
+            <span style="font-size: 20px; color: #808090;">↔</span>
+            <span class="mana-symbol mana-U" style="width: 28px; height: 28px; font-size: 14px;">U</span>
+            <h4 style="font-size: 16px; font-weight: 700; margin: 0;">Acceptance vs. Improvement</h4>
+          </div>
+          <p style="font-size: 13px; color: #b0b0b0; margin-bottom: 8px;"><strong>Source:</strong> Green accepts what works, Blue wants to optimize everything</p>
+          <p style="font-size: 13px; color: #10B981;"><strong>Resolution:</strong> Preserve what demonstrably works, improve what demonstrably doesn't</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- De-escalation Strategies -->
+    <div class="card fade-in">
+      <h3 style="font-size: 20px; margin-bottom: 16px; color: #a78bfa;">De-escalation Strategies</h3>
+      <p style="font-size: 13px; color: #808090; margin-bottom: 24px; font-style: italic;">When someone is upset, here's what they need</p>
+      
+      <div style="display: grid; gap: 12px;">
+        <div style="background: rgba(255,255,255,0.03); padding: 14px; border-radius: 6px; border-left: 3px solid #F59E0B;">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+            <span class="mana-symbol mana-W" style="width: 24px; height: 24px; font-size: 12px;">W</span>
+            <strong style="font-size: 14px;">When WHITE is upset:</strong>
+          </div>
+          <p style="font-size: 13px; color: #d0d0d0;">Acknowledge impact on team, show concern for fairness, propose systematic solution, rebuild community connection</p>
+        </div>
+        
+        <div style="background: rgba(255,255,255,0.03); padding: 14px; border-radius: 6px; border-left: 3px solid #3B82F6;">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+            <span class="mana-symbol mana-U" style="width: 24px; height: 24px; font-size: 12px;">U</span>
+            <strong style="font-size: 14px;">When BLUE is upset:</strong>
+          </div>
+          <p style="font-size: 13px; color: #d0d0d0;">Provide analysis and data, show logical reasoning, give time to process, address inefficiency directly</p>
+        </div>
+        
+        <div style="background: rgba(255,255,255,0.03); padding: 14px; border-radius: 6px; border-left: 3px solid #6B7280;">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+            <span class="mana-symbol mana-B" style="width: 24px; height: 24px; font-size: 12px;">B</span>
+            <strong style="font-size: 14px;">When BLACK is upset:</strong>
+          </div>
+          <p style="font-size: 13px; color: #d0d0d0;">Acknowledge their interests weren't served, negotiate clear resolution, make explicit commitments, respect their boundaries</p>
+        </div>
+        
+        <div style="background: rgba(255,255,255,0.03); padding: 14px; border-radius: 6px; border-left: 3px solid #EF4444;">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+            <span class="mana-symbol mana-R" style="width: 24px; height: 24px; font-size: 12px;">R</span>
+            <strong style="font-size: 14px;">When RED is upset:</strong>
+          </div>
+          <p style="font-size: 13px; color: #d0d0d0;">Let them express emotion, don't invalidate feelings, act quickly to resolve, bring energy and passion</p>
+        </div>
+        
+        <div style="background: rgba(255,255,255,0.03); padding: 14px; border-radius: 6px; border-left: 3px solid #10B981;">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+            <span class="mana-symbol mana-G" style="width: 24px; height: 24px; font-size: 12px;">G</span>
+            <strong style="font-size: 14px;">When GREEN is upset:</strong>
+          </div>
+          <p style="font-size: 13px; color: #d0d0d0;">Give them time and space, don't force immediate change, respect their experience, slow down the pace</p>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -2705,6 +2991,92 @@ function showDetail(id) {
   
   // Scroll detail panel to top
   document.getElementById('detail-panel').scrollTop = 0;
+}
+
+// ============================================================================
+// INTERACTIONS GUIDE FUNCTIONS
+// ============================================================================
+function showInteractions() {
+  // Hide current screen
+  document.getElementById('screen-welcome').classList.add('hidden');
+  document.getElementById('screen-results').classList.add('hidden');
+  document.getElementById('screen-explorer').classList.add('hidden');
+  document.getElementById('screen-interactions').classList.remove('hidden');
+  
+  // If coming from results (user has an identity), personalize it
+  if (state.result && !state.result.isExplorer) {
+    personalizeInteractions();
+  } else {
+    // Generic view
+    document.getElementById('your-colors-section').style.display = 'none';
+  }
+  
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function closeInteractions() {
+  document.getElementById('screen-interactions').classList.add('hidden');
+  
+  // Return to previous screen
+  if (state.result && !state.result.isExplorer) {
+    document.getElementById('screen-results').classList.remove('hidden');
+  } else {
+    document.getElementById('screen-welcome').classList.remove('hidden');
+  }
+  
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function personalizeInteractions() {
+  const p = PROFILES[state.result.identity];
+  if (!p) return;
+  
+  // Show and populate "Your Colors" section
+  document.getElementById('your-colors-section').style.display = 'block';
+  
+  // Populate your symbols
+  const symsDiv = document.getElementById('interactions-your-symbols');
+  symsDiv.innerHTML = '';
+  p.colors.forEach(c => {
+    const s = document.createElement('span');
+    s.className = `mana-symbol mana-${c}`;
+    s.style.cssText = 'width: 36px; height: 36px; font-size: 18px;';
+    s.textContent = c;
+    symsDiv.appendChild(s);
+  });
+  
+  document.getElementById('interactions-your-name').textContent = p.name;
+  document.getElementById('interactions-your-tag').textContent = p.tag;
+  
+  // Generate personalized interaction guidance
+  const yourContent = document.getElementById('interactions-your-content');
+  let content = '<div style="font-size: 14px; color: #d0d0d0; line-height: 1.7;">';
+  
+  content += '<p style="margin-bottom: 16px;"><strong>Your strongest colors are:</strong> ';
+  content += p.colors.map(c => ['White','Blue','Black','Red','Green'][['W','U','B','R','G'].indexOf(c)]).join(' and ');
+  content += '.</p>';
+  
+  content += '<p style="margin-bottom: 12px;"><strong>This means you naturally:</strong></p>';
+  content += '<ul style="list-style: none; padding-left: 0; margin-bottom: 16px;">';
+  
+  // Add natural tendencies based on colors
+  const colorTraits = {
+    W: 'Value team coordination and fairness',
+    U: 'Seek optimal strategies through analysis',
+    B: 'Prioritize results and self-advocacy',
+    R: 'Trust your instincts and act quickly',
+    G: 'Prefer proven approaches and patience'
+  };
+  
+  p.colors.forEach(c => {
+    content += `<li style="padding: 4px 0;">• ${colorTraits[c]}</li>`;
+  });
+  
+  content += '</ul>';
+  content += '<p><strong>Scroll down to see how to work with people who think differently from you.</strong></p>';
+  content += '</div>';
+  
+  yourContent.innerHTML = content;
 }
 
 // HELPER FUNCTIONS
