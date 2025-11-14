@@ -1190,6 +1190,11 @@ const COMMANDER_ORACLE = {
     pt: '5/5',
     text: ['When Obzedat enters, target opponent loses 2 life and you gain 2 life.', 'At the beginning of your end step, you may exile Obzedat. If you do, return it to the battlefield under your control at the beginning of your next upkeep. It gains haste.']
   },
+  "Yuriko, the Tiger's Shadow": {
+    cost: '{1}{U}{B}',
+    pt: '1/3',
+    text: ['Commander ninjutsu {U}{B} ({U}{B}, Return an unblocked attacker you control to hand: Put this card onto the battlefield from your hand or the command zone tapped and attacking.)', 'Whenever a Ninja you control deals combat damage to a player, reveal the top card of your library and put that card into your hand. Each opponent loses life equal to that card\'s mana value.']
+  },
   'Niv-Mizzet, Parun': {
     cost: '{U}{U}{U}{R}{R}{R}',
     pt: '5/5',
@@ -1279,6 +1284,11 @@ const COMMANDER_ORACLE = {
   },
   
   // FOUR-COLOR
+  "Atraxa, Praetors' Voice": {
+    cost: '{G}{W}{U}{B}',
+    pt: '4/4',
+    text: ['Flying', 'Vigilance', 'Deathtouch', 'Lifelink', 'At the beginning of your end step, proliferate. (Choose any number of permanents and/or players, then give each another counter of each kind already there.)']
+  },
   'Breya, Etherium Shaper': {
     cost: '{W}{U}{B}{R}',
     pt: '4/4',
@@ -2096,13 +2106,13 @@ function finishS1() {
   console.log('Final numTop:', numTop, '→ Top colors:', sorted.slice(0, numTop).map(c => c[0]).join(', '));
   console.log('==========================');
   
-  // ADDITIONAL CHECK: If top 4 colors are all within 12% of each other, it's 4-color
-  if (sorted.length >= 4 && (sorted[0][1] - sorted[3][1]) < 0.12) {
+  // ADDITIONAL CHECK: If top 4 colors are all within 12% of each other AND there wasn't a big gap earlier, it's 4-color
+  if (sorted.length >= 4 && (sorted[0][1] - sorted[3][1]) < 0.12 && bigGap.gap < 0.15) {
     numTop = 4;
     bigGap = {idx: 3, gap: sorted[3][1] - sorted[4][1]};
   }
   // If top 3 colors are all within 20% of each other, it's 3-color
-  else if (sorted.length >= 3 && (sorted[0][1] - sorted[2][1]) < 0.20 && numTop < 3) {
+  else if (sorted.length >= 3 && (sorted[0][1] - sorted[2][1]) < 0.20) {
     numTop = 3;
     bigGap = {idx: 2, gap: sorted[2][1] - sorted[3][1]};
   }
@@ -2117,15 +2127,42 @@ function finishS1() {
   
   // MONO (1 dominant)
   if (numTop === 1 || (t1 >= 0.83 && t2 <= 0.42)) {
-    identity = 'MONO-' + sorted[0][0];
+    identity = 'MONO-' + sorted[0][0].toUpperCase();
     if (t1 >= 0.83 && bigGap.gap >= 0.4 && t2 < 0.5) {
       confidence = 'HIGH';
     } else if (t2 >= 0.5) {
       needsS2 = true;
+      // MONO stays as first candidate for testing
       candidates = [{id: identity, s1: t1}];
-      findGuildsWithColor(sorted[0][0]).slice(0,3).forEach(g => 
-        candidates.push({id: g, s1: t1 * 0.5})
-      );
+      
+      // Add guilds with PROPER s1 scores AND minimum color threshold
+      const MIN_SECOND_COLOR = 0.40; // Second color must be at least 40% to be viable guild
+      
+      const guilds = findGuildsWithColor(sorted[0][0]).slice(0,3);
+      guilds.forEach(guildId => {
+        const guildColors = getGuildColors(guildId);
+        if (guildColors && guildColors.length === 2) {
+          // Calculate s1 from actual color activations
+          const c1 = guildColors[0];
+          const c2 = guildColors[1];
+          const c1Act = activation[c1] || 0;
+          const c2Act = activation[c2] || 0;
+          
+          // Only include guild if BOTH colors are reasonably strong
+          if (c1Act >= MIN_SECOND_COLOR && c2Act >= MIN_SECOND_COLOR) {
+            const guildS1 = (c1Act + c2Act) / 2;
+            candidates.push({id: guildId, s1: guildS1});
+            console.log(`Stage 2 candidate: ${guildId} (${c1}=${Math.round(c1Act*100)}%, ${c2}=${Math.round(c2Act*100)}%) → s1 = ${Math.round(guildS1*100)}%`);
+          } else {
+            console.log(`Skipping ${guildId}: ${c1}=${Math.round(c1Act*100)}% or ${c2}=${Math.round(c2Act*100)}% below ${MIN_SECOND_COLOR*100}% threshold`);
+          }
+        } else {
+          // Fallback if colors not found
+          candidates.push({id: guildId, s1: t1 * 0.5});
+        }
+      });
+      
+      console.log('Final Stage 2 candidates for MONO:', candidates.map(c => c.id).join(', '));
     }
   }
   // GUILD (2 colors)
@@ -2141,15 +2178,24 @@ function finishS1() {
       candidates = [{id: identity, s1: (t1+t2)/2}];
       
       // ONLY add guilds using the ACTUAL top 3 colors, not adjacent guilds with 4th/5th colors
-      // If third color is reasonably close (>45%), include guilds with it
-      if (t3 >= 0.45) {
+      // If third color is reasonably close (>=40%), include guilds with it
+      const MIN_COLOR_FOR_GUILD = 0.40;
+      
+      if (t3 >= MIN_COLOR_FOR_GUILD) {
         // Can include guilds made from top 3 colors
         for (let i = 0; i < 3; i++) {
           for (let j = i+1; j < 3; j++) {
-            const gc = [sorted[i][0], sorted[j][0]].sort().join('');
+            const c1 = sorted[i][0].toUpperCase();
+            const c2 = sorted[j][0].toUpperCase();
+            const gc = [c1, c2].sort().join('');
             const guildId = getGuild(gc);
-            if (guildId !== identity && !candidates.find(c => c.id === guildId)) {
-              candidates.push({id: guildId, s1: (sorted[i][1] + sorted[j][1])/2});
+            
+            // Double-check both colors are >= threshold
+            if (sorted[i][1] >= MIN_COLOR_FOR_GUILD && sorted[j][1] >= MIN_COLOR_FOR_GUILD) {
+              if (guildId !== identity && !candidates.find(c => c.id === guildId)) {
+                candidates.push({id: guildId, s1: (sorted[i][1] + sorted[j][1])/2});
+                console.log(`DUAL Stage 2 candidate: ${guildId} (${c1}=${Math.round(sorted[i][1]*100)}%, ${c2}=${Math.round(sorted[j][1]*100)}%)`);
+              }
             }
           }
         }
@@ -2174,10 +2220,18 @@ function finishS1() {
         for (let j = i+1; j < top.length && j < 3; j++) {
           // Check if these two from top 3 are close
           if (Math.abs(top[i][1] - top[j][1]) < 0.10) {
-            const gc = [top[i][0], top[j][0]].sort().join('');
+            const gc = [top[i][0].toUpperCase(), top[j][0].toUpperCase()].sort().join('');
             candidates.push({id: getGuild(gc), s1: (top[i][1] + top[j][1])/2});
           }
         }
+      }
+      
+      // Also test if it's actually MONO of the top color
+      const topColor = sorted[0][0].toUpperCase();
+      const monoId = 'MONO-' + topColor;
+      if (!candidates.find(c => c.id === monoId)) {
+        candidates.push({id: monoId, s1: t1});
+        console.log(`Adding MONO-${topColor} as candidate (s1=${Math.round(t1*100)}%) - might be mono not tri-color`);
       }
     }
   }
@@ -2209,7 +2263,100 @@ function finishS1() {
   } else if (needsS2) {
     showInterstitial(candidates.length > 0 ? candidates : [{id: identity, s1: 0}]);
   } else {
-    state.result = {identity, confidence};
+    // MODERATE or LOW confidence without Stage 2
+    // Generate alternatives based on score patterns
+    const simpleAlternatives = [];
+    
+    // Add primary identity
+    const primaryScore = numTop === 1 ? t1 : 
+                        numTop === 2 ? (t1 + t2) / 2 : 
+                        numTop === 3 ? (t1 + t2 + t3) / 3 : 
+                        (t1 + t2 + t3 + t4) / 4;
+    simpleAlternatives.push([identity, {s1: primaryScore, s2: 0}]);
+    
+    // Generate alternatives
+    if (numTop === 2) {
+      // Dual - check if third color strong enough for tri
+      if (t3 >= 0.50 || (confidence === 'LOW' && t3 >= 0.40)) {
+        const c1 = sorted[0][0].toUpperCase();
+        const c2 = sorted[1][0].toUpperCase();
+        const c3 = sorted[2][0].toUpperCase();
+        const threeId = getThree([c1, c2, c3].sort().join(''));
+        if (threeId && !simpleAlternatives.find(a => a[0] === threeId)) {
+          simpleAlternatives.push([threeId, {s1: (t1 + t2 + t3) / 3, s2: 0}]);
+        }
+      }
+      // If LOW confidence with gap, suggest mono of first color
+      if (confidence === 'LOW' && (t1 - t2) >= 0.15) {
+        const monoId = 'MONO-' + sorted[0][0].toUpperCase();
+        if (!simpleAlternatives.find(a => a[0] === monoId)) {
+          simpleAlternatives.push([monoId, {s1: t1, s2: 0}]);
+        }
+      }
+      // For LOW, add other nearby guilds from top 3
+      if (confidence === 'LOW' && simpleAlternatives.length < 3) {
+        for (let i = 0; i < 3 && i < sorted.length; i++) {
+          for (let j = i+1; j < 3 && j < sorted.length; j++) {
+            const c1 = sorted[i][0].toUpperCase();
+            const c2 = sorted[j][0].toUpperCase();
+            const gc = [c1, c2].sort().join('');
+            const guildId = getGuild(gc);
+            if (guildId && guildId !== identity && !simpleAlternatives.find(a => a[0] === guildId)) {
+              simpleAlternatives.push([guildId, {s1: (sorted[i][1] + sorted[j][1]) / 2, s2: 0}]);
+            }
+          }
+        }
+      }
+    } else if (numTop === 3) {
+      // Tri - check if third is weak (might be dual)
+      if (t3 < 0.50) {
+        const c1 = sorted[0][0].toUpperCase();
+        const c2 = sorted[1][0].toUpperCase();
+        const gc = [c1, c2].sort().join('');
+        const guildId = getGuild(gc);
+        if (guildId && !simpleAlternatives.find(a => a[0] === guildId)) {
+          simpleAlternatives.push([guildId, {s1: (t1 + t2) / 2, s2: 0}]);
+        }
+      }
+      // For LOW, add component guilds
+      if (confidence === 'LOW') {
+        for (let i = 0; i < 3; i++) {
+          for (let j = i+1; j < 3; j++) {
+            const c1 = sorted[i][0].toUpperCase();
+            const c2 = sorted[j][0].toUpperCase();
+            const gc = [c1, c2].sort().join('');
+            const guildId = getGuild(gc);
+            if (guildId && !simpleAlternatives.find(a => a[0] === guildId)) {
+              simpleAlternatives.push([guildId, {s1: (sorted[i][1] + sorted[j][1]) / 2, s2: 0}]);
+            }
+          }
+        }
+      }
+    } else if (numTop === 1) {
+      // Mono - check if second color significant
+      if (t2 >= 0.40) {
+        const c1 = sorted[0][0].toUpperCase();
+        const c2 = sorted[1][0].toUpperCase();
+        const gc = [c1, c2].sort().join('');
+        const guildId = getGuild(gc);
+        if (guildId && !simpleAlternatives.find(a => a[0] === guildId)) {
+          simpleAlternatives.push([guildId, {s1: (t1 + t2) / 2, s2: 0}]);
+        }
+      }
+    }
+    
+    // Ensure we have at least 2 alternatives for LOW confidence
+    if (confidence === 'LOW' && simpleAlternatives.length === 1) {
+      simpleAlternatives.push(['GUIDANCE', {s1: 0, s2: 0, note: 'Consider the 100-question assessment for more precision'}]);
+    }
+    
+    console.log('Generated simpleAlternatives:', simpleAlternatives.map(a => a[0]).join(', '));
+    
+    state.result = {
+      identity, 
+      confidence,
+      allResults: simpleAlternatives
+    };
     showCalculating();
   }
 }
@@ -2371,23 +2518,44 @@ function generateStage2Reason(sorted, candidates) {
 function finishS2() {
   const validResults = {};
   
+  console.log('=== STAGE 2 SCORING ===');
+  console.log('Candidates:', state.candidates.map(c => c.id).join(', '));
+  
   state.candidates.forEach(cand => {
     const id = cand.id;
     const s1Score = cand.s1;
     
     const appeared = state.s2Track.appear[id] || 0;
-    if (appeared === 0) return;
-    
     const selected = state.s2Track.select[id] || 0;
-    const s2Rate = selected / appeared;
+    
+    // MONO candidates won't appear in scenarios but should still be scored
+    let s2Rate = 0;
+    if (appeared > 0) {
+      s2Rate = selected / appeared;
+    } else if (id.startsWith('MONO-')) {
+      // MONO gets tested implicitly through guild scenarios
+      // If you picked guilds strongly, mono loses
+      // If guilds weren't compelling, mono wins on s1 alone
+      s2Rate = 0; // Neutral scoring for MONO
+      console.log(`${id} is MONO - keeping in ranking with s2=0 (tested implicitly)`);
+    } else {
+      // Non-MONO that didn't appear - exclude it
+      console.log(`${id} appeared 0 times, excluding`);
+      return;
+    }
     
     // Stage 1 is PRIMARY (80/20) - Stage 2 just confirms
     const combined = s1Score * 0.8 + s2Rate * 0.2;
     
     validResults[id] = {combined, s1: s1Score, s2: s2Rate, appeared, selected};
+    console.log(`${id}: s1=${Math.round(s1Score*100)}%, s2=${Math.round(s2Rate*100)}%, combined=${Math.round(combined*100)}%`);
   });
   
+  console.log('validResults:', Object.keys(validResults).join(', '));
+  
   const ranked = Object.entries(validResults).sort((a,b) => b[1].combined - a[1].combined);
+  console.log('Ranked results:', ranked.map(r => `${r[0]}(${Math.round(r[1].combined*100)}%)`).join(', '));
+  console.log('=======================');
   
   if (ranked.length === 0) {
     const sorted = state.activationSorted;
@@ -2575,9 +2743,37 @@ function showResults() {
   
   // Show alternatives for LOW or MODERATE confidence if borderline
   const allResults = state.result.allResults || [];
+  console.log('=== DISPLAYING ALTERNATIVES ===');
+  console.log('Confidence:', state.result.confidence);
+  console.log('allResults:', allResults.map(a => a[0]).join(', '));
+  console.log('allResults.length:', allResults.length);
   
-  // Check if top colors are very close (tied pattern)
-  const colorsTied = sorted.length >= 3 && Math.abs(sorted[1][1] - sorted[2][1]) < 0.10;
+  // Check if top colors are borderline (pattern-specific checks)
+  let colorsTied = false;
+  const isGuild = state.result.identity && (state.result.identity.length === 2 || 
+    ['AZORIUS','SELESNYA','ORZHOV','DIMIR','IZZET','SIMIC','RAKDOS','GOLGARI','GRUUL','BOROS'].includes(state.result.identity));
+  const isThreeColor = state.result.identity && 
+    ['BANT','ESPER','GRIXIS','JUND','NAYA','ABZAN','JESKAI','SULTAI','MARDU','TEMUR'].includes(state.result.identity);
+  
+  if (isGuild && sorted.length >= 2) {
+    // For guild: check if top 2 colors very close
+    colorsTied = Math.abs(sorted[0][1] - sorted[1][1]) < 0.05;
+  } else if (isThreeColor && sorted.length >= 3) {
+    // For three-color: check if spread across top 3 is small
+    const spread = sorted[0][1] - sorted[2][1];
+    colorsTied = spread < 0.08;
+  } else if (sorted.length >= 3) {
+    // For other patterns: check if 2nd and 3rd are tied
+    colorsTied = Math.abs(sorted[1][1] - sorted[2][1]) < 0.08;
+  }
+  
+  // Always show alternatives for MODERATE or LOW confidence
+  if ((state.result.confidence === 'MODERATE' || state.result.confidence === 'LOW') && allResults.length === 0) {
+    colorsTied = true; // Force display if no allResults but confidence not HIGH
+  }
+  
+  console.log('colorsTied:', colorsTied);
+  console.log('isGuild:', isGuild, 'isThreeColor:', isThreeColor);
   
   // Show if (LOW or MODERATE confidence) AND (colors are tied OR we have actual alternatives)
   const shouldShowAlternatives = (state.result.confidence === 'LOW' || state.result.confidence === 'MODERATE') && 
@@ -2616,15 +2812,67 @@ function showResults() {
     const altList = document.getElementById('alternatives-list');
     altList.innerHTML = '';
     
+    console.log('=== ALTERNATIVE SELECTION ===');
+    console.log('allResults.length:', allResults.length);
+    if (allResults.length > 0) {
+      console.log('allResults[0] (winner):', allResults[0][0], Math.round((allResults[0][1].combined || allResults[0][1].s1)*100) + '%');
+      console.log('state.result.identity (displayed):', state.result.identity);
+      console.log('Match?', allResults[0][0] === state.result.identity);
+    }
+    console.log('Full allResults:', allResults.map(a => `${a[0]}(${Math.round((a[1].combined || a[1].s1)*100)}%)`).join(', '));
+    
     // Get alternatives from allResults (ranked Stage 2 results), excluding winner
     const alternatives = allResults.slice(1, 4);
-    console.log('Alternatives to display:', alternatives.length, alternatives);
+    console.log('Alternatives after slice(1,4):', alternatives.map(a => a[0]).join(', '));
+    console.log('==============================');
     
-    alternatives.forEach(alt => {
+    // If we have no alternatives but LOW/MODERATE confidence, show guidance
+    if (alternatives.length === 0) {
+      const guidanceDiv = document.createElement('div');
+      guidanceDiv.style.cssText = 'background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 10px; padding: 20px;';
+      
+      if (state.result.confidence === 'LOW') {
+        guidanceDiv.innerHTML = `
+          <div style="font-size: 16px; font-weight: 600; color: #F59E0B; margin-bottom: 12px;">⚠️ Pattern Not Clear</div>
+          <div style="font-size: 14px; color: #c0c0d0; line-height: 1.6;">
+            Your color distribution doesn't show strong clustering. You might be genuinely balanced across approaches,
+            or you may need more questions for precision.
+            <br><br>
+            <strong>Recommendation:</strong> Take the 100-question assessment for a clearer pattern.
+          </div>
+        `;
+      } else {
+        guidanceDiv.innerHTML = `
+          <div style="font-size: 14px; color: #c0c0d0; line-height: 1.6;">
+            Your pattern points most strongly to <strong>${state.result.identity}</strong>, 
+            though confidence is moderate. The 100-question assessment may provide additional clarity.
+          </div>
+        `;
+      }
+      altList.appendChild(guidanceDiv);
+    } else {
+      // Render actual alternatives
+      alternatives.forEach(alt => {
       console.log('Processing alternative:', alt[0]);
+      
+      // Handle GUIDANCE type
+      if (alt[0] === 'GUIDANCE') {
+        const guidanceDiv = document.createElement('div');
+        guidanceDiv.style.cssText = 'background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 10px; padding: 16px; margin-bottom: 12px;';
+        guidanceDiv.innerHTML = `
+          <div style="font-weight: 600; margin-bottom: 8px; color: #F59E0B;">📋 Recommendation</div>
+          <div style="font-size: 14px; color: #c0c0d0;">${alt[1].note}</div>
+        `;
+        altList.appendChild(guidanceDiv);
+        return;
+      }
+      
       const altProfile = PROFILES[alt[0]];
-      console.log('Profile found:', !!altProfile);
-      if (!altProfile) return;
+      console.log('Profile found for', alt[0], ':', !!altProfile);
+      if (!altProfile) {
+        console.warn('No profile found for:', alt[0]);
+        return;
+      }
       
       const altCard = document.createElement('div');
       altCard.style.cssText = 'background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 10px; padding: 16px; cursor: pointer; transition: all 0.2s;';
@@ -2657,6 +2905,7 @@ function showResults() {
       altCard.appendChild(descDiv);
       altList.appendChild(altCard);
     });
+    } // Close else block for alternatives rendering
   } else {
     // Hide alternatives if not genuinely borderline
     document.getElementById('alternative-results').style.display = 'none';
