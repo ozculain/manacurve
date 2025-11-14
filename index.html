@@ -206,9 +206,90 @@ body {
     grid-template-columns: 1fr !important;
   }
 }
+
+/* ==================================================================== */
+/* ENHANCEMENTS: Shimmer, Glow, Modal, Round Display */
+/* ==================================================================== */
+
+.progress-shimmer { position: relative; overflow: hidden; }
+.progress-shimmer::before {
+  content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+  background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.15) 50%, transparent 70%);
+  animation: shimmer 3s infinite; pointer-events: none;
+}
+@keyframes shimmer {
+  0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+  100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+}
+.progress-opalescent { box-shadow: inset 0 1px 2px rgba(255,255,255,0.4), inset 0 -1px 2px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.2); }
+.dominant-glow { animation: pulse-glow 2s infinite; }
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 10px rgba(167,139,250,0.5), inset 0 0 10px rgba(167,139,250,0.2); }
+  50% { box-shadow: 0 0 20px rgba(167,139,250,0.8), inset 0 0 15px rgba(167,139,250,0.4); }
+}
+#modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.90); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.modal-content-wrapper { max-width: 900px; max-height: 90vh; width: 100%; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border: 2px solid rgba(139,92,246,0.4); border-radius: 20px; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.8); animation: slideUp 0.4s; }
+@keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+.modal-close { position: sticky; top: 16px; float: right; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #e0e0e0; width: 40px; height: 40px; border-radius: 50%; font-size: 20px; line-height: 38px; text-align: center; cursor: pointer; transition: all 0.2s; margin: 16px; }
+.modal-close:hover { background: rgba(255,255,255,0.2); transform: rotate(90deg); }
+.deep-dive-btn { width: 100%; background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.3); color: #c4b5fd; padding: 18px 24px; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin: 10px 0; text-align: left; display: block; }
+.deep-dive-btn:hover { background: rgba(139,92,246,0.2); border-color: rgba(139,92,246,0.5); transform: translateX(6px); color: #e9d5ff; }
+.round-section { background: rgba(30,30,46,0.5); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 24px; margin: 20px 0; }
+
+/* Modal Tab System */
+.modal-tabs { display: flex; gap: 8px; border-bottom: 2px solid rgba(255,255,255,0.1); margin-bottom: 32px; flex-wrap: wrap; }
+.tab-btn { background: none; border: none; color: #a0a0b0; padding: 12px 20px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; border-bottom: 3px solid transparent; margin-bottom: -2px; }
+.tab-btn.active { color: #c4b5fd; border-bottom-color: #a78bfa; }
+.tab-btn:hover { color: #d0d0e0; }
+.tab-content { display: block; }
+.tab-content.hidden { display: none; }
+
+/* Info Boxes Within Tabs */
+.info-box { background: rgba(30, 30, 46, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-left: 4px solid #a78bfa; border-radius: 12px; padding: 24px; margin: 20px 0; }
+.info-box.strength { border-left-color: #10B981; }
+.info-box.shadow { border-left-color: #EF4444; }
+.info-box.stress { border-left-color: #F59E0B; }
+.info-box.development { border-left-color: #3B82F6; }
+.box-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.box-header h4 { font-size: 16px; font-weight: 700; color: #e0e0e0; text-transform: uppercase; letter-spacing: 1px; margin: 0; }
+.box-content { font-size: 14px; line-height: 1.7; color: #d0d0d0; }
+.box-content ul { list-style: none; padding: 0; margin: 0; }
+.box-content li { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.box-content li:last-child { border-bottom: none; }
+.quick-fact { background: rgba(139,92,246,0.08); padding: 16px; border-radius: 8px; margin: 12px 0; border-left: 3px solid #a78bfa; }
+.quick-fact strong { color: #c4b5fd; display: block; margin-bottom: 6px; font-size: 13px; }
+
 </style>
 </head>
 <body>
+<!-- ENHANCEMENT: Modal Overlay -->
+<div id="modal-overlay" class="hidden" onclick="closeModal()">
+  <div class="modal-content-wrapper" onclick="event.stopPropagation()">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div style="padding: 32px 48px 48px 48px;">
+      <div id="modal-header" style="margin-bottom: 24px;">
+        <!-- Identity name, tagline, symbols go here -->
+      </div>
+      
+      <div class="modal-tabs" style="display: flex; gap: 8px; border-bottom: 2px solid rgba(255,255,255,0.1); margin-bottom: 32px;">
+        <button class="tab-btn active" onclick="switchModalTab(event, 'overview')">Overview</button>
+        <button class="tab-btn" onclick="switchModalTab(event, 'philosophy')">Philosophy</button>
+        <button class="tab-btn" onclick="switchModalTab(event, 'workplace')">Workplace</button>
+        <button class="tab-btn" onclick="switchModalTab(event, 'stress')">Stress</button>
+        <button class="tab-btn" onclick="switchModalTab(event, 'development')">Development</button>
+      </div>
+      
+      <div id="modal-body" style="min-height: 400px;">
+        <div id="tab-overview" class="tab-content"><!-- Overview --></div>
+        <div id="tab-philosophy" class="tab-content hidden"><!-- Philosophy --></div>
+        <div id="tab-workplace" class="tab-content hidden"><!-- Workplace --></div>
+        <div id="tab-stress" class="tab-content hidden"><!-- Stress --></div>
+        <div id="tab-development" class="tab-content hidden"><!-- Development --></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <div class="container">
   <div id="screen-welcome" class="fade-in">
@@ -338,10 +419,10 @@ body {
           <span>Stage 1: Initial (30q)</span>
           <span id="s2-hint" style="opacity: 0.5;">Stage 2: Refinement (varies)</span>
         </div>
-        <div style="position: relative; height: 12px;">
+        <div style="position: relative; height: 12px; overflow: hidden;">
           <div style="position: absolute; width: 100%; height: 12px; background: rgba(255,255,255,0.05); border-radius: 6px;"></div>
-          <div id="prog-s1" style="position: absolute; height: 12px; background: linear-gradient(90deg, #FDE047, #93C5FD, #D1D5DB, #FCA5A5, #6EE7B7); border-radius: 6px; transition: width 0.3s; width: 0%;"></div>
-          <div id="prog-s2" style="position: absolute; height: 12px; background: rgba(139, 92, 246, 0.6); border-radius: 6px; transition: width 0.3s; width: 0%;"></div>
+          <div id="prog-s1" style="position: absolute; height: 12px; background: linear-gradient(90deg, #FDE047, #93C5FD, #D1D5DB, #FCA5A5, #6EE7B7); border-radius: 6px; transition: all 0.3s; width: 0%;"></div>
+          <div id="prog-s2" style="position: absolute; height: 12px; background: rgba(139, 92, 246, 0.6); border-radius: 6px; transition: all 0.3s; width: 0%; opacity: 0;"></div>
         </div>
       </div>
     </div>
@@ -390,6 +471,43 @@ body {
     </div>
   </div>
 
+  <div id="screen-early-offer" class="hidden">
+    <div class="card fade-in" style="text-align: center;">
+      <div style="display: flex; justify-content: center; gap: 12px; margin-bottom: 24px;">
+        <span class="mana-symbol mana-W">W</span>
+        <span class="mana-symbol mana-U">U</span>
+        <span class="mana-symbol mana-B">B</span>
+        <span class="mana-symbol mana-R">R</span>
+        <span class="mana-symbol mana-G">G</span>
+      </div>
+      
+      <h2 style="font-size: 36px; margin-bottom: 16px;">🎯 Round 1 Complete: Clear Result</h2>
+      <p style="color: #a0a0b0; margin-bottom: 32px;">Based on 30 workplace decisions, you appear to be:</p>
+      
+      <div style="background: rgba(139, 92, 246, 0.1); border: 2px solid rgba(139, 92, 246, 0.4); border-radius: 16px; padding: 32px; margin: 24px auto; max-width: 500px;">
+        <div style="display: flex; justify-content: center; gap: 12px; margin-bottom: 16px;" id="early-symbols"></div>
+        <h3 style="font-size: 32px; margin-bottom: 12px;" id="early-result-name">IDENTITY</h3>
+        <p style="font-size: 18px; color: #a0a0b0; margin-bottom: 16px;" id="early-result-tag">Tagline</p>
+        <span class="confidence-badge confidence-HIGH" id="early-confidence">90% CONFIDENCE</span>
+        <p style="margin-top: 16px; font-size: 14px; color: #d0d0d0; line-height: 1.6;" id="early-message">Explanation message</p>
+      </div>
+      
+      <div style="display: grid; gap: 16px; max-width: 600px; margin: 32px auto;">
+        <button onclick="showResultsEarly()" style="background: linear-gradient(135deg, #a78bfa 0%, #ec4899 100%); border: none; color: #fff; padding: 20px 32px; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);">
+          See My Results Now
+          <div style="font-size: 13px; font-weight: 400; margin-top: 6px; opacity: 0.9;">Skip Round 2 — I'm confident this is accurate</div>
+        </button>
+        
+        <button onclick="continueToRound2()" style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.2); color: #e0e0e0; padding: 20px 32px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+          Continue to Round 2
+          <div style="font-size: 13px; font-weight: 400; margin-top: 6px; color: #a0a0b0;">12 more questions to verify and refine (recommended)</div>
+        </button>
+      </div>
+      
+      <p style="font-size: 13px; color: #808090; margin-top: 24px; font-style: italic; max-width: 500px; margin-left: auto; margin-right: auto;">Recommendation: Round 2 adds precision and tests edge cases. Takes about 5 minutes. Most people continue to get the most accurate result.</p>
+    </div>
+  </div>
+
   <div id="screen-calculating" class="hidden">
     <div class="card fade-in" style="text-align: center; min-height: 400px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
       <h2 style="font-size: 36px; margin-bottom: 32px;">Calculating Your Mana Curve...</h2>
@@ -427,11 +545,12 @@ body {
         <p style="font-size: 24px; color: #a0a0b0; margin-bottom: 16px;" id="res-tag">Tagline</p>
         <span class="confidence-badge" id="conf-badge">CONFIDENCE</span>
         <p style="margin-top: 12px; font-size: 13px; color: #808090; font-style: italic;" id="conf-exp">Explanation</p>
+
       </div>
       
       <!-- LOW confidence alternatives - shown right here if LOW -->
       <div id="alternative-results" style="display: none; margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.1);">
-        <div style="font-size: 14px; font-weight: 600; color: #a78bfa; margin-bottom: 16px;">🔀 You're Borderline. Could Also Be:</div>
+        <div style="font-size: 14px; font-weight: 600; color: #a78bfa; margin-bottom: 16px;">🔀 You're borderline. Based on your choices, you could also be:</div>
         <div style="background: rgba(139, 92, 246, 0.15); padding: 16px; border-radius: 8px; margin-bottom: 16px;">
           <p style="font-size: 14px; color: #e0e0e0; line-height: 1.6;" id="why-explanation">Explanation</p>
         </div>
@@ -515,12 +634,36 @@ body {
         <p style="font-size: 12px; color: #808090; margin-bottom: 12px; font-style: italic;">Where this identity typically thrives:</p>
         <p style="color: #a0a0b0; margin-bottom: 12px;" id="roles">Roles</p>
       </div>
+      
+      <!-- PRIMARY Color Indicator (only for multi-color with dominant) -->
+      <div id="primary-color-indicator" style="display: none; margin: 32px 0; padding: 20px; background: rgba(139, 92, 246, 0.15); border: 1px solid rgba(139, 92, 246, 0.4); border-radius: 12px; border-left: 4px solid #a78bfa;">
+        <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #a78bfa; margin-bottom: 8px; font-weight: 600;">⭐ PRIMARY COLOR WITHIN THIS COMBINATION</div>
+        <p style="font-size: 15px; color: #e0e0e0; font-weight: 600; line-height: 1.6;"></p>
+      </div>
     </div>
     
+
+      <!-- ENHANCEMENT: Deep Dive Button -->
+      <div style="margin: 40px 0; padding: 32px 0; border-top: 2px solid rgba(255,255,255,0.1);">
+        <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 20px; color: #e0e0e0;">📚 Explore Your Identity</h3>
+        <button class="deep-dive-btn" onclick="showDeepDive('philosophy', state.result.identity)">
+          <span style="font-size: 16px;">→</span> Full Philosophy & Workplace Patterns
+        </button>
+      </div>
     <div class="card fade-in">
       <h3 style="font-size: 24px; margin-bottom: 8px;">Your Mana Pool</h3>
       <p style="font-size: 13px; color: #808090; margin-bottom: 24px; font-style: italic;">Your philosophical mana base. How you're actually built.</p>
       <div id="breakdown"></div>
+    </div>
+    
+    <!-- ENHANCEMENT: Round 1/Round 2 Display - MOVED TO BOTTOM -->
+    <div class="card fade-in" id="decision-patterns-section" style="display: none;">
+      <h3 style="font-size: 22px; font-weight: 700; margin-bottom: 16px; color: #e0e0e0;">🎯 Pattern Testing Results</h3>
+      <p style="font-size: 14px; color: #a0a0b0; margin-bottom: 24px;">Stage 2 tested you on different pattern combinations to refine your result. Here's how you responded to each pattern:</p>
+      <div id="round2-container">
+        <div id="round2-bars"></div>
+        <p id="round2-note" style="font-size: 13px; color: #10B981; margin-top: 20px; font-weight: 600;"></p>
+      </div>
     </div>
     
     <div style="text-align: center; margin-top: 32px;" class="fade-in">
@@ -1318,6 +1461,94 @@ const COMMANDER_ORACLE = {
   }
 };
 
+// ============================================================================
+// POOL D: MONO VS MULTI-COLOR DISCRIMINATION
+// ============================================================================
+const POOL_D = {
+  'MONO-VS-MULTI': [
+    {
+      id: 'D-DEPTH-001',
+      ctx: 'Career Development',
+      sc: 'Choosing how to develop your professional capabilities over the next 3-5 years.',
+      r: [
+        {text: 'Become recognized world-class expert in one specific domain through deep sustained focus', pattern: 'MONO'},
+        {text: 'Develop strong complementary capabilities in two related areas that work together strategically', pattern: 'GUILD'},
+        {text: 'Build versatile skillset across multiple domains for adaptability and range', pattern: 'THREE'}
+      ]
+    },
+    {
+      id: 'D-DEPTH-002',
+      ctx: 'Learning Approach',
+      sc: 'You have limited time to invest in professional development this year.',
+      r: [
+        {text: 'Go extremely deep in your core domain—become THE expert people consult', pattern: 'MONO'},
+        {text: 'Develop proficiency in two areas that complement each other strategically', pattern: 'GUILD'},
+        {text: 'Learn broadly across multiple relevant areas to handle diverse challenges', pattern: 'THREE'}
+      ]
+    },
+    {
+      id: 'D-DEPTH-003',
+      ctx: 'Team Role Preference',
+      sc: 'Choosing which type of role you want on a team.',
+      r: [
+        {text: 'The specialist everyone consults for deep expertise in specific area', pattern: 'MONO'},
+        {text: 'The bridge person who connects two different domains or perspectives', pattern: 'GUILD'},
+        {text: 'The versatile generalist who can handle multiple different types of problems', pattern: 'THREE'}
+      ]
+    },
+    {
+      id: 'D-DEPTH-004',
+      ctx: 'Problem-Solving Style',
+      sc: 'How you naturally approach complex workplace challenges.',
+      r: [
+        {text: 'Apply deep specialized knowledge from my core domain with focused precision', pattern: 'MONO'},
+        {text: 'Combine insights from two complementary perspectives for integrated solutions', pattern: 'GUILD'},
+        {text: 'Draw on multiple different approaches depending on what the situation requires', pattern: 'THREE'}
+      ]
+    },
+    {
+      id: 'D-DEPTH-005',
+      ctx: 'Professional Identity',
+      sc: 'How you think about your professional identity and reputation.',
+      r: [
+        {text: 'I am THE [job title]—singular clear identity based on deep focused expertise', pattern: 'MONO'},
+        {text: 'I blend two professional identities that reinforce each other strategically', pattern: 'GUILD'},
+        {text: 'I have multifaceted professional identity drawing on several different capabilities', pattern: 'THREE'}
+      ]
+    },
+    {
+      id: 'D-DEPTH-006',
+      ctx: 'Work Engagement',
+      sc: 'What type of work keeps you most engaged over time.',
+      r: [
+        {text: 'Going deeper and deeper into one domain—never exhausting what can be learned', pattern: 'MONO'},
+        {text: 'Switching between two different types of work that balance each other', pattern: 'GUILD'},
+        {text: 'Variety across multiple domains—different problems requiring different approaches', pattern: 'THREE'}
+      ]
+    },
+    {
+      id: 'D-DEPTH-007',
+      ctx: 'Skill Ceiling Philosophy',
+      sc: 'Your philosophy about mastery and capability limits.',
+      r: [
+        {text: 'True mastery requires complete devotion to single pursuit—cannot serve two masters', pattern: 'MONO'},
+        {text: 'Can achieve excellence in two areas through disciplined balanced development', pattern: 'GUILD'},
+        {text: 'Competence across multiple areas provides more value than perfection in one', pattern: 'THREE'}
+      ]
+    },
+    {
+      id: 'D-DEPTH-008',
+      ctx: 'Organizational Value',
+      sc: 'How you create value in organizations over your career.',
+      r: [
+        {text: 'Be the irreplaceable expert in critical domain that organization depends on', pattern: 'MONO'},
+        {text: 'Combine two strategic capabilities that few others can integrate effectively', pattern: 'GUILD'},
+        {text: 'Adapt across multiple roles and contexts as organization needs evolve', pattern: 'THREE'}
+      ]
+    }
+  ]
+};
+
 const PROFILES = {
   'MONO-W':{
     name:'MONO-WHITE',
@@ -1694,6 +1925,54 @@ const PROFILES = {
 };
 
 // ============================================================================
+// ============================================================================
+// ENHANCEMENT: Morphing Progress Bar
+// ============================================================================
+function updateProgressGradient() {
+  if (state.stage !== 1 || state.qNum === 0) return 'linear-gradient(90deg, #FDE047 0% 20%, #93C5FD 20% 40%, #D1D5DB 40% 60%, #FCA5A5 60% 80%, #6EE7B7 80% 100%)';
+  
+  // Calculate current activation using pairwise scores
+  const activation = {
+    W: ((state.pairwise['W-B']?.W || 0) / 6 + (state.pairwise['W-R']?.W || 0) / 6) / 2,
+    U: ((state.pairwise['U-R']?.U || 0) / 6 + (state.pairwise['G-U']?.U || 0) / 6) / 2,
+    B: ((state.pairwise['W-B']?.B || 0) / 6 + (state.pairwise['B-G']?.B || 0) / 6) / 2,
+    R: ((state.pairwise['U-R']?.R || 0) / 6 + (state.pairwise['W-R']?.R || 0) / 6) / 2,
+    G: ((state.pairwise['G-U']?.G || 0) / 6 + (state.pairwise['B-G']?.G || 0) / 6) / 2
+  };
+  
+  // Normalize to percentages
+  const total = Object.values(activation).reduce((sum, val) => sum + val, 0);
+  if (total === 0) return 'linear-gradient(90deg, #FDE047 0% 20%, #93C5FD 20% 40%, #D1D5DB 40% 60%, #FCA5A5 60% 80%, #6EE7B7 80% 100%)';
+  
+  const pcts = {
+    W: (activation.W / total) * 100,
+    U: (activation.U / total) * 100,
+    B: (activation.B / total) * 100,
+    R: (activation.R / total) * 100,
+    G: (activation.G / total) * 100
+  };
+  
+  // Create gradient based on percentages (W=yellow, U=blue, B=gray, R=red, G=green)
+  const colors = [
+    { color: '#FDE047', pct: pcts.W },  // Yellow for White
+    { color: '#93C5FD', pct: pcts.U },  // Blue for Blue
+    { color: '#D1D5DB', pct: pcts.B },  // Gray for Black
+    { color: '#FCA5A5', pct: pcts.R },  // Red for Red
+    { color: '#6EE7B7', pct: pcts.G }   // Green for Green
+  ];
+  
+  // Build gradient stops
+  let position = 0;
+  const stops = [];
+  colors.forEach((c, i) => {
+    stops.push(`${c.color} ${position.toFixed(1)}%`);
+    position += c.pct;
+    stops.push(`${c.color} ${position.toFixed(1)}%`);
+  });
+  
+  return `linear-gradient(90deg, ${stops.join(', ')})`;
+}
+
 // STATE & INITIALIZATION
 // ============================================================================
 let state = {
@@ -1932,13 +2211,35 @@ function showQ() {
   if (state.stage === 1) {
     document.getElementById('stage-label').textContent = 'Stage 1';
     const pct = Math.round((state.qNum / 30) * 100);
-    document.getElementById('prog-s1').style.width = pct + '%';
-    document.getElementById('prog-s2').style.width = '0%';
+    const progBar = document.getElementById('prog-s1');
+    const prog2Bar = document.getElementById('prog-s2');
+    
+    progBar.style.width = pct + '%';
+    progBar.style.opacity = '1';
+    prog2Bar.style.width = '0%';
+    prog2Bar.style.opacity = '0';
+    
+    // ENHANCEMENT: Apply morphing gradient and shimmer effect
+    if (state.qNum > 0) {
+      progBar.style.background = updateProgressGradient();
+      if (!progBar.classList.contains('progress-shimmer')) {
+        progBar.classList.add('progress-shimmer', 'progress-opalescent');
+      }
+    }
   } else {
     document.getElementById('stage-label').textContent = 'Stage 2';
-    document.getElementById('prog-s1').style.width = '100%';
+    const prog1Bar = document.getElementById('prog-s1');
+    const prog2Bar = document.getElementById('prog-s2');
+    
+    // Fade out Stage 1 bar, fade in Stage 2 bar
+    prog1Bar.style.opacity = '0';
+    prog2Bar.style.opacity = '1';
+    prog2Bar.style.width = '0%';
+    
     const pct = Math.round((state.qNum / state.qTot) * 100);
-    document.getElementById('prog-s2').style.width = pct + '%';
+    setTimeout(() => {
+      prog2Bar.style.width = pct + '%';
+    }, 50);
   }
   
   document.getElementById('ctx').textContent = q.ctx || 'Context';
@@ -1960,12 +2261,21 @@ function showQ() {
   
   document.getElementById('instr').innerHTML = 'Choose the response <strong>more like you</strong>.';
 
-  // Track Stage 2 appearances
+  // Track Stage 2 appearances (both guilds and Pool D patterns)
   if (state.stage === 2 && state.s2Track && q.r) {
     q.r.forEach(resp => {
       const guild = resp.g || resp.guild;
       if (guild) {
         state.s2Track.appear[guild] = (state.s2Track.appear[guild] || 0) + 1;
+      }
+      
+      // Track pattern appearances for Pool D scenarios
+      const pattern = resp.pattern;
+      if (pattern) {
+        if (!state.s2Track.patternAppear) {
+          state.s2Track.patternAppear = {MONO: 0, GUILD: 0, THREE: 0};
+        }
+        state.s2Track.patternAppear[pattern]++;
       }
     });
   }
@@ -2023,16 +2333,36 @@ function answerQ(resp) {
     state.pairwise[pair][color]++;
   }
   
-  // Stage 2: Track guild selections
+  // Stage 2: Track guild selections AND Pool D pattern selections
   if (state.stage === 2) {
     const guild = resp.g || resp.guild;
+    const pattern = resp.pattern; // Pool D responses have pattern: 'MONO', 'GUILD', or 'THREE'
+    
     if (guild) {
       state.s2Track.select[guild] = (state.s2Track.select[guild] || 0) + 1;
+    }
+    
+    // For Pool D scenarios, also track pattern preferences
+    if (pattern) {
+      if (!state.s2Track.patternPreference) {
+        state.s2Track.patternPreference = {MONO: 0, GUILD: 0, THREE: 0};
+      }
+      state.s2Track.patternPreference[pattern]++;
+      console.log(`Pool D selection: ${pattern} (total: ${state.s2Track.patternPreference[pattern]})`);
     }
   }
   
   state.qNum++;
   
+  
+  // ENHANCEMENT: Update morphing progress bar
+  if (state.stage === 1) {
+    const progBar = document.getElementById('prog-s1');
+    if (progBar) {
+      progBar.style.background = updateProgressGradient();
+      progBar.classList.add('progress-opalescent', 'progress-shimmer');
+    }
+  }
   updateDebug();
   
   if (state.qNum < state.qTot) {
@@ -2043,6 +2373,180 @@ function answerQ(resp) {
     finishS2();
   }
 }
+
+// ============================================================================
+// ENHANCEMENT: Adaptive Assessment Helper Functions
+// ============================================================================
+
+function getCandidateType(id) {
+  if (id.startsWith('MONO-')) return 'MONO';
+  if (id === 'WUBRG') return 'FIVE';
+  // Check if it's a guild (2 colors)
+  const guildNames = ['AZORIUS','DIMIR','RAKDOS','GRUUL','SELESNYA','ORZHOV','IZZET','GOLGARI','SIMIC','BOROS'];
+  if (guildNames.includes(id)) return 'GUILD';
+  // Otherwise three-color or four-color
+  if (PROFILES[id]?.colors?.length === 3) return 'THREE';
+  if (PROFILES[id]?.colors?.length === 4) return 'FOUR';
+  return 'UNKNOWN';
+}
+
+function calculateRound1Confidence(activationSorted) {
+  const colorNames = {W:'White', U:'Blue', B:'Black', R:'Red', G:'Green'};
+  const pct = v => Math.round(v * 100);
+  
+  const [top, second, third, fourth] = activationSorted.slice(0, 4);
+  
+  // MONO confidence check: One color clearly dominant
+  if (top[1] >= 0.75 && (top[1] - second[1]) >= 0.30) {
+    const monoId = 'MONO-' + top[0].toUpperCase();
+    return {
+      type: 'MONO',
+      identity: monoId,
+      confidence: 0.90,
+      needsRound2: false,
+      message: `You clearly prefer ${colorNames[top[0]]} (${pct(top[1])}%) over other approaches—significantly higher than your next color (${pct(second[1])}%). This is a strong mono-color result.`
+    };
+  }
+  
+  // GUILD confidence check: Two colors clearly ahead
+  if (top[1] >= 0.70 && second[1] >= 0.65 && (second[1] - third[1]) >= 0.25) {
+    const guildId = getGuild([top[0], second[0]].sort().join(''));
+    const guildProf = PROFILES[guildId];
+    return {
+      type: 'GUILD',
+      identity: guildId,
+      confidence: 0.85,
+      needsRound2: false,
+      message: `You clearly blend ${colorNames[top[0]]} (${pct(top[1])}%) and ${colorNames[second[1]]} (${pct(second[1])}%), both significantly higher than other colors. This indicates a clear ${guildProf?.name || guildId} identity.`
+    };
+  }
+  
+  // THREE-COLOR confidence check: Top 3 clustered with clear gap to 4th
+  if (top[1] >= 0.65 && second[1] >= 0.60 && third[1] >= 0.55 && 
+      (top[1] - third[1]) < 0.15 && (third[1] - fourth[1]) >= 0.20) {
+    const threeId = getThree([top[0], second[0], third[0]].sort().join(''));
+    const threeProf = PROFILES[threeId];
+    return {
+      type: 'THREE',
+      identity: threeId,
+      confidence: 0.80,
+      needsRound2: false,
+      message: `Your top three colors cluster together (${pct(top[1])}%, ${pct(second[1])}%, ${pct(third[1])}%) with a clear gap to your fourth (${pct(fourth[1])}%). This indicates a ${threeProf?.name || threeId} identity.`
+    };
+  }
+  
+  // NEEDS ROUND 2
+  return {
+    type: 'UNCLEAR',
+    confidence: 0.60,
+    needsRound2: true,
+    message: null
+  };
+}
+
+function showEarlyTerminationOffer(confidenceData) {
+  // Store for later use
+  window.earlyConfidenceData = confidenceData;
+  
+  document.getElementById('screen-interstitial').classList.add('hidden');
+  document.getElementById('screen-early-offer').classList.remove('hidden');
+  
+  const prof = PROFILES[confidenceData.identity];
+  
+  // Set identity display
+  document.getElementById('early-result-name').textContent = prof.name;
+  document.getElementById('early-result-tag').textContent = prof.tag;
+  document.getElementById('early-confidence').textContent = Math.round(confidenceData.confidence * 100) + '% CONFIDENCE';
+  document.getElementById('early-message').textContent = confidenceData.message;
+  
+  // Set mana symbols
+  const syms = document.getElementById('early-symbols');
+  syms.innerHTML = '';
+  prof.colors.forEach(c => {
+    const s = document.createElement('span');
+    s.className = `mana-symbol mana-${c}`;
+    s.textContent = c;
+    s.style.width = '36px';
+    s.style.height = '36px';
+    s.style.fontSize = '18px';
+    syms.appendChild(s);
+  });
+  
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+
+function showResultsEarly() {
+  const data = window.earlyConfidenceData;
+  
+  // Set result without Round 2 data
+  state.result = {
+    identity: data.identity,
+    confidence: data.confidence >= 0.90 ? 'HIGH' : 'MODERATE',
+    earlyTermination: true,
+    allResults: [],
+    s2Data: null
+  };
+  
+  showCalculating();
+}
+
+function continueToRound2() {
+  // User chose to continue
+  document.getElementById('screen-early-offer').classList.add('hidden');
+  document.getElementById('screen-interstitial').classList.remove('hidden');
+  
+  // Continue with normal flow
+  setTimeout(() => {
+    document.getElementById('screen-interstitial').classList.add('hidden');
+    document.getElementById('screen-assessment').classList.remove('hidden');
+    startS2(state.pendingCandidates);
+  }, 100);
+}
+
+function calculateCombinedScore(candidateId, data) {
+  const candidateType = getCandidateType(candidateId);
+  const classification = state.classification || 'UNCLEAR';
+  
+  let weight_r1, weight_r2;
+  
+  // CASE 1: Testing same category (guild vs guild, three vs three)
+  if (classification === candidateType) {
+    // Round 1 is fairly reliable for this
+    weight_r1 = 0.70;
+    weight_r2 = 0.30;
+  }
+  // CASE 2: Testing mono vs multi (fundamentally different)
+  else if (classification === 'MONO' && candidateType !== 'MONO') {
+    // Round 2 Pool D directly tests this - weight it heavily
+    weight_r1 = 0.40;
+    weight_r2 = 0.60;
+  }
+  else if (classification !== 'MONO' && candidateType === 'MONO') {
+    // Reverse case - still weight Round 2 heavily
+    weight_r1 = 0.40;
+    weight_r2 = 0.60;
+  }
+  // CASE 3: Testing guild vs three-color
+  else if ((classification === 'GUILD' && candidateType === 'THREE') ||
+           (classification === 'THREE' && candidateType === 'GUILD')) {
+    // Round 2 is important but Round 1 still informative
+    weight_r1 = 0.55;
+    weight_r2 = 0.45;
+  }
+  // CASE 4: Unclear or other
+  else {
+    // Default balanced weighting
+    weight_r1 = 0.60;
+    weight_r2 = 0.40;
+  }
+  
+  const combined = data.s1 * weight_r1 + data.s2 * weight_r2;
+  
+  console.log(`${candidateId}: weights ${Math.round(weight_r1*100)}/${Math.round(weight_r2*100)}, s1=${Math.round(data.s1*100)}%, s2=${Math.round(data.s2*100)}%, combined=${Math.round(combined*100)}%`);
+  
+  return combined;
+}
+
 function finishS1() {
   // Calculate activation strength
   const activation = {
@@ -2106,8 +2610,39 @@ function finishS1() {
   console.log('Final numTop:', numTop, '→ Top colors:', sorted.slice(0, numTop).map(c => c[0]).join(', '));
   console.log('==========================');
   
+  // Get activation values for easy reference
+  const [t1, t2, t3, t4, t5] = sorted.map(c => c[1]);
+  
+  // CRITICAL CHECK FIRST: Five-color detection
+  // If all 5 colors are within 20% of each other, this is FIVE-COLOR (balanced)
+  const all5Spread = t1 - t5;
+  
+  console.log('=== FIVE-COLOR CHECK ===');
+  console.log(`All 5 spread: ${Math.round(all5Spread*100)}% (${Math.round(t1*100)}% - ${Math.round(t5*100)}%)`);
+  
+  if (all5Spread < 0.20) {
+    console.log(`FIVE-COLOR DETECTED: All 5 colors within 20% - this is balanced/five-color`);
+    numTop = 5;
+    bigGap = {idx: 4, gap: 0}; // No meaningful gap
+  }
+  // Also check: Minimum gap threshold - if biggest gap < 15%, colors too close
+  else if (bigGap.gap < 0.15) {
+    console.log(`No meaningful gap found (biggest: ${Math.round(bigGap.gap*100)}% < 15%)`);
+    // Check if it's five-color or four-color based on spread
+    if (all5Spread < 0.25) {
+      console.log(`All 5 spread ${Math.round(all5Spread*100)}% < 25% → FIVE-COLOR`);
+      numTop = 5;
+    } else if ((sorted[0][1] - sorted[3][1]) < 0.15) {
+      console.log(`Top 4 within 15% → FOUR-COLOR`);
+      numTop = 4;
+      bigGap = {idx: 3, gap: sorted[3][1] - sorted[4][1]};
+    }
+  }
+  console.log('After five-color check, numTop:', numTop);
+  console.log('========================');
+  
   // ADDITIONAL CHECK: If top 4 colors are all within 12% of each other AND there wasn't a big gap earlier, it's 4-color
-  if (sorted.length >= 4 && (sorted[0][1] - sorted[3][1]) < 0.12 && bigGap.gap < 0.15) {
+  if (numTop !== 5 && sorted.length >= 4 && (sorted[0][1] - sorted[3][1]) < 0.12 && bigGap.gap < 0.15) {
     numTop = 4;
     bigGap = {idx: 3, gap: sorted[3][1] - sorted[4][1]};
   }
@@ -2118,7 +2653,6 @@ function finishS1() {
   }
   
   const top = sorted.slice(0, numTop);
-  const [t1, t2, t3, t4] = sorted.map(c => c[1]);
   
   let identity = null;
   let confidence = 'MODERATE';
@@ -2214,24 +2748,42 @@ function finishS1() {
     } else {
       needsS2 = true;
       candidates = [{id: identity, s1: (t1+t2+t3)/3}];
-      // STRICT: Only component guilds from THE ACTUAL TOP 3 COLORS
-      // top[0], top[1], top[2] are the three colors before the gap
+      
+      // STRICT: Only add the 2 CLOSEST component guilds (not all 3)
+      // This prevents guild bias in Round 2 (was 3 three-color vs 9 guild scenarios)
+      const guildPairs = [];
       for (let i = 0; i < top.length && i < 3; i++) {
         for (let j = i+1; j < top.length && j < 3; j++) {
-          // Check if these two from top 3 are close
-          if (Math.abs(top[i][1] - top[j][1]) < 0.10) {
-            const gc = [top[i][0].toUpperCase(), top[j][0].toUpperCase()].sort().join('');
-            candidates.push({id: getGuild(gc), s1: (top[i][1] + top[j][1])/2});
-          }
+          const gap = Math.abs(top[i][1] - top[j][1]);
+          const gc = [top[i][0].toUpperCase(), top[j][0].toUpperCase()].sort().join('');
+          guildPairs.push({guild: getGuild(gc), s1: (top[i][1] + top[j][1])/2, gap: gap});
         }
       }
       
+      // Sort by smallest gap (closest pairs) and take top 2
+      guildPairs.sort((a, b) => a.gap - b.gap);
+      guildPairs.slice(0, 2).forEach(pair => {
+        if (pair.guild && !candidates.find(c => c.id === pair.guild)) {
+          candidates.push({id: pair.guild, s1: pair.s1});
+          console.log(`Adding guild candidate: ${pair.guild} (gap: ${Math.round(pair.gap*100)}%)`);
+        }
+      });
+      
+      console.log(`THREE-COLOR testing: 1 three-color + ${guildPairs.slice(0,2).length} closest guilds (reduced from 3 to prevent guild bias)`);
+      
       // Also test if it's actually MONO of the top color
-      const topColor = sorted[0][0].toUpperCase();
-      const monoId = 'MONO-' + topColor;
-      if (!candidates.find(c => c.id === monoId)) {
-        candidates.push({id: monoId, s1: t1});
-        console.log(`Adding MONO-${topColor} as candidate (s1=${Math.round(t1*100)}%) - might be mono not tri-color`);
+      // BUT ONLY if the top 3 spread is significant (>20%)
+      const top3Spread = sorted[0][1] - sorted[2][1];
+      if (top3Spread >= 0.20) {
+        // Top 3 not close together - mono is plausible
+        const topColor = sorted[0][0].toUpperCase();
+        const monoId = 'MONO-' + topColor;
+        if (!candidates.find(c => c.id === monoId)) {
+          candidates.push({id: monoId, s1: t1});
+          console.log(`Adding MONO-${topColor} as candidate (s1=${Math.round(t1*100)}%, top3spread=${Math.round(top3Spread*100)}%) - mono is plausible`);
+        }
+      } else {
+        console.log(`NOT adding MONO candidate - top 3 spread only ${Math.round(top3Spread*100)}% (need ≥20% for mono to be plausible)`);
       }
     }
   }
@@ -2255,6 +2807,26 @@ function finishS1() {
   // Force Stage 2 if gap too small or scores not high enough
   if (bigGap.gap < 0.25 || (numTop >= 2 && t1 < 0.75)) {
     needsS2 = true;
+  }
+  
+  // ENHANCEMENT: Check if we have high confidence and can offer early termination
+  if (!needsS2 || confidence === 'HIGH') {
+    const confidenceCheck = calculateRound1Confidence(sorted);
+    state.classification = confidenceCheck.type; // Store for weighting later
+    
+    if (confidenceCheck.confidence >= 0.85 && confidenceCheck.needsRound2 === false) {
+      // HIGH confidence - offer early termination
+      console.log(`HIGH CONFIDENCE: ${confidenceCheck.identity} (${Math.round(confidenceCheck.confidence*100)}%) - offering early termination`);
+      state.pendingCandidates = candidates.length > 0 ? candidates : [{id: identity, s1: 0}];
+      showEarlyTerminationOffer(confidenceCheck);
+      return; // Stop here, user will choose
+    }
+  }
+  
+  // Store classification for weighting (even if not offering early term)
+  if (!state.classification) {
+    const confidenceCheck = calculateRound1Confidence(sorted);
+    state.classification = confidenceCheck.type;
   }
   
   if (!needsS2 && confidence === 'HIGH') {
@@ -2438,7 +3010,7 @@ function continueToStage2() {
 
 function startS2(candidates) {
   const scenarios = [];
-  const seenIds = new Set(); // Track which scenarios we've already added
+  const seenIds = new Set();
   
   // Store trigger info for debug
   state.stage2Trigger = {
@@ -2446,33 +3018,123 @@ function startS2(candidates) {
     candidates: candidates
   };
   
-  // Build scenarios from valid candidates only, with deduplication
-  candidates.forEach(cand => {
-    const id = cand.id;
+  // SMART ROUTING: Determine what we're discriminating
+  const hasMono = candidates.some(c => c.id.startsWith('MONO-'));
+  const hasGuild = candidates.some(c => getCandidateType(c.id) === 'GUILD');
+  const hasThree = candidates.some(c => getCandidateType(c.id) === 'THREE');
+  
+  console.log('=== SMART ROUTING ===');
+  console.log('Candidates:', candidates.map(c => c.id).join(', '));
+  console.log('Has MONO:', hasMono, '| Has GUILD:', hasGuild, '| Has THREE:', hasThree);
+  
+  // ROUTE 1: Testing MONO vs MULTI-COLOR → Use Pool D + Pool B
+  if (hasMono && (hasGuild || hasThree)) {
+    console.log('ROUTING: Mono vs multi-color discrimination → Pool D (8) + Pool B (4)');
     
-    if (POOL_C[id]) {
-      POOL_C[id].forEach(scenario => {
-        const scenarioId = scenario.id || JSON.stringify(scenario); // Use scenario ID or stringify as fallback
-        if (!seenIds.has(scenarioId)) {
+    // Add all 8 Pool D scenarios
+    if (POOL_D['MONO-VS-MULTI']) {
+      POOL_D['MONO-VS-MULTI'].forEach(scenario => {
+        if (!seenIds.has(scenario.id)) {
           scenarios.push(scenario);
-          seenIds.add(scenarioId);
+          seenIds.add(scenario.id);
         }
       });
+      console.log(`Added ${POOL_D['MONO-VS-MULTI'].length} Pool D scenarios`);
     }
     
-    if (POOL_B[id]) {
-      POOL_B[id].forEach(scenario => {
+    // Add 4 scenarios from top guild
+    const guildCandidates = candidates.filter(c => getCandidateType(c.id) === 'GUILD');
+    if (guildCandidates.length > 0 && POOL_B[guildCandidates[0].id]) {
+      POOL_B[guildCandidates[0].id].slice(0, 4).forEach(scenario => {
         const scenarioId = scenario.id || JSON.stringify(scenario);
         if (!seenIds.has(scenarioId)) {
           scenarios.push(scenario);
           seenIds.add(scenarioId);
         }
       });
+      console.log(`Added 4 ${guildCandidates[0].id} scenarios from Pool B`);
     }
-  });
+  }
   
-  // Add fallback scenarios if needed, with deduplication
+  // ROUTE 2: Testing GUILD vs GUILD → Use Pool B only
+  else if (hasGuild && !hasMono && !hasThree) {
+    console.log('ROUTING: Guild discrimination → Pool B (12)');
+    
+    candidates.forEach(cand => {
+      if (POOL_B[cand.id]) {
+        POOL_B[cand.id].forEach(scenario => {
+          const scenarioId = scenario.id || JSON.stringify(scenario);
+          if (!seenIds.has(scenarioId)) {
+            scenarios.push(scenario);
+            seenIds.add(scenarioId);
+          }
+        });
+      }
+    });
+    console.log(`Added ${scenarios.length} scenarios from Pool B for guild discrimination`);
+  }
+  
+  // ROUTE 3: Testing THREE-COLOR vs GUILDS → Use Pool C + Pool B
+  else if (hasThree) {
+    console.log('ROUTING: Three-color discrimination → Pool C + Pool B');
+    
+    candidates.forEach(cand => {
+      // Check Pool C first (three-color scenarios)
+      if (POOL_C[cand.id]) {
+        POOL_C[cand.id].forEach(scenario => {
+          const scenarioId = scenario.id || JSON.stringify(scenario);
+          if (!seenIds.has(scenarioId)) {
+            scenarios.push(scenario);
+            seenIds.add(scenarioId);
+          }
+        });
+      }
+      
+      // Then Pool B (guild scenarios)
+      if (POOL_B[cand.id]) {
+        POOL_B[cand.id].forEach(scenario => {
+          const scenarioId = scenario.id || JSON.stringify(scenario);
+          if (!seenIds.has(scenarioId)) {
+            scenarios.push(scenario);
+            seenIds.add(scenarioId);
+          }
+        });
+      }
+    });
+    console.log(`Added ${scenarios.length} scenarios from Pool C + B for three-color discrimination`);
+  }
+  
+  // FALLBACK: If no routing matched, use original logic
+  else {
+    console.log('ROUTING: Fallback - using original Pool C + B check');
+    candidates.forEach(cand => {
+      const id = cand.id;
+      
+      if (POOL_C[id]) {
+        POOL_C[id].forEach(scenario => {
+          const scenarioId = scenario.id || JSON.stringify(scenario);
+          if (!seenIds.has(scenarioId)) {
+            scenarios.push(scenario);
+            seenIds.add(scenarioId);
+          }
+        });
+      }
+      
+      if (POOL_B[id]) {
+        POOL_B[id].forEach(scenario => {
+          const scenarioId = scenario.id || JSON.stringify(scenario);
+          if (!seenIds.has(scenarioId)) {
+            scenarios.push(scenario);
+            seenIds.add(scenarioId);
+          }
+        });
+      }
+    });
+  }
+  
+  // Add fallback scenarios if needed
   if (scenarios.length < 6) {
+    console.log('Adding fallback scenarios (< 6 scenarios)');
     ['AZORIUS','SELESNYA','DIMIR'].forEach(g => {
       if (POOL_B[g] && scenarios.length < 10) {
         const scenario = POOL_B[g][0];
@@ -2486,6 +3148,8 @@ function startS2(candidates) {
   }
   
   const shuffled = shuffleArray(scenarios).slice(0, Math.min(12, scenarios.length));
+  console.log(`Final Round 2: ${shuffled.length} questions selected`);
+  console.log('=====================');
   
   state.stage = 2;
   state.qNum = 0;
@@ -2532,20 +3196,52 @@ function finishS2() {
     let s2Rate = 0;
     if (appeared > 0) {
       s2Rate = selected / appeared;
+      
+      // CRITICAL FIX: Three-color appearance normalization
+      // Problem: Pool C has 3 scenarios per three-color, Pool B has 3 per guild
+      // With 1 three-color + 2-3 guilds, you get 3 three-color vs 6-9 guild scenarios
+      // Guilds win by volume, not preference
+      // Solution: Boost three-color s2Rate to account for fewer appearances
+      if (getCandidateType(id) === 'THREE' && state.classification === 'THREE') {
+        const avgAppearances = state.candidates
+          .filter(c => state.s2Track.appear[c.id] > 0)
+          .map(c => state.s2Track.appear[c.id])
+          .reduce((sum, val) => sum + val, 0) / state.candidates.filter(c => state.s2Track.appear[c.id] > 0).length;
+        
+        if (appeared < avgAppearances * 0.6) {
+          // Three-color appeared much less than average (< 60% of avg)
+          // Boost its rate to normalize for fewer opportunities
+          const boost = avgAppearances / appeared;
+          const boostedRate = Math.min(s2Rate * boost, 1.0); // Cap at 100%
+          console.log(`${id} BOOST: appeared ${appeared} vs avg ${Math.round(avgAppearances)}, boosting ${Math.round(s2Rate*100)}% → ${Math.round(boostedRate*100)}%`);
+          s2Rate = boostedRate;
+        }
+      }
     } else if (id.startsWith('MONO-')) {
-      // MONO gets tested implicitly through guild scenarios
-      // If you picked guilds strongly, mono loses
-      // If guilds weren't compelling, mono wins on s1 alone
-      s2Rate = 0; // Neutral scoring for MONO
-      console.log(`${id} is MONO - keeping in ranking with s2=0 (tested implicitly)`);
+      // Check if Pool D was used (pattern preferences tracked)
+      if (state.s2Track.patternPreference && state.s2Track.patternAppear) {
+        const monoSelected = state.s2Track.patternPreference.MONO || 0;
+        const monoAppeared = state.s2Track.patternAppear.MONO || 0;
+        if (monoAppeared > 0) {
+          s2Rate = monoSelected / monoAppeared;
+          console.log(`${id} scored via Pool D: selected MONO ${monoSelected}/${monoAppeared} = ${Math.round(s2Rate*100)}%`);
+        } else {
+          s2Rate = 0; // Neutral if Pool D not used
+          console.log(`${id} is MONO - neutral s2=0 (Pool D not used)`);
+        }
+      } else {
+        // If guilds weren't compelling, mono wins on s1 alone
+        s2Rate = 0; // Neutral scoring for MONO
+        console.log(`${id} is MONO - keeping in ranking with s2=0 (tested implicitly)`);
+      }
     } else {
       // Non-MONO that didn't appear - exclude it
       console.log(`${id} appeared 0 times, excluding`);
       return;
     }
     
-    // Stage 1 is PRIMARY (80/20) - Stage 2 just confirms
-    const combined = s1Score * 0.8 + s2Rate * 0.2;
+    // ENHANCEMENT: Context-aware weighting (not fixed 80/20)
+    const combined = calculateCombinedScore(id, {s1: s1Score, s2: s2Rate});
     
     validResults[id] = {combined, s1: s1Score, s2: s2Rate, appeared, selected};
     console.log(`${id}: s1=${Math.round(s1Score*100)}%, s2=${Math.round(s2Rate*100)}%, combined=${Math.round(combined*100)}%`);
@@ -2564,8 +3260,33 @@ function finishS2() {
   } else {
     const winner = ranked[0];
     
-    // SANITY CHECK: Ensure winner uses actual top colors, not 4th/5th colors
+    // CRITICAL CHECK: Don't allow MONO when top 3 are close together
     const sorted = state.activationSorted;
+    const top3Spread = sorted[0][1] - sorted[2][1];
+    const isMono = winner[0].startsWith('MONO-');
+    
+    if (isMono && top3Spread < 0.20) {
+      // Top 3 too close for mono to be plausible - find three-color or guild alternative
+      console.log(`BLOCKING MONO winner: ${winner[0]} - top 3 spread only ${Math.round(top3Spread*100)}% (need ≥20%)`);
+      
+      // Find best three-color or guild alternative
+      const betterAlt = ranked.find(r => !r[0].startsWith('MONO-'));
+      
+      if (betterAlt) {
+        console.log(`Using ${betterAlt[0]} instead (top 3 are too close for mono)`);
+        let conf = 'MODERATE'; // Force MODERATE max since we're overriding
+        if (betterAlt[1].s1 >= 0.60 && betterAlt[1].s2 >= 0.5) conf = 'MODERATE';
+        else conf = 'LOW';
+        
+        state.result = {identity: betterAlt[0], confidence: conf, s2Data: betterAlt[1], allResults: ranked};
+      } else {
+        // No alternative found - use winner but mark LOW confidence
+        state.result = {identity: winner[0], confidence: 'LOW', s2Data: winner[1], allResults: ranked};
+      }
+    } else {
+      // Proceed with normal winner selection
+    
+    // SANITY CHECK: Ensure winner uses actual top colors, not 4th/5th colors
     const top3Colors = sorted.slice(0, 3).map(c => c[0]);
     const winnerColors = PROFILES[winner[0]]?.colors || [];
     
@@ -2598,6 +3319,7 @@ function finishS2() {
       
       state.result = {identity: winner[0], confidence: conf, s2Data: winner[1], allResults: ranked};
     }
+    } // End MONO blocking check
   }
   
   showCalculating();
@@ -2677,7 +3399,701 @@ function generateIdentityExplanation(identity, activationSorted) {
   }
 }
 
+// ============================================================================
+// ENHANCEMENT: Pattern Testing Display (Stage 2 only)
+// ============================================================================
+function displayRoundPatterns() {
+  const hasStage2 = state.result.allResults && state.result.allResults[0] && state.result.allResults[0][1].s2 !== undefined;
+  if (hasStage2) {
+    displayRound2Bars();
+    document.getElementById('decision-patterns-section').style.display = 'block';
+  } else {
+    document.getElementById('decision-patterns-section').style.display = 'none';
+  }
+}
+
+function displayRound2Bars() {
+  const r2Cont = document.getElementById('round2-container');
+  const r2Bars = document.getElementById('round2-bars');
+  if (!r2Bars) return;
+  
+  r2Bars.innerHTML = '';
+  
+  // Show ALL patterns that appeared in Stage 2, even if selection rate was 0%
+  const tested = (state.result.allResults || [])
+    .filter(a => a && a[1] && a[1].s2 !== undefined && a[1].appeared > 0)
+    .sort((a, b) => (b[1].s2 || 0) - (a[1].s2 || 0))  // Sort by selection rate
+    .slice(0, 8);  // Show up to 8 patterns
+  
+  if (tested.length === 0) {
+    document.getElementById('decision-patterns-section').style.display = 'none';
+    return;
+  }
+  
+  tested.forEach(([id, data]) => {
+    const prof = PROFILES[id];
+    if (!prof) return;
+    
+    const s2Pct = Math.round((data.s2 || 0) * 100);
+    const isWinner = id === state.result.identity;
+    const appeared = data.appeared || 0;
+    
+    r2Bars.innerHTML += '<div style="margin: 14px 0; ' + (isWinner ? 'padding: 16px; background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 10px;' : '') + '"><div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;"><div><span style="font-weight: ' + (isWinner ? '700' : '600') + '; font-size: ' + (isWinner ? '16px' : '14px') + '; color: ' + (isWinner ? '#c4b5fd' : '#e0e0e0') + ';">' + (isWinner ? '✓ ' : '') + prof.name + '</span><span style="font-size: 12px; color: #808090; margin-left: 8px;">(' + appeared + ' questions)</span></div><span style="color: ' + (isWinner ? '#c4b5fd' : '#a0a0b0') + '; font-weight: 600;">' + s2Pct + '%</span></div><div style="background: rgba(255,255,255,0.08); height: 12px; border-radius: 6px;"><div style="background: ' + (isWinner ? 'linear-gradient(90deg, #a78bfa, #ec4899)' : 'rgba(139, 92, 246, 0.4)') + '; width: ' + s2Pct + '%; height: 100%; border-radius: 6px; transition: width 0.8s;"></div></div></div>';
+  });
+  
+  // Updated note to explain what the percentages mean
+  const winnerName = PROFILES[state.result.identity]?.name || state.result.identity;
+  document.getElementById('round2-note').textContent = 'You chose ' + winnerName + ' in ' + Math.round((state.result.allResults.find(a => a[0] === state.result.identity)?.[1].s2 || 0) * 100) + '% of the choices where it appeared. Other patterns shown for comparison.';
+}
+
+
+// ============================================================================
+// ENHANCEMENT: Modal Deep Dive System  
+// ============================================================================
+function openModal(id) {
+  const profile = PROFILES[id];
+  if (!profile) {
+    console.error('Profile not found:', id);
+    return;
+  }
+  
+  // Populate header
+  let headerHTML = '<div style="display: flex; justify-content: center; gap: 12px; margin-bottom: 16px;">';
+  profile.colors.forEach(c => {
+    headerHTML += `<span class="mana-symbol mana-${c}" style="width: 36px; height: 36px; font-size: 18px;">${c}</span>`;
+  });
+  headerHTML += '</div>';
+  headerHTML += `<h2 style="font-size: 32px; font-weight: 800; text-align: center; margin-bottom: 8px; color: #e0e0e0;">${profile.name}</h2>`;
+  headerHTML += `<p style="font-size: 18px; color: #a78bfa; text-align: center; font-style: italic;">${profile.tag}</p>`;
+  
+  document.getElementById('modal-header').innerHTML = headerHTML;
+  
+  // Populate all tab contents
+  document.getElementById('tab-overview').innerHTML = getOverviewContent(id);
+  document.getElementById('tab-philosophy').innerHTML = getPhilosophyContent(id);
+  document.getElementById('tab-workplace').innerHTML = getWorkplaceContent(id);
+  document.getElementById('tab-stress').innerHTML = getStressContent(id);
+  document.getElementById('tab-development').innerHTML = getDevelopmentContent(id);
+  
+  // Reset to overview tab
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-overview').classList.remove('hidden');
+  document.querySelector('.tab-btn').classList.add('active');
+  
+  // Show modal
+  document.getElementById('modal-overlay').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.add('hidden');
+  document.body.style.overflow = 'auto';
+}
+
+function switchModalTab(event, tabName) {
+  // Hide all tabs
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  
+  // Show selected tab
+  document.getElementById('tab-' + tabName).classList.remove('hidden');
+  event.target.classList.add('active');
+}
+
+function showDeepDive(type, id) {
+  // Now just opens modal with all tabs, starting on overview
+  openModal(id);
+}
+
+// ============================================================================
+// MODAL CONTENT GENERATION - All 5 Tabs with Rich Content
+// ============================================================================
+
+function getOverviewContent(id) {
+  const profile = PROFILES[id];
+  if (!profile) return '<p>Content not available</p>';
+  
+  const type = getCandidateType(id);
+  let html = '';
+  
+  // Core philosophy
+  html += `<div class="info-box" style="border-left-color: #a78bfa;">
+    <div class="box-header">
+      <span style="font-size: 20px;">🔮</span>
+      <h4>Core Philosophy</h4>
+    </div>
+    <div class="box-content">
+      <p style="font-size: 15px; line-height: 1.8;">${profile.desc}</p>
+    </div>
+  </div>`;
+  
+  // Quick Facts for multi-color
+  if (type === 'GUILD' || type === 'THREE') {
+    html += getQuickFacts(id, profile, type);
+  }
+  
+  // Top 3 Strengths
+  html += `<div class="info-box strength">
+    <div class="box-header">
+      <span style="font-size: 20px;">⚔️</span>
+      <h4>Top Strengths</h4>
+    </div>
+    <div class="box-content">
+      <ul>`;
+  profile.str.slice(0, 3).forEach(s => {
+    html += `<li>• ${s}</li>`;
+  });
+  html += `</ul>
+      <p style="font-size: 13px; color: #808090; margin-top: 12px; font-style: italic;">See Workplace tab for all ${profile.str.length} strengths</p>
+    </div>
+  </div>`;
+  
+  // Top 3 Shadows
+  html += `<div class="info-box shadow">
+    <div class="box-header">
+      <span style="font-size: 20px;">⚠️</span>
+      <h4>Top Shadows</h4>
+    </div>
+    <div class="box-content">
+      <ul>`;
+  profile.weak.slice(0, 3).forEach(w => {
+    html += `<li>• ${w}</li>`;
+  });
+  html += `</ul>
+      <p style="font-size: 13px; color: #808090; margin-top: 12px; font-style: italic;">See Workplace tab for all ${profile.weak.length} shadows</p>
+    </div>
+  </div>`;
+  
+  html += `<p style="font-size: 13px; color: #808090; text-align: center; margin-top: 32px; font-style: italic;">
+    Click the tabs above to explore philosophy, workplace patterns, stress responses, and development paths.
+  </p>`;
+  
+  return html;
+}
+
+function getQuickFacts(id, profile, type) {
+  const colorNames = {W:'White', U:'Blue', B:'Black', R:'Red', G:'Green'};
+  let html = `<div class="info-box" style="border-left-color: #60A5FA;">
+    <div class="box-header">
+      <span style="font-size: 20px;">📊</span>
+      <h4>Quick Facts</h4>
+    </div>
+    <div class="box-content">`;
+  
+  if (type === 'GUILD') {
+    const colors = profile.colors;
+    const absent = ['W','U','B','R','G'].filter(c => !colors.includes(c));
+    
+    html += `<div class="quick-fact">
+      <strong>Partnership:</strong>
+      <p style="margin: 0; color: #d0d0d0;">${colorNames[colors[0]]} + ${colorNames[colors[1]]} combine for unique synergy.</p>
+    </div>`;
+    
+    html += `<div class="quick-fact">
+      <strong>What's Absent:</strong>
+      <p style="margin: 0; color: #d0d0d0;">No ${absent.map(c => colorNames[c]).join(', ')}. This shapes your approach as much as what you have.</p>
+    </div>`;
+    
+    const isAllied = isAlliedPair(colors);
+    html += `<div class="quick-fact">
+      <strong>${isAllied ? 'Allied Pair' : 'Enemy Pair'}:</strong>
+      <p style="margin: 0; color: #d0d0d0;">${isAllied ? 'Colors reinforce each other smoothly' : 'Productive tension between opposing values'}.</p>
+    </div>`;
+    
+  } else if (type === 'THREE') {
+    const colors = profile.colors;
+    const absent = ['W','U','B','R','G'].filter(c => !colors.includes(c));
+    
+    html += `<div class="quick-fact">
+      <strong>Three-Color Identity:</strong>
+      <p style="margin: 0; color: #d0d0d0;">Versatile and complete—only lacks 2 colors instead of 3 or 4.</p>
+    </div>`;
+    
+    html += `<div class="quick-fact">
+      <strong>Common Enemies:</strong>
+      <p style="margin: 0; color: #d0d0d0;">${absent.map(c => colorNames[c]).join(' and ')}. Your identity is defined by lacking these two.</p>
+    </div>`;
+  }
+  
+  html += `</div></div>`;
+  return html;
+}
+
+function isAlliedPair(colors) {
+  if (colors.length !== 2) return false;
+  const alliedPairs = [['W','U'], ['U','B'], ['B','R'], ['R','G'], ['G','W']];
+  const sorted = [colors[0], colors[1]].sort().join('');
+  return alliedPairs.some(p => p.join('') === sorted);
+}
+
+function getPhilosophyContent(id) {
+  const profile = PROFILES[id];
+  if (!profile) return '<p>Content not available</p>';
+  
+  const type = getCandidateType(id);
+  let html = '';
+  
+  if (type === 'GUILD') {
+    html += getGuildPhilosophy(id, profile);
+  } else if (type === 'THREE') {
+    html += getThreeColorPhilosophy(id, profile);
+  } else if (type === 'MONO') {
+    html += getMonoPhilosophy(id, profile);
+  } else {
+    html += `<div class="info-box">
+      <div class="box-content">
+        <p style="font-size: 15px; line-height: 1.8;">${profile.desc}</p>
+      </div>
+    </div>`;
+  }
+  
+  return html;
+}
+
+function getGuildPhilosophy(id, profile) {
+  const colorNames = {W:'White', U:'Blue', B:'Black', R:'Red', G:'Green'};
+  const colors = profile.colors;
+  const absent = ['W','U','B','R','G'].filter(c => !colors.includes(c));
+  
+  let html = '';
+  
+  html += `<div class="info-box">
+    <div class="box-header">
+      <span style="font-size: 20px;">🤝</span>
+      <h4>What ${colorNames[colors[0]]} & ${colorNames[colors[1]]} Share</h4>
+    </div>
+    <div class="box-content">
+      <p>Both colors value certain approaches, and when combined, these shared values get <strong>EMPHASIZED</strong>.</p>
+      <p style="margin-top: 16px; padding: 16px; background: rgba(139,92,246,0.1); border-radius: 8px;">
+        <strong style="color: #c4b5fd;">Together:</strong> They reinforce each other's core philosophy, creating something stronger than either alone.
+      </p>
+    </div>
+  </div>`;
+  
+  html += `<div class="info-box">
+    <div class="box-header">
+      <span style="font-size: 20px;">⚖️</span>
+      <h4>The Productive Tension</h4>
+    </div>
+    <div class="box-content">
+      <p>While ${colorNames[colors[0]]} and ${colorNames[colors[1]]} share core values, they <strong>DISAGREE</strong> on key points.</p>
+      <p style="margin-top: 16px; font-style: italic; color: #d0d0d0;">
+        This tension creates the unique character of ${profile.name}—you balance two different perspectives.
+      </p>
+    </div>
+  </div>`;
+  
+  html += `<div class="info-box">
+    <div class="box-header">
+      <span style="font-size: 20px;">✨</span>
+      <h4>What Emerges Uniquely</h4>
+    </div>
+    <div class="box-content">
+      <p>${profile.name} creates patterns that <strong>neither color alone produces</strong>.</p>
+      <p style="margin-top: 12px;">This isn't just "${colorNames[colors[0]]} AND ${colorNames[colors[1]]}"—it's a genuine fusion with emergent properties.</p>
+    </div>
+  </div>`;
+  
+  html += `<div class="info-box shadow">
+    <div class="box-header">
+      <span style="font-size: 20px;">🚫</span>
+      <h4>What's Absent & Why It Matters</h4>
+    </div>
+    <div class="box-content">
+      <p><strong>No ${absent.map(c => colorNames[c]).join(', ')}:</strong></p>
+      <ul style="margin-top: 12px;">`;
+  
+  const absentMeanings = {
+    W: {impact: 'No community focus or moral framework', result: 'Must work through efficiency, self-interest, or natural patterns'},
+    U: {impact: 'No analytical depth or strategic planning', result: 'Must rely on instinct, tradition, passion, or pragmatism'},
+    B: {impact: 'No self-interest or ruthless pragmatism', result: 'Naive about power dynamics, struggles with tough calls'},
+    R: {impact: 'No passion, urgency, or emotional authenticity', result: 'Everything calm, measured, potentially too slow'},
+    G: {impact: 'No patience, organic growth, or respect for tradition', result: 'Everything active, engineered, potentially unsustainable'}
+  };
+  
+  absent.forEach(c => {
+    const meaning = absentMeanings[c];
+    html += `<li><strong>${colorNames[c]}:</strong> ${meaning.impact}
+      <div style="font-size: 13px; color: #a0a0b0; margin-top: 4px;">→ ${meaning.result}</div>
+    </li>`;
+  });
+  
+  html += `</ul>
+      <p style="margin-top: 16px; padding: 12px; background: rgba(239,68,68,0.1); border-radius: 8px; border-left: 3px solid #EF4444;">
+        <strong style="color: #EF4444;">Key insight:</strong> Your approach is defined by what you CAN'T do as much as what you can.
+      </p>
+    </div>
+  </div>`;
+  
+  return html;
+}
+
+function getThreeColorPhilosophy(id, profile) {
+  const colorNames = {W:'White', U:'Blue', B:'Black', R:'Red', G:'Green'};
+  const colors = profile.colors;
+  const absent = ['W','U','B','R','G'].filter(c => !colors.includes(c));
+  
+  let html = '';
+  
+  html += `<div class="info-box">
+    <div class="box-header">
+      <span style="font-size: 20px;">🎯</span>
+      <h4>What All Three Colors Seek</h4>
+    </div>
+    <div class="box-content">
+      <p>${colorNames[colors[0]]}, ${colorNames[colors[1]]}, and ${colorNames[colors[2]]} all share philosophical common ground.</p>
+      <p style="margin-top: 16px; padding: 16px; background: rgba(139,92,246,0.1); border-radius: 8px;">
+        When three colors align, they create a <strong style="color: #c4b5fd;">complete and versatile identity</strong> with only minor blind spots (just 2 absent colors).
+      </p>
+    </div>
+  </div>`;
+  
+  html += `<div class="info-box shadow">
+    <div class="box-header">
+      <span style="font-size: 20px;">⚔️</span>
+      <h4>Common Enemies</h4>
+    </div>
+    <div class="box-content">
+      <p><strong>${absent.map(c => colorNames[c]).join(' and ')}:</strong> All three of your colors oppose these two.</p>
+      <p style="margin-top: 12px;">This shared opposition defines your blind spots:</p>
+      <ul style="margin-top: 12px;">`;
+  
+  const absentMeanings = {
+    W: 'No community focus—individual or collective but not "fair for all"',
+    U: 'No analytical optimization—instinct and tradition guide you',
+    B: 'No self-interest—everything serves collective or natural order',
+    R: 'No passion or urgency—calm, measured, patient',
+    G: 'No organic patience—everything active and engineered'
+  };
+  
+  absent.forEach(c => {
+    html += `<li>• ${absentMeanings[c]}</li>`;
+  });
+  
+  html += `</ul>
+    </div>
+  </div>`;
+  
+  html += `<div class="info-box development">
+    <div class="box-header">
+      <span style="font-size: 20px;">🔮</span>
+      <h4>Why Three-Color Is Different</h4>
+    </div>
+    <div class="box-content">
+      <p><strong>You're more complete than simpler identities:</strong></p>
+      <ul style="margin-top: 12px;">
+        <li>• Mono-color lacks 4 colors (major limitations)</li>
+        <li>• Two-color lacks 3 colors (significant gaps)</li>
+        <li>• <strong>Three-color lacks only 2 colors</strong> (minor blind spots)</li>
+      </ul>
+      <p style="margin-top: 16px;">This makes you versatile and adaptable, able to handle diverse situations. The trade-off: less focused than simpler identities.</p>
+    </div>
+  </div>`;
+  
+  return html;
+}
+
+function getMonoPhilosophy(id, profile) {
+  const colorNames = {W:'White', U:'Blue', B:'Black', R:'Red', G:'Green'};
+  const color = profile.colors[0];
+  const others = ['W','U','B','R','G'].filter(c => c !== color);
+  
+  let html = '';
+  
+  html += `<div class="info-box">
+    <div class="box-header">
+      <span style="font-size: 20px;">🎯</span>
+      <h4>Pure ${colorNames[color]} Philosophy</h4>
+    </div>
+    <div class="box-content">
+      <p style="font-size: 15px; line-height: 1.8;">${profile.desc}</p>
+      <p style="margin-top: 16px; padding: 16px; background: rgba(139,92,246,0.1); border-radius: 8px;">
+        <strong style="color: #c4b5fd;">Mono-color means:</strong> You're strongly focused in one philosophical direction. This gives you depth and clarity, but limits your range.
+      </p>
+    </div>
+  </div>`;
+  
+  html += `<div class="info-box shadow">
+    <div class="box-header">
+      <span style="font-size: 20px;">🚫</span>
+      <h4>What You Lack (Four Colors Absent)</h4>
+    </div>
+    <div class="box-content">
+      <p>As a mono-color identity, you lack the perspectives and approaches of <strong>FOUR other colors:</strong></p>
+      <ul style="margin-top: 12px;">
+        ${others.map(c => `<li>• No ${colorNames[c]}—missing that entire dimension</li>`).join('')}
+      </ul>
+      <p style="margin-top: 16px; font-style: italic; color: #a0a0b0;">
+        This is your biggest development opportunity. See Development tab for how to add other colors.
+      </p>
+    </div>
+  </div>`;
+  
+  return html;
+}
+
+function getWorkplaceContent(id) {
+  const profile = PROFILES[id];
+  if (!profile) return '<p>Content not available</p>';
+  
+  let html = '';
+  
+  html += `<div class="info-box strength">
+    <div class="box-header">
+      <span style="font-size: 20px;">⚔️</span>
+      <h4>Strengths</h4>
+    </div>
+    <div class="box-content">
+      <p style="margin-bottom: 12px; color: #6b9080; font-style: italic;">Use them shamelessly</p>
+      <ul>`;
+  profile.str.forEach(s => {
+    html += `<li>• ${s}</li>`;
+  });
+  html += `</ul>
+    </div>
+  </div>`;
+  
+  html += `<div class="info-box shadow">
+    <div class="box-header">
+      <span style="font-size: 20px;">⚠️</span>
+      <h4>Shadows</h4>
+    </div>
+    <div class="box-content">
+      <p style="margin-bottom: 12px; color: #9b6b6b; font-style: italic;">Your colleagues see this, but give you credit anyway</p>
+      <ul>`;
+  profile.weak.forEach(w => {
+    html += `<li>• ${w}</li>`;
+  });
+  html += `</ul>
+    </div>
+  </div>`;
+  
+  html += `<div class="info-box">
+    <div class="box-header">
+      <span style="font-size: 20px;">📋</span>
+      <h4>Where You Thrive</h4>
+    </div>
+    <div class="box-content">
+      <p><strong>Stereotypical roles for this identity:</strong></p>
+      <p style="margin-top: 12px; font-size: 15px; line-height: 1.6;">${profile.roles}</p>
+      <p style="margin-top: 16px; font-size: 13px; color: #a0a0b0; font-style: italic;">
+        These aren't limitations—they're where this identity naturally excels. You can succeed anywhere, but these roles play to your strengths.
+      </p>
+    </div>
+  </div>`;
+  
+  if (profile.pubBanter) {
+    html += `<div class="info-box stress">
+      <div class="box-header">
+        <span style="font-size: 20px;">🍺</span>
+        <h4>What They Say Behind Your Back</h4>
+      </div>
+      <div class="box-content">
+        <p style="font-style: italic; color: #d0a070; font-size: 15px; line-height: 1.6;">"${profile.pubBanter}"</p>
+        <p style="margin-top: 16px; font-size: 13px; color: #a0a0b0;">
+          The unvarnished truth. This is your shadow side from others' perspective.
+        </p>
+      </div>
+    </div>`;
+  }
+  
+  return html;
+}
+
+function getStressContent(id) {
+  const profile = PROFILES[id];
+  if (!profile) return '<p>Content not available</p>';
+  
+  let html = '';
+  
+  html += `<div class="info-box stress">
+    <div class="box-header">
+      <span style="font-size: 20px;">⚠️</span>
+      <h4>Under Pressure</h4>
+    </div>
+    <div class="box-content">
+      <p><strong>When ${profile.name} is stressed, watch for:</strong></p>
+      <ul style="margin-top: 12px;">`;
+  
+  const stressPatterns = getStressPatterns(id);
+  stressPatterns.forEach(pattern => {
+    html += `<li>• ${pattern}</li>`;
+  });
+  
+  html += `</ul>
+      <p style="margin-top: 16px; padding: 12px; background: rgba(245,158,11,0.1); border-radius: 8px; border-left: 3px solid #F59E0B;">
+        <strong style="color: #F59E0B;">For teams:</strong> If these patterns intensify, this identity is stressed and needs support.
+      </p>
+    </div>
+  </div>`;
+  
+  html += `<div class="info-box development">
+    <div class="box-header">
+      <span style="font-size: 20px;">🔧</span>
+      <h4>Recovery Strategies</h4>
+    </div>
+    <div class="box-content">
+      <p><strong>For yourself:</strong></p>
+      <ul style="margin-top: 8px; margin-bottom: 16px;">
+        <li>• Recognize the stress pattern early</li>
+        <li>• Channel opposite colors deliberately</li>
+        <li>• Set external accountability and deadlines</li>
+        <li>• Focus on outcomes, not comfortable patterns</li>
+        <li>• Practice the missing colors intentionally</li>
+      </ul>
+      <p><strong>For your team:</strong></p>
+      <ul style="margin-top: 8px;">
+        <li>• Inject missing colors (pair with complementary identities)</li>
+        <li>• Provide structure or freedom as needed</li>
+        <li>• Challenge patterns gently but firmly</li>
+        <li>• Remind them of mission over method</li>
+      </ul>
+    </div>
+  </div>`;
+  
+  return html;
+}
+
+function getStressPatterns(id) {
+  const patterns = {
+    'AZORIUS': ['Withdraws into process design, avoiding decisions', 'Creates bureaucracy to delay action', 'Condescending about "proper procedure"', 'Dismisses urgency as "lack of planning"', 'Paralyzed between fairness and efficiency'],
+    'DIMIR': ['Hoards information more aggressively', 'Paranoid about being outmaneuvered', 'Manipulates situations to regain control', 'Trusts no one', 'Withdraws into strategic scheming'],
+    'RAKDOS': ['Explosively destructive', 'Reckless gratification-seeking', 'Burns bridges impulsively', 'Creates chaos deliberately', 'Lashes out at all constraints'],
+    'IZZET': ['Scattered across too many experiments', 'Reckless with resources and testing', 'Ignores practical constraints', 'Blows things up (literally or figuratively)', 'Excited by chaos'],
+    'GRUUL': ['Increasingly aggressive and hostile', 'Smashes obstacles without thinking', 'Rejects all subtlety completely', 'Hostile to any complexity', 'Pure force over all finesse'],
+    'SELESNYA': ['Enables dysfunction through acceptance', 'Sacrifices too much for false harmony', 'Avoids all necessary conflict', 'Toxic positivity', 'Won\'t address real problems'],
+    'ORZHOV': ['Increasingly extractive and exploitative', 'Rigid hierarchy enforcement', 'Debt collection mentality', 'Political manipulation intensifies', 'Everything becomes transactional'],
+    'GOLGARI': ['Fatalistic acceptance of decay', 'Exploits death and failure coldly', 'Patient to point of complete passivity', 'Cynical about all improvement', 'Waiting for things to die'],
+    'SIMIC': ['Over-optimizes organic systems destructively', 'Experiments on people without consent', 'Perfectionism paralysis', 'Loses sight of "good enough"', 'Hubris about improvement capability'],
+    'BOROS': ['Zealous to dangerous fault', 'Aggressively enforces "right" way', 'Burnout from unsustainable intensity', 'Rigid about honor code', 'Cult-like fervor'],
+    'MONO-W': ['Rigidly rule-bound', 'Excessive self-sacrifice', 'Martyr complex', 'Slow consensus-seeking', 'Judges others harshly for rule-breaking'],
+    'MONO-U': ['Analysis paralysis worsens', 'Condescending intellectualism', 'Avoids action completely', 'Designs over-complex solutions', 'Dismisses all emotions'],
+    'MONO-B': ['Ruthlessly transactional with everyone', 'Cuts people off easily', 'Increasingly amoral decisions', 'Paranoid about exploitation', 'Hoards everything'],
+    'MONO-R': ['Explosively emotional', 'Recklessly impulsive', 'Quits/destroys when frustrated', 'Refuses all planning', 'Completely chaotic and scattered'],
+    'MONO-G': ['Increasingly passive', 'Fatalistic resignation', 'Stubbornly repetitive despite failure', 'Nostalgic for "good old days"', 'Enables dysfunction through acceptance']
+  };
+  
+  return patterns[id] || [
+    'Intensifies characteristic patterns',
+    'Shadow behaviors emerge more strongly',
+    'Becomes less balanced and flexible',
+    'May withdraw or become rigid',
+    'Struggles with rapid adaptation'
+  ];
+}
+
+function getDevelopmentContent(id) {
+  const profile = PROFILES[id];
+  if (!profile) return '<p>Content not available</p>';
+  
+  const type = getCandidateType(id);
+  const colorNames = {W:'White', U:'Blue', B:'Black', R:'Red', G:'Green'};
+  
+  let html = '';
+  
+  html += `<div style="margin-bottom: 24px; padding: 20px; background: rgba(139,92,246,0.08); border-radius: 12px; border-left: 4px solid #a78bfa;">
+    <p style="font-size: 15px; color: #d0d0d0; line-height: 1.7;">
+      <strong style="color: #c4b5fd;">Development path:</strong> Add colors you're weak in. Each color you add transforms your identity and unlocks new capabilities.
+    </p>
+  </div>`;
+  
+  const hasColors = profile.colors;
+  const missing = ['W','U','B','R','G'].filter(c => !hasColors.includes(c));
+  
+  missing.forEach(color => {
+    const newIdentity = getNewIdentity(id, color);
+    html += `<div class="info-box development">
+      <div class="box-header">
+        <span class="mana-symbol mana-${color}" style="width: 24px; height: 24px; font-size: 12px;">${color}</span>
+        <h4>Adding ${colorNames[color]}</h4>
+      </div>
+      <div class="box-content">
+        ${getDevelopmentPath(id, color, colorNames[color], newIdentity)}
+      </div>
+    </div>`;
+  });
+  
+  return html;
+}
+
+function getNewIdentity(currentId, addingColor) {
+  const profile = PROFILES[currentId];
+  if (!profile) return null;
+  
+  const newColors = [...profile.colors, addingColor].sort();
+  
+  for (const [id, prof] of Object.entries(PROFILES)) {
+    if (prof.colors && prof.colors.length === newColors.length) {
+      const profColorsSorted = [...prof.colors].sort();
+      if (profColorsSorted.every((c, i) => c === newColors[i])) {
+        return prof.name;
+      }
+    }
+  }
+  
+  return null;
+}
+
+function getDevelopmentPath(id, color, colorName, newIdentity) {
+  const developments = {
+    W: {
+      what: 'Community focus, fairness, systematic coordination',
+      why: 'Adds stakeholder thinking and moral framework',
+      how: ['Volunteer for team coordination roles', 'Ask "what\'s best for the team?" before deciding', 'Build one process that helps everyone', 'Practice sacrificing something small for group benefit']
+    },
+    U: {
+      what: 'Analytical depth, strategic thinking, optimization',
+      why: 'Adds evidence-based planning and long-term thinking',
+      how: ['Analyze before acting—ask "why?" more often', 'Read research on problems before solving', 'Map out consequences 3-5 steps ahead', 'Practice systematic optimization']
+    },
+    B: {
+      what: 'Pragmatism, self-advocacy, tough decisions',
+      why: 'Adds agency and ability to make hard calls',
+      how: ['Negotiate explicitly for what you need', 'Practice saying no to protect your interests', 'Make one tough call per month', 'Evaluate personal benefit honestly']
+    },
+    R: {
+      what: 'Passion, urgency, decisive action, authenticity',
+      why: 'Adds energy and bias toward action',
+      how: ['Act on 70% information sometimes', 'Express emotions more openly in meetings', 'Run quick experiments instead of extensive planning', 'Practice "ship it and iterate"']
+    },
+    G: {
+      what: 'Patience, sustainability, organic growth, accumulated wisdom',
+      why: 'Adds long-term thinking and respect for what works',
+      how: ['Give initiatives time to develop naturally', 'Learn from precedent and experience', 'Practice patience with development timelines', 'Trust proven patterns and tradition']
+    }
+  };
+  
+  const dev = developments[color];
+  if (!dev) return '<p>Development path information coming soon.</p>';
+  
+  let html = `
+    <p><strong>What ${colorName} adds:</strong> ${dev.what}</p>
+    <p style="margin-top: 8px;"><strong>Why you need it:</strong> ${dev.why}</p>
+    <p style="margin-top: 12px;"><strong>How to develop:</strong></p>
+    <ul style="margin-top: 8px;">`;
+  
+  dev.how.forEach(h => {
+    html += `<li>• ${h}</li>`;
+  });
+  
+  html += `</ul>`;
+  
+  if (newIdentity) {
+    html += `<p style="margin-top: 16px; padding: 12px; background: rgba(139,92,246,0.1); border-radius: 8px;">
+      <strong style="color: #c4b5fd;">What you become:</strong> ${newIdentity}
+    </p>`;
+  }
+  
+  return html;
+}
+
+function getInteractionsContent(id) {
+  return '<p style="color: #e0e0e0;">Interaction content coming soon.</p>';
+}
+
 function showResults() {
+
   // DEFENSIVE: Ensure activationSorted is set
   if (!state.activationSorted || state.activationSorted.length === 0) {
     console.error('CRITICAL: activationSorted not set, recalculating');
@@ -2698,6 +4114,28 @@ function showResults() {
   
   document.getElementById('res-id').textContent = p.name;
   document.getElementById('res-tag').textContent = p.tag;
+  
+  // ENHANCEMENT: Detect PRIMARY color in multi-color combinations
+  const primaryIndicator = document.getElementById('primary-color-indicator');
+  const isCombination = !state.result.identity.startsWith('MONO-');
+  if (isCombination && state.activationSorted && state.activationSorted.length >= 2) {
+    const topColor = state.activationSorted[0];
+    const secondColor = state.activationSorted[1];
+    const gap = Math.round((topColor[1] - secondColor[1]) * 100);
+    
+    // Show primary indicator if gap is ≥15%
+    if (gap >= 15) {
+      const colorNames = { W: 'WHITE', U: 'BLUE', B: 'BLACK', R: 'RED', G: 'GREEN' };
+      const primaryName = colorNames[topColor[0]];
+      primaryIndicator.querySelector('p').textContent = `${primaryName} is your primary color within this combination (+${gap}% higher than next)`;
+      primaryIndicator.style.display = 'block';
+    } else {
+      primaryIndicator.style.display = 'none';
+    }
+  } else {
+    primaryIndicator.style.display = 'none';
+  }
+  
   document.getElementById('tot-q').textContent = state.responses.length;
   
   // Show which mode was used
@@ -2728,6 +4166,9 @@ function showResults() {
   
   const syms = document.getElementById('res-syms');
   syms.innerHTML = '';
+  
+  // ENHANCEMENT: Display Round 1 and Round 2 patterns
+  displayRoundPatterns();
   p.colors.forEach(c => {
     const s = document.createElement('span');
     s.className = `mana-symbol mana-${c}`;
