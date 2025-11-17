@@ -3589,11 +3589,6 @@ function finishS1() {
       }
     }
     
-    // Ensure we have at least 2 alternatives for LOW confidence
-    if (confidence === 'LOW' && simpleAlternatives.length === 1) {
-      simpleAlternatives.push(['GUIDANCE', {s1: 0, s2: 0, note: 'Consider the 100-question assessment for more precision'}]);
-    }
-    
     console.log('Generated simpleAlternatives:', simpleAlternatives.map(a => a[0]).join(', '));
     
     state.result = {
@@ -5383,16 +5378,16 @@ function showResults() {
           <div style="font-size: 16px; font-weight: 600; color: #F59E0B; margin-bottom: 12px;">⚠️ Pattern Not Clear</div>
           <div style="font-size: 14px; color: #c0c0d0; line-height: 1.6;">
             Your color distribution doesn't show strong clustering. You might be genuinely balanced across approaches,
-            or you may need more questions for precision.
+            or the assessment questions may not have captured enough nuance.
             <br><br>
-            <strong>Recommendation:</strong> Take the 100-question assessment for a clearer pattern.
+            <strong>Your result is still valid</strong> — consider the alternatives below to see if any resonate more strongly.
           </div>
         `;
       } else {
         guidanceDiv.innerHTML = `
           <div style="font-size: 14px; color: #c0c0d0; line-height: 1.6;">
             Your pattern points most strongly to <strong>${state.result.identity}</strong>, 
-            though confidence is moderate. The 100-question assessment may provide additional clarity.
+            though confidence is moderate. Review the alternatives below to see if another pattern fits better.
           </div>
         `;
       }
