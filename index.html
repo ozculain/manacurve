@@ -333,6 +333,158 @@ body {
 .rank-text { flex: 1; font-size: 15px; line-height: 1.5; color: #e0e0e0; }
 .rank-label { font-size: 11px; color: #a78bfa; font-weight: 700; text-transform: uppercase; margin-top: 8px; }
 
+/* ============================================================================
+   MOBILE RESPONSIVE STYLES
+   ============================================================================ */
+
+/* Tablet breakpoint */
+@media (max-width: 768px) {
+  body { padding: 12px; }
+  .container { max-width: 100%; }
+  .card { padding: 20px; margin-bottom: 16px; }
+  
+  /* Welcome screen */
+  .mode-card { padding: 16px; }
+  #screen-welcome h1 { font-size: 28px; }
+  #screen-welcome .archetype-plaque { padding: 16px; }
+  
+  /* Choice buttons stack on mobile */
+  .choice-button { padding: 16px; font-size: 14px; }
+  
+  /* Result cards */
+  .alt-result-card { flex-direction: column; gap: 12px; }
+  
+  /* Mana pool */
+  .mana-symbol { width: 28px; height: 28px; font-size: 14px; }
+  
+  /* Tab navigation */
+  .tab-nav { flex-wrap: wrap; gap: 4px; }
+  .tab-btn { padding: 8px 12px; font-size: 12px; }
+  
+  /* Round transition */
+  .round-number-complete { width: 36px; height: 36px; font-size: 18px; }
+  
+  /* Hide non-essential on mobile */
+  .desktop-only { display: none; }
+}
+
+/* Phone breakpoint */
+@media (max-width: 480px) {
+  body { padding: 8px; }
+  .card { padding: 16px; border-radius: 12px; }
+  
+  /* Welcome screen */
+  #screen-welcome h1 { font-size: 22px; line-height: 1.3; }
+  #screen-welcome p { font-size: 14px; }
+  
+  /* Big take test button */
+  #screen-welcome button[style*="font-size: 24px"] { 
+    font-size: 18px !important; 
+    padding: 18px 24px !important;
+    letter-spacing: 1px !important;
+  }
+  
+  /* Mode selection grid */
+  .mode-card { 
+    padding: 12px;
+  }
+  
+  /* Stack mode cards vertically */
+  div[style*="grid-template-columns: 1fr 1fr"] {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+  
+  /* Assessment questions */
+  .choice-button { 
+    padding: 14px; 
+    font-size: 13px; 
+    min-height: auto;
+  }
+  
+  /* Round indicator in header */
+  .round-dot { width: 8px !important; height: 8px !important; }
+  
+  /* Progress info */
+  #progress-counter { font-size: 12px; }
+  #round-info { font-size: 11px; }
+  
+  /* Ranking items - make touch-friendly */
+  .rank-item { 
+    padding: 16px; 
+    touch-action: none;
+  }
+  .rank-number { width: 32px; height: 32px; font-size: 16px; }
+  .rank-text { font-size: 14px; }
+  
+  /* Results page */
+  #res-id { font-size: 28px; }
+  #res-tag { font-size: 14px; }
+  
+  /* Commander card */
+  .commander-card { padding: 16px; }
+  .commander-title { font-size: 18px; }
+  
+  /* Alternative results */
+  .alt-result-card { padding: 12px; }
+  
+  /* Mana symbols smaller */
+  .mana-symbol { width: 24px; height: 24px; font-size: 12px; }
+  
+  /* Debug panel - full width */
+  #debug-section { font-size: 11px; }
+  #debug-section pre { font-size: 10px; }
+  
+  /* Employee of month - compact */
+  .archetype-plaque { padding: 12px; }
+  .archetype-plaque .quote-text { font-size: 13px; }
+  
+  /* How it works - compact */
+  .round-indicator-step { font-size: 13px; }
+  
+  /* Explorer modal */
+  #modal-content { 
+    width: 95vw !important; 
+    max-height: 90vh !important;
+    padding: 16px !important;
+  }
+  
+  /* Tabs in explorer */
+  .tab-btn { padding: 6px 10px; font-size: 11px; }
+  
+  /* Info boxes */
+  .info-box { padding: 16px; }
+  .box-header h4 { font-size: 14px; }
+  .box-content { font-size: 13px; }
+}
+
+/* Touch device optimizations */
+@media (hover: none) {
+  .choice-button:hover { transform: none; }
+  .rank-item:hover { transform: none; }
+  .btn-primary:hover { transform: none; }
+  
+  /* Larger touch targets */
+  .choice-button { min-height: 60px; }
+  .rank-item { min-height: 70px; }
+  button { min-height: 44px; }
+}
+
+/* Landscape phone */
+@media (max-width: 812px) and (orientation: landscape) {
+  .card { padding: 16px; }
+  #screen-welcome { padding-top: 10px; }
+  .archetype-plaque { display: none; } /* Hide employee of month in landscape */
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .mana-symbol { 
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  }
+}
+
 </style>
 </head>
 <body>
@@ -382,6 +534,11 @@ body {
       
       <!-- Employee of the Month - NOW AT TOP -->
       <div id="archetype-of-month" class="archetype-plaque" style="text-align: left; margin-bottom: 32px;"></div>
+      
+      <!-- Big Take the Test Button -->
+      <button onclick="selectMode('draft'); startAssessment();" style="width: 100%; background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 50%, #7c3aed 100%); border: none; color: #fff; padding: 24px 32px; border-radius: 16px; font-size: 24px; font-weight: 800; cursor: pointer; transition: all 0.3s; box-shadow: 0 8px 24px rgba(139, 92, 246, 0.4); margin-bottom: 32px; text-transform: uppercase; letter-spacing: 2px;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 12px 32px rgba(139, 92, 246, 0.5)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 24px rgba(139, 92, 246, 0.4)';">
+        ⚔️ Take the Test ⚔️
+      </button>
       
       <!-- Intro text with Learn More -->
       <div style="background: rgba(255,255,255,0.05); padding: 32px; border-radius: 12px; margin-bottom: 32px; text-align: left;">
@@ -520,7 +677,7 @@ body {
           <span class="mana-symbol mana-G" style="width: 28px; height: 28px; font-size: 14px;">G</span>
         </div>
         <div style="display: flex; gap: 12px; align-items: center;">
-          <button onclick="toggleDebug()" style="background: rgba(139, 92, 246, 0.2); border: 1px solid rgba(139, 92, 246, 0.4); color: #a78bfa; padding: 4px 12px; border-radius: 6px; font-size: 11px; cursor: pointer; text-transform: uppercase; font-weight: 600;">Debug</button>
+          <button id="debug-toggle-btn" onclick="toggleDebug()" style="background: rgba(139, 92, 246, 0.2); border: 1px solid rgba(139, 92, 246, 0.4); color: #a78bfa; padding: 4px 12px; border-radius: 6px; font-size: 11px; cursor: pointer; text-transform: uppercase; font-weight: 600; display: none;">Debug</button>
           <div style="text-align: right;">
             <div style="font-weight: 700; font-size: 14px;">Question <span id="q-num">1</span> of <span id="q-tot">30</span></div>
             <div style="font-size: 12px; color: #808090;" id="stage-label">Round 1</div>
@@ -614,30 +771,32 @@ body {
         <span class="mana-symbol mana-G">G</span>
       </div>
       
-      <h2 style="font-size: 36px; margin-bottom: 16px;">🎯 Round 1 Complete: Clear Result</h2>
-      <p style="color: #a0a0b0; margin-bottom: 32px;">Based on 30 workplace decisions, you appear to be:</p>
+      <h2 style="font-size: 32px; margin-bottom: 16px;">📊 Round 1 Complete</h2>
+      <p style="color: #a0a0b0; margin-bottom: 24px;">30 enemy pair comparisons analyzed</p>
       
-      <div style="background: rgba(139, 92, 246, 0.1); border: 2px solid rgba(139, 92, 246, 0.4); border-radius: 16px; padding: 32px; margin: 24px auto; max-width: 500px;">
+      <div style="background: rgba(139, 92, 246, 0.1); border: 2px solid rgba(139, 92, 246, 0.4); border-radius: 16px; padding: 28px; margin: 24px auto; max-width: 500px;">
+        <p style="font-size: 14px; color: #a0a0b0; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 1px;">You're trending toward</p>
         <div style="display: flex; justify-content: center; gap: 12px; margin-bottom: 16px;" id="early-symbols"></div>
-        <h3 style="font-size: 32px; margin-bottom: 12px;" id="early-result-name">IDENTITY</h3>
-        <p style="font-size: 18px; color: #a0a0b0; margin-bottom: 16px;" id="early-result-tag">Tagline</p>
-        <span class="confidence-badge confidence-HIGH" id="early-confidence">90% CONFIDENCE</span>
-        <p style="margin-top: 16px; font-size: 14px; color: #d0d0d0; line-height: 1.6;" id="early-message">Explanation message</p>
+        <h3 style="font-size: 28px; margin-bottom: 12px;" id="early-result-name">IDENTITY</h3>
+        <p style="font-size: 16px; color: #a0a0b0; margin-bottom: 12px;" id="early-result-tag">Tagline</p>
+        <span class="confidence-badge confidence-HIGH" id="early-confidence">Strong Signal</span>
+        <p style="margin-top: 12px; font-size: 13px; color: #c0c0d0; line-height: 1.5;" id="early-message">Explanation message</p>
       </div>
       
-      <div style="display: grid; gap: 16px; max-width: 600px; margin: 32px auto;">
-        <button onclick="showResultsEarly()" style="background: linear-gradient(135deg, #a78bfa 0%, #ec4899 100%); border: none; color: #fff; padding: 20px 32px; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);">
-          See My Results Now
-          <div style="font-size: 13px; font-weight: 400; margin-top: 6px; opacity: 0.9;">Skip Rounds 2 & 3 — I'm confident this is accurate</div>
-        </button>
-        
-        <button onclick="continueToRound2()" style="background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.2); color: #e0e0e0; padding: 20px 32px; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
-          Continue to Rounds 2 & 3
-          <div style="font-size: 13px; font-weight: 400; margin-top: 6px; color: #a0a0b0;">~12 more questions to calibrate and verify (recommended)</div>
-        </button>
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 20px; margin: 24px auto; max-width: 500px;">
+        <p style="font-size: 14px; color: #d0d0d0; margin-bottom: 8px;">
+          <strong style="color: #a78bfa;">Next:</strong> Round 2 calibrates your ally colors
+        </p>
+        <p style="font-size: 13px; color: #909090;">
+          Round 1 tested enemy pairs. Round 2 tests ally pairs to confirm what's real vs. noise.
+        </p>
       </div>
       
-      <p style="font-size: 13px; color: #808090; margin-top: 24px; font-style: italic; max-width: 500px; margin-left: auto; margin-right: auto;">Recommendation: Rounds 2 & 3 add precision by testing ally pairs and ranking approaches. Takes about 5 minutes. Most people continue for the most accurate result.</p>
+      <button onclick="continueToRound2()" style="background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%); border: none; color: #fff; padding: 18px 40px; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4); margin-top: 8px;">
+        Continue to Round 2 →
+      </button>
+      
+      <p style="font-size: 12px; color: #606070; margin-top: 16px;">~12 more questions • 4-5 minutes</p>
     </div>
   </div>
 
@@ -2442,6 +2601,7 @@ function selectMode(mode) {
   const draftCard = document.getElementById('mode-draft');
   const constructedCheck = document.getElementById('constructed-check');
   const draftCheck = document.getElementById('draft-check');
+  const debugBtn = document.getElementById('debug-toggle-btn');
   
   if (mode === 'constructed') {
     constructedCard.style.border = '2px solid rgba(139, 92, 246, 0.8)';
@@ -2450,6 +2610,8 @@ function selectMode(mode) {
     draftCard.style.background = 'rgba(255,255,255,0.05)';
     constructedCheck.style.display = 'flex';
     draftCheck.style.display = 'none';
+    // Show debug button only in constructed mode
+    if (debugBtn) debugBtn.style.display = 'inline-block';
   } else {
     draftCard.style.border = '2px solid rgba(139, 92, 246, 0.8)';
     draftCard.style.background = 'rgba(139, 92, 246, 0.15)';
@@ -2457,6 +2619,11 @@ function selectMode(mode) {
     constructedCard.style.background = 'rgba(255,255,255,0.05)';
     draftCheck.style.display = 'flex';
     constructedCheck.style.display = 'none';
+    // Hide debug button in draft mode
+    if (debugBtn) debugBtn.style.display = 'none';
+    // Also hide debug section if it was open
+    const debugSection = document.getElementById('debug-section');
+    if (debugSection) debugSection.style.display = 'none';
   }
 }
 
@@ -3140,7 +3307,13 @@ function showEarlyTerminationOffer(confidenceData) {
   // Set identity display
   document.getElementById('early-result-name').textContent = prof.name;
   document.getElementById('early-result-tag').textContent = prof.tag;
-  document.getElementById('early-confidence').textContent = Math.round(confidenceData.confidence * 100) + '% CONFIDENCE';
+  
+  // Update confidence badge to be more informational
+  const confPct = Math.round(confidenceData.confidence * 100);
+  const confText = confPct >= 85 ? 'Strong Signal' : confPct >= 70 ? 'Good Signal' : 'Emerging Pattern';
+  document.getElementById('early-confidence').textContent = confText;
+  document.getElementById('early-confidence').className = `confidence-badge confidence-${confPct >= 85 ? 'HIGH' : confPct >= 70 ? 'MODERATE' : 'LOW'}`;
+  
   document.getElementById('early-message').textContent = confidenceData.message;
   
   // Set mana symbols
@@ -3328,149 +3501,138 @@ function areAllies(c1, c2) {
 
 function generateCandidatesGapBased(analysis) {
   const {sorted, gaps, clusters} = analysis;
-  const candidates = [];
-  const topCluster = clusters[0];
-  const topClusterSize = topCluster.length;
-  const topColors = topCluster.map(c => c.color);
+  const MIN_CANDIDATES = 4;
+  const MAX_CANDIDATES = 6;
   
-  console.log('=== CANDIDATE GENERATION ===');
-  console.log('Top cluster size:', topClusterSize, '| Colors:', topColors.join(', '));
+  console.log('=== REFACTORED CANDIDATE GENERATION ===');
   console.log('Sorted:', sorted.map(c => `${c.color}:${Math.round(c.winRate*100)}%`).join(', '));
   
-  // CRITICAL: Always check if top color is dominant (>15% gap to second)
+  // Step 1: Generate ALL plausible candidates
+  const allCandidates = [];
+  const seen = new Set();
+  
+  const addCandidate = (id, score, reasoning, type) => {
+    if (!seen.has(id)) {
+      allCandidates.push({ id, s1: score, reasoning, type });
+      seen.add(id);
+    }
+  };
+  
+  // Calculate key metrics
   const topColor = sorted[0].color;
   const topRate = sorted[0].winRate;
   const secondRate = sorted[1]?.winRate || 0;
-  const percentGap = topRate - secondRate;
+  const thirdRate = sorted[2]?.winRate || 0;
+  const topGap = topRate - secondRate;
+  const top3Spread = topRate - thirdRate;
+  const top4Spread = topRate - (sorted[3]?.winRate || 0);
+  const totalSpread = topRate - (sorted[4]?.winRate || 0);
   
-  const isDominant = percentGap >= 0.12; // 12+ percentage points gap = dominant
-  const isStronglyDominant = percentGap >= 0.18; // 18+ percentage points = very dominant
+  console.log(`Top gap: ${Math.round(topGap*100)}%, Top3 spread: ${Math.round(top3Spread*100)}%`);
   
-  console.log(`Top color ${topColor}: ${Math.round(topRate*100)}%, second: ${Math.round(secondRate*100)}%, gap: ${Math.round(percentGap*100)}%`);
-  console.log(`isDominant: ${isDominant}, isStronglyDominant: ${isStronglyDominant}`);
+  // MONO colors: Always add top 3, plus top 2 if gap is significant
+  sorted.slice(0, 3).forEach((c, idx) => {
+    const reasoning = idx === 0 ? `Top color` : `#${idx + 1} color`;
+    addCandidate('MONO-' + c.color, c.winRate, reasoning, 'MONO');
+  });
   
-  // ALWAYS add MONO for top color if it's dominant
-  if (isDominant) {
-    candidates.push({id: 'MONO-' + topColor, s1: topRate, reasoning: `Dominant color (${Math.round(percentGap*100)}% gap)`});
+  // GUILDS: Add guilds formed by top 4 colors
+  const top4Colors = sorted.slice(0, 4).map(c => c.color);
+  for (let i = 0; i < top4Colors.length; i++) {
+    for (let j = i + 1; j < top4Colors.length; j++) {
+      const c1 = top4Colors[i], c2 = top4Colors[j];
+      const guildKey = [c1, c2].sort().join('');
+      const guildId = getGuild(guildKey);
+      if (guildId) {
+        const score = (sorted[i].winRate + sorted[j].winRate) / 2;
+        const relation = areAllies(c1, c2) ? 'allies' : 'enemies';
+        addCandidate(guildId, score, `${c1}-${c2} guild (${relation})`, 'GUILD');
+      }
+    }
   }
   
-  if (topClusterSize === 1) {
-    // Clear mono-color from gap analysis
-    const monoColor = topColors[0];
-    if (!candidates.find(c => c.id === 'MONO-' + monoColor)) {
-      candidates.push({id: 'MONO-' + monoColor, s1: sorted[0].winRate, reasoning: 'Clear mono-color'});
-    }
-    
-    // Also test potential guilds with allies
-    const allies = getAllies(monoColor);
-    const nextStrongest = sorted.slice(1).find(c => allies.includes(c.color));
-    if (nextStrongest && nextStrongest.total >= 4) {
-      const guildKey = [monoColor, nextStrongest.color].sort().join('');
-      const guildId = getGuild(guildKey);
-      if (guildId) candidates.push({id: guildId, s1: (sorted[0].winRate + nextStrongest.winRate) / 2, reasoning: 'Test guild'});
-    }
-  } else if (topClusterSize === 2) {
-    const [c1, c2] = topColors;
-    const guildKey = [c1, c2].sort().join('');
-    const guildId = getGuild(guildKey);
-    
-    // ALWAYS add the guild formed by top 2 colors, whether allies or enemies
-    if (guildId) {
-      candidates.push({id: guildId, s1: (topCluster[0].winRate + topCluster[1].winRate) / 2, reasoning: `Top 2 colors guild (${areAllies(c1, c2) ? 'allies' : 'enemies'})`});
-    }
-    
-    // Add MONOs for both
-    if (!candidates.find(c => c.id === 'MONO-' + c1)) {
-      candidates.push({id: 'MONO-' + c1, s1: topCluster[0].winRate, reasoning: 'Test mono-' + c1});
-    }
-    if (!candidates.find(c => c.id === 'MONO-' + c2)) {
-      candidates.push({id: 'MONO-' + c2, s1: topCluster[1].winRate, reasoning: 'Test mono-' + c2});
-    }
-    
-    // Test 3-color if third is close
-    if (sorted.length >= 3 && sorted[2].total >= 4) {
-      const thirdColor = sorted[2];
-      const shardKey = [c1, c2, thirdColor.color].sort().join('');
-      const shardId = getThree(shardKey);
-      if (shardId) candidates.push({id: shardId, s1: (topCluster[0].winRate + topCluster[1].winRate + thirdColor.winRate) / 3, reasoning: 'Test 3-color'});
-    }
-    
-    // Also add allied guilds for each top color with third+ colors
-    const c1Allies = getAllies(c1);
-    const c2Allies = getAllies(c2);
-    sorted.slice(2).forEach(third => {
-      if (c1Allies.includes(third.color) && third.total >= 4) {
-        const gKey = [c1, third.color].sort().join('');
-        const gId = getGuild(gKey);
-        if (gId && !candidates.find(c => c.id === gId)) {
-          candidates.push({id: gId, s1: (topCluster[0].winRate + third.winRate) / 2, reasoning: `Allied guild ${c1}-${third.color}`});
-        }
-      }
-      if (c2Allies.includes(third.color) && third.total >= 4) {
-        const gKey = [c2, third.color].sort().join('');
-        const gId = getGuild(gKey);
-        if (gId && !candidates.find(c => c.id === gId)) {
-          candidates.push({id: gId, s1: (topCluster[0].winRate + third.winRate) / 2, reasoning: `Allied guild ${c2}-${third.color}`});
-        }
-      }
-    });
-  } else if (topClusterSize === 3) {
-    const threeKey = topColors.sort().join('');
-    const threeId = getThree(threeKey);
-    
-    if (threeId) {
-      candidates.push({id: threeId, s1: topCluster.reduce((sum, c) => sum + c.winRate, 0) / 3, reasoning: 'Three competitive'});
-      
-      // Add ALL component guilds (both allied and enemy)
-      for (let i = 0; i < 3; i++) {
-        for (let j = i+1; j < 3; j++) {
-          const guildKey = [topColors[i], topColors[j]].sort().join('');
-          const guildId = getGuild(guildKey);
-          if (guildId && !candidates.find(c => c.id === guildId)) {
-            const isAlly = areAllies(topColors[i], topColors[j]);
-            candidates.push({id: guildId, s1: (topCluster[i].winRate + topCluster[j].winRate) / 2, reasoning: `Test ${topColors[i]}-${topColors[j]} (${isAlly ? 'allies' : 'enemies'})`});
-          }
-        }
-      }
-      
-      // Add MONOs for any colors that might be individually strong
-      topColors.forEach((c, idx) => {
-        if (topCluster[idx].winRate >= 0.55 && !candidates.find(cand => cand.id === 'MONO-' + c)) {
-          candidates.push({id: 'MONO-' + c, s1: topCluster[idx].winRate, reasoning: `Test mono-${c} (strong within cluster)`});
-        }
-      });
-    }
-  } else if (topClusterSize >= 4) {
-    if (clusters.length > 1 && clusters[clusters.length-1].length === 1) {
-      const absentColor = clusters[clusters.length-1][0].color;
-      const fourId = getFour(absentColor);
-      candidates.push({id: fourId, s1: topCluster.reduce((sum, c) => sum + c.winRate, 0) / 4, reasoning: `${absentColor} absent`});
-    } else {
-      candidates.push({id: 'WUBRG', s1: sorted.reduce((sum, c) => sum + c.winRate, 0) / 5, reasoning: 'All five competitive'});
-    }
-    
+  // THREE-COLOR: Add if top 3 are clustered (within 20%)
+  if (top3Spread < 0.20) {
     const top3 = sorted.slice(0, 3).map(c => c.color);
     const threeKey = top3.sort().join('');
     const threeId = getThree(threeKey);
-    if (threeId) candidates.push({id: threeId, s1: sorted.slice(0,3).reduce((sum, c) => sum + c.winRate, 0) / 3, reasoning: 'Test strongest 3'});
+    if (threeId) {
+      const score = sorted.slice(0, 3).reduce((sum, c) => sum + c.winRate, 0) / 3;
+      addCandidate(threeId, score, 'Top 3 clustered', 'THREE');
+    }
   }
   
-  const spread = sorted[0].total - sorted[4].total;
-  if (spread <= 3 && !candidates.find(c => c.id === 'WUBRG')) {
-    candidates.push({id: 'WUBRG', s1: sorted.reduce((sum, c) => sum + c.winRate, 0) / 5, reasoning: 'All within noise'});
+  // FOUR-COLOR: Add if top 4 are close and 5th is clearly out
+  const bottomGap = (sorted[3]?.winRate || 0) - (sorted[4]?.winRate || 0);
+  if (top4Spread < 0.18 && bottomGap > 0.12) {
+    const absentColor = sorted[4].color;
+    const fourId = getFour(absentColor);
+    if (fourId) {
+      const score = sorted.slice(0, 4).reduce((sum, c) => sum + c.winRate, 0) / 4;
+      addCandidate(fourId, score, `No ${absentColor}`, 'FOUR');
+    }
   }
   
-  const seen = new Set();
-  const unique = candidates.filter(c => {
-    if (seen.has(c.id)) return false;
-    seen.add(c.id);
-    return true;
-  });
+  // FIVE-COLOR: Add if all colors balanced
+  if (totalSpread < 0.12) {
+    const score = sorted.reduce((sum, c) => sum + c.winRate, 0) / 5;
+    addCandidate('WUBRG', score, 'All balanced', 'FIVE');
+  }
   
-  unique.sort((a,b) => b.s1 - a.s1);
-  const final = unique.slice(0, 6);
+  // Step 2: Sort by score
+  allCandidates.sort((a, b) => b.s1 - a.s1);
   
-  console.log('Generated:', final.map(c => `${c.id}(${(c.s1*100).toFixed(0)}%)`).join(' | '));
+  // Step 3: Ensure minimum candidates
+  if (allCandidates.length < MIN_CANDIDATES) {
+    console.log(`Only ${allCandidates.length} candidates, adding more to reach ${MIN_CANDIDATES}`);
+    
+    // Add remaining MONOs
+    sorted.forEach(c => {
+      if (allCandidates.length >= MIN_CANDIDATES) return;
+      const monoId = 'MONO-' + c.color;
+      if (!seen.has(monoId)) {
+        addCandidate(monoId, c.winRate, 'Added for discrimination', 'MONO');
+      }
+    });
+    
+    // Add more guilds if still needed
+    for (let i = 0; i < sorted.length && allCandidates.length < MIN_CANDIDATES; i++) {
+      for (let j = i + 1; j < sorted.length && allCandidates.length < MIN_CANDIDATES; j++) {
+        const guildKey = [sorted[i].color, sorted[j].color].sort().join('');
+        const guildId = getGuild(guildKey);
+        if (guildId && !seen.has(guildId)) {
+          const score = (sorted[i].winRate + sorted[j].winRate) / 2;
+          addCandidate(guildId, score, 'Added for discrimination', 'GUILD');
+        }
+      }
+    }
+  }
+  
+  // Re-sort after adding
+  allCandidates.sort((a, b) => b.s1 - a.s1);
+  
+  // Step 4: Limit to max while maintaining diversity
+  let final = allCandidates;
+  if (allCandidates.length > MAX_CANDIDATES) {
+    // Keep top MAX, but ensure we have at least one MONO and one multi-color
+    final = allCandidates.slice(0, MAX_CANDIDATES);
+    
+    const hasMono = final.some(c => c.type === 'MONO');
+    const hasMulti = final.some(c => c.type !== 'MONO');
+    
+    if (!hasMono) {
+      const mono = allCandidates.find(c => c.type === 'MONO');
+      if (mono) final[MAX_CANDIDATES - 1] = mono;
+    }
+    if (!hasMulti) {
+      const multi = allCandidates.find(c => c.type !== 'MONO');
+      if (multi) final[MAX_CANDIDATES - 2] = multi;
+    }
+    
+    final.sort((a, b) => b.s1 - a.s1);
+  }
+  
+  console.log(`Final ${final.length} candidates:`, final.map(c => `${c.id}(${Math.round(c.s1*100)}%)`).join(' | '));
   return final;
 }
 
@@ -4766,54 +4928,61 @@ function generateIdentityExplanation(identity, activationSorted) {
     idColors = PROFILES[identity].colors;
   }
   
-  const top3 = activationSorted.slice(0, 3);
-  const top2 = activationSorted.slice(0, 2);
+  // Get confidence and round 3 data for context
+  const confidence = state.result?.confidence || 'MODERATE';
+  const round3Data = state.result?.round3Data;
+  const wasConsistent = round3Data?.allScores?.[0]?.ranks?.filter(r => r === 1).length >= 3;
   
-  // Generate explanation based on pattern
+  // Generate explanation based on pattern AND how we got there
   if (identity.startsWith('MONO-')) {
     const color = idColors[0];
     const topPct = pct(activationSorted[0][1]);
-    const secondPct = pct(activationSorted[1][1]);
-    return `Your dominant color is ${colorName[color]} (${topPct}%), significantly stronger than your next color (${secondPct}%). This makes you mono-${colorName[color]}.`;
+    
+    if (wasConsistent) {
+      return `${colorName[color]} dominated your choices across all three rounds. You consistently picked ${colorName[color]}-aligned approaches over alternatives.`;
+    } else if (confidence === 'HIGH') {
+      return `${colorName[color]} emerged clearly as your primary driver. The gap between ${colorName[color]} and other colors was consistent throughout.`;
+    } else {
+      return `${colorName[color]} came out on top, though you showed some flexibility. You lean ${colorName[color]} but aren't rigid about it.`;
+    }
   }
   else if (idColors.length === 2) {
-    // Guild - use the IDENTITY'S colors, not just top 2 from sorted
     const c1 = idColors[0], c2 = idColors[1];
-    const c1Pct = pct(activationSorted.find(c => c[0] === c1)?.[1] || 0);
-    const c2Pct = pct(activationSorted.find(c => c[0] === c2)?.[1] || 0);
+    const c1Name = colorName[c1], c2Name = colorName[c2];
     
-    // Check if other colors are very close to the guild colors
-    const sorted = activationSorted;
-    const thirdPct = sorted[2] ? pct(sorted[2][1]) : 0;
-    const fourthPct = sorted[3] ? pct(sorted[3][1]) : 0;
-    
-    // If 3rd or 4th color is within 10% of guild colors, acknowledge the tie
-    if (Math.abs(thirdPct - c2Pct) < 10 || Math.abs(fourthPct - c2Pct) < 10) {
-      // Use the ACTUAL identity colors, not top 2 from sorted
-      return `Your top colors are ${colorName[c1]} (${c1Pct}%) and ${colorName[c2]} (${c2Pct}%), making you ${identity}. However, you have multiple colors close together—you're genuinely borderline.`;
-    }
-    
-    const diff = Math.abs(c1Pct - c2Pct);
-    if (diff < 8) {
-      return `Your top two colors are ${colorName[c1]} (${c1Pct}%) and ${colorName[c2]} (${c2Pct}%)—nearly equal, making you ${identity}.`;
+    if (wasConsistent) {
+      return `You consistently chose ${identity} approaches over mono-color and other guild options. The ${c1Name}-${c2Name} combination resonates with how you actually think.`;
+    } else if (confidence === 'HIGH') {
+      return `The ${c1Name}-${c2Name} combination emerged clearly. You blend both colors rather than leaning heavily into just one.`;
+    } else if (confidence === 'MODERATE') {
+      return `${c1Name} and ${c2Name} both showed up strongly, and you preferred their combination over single-color approaches. The balance between them may shift by context.`;
     } else {
-      return `Your top two colors are ${colorName[c1]} (${c1Pct}%) and ${colorName[c2]} (${c2Pct}%), making you ${identity}.`;
+      return `You landed on ${identity}, but it was close. You have ${c1Name}-${c2Name} tendencies, but could plausibly operate in adjacent modes too.`;
     }
   }
   else if (idColors.length === 3) {
-    // Three-color
-    const pcts = idColors.map(c => pct(activationSorted.find(ac => ac[0] === c)?.[1] || 0));
     const names = idColors.map(c => colorName[c]);
-    return `Your top three colors are ${names[0]} (${pcts[0]}%), ${names[1]} (${pcts[1]}%), and ${names[2]} (${pcts[2]})—all clustered together, making you ${identity}. You blend all three rather than focusing on just two.`;
+    
+    if (wasConsistent) {
+      return `You consistently preferred three-color approaches over simpler options. ${names.join(', ')} work together in how you operate—you're not easily reduced to two colors.`;
+    } else if (confidence === 'HIGH') {
+      return `Three colors emerged as genuinely active: ${names.join(', ')}. You blend all three rather than focusing on a pair.`;
+    } else {
+      return `${names.join(', ')} all showed up in your choices. You operate across this three-color space, though which colors dominate may vary by situation.`;
+    }
   }
   else if (idColors.length === 4) {
     const absent = ['W','U','B','R','G'].find(c => !idColors.includes(c));
-    const absentPct = pct(activationSorted.find(c => c[0] === absent)?.[1] || 0);
-    return `You have four colors activated, with ${colorName[absent]} clearly absent (${absentPct}%). This makes you four-color (no ${colorName[absent]}).`;
+    const absentName = colorName[absent];
+    
+    return `Four colors are active for you—everything except ${absentName}. You're versatile but have a clear blind spot or disinterest in ${absentName} approaches.`;
   }
   else {
-    const variance = pct(top3[0][1]) - pct(activationSorted[4][1]);
-    return `All five colors are active and balanced (${pct(activationSorted[4][1])}-${pct(top3[0][1])}%), making you five-color. You are genuinely versatile or context-dependent.`;
+    if (confidence === 'HIGH') {
+      return `All five colors showed up meaningfully. You're genuinely versatile, drawing on different approaches as situations demand.`;
+    } else {
+      return `You spread across all five colors without a clear dominant pattern. You may be highly adaptable, or your style shifts significantly by context.`;
+    }
   }
 }
 
@@ -6934,7 +7103,148 @@ function findGuildsWithColor(color) {
   return all.filter(g => getGuildColors(g).includes(color));
 }
 
+// ============================================================================
+// TEST HARNESS - 31 canonical test cases
+// Access via: runTestHarness() in console or ?test=1 URL param
+// ============================================================================
+
+const TEST_CASES = [
+  // MONO colors (5)
+  { name: 'MONO-W', scores: {W:0.85, U:0.55, B:0.45, R:0.40, G:0.60}, desc: 'White dominant' },
+  { name: 'MONO-U', scores: {W:0.40, U:0.88, B:0.52, R:0.35, G:0.48}, desc: 'Blue dominant' },
+  { name: 'MONO-B', scores: {W:0.35, U:0.45, B:0.90, R:0.55, G:0.42}, desc: 'Black dominant' },
+  { name: 'MONO-R', scores: {W:0.42, U:0.38, B:0.48, R:0.92, G:0.55}, desc: 'Red dominant' },
+  { name: 'MONO-G', scores: {W:0.50, U:0.35, B:0.40, R:0.52, G:0.88}, desc: 'Green dominant' },
+  
+  // Allied guilds (5)
+  { name: 'AZORIUS', scores: {W:0.78, U:0.75, B:0.35, R:0.30, G:0.45}, desc: 'W-U allies' },
+  { name: 'DIMIR', scores: {W:0.30, U:0.80, B:0.77, R:0.42, G:0.35}, desc: 'U-B allies' },
+  { name: 'RAKDOS', scores: {W:0.25, U:0.38, B:0.76, R:0.79, G:0.40}, desc: 'B-R allies' },
+  { name: 'GRUUL', scores: {W:0.40, U:0.30, B:0.35, R:0.77, G:0.80}, desc: 'R-G allies' },
+  { name: 'SELESNYA', scores: {W:0.78, U:0.35, B:0.28, R:0.42, G:0.76}, desc: 'G-W allies' },
+  
+  // Enemy guilds (5)
+  { name: 'ORZHOV', scores: {W:0.75, U:0.40, B:0.78, R:0.35, G:0.38}, desc: 'W-B enemies' },
+  { name: 'IZZET', scores: {W:0.35, U:0.80, B:0.42, R:0.77, G:0.30}, desc: 'U-R enemies' },
+  { name: 'GOLGARI', scores: {W:0.38, U:0.32, B:0.76, R:0.40, G:0.79}, desc: 'B-G enemies' },
+  { name: 'BOROS', scores: {W:0.77, U:0.30, B:0.35, R:0.80, G:0.42}, desc: 'R-W enemies' },
+  { name: 'SIMIC', scores: {W:0.40, U:0.78, B:0.32, R:0.35, G:0.75}, desc: 'G-U enemies' },
+  
+  // Shards (5)
+  { name: 'ESPER', scores: {W:0.72, U:0.75, B:0.70, R:0.30, G:0.28}, desc: 'W-U-B shard' },
+  { name: 'GRIXIS', scores: {W:0.25, U:0.73, B:0.75, R:0.71, G:0.30}, desc: 'U-B-R shard' },
+  { name: 'JUND', scores: {W:0.28, U:0.30, B:0.70, R:0.74, G:0.72}, desc: 'B-R-G shard' },
+  { name: 'NAYA', scores: {W:0.71, U:0.28, B:0.25, R:0.73, G:0.75}, desc: 'R-G-W shard' },
+  { name: 'BANT', scores: {W:0.74, U:0.72, B:0.25, R:0.30, G:0.70}, desc: 'G-W-U shard' },
+  
+  // Wedges (5)
+  { name: 'ABZAN', scores: {W:0.73, U:0.28, B:0.70, R:0.30, G:0.72}, desc: 'W-B-G wedge' },
+  { name: 'JESKAI', scores: {W:0.70, U:0.75, B:0.28, R:0.72, G:0.30}, desc: 'U-R-W wedge' },
+  { name: 'SULTAI', scores: {W:0.25, U:0.71, B:0.74, R:0.30, G:0.70}, desc: 'B-G-U wedge' },
+  { name: 'MARDU', scores: {W:0.72, U:0.30, B:0.70, R:0.73, G:0.28}, desc: 'R-W-B wedge' },
+  { name: 'TEMUR', scores: {W:0.28, U:0.70, B:0.30, R:0.72, G:0.74}, desc: 'G-U-R wedge' },
+  
+  // Four-color (5)
+  { name: 'YORE', scores: {W:0.68, U:0.70, B:0.67, R:0.65, G:0.25}, desc: 'No Green' },
+  { name: 'GLINT', scores: {W:0.22, U:0.68, B:0.70, R:0.66, G:0.67}, desc: 'No White' },
+  { name: 'DUNE', scores: {W:0.67, U:0.20, B:0.68, R:0.70, G:0.66}, desc: 'No Blue' },
+  { name: 'INK', scores: {W:0.68, U:0.66, B:0.22, R:0.70, G:0.67}, desc: 'No Black' },
+  { name: 'WITCH', scores: {W:0.67, U:0.70, B:0.68, R:0.20, G:0.66}, desc: 'No Red' },
+  
+  // Five-color (1)
+  { name: 'WUBRG', scores: {W:0.52, U:0.50, B:0.48, R:0.51, G:0.49}, desc: 'All balanced' }
+];
+
+function scoresToAnalysis(scores) {
+  const sorted = Object.entries(scores)
+    .map(([color, winRate]) => ({ color, winRate, total: Math.round(winRate * 12) }))
+    .sort((a, b) => b.winRate - a.winRate);
+  
+  const gaps = [];
+  for (let i = 0; i < sorted.length - 1; i++) {
+    gaps.push(sorted[i].winRate - sorted[i + 1].winRate);
+  }
+  
+  // Simple clustering
+  const clusters = [[]];
+  sorted.forEach((colorData, idx) => {
+    clusters[clusters.length - 1].push(colorData);
+    if (gaps[idx] && gaps[idx] > 0.10) clusters.push([]);
+  });
+  if (clusters[clusters.length - 1].length === 0) clusters.pop();
+  
+  return { sorted, gaps, clusters };
+}
+
+function runSingleTest(testCase) {
+  const analysis = scoresToAnalysis(testCase.scores);
+  const candidates = generateCandidatesGapBased(analysis);
+  
+  const winner = candidates[0];
+  const inTop3 = candidates.slice(0, 3).some(c => c.id === testCase.name);
+  const position = candidates.findIndex(c => c.id === testCase.name);
+  
+  return {
+    expected: testCase.name,
+    actual: winner?.id,
+    pass: winner?.id === testCase.name,
+    inTop3,
+    position: position >= 0 ? position + 1 : null,
+    candidates: candidates.map(c => c.id)
+  };
+}
+
+function runTestHarness() {
+  console.log('=== MANA COLORS TEST HARNESS ===');
+  console.log('Running 31 canonical test cases...\n');
+  
+  let passed = 0;
+  let inTop3 = 0;
+  const failures = [];
+  
+  TEST_CASES.forEach(tc => {
+    const result = runSingleTest(tc);
+    
+    if (result.pass) {
+      passed++;
+      console.log(`✓ ${tc.name}: PASS`);
+    } else {
+      if (result.inTop3) inTop3++;
+      failures.push({ ...tc, result });
+      console.log(`✗ ${tc.name}: FAIL - got ${result.actual} (expected at #${result.position || 'N/A'})`);
+      console.log(`  Candidates: ${result.candidates.join(', ')}`);
+    }
+  });
+  
+  console.log('\n=== SUMMARY ===');
+  console.log(`Passed: ${passed}/${TEST_CASES.length} (${Math.round(passed/TEST_CASES.length*100)}%)`);
+  console.log(`In Top 3: ${passed + inTop3}/${TEST_CASES.length}`);
+  
+  if (failures.length > 0) {
+    console.log('\n=== FAILURES ===');
+    failures.forEach(f => {
+      console.log(`${f.name} (${f.desc}): got ${f.result.actual}`);
+    });
+  }
+  
+  return { passed, total: TEST_CASES.length, failures };
+}
+
+// Check for ?test=1 URL param
+if (window.location.search.includes('test=1')) {
+  setTimeout(() => {
+    const results = runTestHarness();
+    alert(`Test Results: ${results.passed}/${results.total} passed`);
+  }, 500);
+}
+
+// Export to window for console access
+window.runTestHarness = runTestHarness;
+window.TEST_CASES = TEST_CASES;
+window.runSingleTest = runSingleTest;
+
 console.log('=== SCRIPT END - All functions defined ===');
+console.log('Test harness available: runTestHarness() or add ?test=1 to URL');
 </script>
 </body>
 </html>
