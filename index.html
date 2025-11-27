@@ -4648,6 +4648,11 @@ function selectNextMatchup(tournament) {
 }
 
 function shouldTerminateEarly(tournament) {
+  // Never terminate before asking at least 2 questions
+  if (tournament.questionCount < 2) {
+    return { terminate: false };
+  }
+  
   const leader = findTournamentLeader(tournament);
   if (!leader) return { terminate: false };
   
@@ -4672,9 +4677,9 @@ function shouldTerminateEarly(tournament) {
     };
   }
   
-  // Condition 2: Leader won 1+ and entered with big gap (>15%)
+  // Condition 2: Leader won 2+ and entered with big gap (>15%)
   const initialGap = leader.combinedScore - (secondPlace?.combinedScore || 0);
-  if (leader.wins >= 1 && leader.losses === 0 && initialGap > 0.15) {
+  if (leader.wins >= 2 && leader.losses === 0 && initialGap > 0.15) {
     return { 
       terminate: true, 
       reason: 'CONFIRMED_FRONTRUNNER',
