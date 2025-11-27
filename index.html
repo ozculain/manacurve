@@ -3504,45 +3504,109 @@ function generateCandidatesGapBased(analysis) {
   const MIN_CANDIDATES = 4;
   const MAX_CANDIDATES = 6;
   
-  console.log('=== GAP-BASED CANDIDATE GENERATION ===');
+  console.log('=== CLUSTER-MATCH CANDIDATE GENERATION ===');
   console.log('Sorted:', sorted.map(c => `${c.color}:${Math.round(c.winRate*100)}%`).join(', '));
   
   // Step 1: Analyze gap structure to find natural cluster size
-  // gaps[i] = difference between sorted[i] and sorted[i+1]
   const gapAnalysis = [];
   for (let i = 0; i < sorted.length - 1; i++) {
     gapAnalysis.push({
-      position: i + 1, // gap after position i+1 (1-indexed)
+      position: i + 1,
       gap: sorted[i].winRate - sorted[i + 1].winRate,
       from: sorted[i].color,
       to: sorted[i + 1].color
     });
   }
   
-  // Find the largest gap - this suggests where the "natural break" is
+  // Find the largest gap
   const largestGap = gapAnalysis.reduce((max, g) => g.gap > max.gap ? g : max, gapAnalysis[0]);
-  const naturalClusterSize = largestGap.position; // e.g., if gap at position 4→5, cluster is 4
+  
+  // CRITICAL: If largest gap is very small (<12%), treat as all-colors cluster
+  // This handles the five-color case where no color stands out
+  const naturalClusterSize = largestGap.gap < 0.12 ? 5 : largestGap.position;
+  
+  // The colors IN the natural cluster
+  const clusterColors = sorted.slice(0, naturalClusterSize).map(c => c.color);
   
   console.log('Gap analysis:', gapAnalysis.map(g => `${g.from}→${g.to}: ${Math.round(g.gap*100)}%`).join(', '));
-  console.log(`Largest gap: ${Math.round(largestGap.gap*100)}% after position ${largestGap.position} (${largestGap.from}→${largestGap.to})`);
-  console.log(`Natural cluster size: ${naturalClusterSize}`);
+  console.log(`Largest gap: ${Math.round(largestGap.gap*100)}% after position ${largestGap.position}`);
+  console.log(`Natural cluster: [${clusterColors.join(', ')}] (size ${naturalClusterSize})`);
   
+  // ========================================
+  // CLUSTER-MATCH SCORING
+  // Score reflects how well candidate matches the observed cluster structure
+  // ========================================
+  function calculateClusterMatchScore(candidateColors) {
+    const candidateSize = candidateColors.length;
+    
+    // How many candidate colors are IN the cluster?
+    const colorsInCluster = candidateColors.filter(c => clusterColors.includes(c)).length;
+    
+    // How many candidate colors are OUTSIDE the cluster?
+    const colorsOutsideCluster = candidateSize - colorsInCluster;
+    
+    // 1. SIZE MATCH (0 to 0.30)
+    // Perfect size match to cluster = 0.30
+    // Off by 1 = 0.15, Off by 2+ = 0.05
+    const sizeDiff = Math.abs(candidateSize - naturalClusterSize);
+    const sizeBonus = sizeDiff === 0 ? 0.30 : sizeDiff === 1 ? 0.15 : 0.05;
+    
+    // 2. CLUSTER COVERAGE (0 to 0.35)
+    // What fraction of the natural cluster does this candidate cover?
+    const clusterCoverage = (colorsInCluster / naturalClusterSize) * 0.35;
+    
+    // 3. PURITY (0 to -0.15)
+    // Penalty for including colors outside the cluster
+    const purityPenalty = candidateSize > 0 ? (colorsOutsideCluster / candidateSize) * -0.15 : 0;
+    
+    // 4. COLOR STRENGTH (0 to 0.25)
+    // Average win rate of candidate's colors
+    const avgWinRate = candidateColors.reduce((sum, c) => {
+      const colorData = sorted.find(s => s.color === c);
+      return sum + (colorData ? colorData.winRate : 0);
+    }, 0) / Math.max(1, candidateSize);
+    const strengthScore = avgWinRate * 0.25;
+    
+    // 5. GAP CONFIDENCE MULTIPLIER (0.75 to 1.0)
+    // For 1-4 color clusters: Stronger gap = more confidence
+    // For 5-color: SMALL gap = high confidence (inverted)
+    let gapConfidence;
+    if (naturalClusterSize === 5) {
+      // Five-color case: smaller gaps mean MORE confidence
+      gapConfidence = 0.80 + (0.20 * (1 - largestGap.gap / 0.12));
+    } else {
+      // Normal case: larger gaps mean more confidence
+      gapConfidence = 0.75 + Math.min(0.25, largestGap.gap);
+    }
+    
+    const rawScore = sizeBonus + clusterCoverage + purityPenalty + strengthScore;
+    const finalScore = Math.max(0.10, rawScore * gapConfidence);
+    
+    console.log(`  ${candidateColors.join('-')}: size=${sizeBonus.toFixed(2)}, coverage=${clusterCoverage.toFixed(2)}, purity=${purityPenalty.toFixed(2)}, strength=${strengthScore.toFixed(2)}, gap=${gapConfidence.toFixed(2)} → ${Math.round(finalScore*100)}%`);
+    
+    return finalScore;
+  }
+  
+  // ========================================
+  // Build candidate list with cluster-match scoring
+  // ========================================
   const allCandidates = [];
   const seen = new Set();
   
-  const addCandidate = (id, score, reasoning, type) => {
+  const addCandidate = (id, colors, reasoning, type) => {
     if (!seen.has(id)) {
-      allCandidates.push({ id, s1: score, reasoning, type });
+      const score = calculateClusterMatchScore(colors);
+      allCandidates.push({ id, s1: score, reasoning, type, colors });
       seen.add(id);
     }
   };
   
-  // Step 2: Always add MONOs for top 3 colors
+  // Always add MONOs for top 3 colors
   sorted.slice(0, 3).forEach((c, idx) => {
-    addCandidate('MONO-' + c.color, c.winRate, `#${idx + 1} color`, 'MONO');
+    addCandidate('MONO-' + c.color, [c.color], `#${idx + 1} color`, 'MONO');
   });
   
-  // Step 3: Add guilds formed by top 4 colors
+  // Add guilds formed by top 4 colors
   const top4Colors = sorted.slice(0, 4).map(c => c.color);
   for (let i = 0; i < top4Colors.length; i++) {
     for (let j = i + 1; j < top4Colors.length; j++) {
@@ -3550,103 +3614,74 @@ function generateCandidatesGapBased(analysis) {
       const guildKey = [c1, c2].sort().join('');
       const guildId = getGuild(guildKey);
       if (guildId) {
-        const score = (sorted[i].winRate + sorted[j].winRate) / 2;
         const relation = areAllies(c1, c2) ? 'allies' : 'enemies';
-        addCandidate(guildId, score, `${c1}-${c2} guild (${relation})`, 'GUILD');
+        addCandidate(guildId, [c1, c2], `${c1}-${c2} guild (${relation})`, 'GUILD');
       }
     }
   }
   
-  // Step 4: Add multi-color based on natural cluster size AND adjacent sizes
-  // This ensures we don't miss identities due to noise in the data
-  
-  // If natural cluster suggests 3+ colors, add three-color
-  if (naturalClusterSize >= 3) {
+  // Add three-color if cluster size >= 3 OR if 3rd color is reasonably active
+  if (naturalClusterSize >= 3 || (sorted[2]?.winRate >= 0.40)) {
     const top3 = sorted.slice(0, 3).map(c => c.color);
     const threeKey = top3.sort().join('');
     const threeId = getThree(threeKey);
-    if (threeId) {
-      const score = sorted.slice(0, 3).reduce((sum, c) => sum + c.winRate, 0) / 3;
-      addCandidate(threeId, score, `Natural cluster includes 3+ (gap at ${naturalClusterSize})`, 'THREE');
+    if (threeId && !seen.has(threeId)) {
+      addCandidate(threeId, top3, `Three-color from top 3`, 'THREE');
     }
   }
   
-  // If natural cluster suggests 4+ colors, add four-color
-  if (naturalClusterSize >= 4) {
-    const absentColor = sorted[4].color;
-    const fourId = getFour(absentColor);
-    if (fourId) {
-      const score = sorted.slice(0, 4).reduce((sum, c) => sum + c.winRate, 0) / 4;
-      addCandidate(fourId, score, `Natural cluster is 4 (${absentColor} clearly out)`, 'FOUR');
-    }
-  }
-  
-  // ALSO add three-color if 3rd color is meaningfully active (>40%), even if gap structure doesn't suggest it
-  // This catches cases where gaps are evenly distributed
-  if (sorted[2]?.winRate >= 0.40 && !seen.has(getThree(sorted.slice(0, 3).map(c => c.color).sort().join('')))) {
-    const top3 = sorted.slice(0, 3).map(c => c.color);
-    const threeKey = top3.sort().join('');
-    const threeId = getThree(threeKey);
-    if (threeId) {
-      const score = sorted.slice(0, 3).reduce((sum, c) => sum + c.winRate, 0) / 3;
-      addCandidate(threeId, score, `3rd color active (${Math.round(sorted[2].winRate*100)}%)`, 'THREE');
-    }
-  }
-  
-  // ALSO add four-color if 4th color is active (>30%) and 5th is clearly out (<25%)
-  if (sorted[3]?.winRate >= 0.30 && (sorted[4]?.winRate || 0) < 0.25) {
+  // Add four-color if cluster size >= 4 OR if 4th color active and 5th clearly out
+  if (naturalClusterSize >= 4 || (sorted[3]?.winRate >= 0.35 && (sorted[4]?.winRate || 0) < 0.25)) {
     const absentColor = sorted[4].color;
     const fourId = getFour(absentColor);
     if (fourId && !seen.has(fourId)) {
-      const score = sorted.slice(0, 4).reduce((sum, c) => sum + c.winRate, 0) / 4;
-      addCandidate(fourId, score, `4th color active, 5th out (${sorted[4].color}: ${Math.round((sorted[4]?.winRate || 0)*100)}%)`, 'FOUR');
+      const fourColors = sorted.slice(0, 4).map(c => c.color);
+      addCandidate(fourId, fourColors, `Four-color (no ${absentColor})`, 'FOUR');
     }
   }
   
-  // Five-color: add if all colors are reasonably balanced (largest gap < 15%)
-  if (largestGap.gap < 0.15) {
-    const score = sorted.reduce((sum, c) => sum + c.winRate, 0) / 5;
-    addCandidate('WUBRG', score, 'No significant gaps', 'FIVE');
+  // Add five-color if no significant gaps (all balanced)
+  if (largestGap.gap < 0.12) {
+    addCandidate('WUBRG', ['W','U','B','R','G'], 'All colors balanced', 'FIVE');
   }
   
-  // Step 2: Sort by score
+  // Sort by cluster-match score
   allCandidates.sort((a, b) => b.s1 - a.s1);
   
-  // Step 3: Ensure minimum candidates
+  // Ensure minimum candidates for discrimination
   if (allCandidates.length < MIN_CANDIDATES) {
-    console.log(`Only ${allCandidates.length} candidates, adding more to reach ${MIN_CANDIDATES}`);
+    console.log(`Only ${allCandidates.length} candidates, adding more`);
     
     // Add remaining MONOs
     sorted.forEach(c => {
       if (allCandidates.length >= MIN_CANDIDATES) return;
       const monoId = 'MONO-' + c.color;
       if (!seen.has(monoId)) {
-        addCandidate(monoId, c.winRate, 'Added for discrimination', 'MONO');
+        addCandidate(monoId, [c.color], 'Added for discrimination', 'MONO');
       }
     });
     
-    // Add more guilds if still needed
+    // Add more guilds if needed
     for (let i = 0; i < sorted.length && allCandidates.length < MIN_CANDIDATES; i++) {
       for (let j = i + 1; j < sorted.length && allCandidates.length < MIN_CANDIDATES; j++) {
         const guildKey = [sorted[i].color, sorted[j].color].sort().join('');
         const guildId = getGuild(guildKey);
         if (guildId && !seen.has(guildId)) {
-          const score = (sorted[i].winRate + sorted[j].winRate) / 2;
-          addCandidate(guildId, score, 'Added for discrimination', 'GUILD');
+          addCandidate(guildId, [sorted[i].color, sorted[j].color], 'Added for discrimination', 'GUILD');
         }
       }
     }
+    
+    // Re-sort
+    allCandidates.sort((a, b) => b.s1 - a.s1);
   }
   
-  // Re-sort after adding
-  allCandidates.sort((a, b) => b.s1 - a.s1);
-  
-  // Step 4: Limit to max while maintaining diversity
+  // Limit to max candidates
   let final = allCandidates;
   if (allCandidates.length > MAX_CANDIDATES) {
-    // Keep top MAX, but ensure we have at least one MONO and one multi-color
     final = allCandidates.slice(0, MAX_CANDIDATES);
     
+    // Ensure we have diversity (at least one mono, one multi)
     const hasMono = final.some(c => c.type === 'MONO');
     const hasMulti = final.some(c => c.type !== 'MONO');
     
@@ -3662,7 +3697,9 @@ function generateCandidatesGapBased(analysis) {
     final.sort((a, b) => b.s1 - a.s1);
   }
   
-  console.log(`Final ${final.length} candidates:`, final.map(c => `${c.id}(${Math.round(c.s1*100)}%)`).join(' | '));
+  console.log(`=== FINAL ${final.length} CANDIDATES ===`);
+  console.log(final.map(c => `${c.id}: ${Math.round(c.s1*100)}%`).join(' | '));
+  
   return final;
 }
 
@@ -4260,8 +4297,6 @@ function showInterstitial(candidates) {
   document.getElementById('screen-interstitial').classList.remove('hidden');
   
   const sorted = state.activationSorted;
-  const colorNames = {W:'White', U:'Blue', B:'Black', R:'Red', G:'Green'};
-  const pct = (v) => Math.round(v * 100);
   
   // Check if calibration was done
   const wasCalibrated = state.calibrationAnswers && state.calibrationAnswers.length > 0;
@@ -4272,63 +4307,54 @@ function showInterstitial(candidates) {
     titleEl.textContent = wasCalibrated ? 'Calibration Complete' : 'Round 1 Complete';
   }
   
-  // Find the biggest gap to determine how many colors are actually activated
-  const gaps = sorted.slice(0,4).map((c,i) => ({idx:i, gap: c[1] - sorted[i+1][1]}));
-  gaps.sort((a,b) => b.gap - a.gap);
-  const numTop = gaps[0].idx + 1;
-  
-  // Show color symbols for the colors ABOVE the gap
+  // Show ALL 5 colors with visual strength bars
   const scoresDiv = document.getElementById('inter-scores');
   scoresDiv.innerHTML = '';
-  scoresDiv.style.cssText = 'display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;';
-  sorted.slice(0, numTop).forEach(([c, act]) => {
+  scoresDiv.style.cssText = 'display: flex; flex-direction: column; gap: 10px; max-width: 400px; margin: 0 auto 20px auto;';
+  
+  const maxRate = sorted[0][1]; // Highest for scaling bars
+  
+  sorted.forEach(([c, act], idx) => {
+    const pctValue = Math.round(act * 100);
+    const barWidth = Math.max(8, (act / maxRate) * 100); // Scale relative to max
+    
+    const row = document.createElement('div');
+    row.style.cssText = 'display: flex; align-items: center; gap: 12px;';
+    
+    // Mana symbol
     const sym = document.createElement('span');
     sym.className = `mana-symbol mana-${c}`;
     sym.textContent = c;
-    sym.style.width = '44px';
-    sym.style.height = '44px';
-    sym.style.fontSize = '22px';
-    scoresDiv.appendChild(sym);
+    sym.style.cssText = 'width: 36px; height: 36px; font-size: 18px; flex-shrink: 0;';
+    row.appendChild(sym);
+    
+    // Bar container
+    const barContainer = document.createElement('div');
+    barContainer.style.cssText = 'flex: 1; height: 24px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; position: relative;';
+    
+    // Filled bar
+    const bar = document.createElement('div');
+    bar.style.cssText = `height: 100%; width: ${barWidth}%; background: rgba(167, 139, 250, 0.7); border-radius: 4px; transition: width 0.5s ease;`;
+    barContainer.appendChild(bar);
+    
+    row.appendChild(barContainer);
+    
+    // Percentage
+    const pctLabel = document.createElement('span');
+    pctLabel.style.cssText = 'font-size: 14px; font-weight: 600; min-width: 40px; text-align: right; color: #e0e0e0;';
+    pctLabel.textContent = `${pctValue}%`;
+    row.appendChild(pctLabel);
+    
+    scoresDiv.appendChild(row);
   });
   
-  const [t1, t2, t3, t4, t5] = sorted.map(c => c[1]);
-  let explanation = '';
-  let nextStep = '';
-  
-  // Add calibration note if applicable
+  // Neutral explanation - don't predict, just describe the data
   const calibrationNote = wasCalibrated 
-    ? `After testing ally color pairs, we've refined your activation levels. `
+    ? `We've refined your color activations based on how you navigate allied values. `
     : '';
   
-  // Generate explanation based on ACTUAL pattern detected
-  if (numTop === 1) {
-    // ONE color dominant
-    explanation = `${calibrationNote}${colorNames[sorted[0][0]]} is clearly your dominant color (${pct(t1)}%), significantly higher than your next color (${pct(t2)}%).`;
-    if (t2 >= 0.42) {
-      nextStep = `Final step: We'll confirm if you're purely mono-${colorNames[sorted[0][0]]} or if you blend in a second color.`;
-    } else {
-      nextStep = `Final step: We'll verify you're mono-${colorNames[sorted[0][0]]} with targeted scenarios.`;
-    }
-  } else if (numTop === 2) {
-    // TWO colors above the gap
-    const names = sorted.slice(0,2).map(c => colorNames[c[0]]);
-    explanation = `${calibrationNote}Your top two colors are ${names[0]} (${pct(t1)}%) and ${names[1]} (${pct(t2)}%), both clearly above your other colors.`;
-    nextStep = `Final step: We'll determine which specific two-color combination fits you best.`;
-  } else if (numTop === 3) {
-    // THREE colors above the gap
-    const names = sorted.slice(0,3).map(c => colorNames[c[0]]);
-    explanation = `${calibrationNote}Your top three colors cluster together: ${names[0]} (${pct(t1)}%), ${names[1]} (${pct(t2)}%), ${names[2]} (${pct(t3)}%).`;
-    nextStep = `Final step: We'll determine if you're a three-color identity or primarily one of the component guilds.`;
-  } else if (numTop === 4) {
-    // FOUR colors above the gap
-    const absentColor = sorted[4][0];
-    explanation = `${calibrationNote}Four colors are activated (${pct(t1)}%, ${pct(t2)}%, ${pct(t3)}%, ${pct(t4)}%) with ${colorNames[absentColor]} clearly lower (${pct(t5)}%).`;
-    nextStep = `Final step: We'll verify this rare four-color pattern with targeted scenarios.`;
-  } else {
-    // ALL FIVE balanced
-    explanation = `${calibrationNote}All five colors show balanced activation (range: ${pct(t5)}%-${pct(t1)}%).`;
-    nextStep = `Final step: We'll determine if you're truly five-color or have a clearer pattern emerge.`;
-  }
+  const explanation = `${calibrationNote}These are your relative color strengths based on your answers so far.`;
+  const nextStep = `In the final round, we'll present scenarios to determine which combination of your colors best captures how you actually operate.`;
   
   document.getElementById('inter-explanation').textContent = explanation;
   document.getElementById('inter-next').textContent = nextStep;
@@ -4359,9 +4385,57 @@ function startRound3(candidates) {
   const discriminationsNeeded = identifyNeededDiscriminations(refinedCandidates);
   console.log('Discriminations needed:', discriminationsNeeded);
   
-  // STEP 3: Generate questions that test those specific discriminations
-  const topCandidates = refinedCandidates.slice(0, 5);
+  // STEP 3: Reorder candidates to lead with "middle ground" option
+  // If top is MONO → lead with best GUILD, then MONO
+  // If top is FOUR → lead with best THREE, then FOUR
+  // Otherwise keep current order (GUILD or THREE already are middle ground)
+  let topCandidates = refinedCandidates.slice(0, 5);
   
+  const topCandidate = topCandidates[0];
+  const topType = getCandidateType(topCandidate.id);
+  
+  console.log(`Top candidate: ${topCandidate.id} (type: ${topType})`);
+  
+  if (topType === 'MONO') {
+    // Find best GUILD containing this mono's color
+    const monoColor = topCandidate.id.replace('MONO-', '');
+    const bestGuild = topCandidates.find(c => {
+      const cType = getCandidateType(c.id);
+      if (cType !== 'GUILD') return false;
+      const colors = PROFILES[c.id]?.colors || [];
+      return colors.includes(monoColor);
+    });
+    
+    if (bestGuild) {
+      // Reorder: guild first, then mono, then rest
+      topCandidates = topCandidates.filter(c => c.id !== bestGuild.id);
+      const monoIdx = topCandidates.findIndex(c => c.id === topCandidate.id);
+      topCandidates.splice(monoIdx, 0, bestGuild); // Insert guild before mono
+      console.log(`Reordered: Leading with ${bestGuild.id} (guild) before ${topCandidate.id} (mono)`);
+    }
+  } else if (topType === 'FOUR') {
+    // Find best THREE from the four colors
+    const fourColors = PROFILES[topCandidate.id]?.colors || [];
+    const bestThree = topCandidates.find(c => {
+      const cType = getCandidateType(c.id);
+      if (cType !== 'THREE') return false;
+      const colors = PROFILES[c.id]?.colors || [];
+      // Check if all three colors are in the four
+      return colors.every(col => fourColors.includes(col));
+    });
+    
+    if (bestThree) {
+      // Reorder: three first, then four, then rest
+      topCandidates = topCandidates.filter(c => c.id !== bestThree.id);
+      const fourIdx = topCandidates.findIndex(c => c.id === topCandidate.id);
+      topCandidates.splice(fourIdx, 0, bestThree); // Insert three before four
+      console.log(`Reordered: Leading with ${bestThree.id} (three) before ${topCandidate.id} (four)`);
+    }
+  }
+  
+  console.log('Final candidate order:', topCandidates.map(c => c.id).join(', '));
+  
+  // STEP 4: Generate questions that test those specific discriminations
   // Select scenarios that best discriminate between remaining candidates
   const allScenarioIds = ['CRISIS', 'PLANNING', 'TEAM', 'CHANGE'];
   const scenarioIds = shuffleArray(allScenarioIds).slice(0, 4);
@@ -4705,6 +4779,11 @@ function finishRound3() {
   // Use round3Rankings if available, fall back to round2Rankings
   const rankingsStore = state.round3Rankings || state.round2Rankings;
   
+  // Track what was EXPECTED going into Round 3 (top candidate by combinedScore)
+  const expectedWinner = state.candidates?.[0];
+  const expectedType = expectedWinner ? getCandidateType(expectedWinner.id) : null;
+  console.log('Expected winner going into R3:', expectedWinner?.id, '(type:', expectedType, ')');
+  
   // Calculate average rank per candidate (lower = better)
   const candidateScores = Object.entries(rankingsStore).map(([id, ranks]) => {
     // Find the candidate's combined score from earlier rounds
@@ -4728,6 +4807,24 @@ function finishRound3() {
   
   const winner = candidateScores[0];
   const runnerUp = candidateScores[1];
+  const actualType = getCandidateType(winner.id);
+  
+  // Detect "width shift" - when R3 rankings chose a different identity width than expected
+  // Examples: expected MONO but chose GUILD, expected FOUR but chose THREE
+  let widthShift = false;
+  let shiftDirection = null;
+  
+  if (expectedType && actualType && expectedType !== actualType) {
+    const typeOrder = {'MONO': 1, 'GUILD': 2, 'THREE': 3, 'FOUR': 4, 'FIVE': 5};
+    const expectedWidth = typeOrder[expectedType] || 0;
+    const actualWidth = typeOrder[actualType] || 0;
+    
+    if (expectedWidth !== actualWidth) {
+      widthShift = true;
+      shiftDirection = actualWidth > expectedWidth ? 'wider' : 'narrower';
+      console.log(`WIDTH SHIFT DETECTED: Expected ${expectedType} (${expectedWidth}), got ${actualType} (${actualWidth}) - shifted ${shiftDirection}`);
+    }
+  }
   
   // Calculate confidence based on winner consistency AND gap
   const gap = runnerUp ? (runnerUp.avgRank - winner.avgRank) : 2;
@@ -4765,13 +4862,21 @@ function finishRound3() {
   }
   
   // BOOST: If Round 1 showed 20+ percentage point gap, boost MODERATE → HIGH
-  if (state.activationSorted && state.activationSorted.length >= 2 && confidence === 'MODERATE') {
+  // BUT only if there was no width shift
+  if (state.activationSorted && state.activationSorted.length >= 2 && confidence === 'MODERATE' && !widthShift) {
     const topRate = state.activationSorted[0][1];
     const secondRate = state.activationSorted[1][1];
     const r1Gap = topRate - secondRate;
     if (r1Gap >= 0.20) {
       confidence = 'HIGH';
     }
+  }
+  
+  // WIDTH SHIFT PENALTY: If user's R3 choices shifted to a different width, cap at MODERATE
+  // This indicates the scoring predicted one thing but the user's preferences showed another
+  if (widthShift && confidence === 'HIGH') {
+    confidence = 'MODERATE';
+    console.log('Confidence capped at MODERATE due to width shift');
   }
   
   console.log('Winner consistency:', winnerConsistency, 'variance:', winnerVariance.toFixed(2));
@@ -4806,7 +4911,13 @@ function finishRound3() {
       gap: gap,
       runnerUp: runnerUp,
       calibrationUsed: state.calibrationAnswers?.length > 0,
-      discriminationsNeeded: state.discriminationsNeeded
+      discriminationsNeeded: state.discriminationsNeeded,
+      // NEW: Track divergence between expected and actual
+      expectedWinner: expectedWinner?.id,
+      expectedType: expectedType,
+      actualType: actualType,
+      widthShift: widthShift,
+      shiftDirection: shiftDirection
     }
   };
   
@@ -6507,9 +6618,14 @@ function showResults() {
   console.log('colorsTied:', colorsTied);
   console.log('isGuild:', isGuild, 'isThreeColor:', isThreeColor);
   
-  // Show if (LOW or MODERATE confidence) AND (colors are tied OR we have actual alternatives)
+  // Check for width shift (expected one type but got another)
+  const r3Data = state.result.round3Data || {};
+  const hasWidthShift = r3Data.widthShift === true;
+  console.log('hasWidthShift:', hasWidthShift, 'shiftDirection:', r3Data.shiftDirection);
+  
+  // Show if (LOW or MODERATE confidence) AND (colors are tied OR we have actual alternatives OR width shift)
   const shouldShowAlternatives = (state.result.confidence === 'LOW' || state.result.confidence === 'MODERATE') && 
-                                  (colorsTied || allResults.length > 1);
+                                  (colorsTied || allResults.length > 1 || hasWidthShift);
   
   if (shouldShowAlternatives) {
     document.getElementById('alternative-results').style.display = 'block';
@@ -6522,19 +6638,32 @@ function showResults() {
       const winnerData = winner[1];
       const altData = topAlt[1];
       
-      whyText = `We're calling you ${state.result.identity} because `;
-      
-      if (winnerData.s1 > altData.s1 && winnerData.s2 > altData.s2) {
-        whyText += `it scored higher in both phases (Round 1: ${Math.round(winnerData.s1*100)}% vs ${Math.round(altData.s1*100)}%, Round 3: ${Math.round(winnerData.s2*100)}% vs ${Math.round(altData.s2*100)}%).`;
-      } else if (winnerData.s1 > altData.s1) {
-        whyText += `your color pattern in Round 1 pointed more strongly to it (${Math.round(winnerData.s1*100)}% vs ${Math.round(altData.s1*100)}%), and earlier rounds carry more weight.`;
-      } else if (winnerData.s2 > altData.s2) {
-        whyText += `you picked it more consistently in Round 3 (${Math.round(winnerData.s2*100)}% vs ${Math.round(altData.s2*100)}%).`;
+      // Special messaging for width shift
+      if (hasWidthShift && r3Data.expectedWinner) {
+        const expectedProfile = PROFILES[r3Data.expectedWinner];
+        const expectedName = expectedProfile ? expectedProfile.name : r3Data.expectedWinner;
+        
+        if (r3Data.shiftDirection === 'wider') {
+          whyText = `Your initial patterns suggested ${expectedName}, but your scenario choices revealed a broader identity. We're calling you ${state.result.identity} because you consistently preferred responses that draw on more colors. `;
+        } else {
+          whyText = `Your initial patterns suggested ${expectedName}, but your scenario choices revealed a more focused identity. We're calling you ${state.result.identity} because you consistently preferred more targeted responses. `;
+        }
+        whyText += `That said, you're between these identities:`;
       } else {
-        whyText += `the overall pattern across all rounds pointed to it.`;
+        whyText = `We're calling you ${state.result.identity} because `;
+        
+        if (winnerData.s1 > altData.s1 && winnerData.s2 > altData.s2) {
+          whyText += `it scored higher in both phases (Round 1: ${Math.round(winnerData.s1*100)}% vs ${Math.round(altData.s1*100)}%, Round 3: ${Math.round(winnerData.s2*100)}% vs ${Math.round(altData.s2*100)}%).`;
+        } else if (winnerData.s1 > altData.s1) {
+          whyText += `your color pattern in Round 1 pointed more strongly to it (${Math.round(winnerData.s1*100)}% vs ${Math.round(altData.s1*100)}%), and earlier rounds carry more weight.`;
+        } else if (winnerData.s2 > altData.s2) {
+          whyText += `you picked it more consistently in Round 3 (${Math.round(winnerData.s2*100)}% vs ${Math.round(altData.s2*100)}%).`;
+        } else {
+          whyText += `the overall pattern across all rounds pointed to it.`;
+        }
+        
+        whyText += ` That said, you're borderline—you could legitimately be any of these:`;
       }
-      
-      whyText += ` That said, you're borderline—you could legitimately be any of these:`;
     } else {
       whyText = 'Your pattern was borderline. You could legitimately be any of these:';
     }
@@ -6554,8 +6683,25 @@ function showResults() {
     console.log('Full allResults:', allResults.map(a => `${a[0]}(${Math.round((a[1].combined || a[1].s1)*100)}%)`).join(', '));
     
     // Get alternatives from allResults (ranked Stage 2 results), excluding winner
-    const alternatives = allResults.slice(1, 4);
+    let alternatives = allResults.slice(1, 4);
     console.log('Alternatives after slice(1,4):', alternatives.map(a => a[0]).join(', '));
+    
+    // If there was a width shift, ensure the expected winner is in alternatives
+    if (hasWidthShift && r3Data.expectedWinner && r3Data.expectedWinner !== state.result.identity) {
+      const expectedInAlts = alternatives.some(a => a[0] === r3Data.expectedWinner);
+      if (!expectedInAlts) {
+        // Find expected winner in allResults
+        const expectedEntry = allResults.find(a => a[0] === r3Data.expectedWinner);
+        if (expectedEntry) {
+          // Insert at the front of alternatives
+          alternatives.unshift(expectedEntry);
+          // Keep max 4 alternatives
+          if (alternatives.length > 4) alternatives = alternatives.slice(0, 4);
+          console.log('Added expected winner to alternatives:', r3Data.expectedWinner);
+        }
+      }
+    }
+    console.log('Final alternatives:', alternatives.map(a => a[0]).join(', '));
     console.log('==============================');
     
     // If we have no alternatives but LOW/MODERATE confidence, show guidance
