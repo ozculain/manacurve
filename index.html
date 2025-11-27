@@ -669,7 +669,7 @@ body {
   <div id="screen-assessment" class="hidden">
     <div class="card">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-        <div style="display: flex; gap: 8px;">
+        <div id="header-mana-symbols" style="display: flex; gap: 8px;">
           <span class="mana-symbol mana-W" style="width: 28px; height: 28px; font-size: 14px;">W</span>
           <span class="mana-symbol mana-U" style="width: 28px; height: 28px; font-size: 14px;">U</span>
           <span class="mana-symbol mana-B" style="width: 28px; height: 28px; font-size: 14px;">B</span>
@@ -772,7 +772,7 @@ body {
       </div>
       
       <h2 style="font-size: 32px; margin-bottom: 16px;">📊 Round 1 Complete</h2>
-      <p style="color: #a0a0b0; margin-bottom: 24px;">30 enemy pair comparisons analyzed</p>
+      <p style="color: #a0a0b0; margin-bottom: 24px;">30 enemy pair comparisons analysed</p>
       
       <div style="background: rgba(139, 92, 246, 0.1); border: 2px solid rgba(139, 92, 246, 0.4); border-radius: 16px; padding: 28px; margin: 24px auto; max-width: 500px;">
         <p style="font-size: 14px; color: #a0a0b0; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 1px;">You're trending toward</p>
@@ -1302,7 +1302,7 @@ body {
             <div>
               <div style="font-size: 12px; color: #EF4444; text-transform: uppercase; margin-bottom: 8px; font-weight: 600;">✗ DON'T</div>
               <ul style="list-style: none; padding: 0; font-size: 13px; color: #d0d0d0; line-height: 1.7;">
-                <li>• Over-analyze everything</li>
+                <li>• Over-analyse everything</li>
                 <li>• Be cold or emotionless</li>
                 <li>• Make them wait unnecessarily</li>
                 <li>• Constrain their freedom</li>
@@ -1376,7 +1376,7 @@ body {
             <span class="mana-symbol mana-G" style="width: 28px; height: 28px; font-size: 14px;">G</span>
             <h4 style="font-size: 16px; font-weight: 700; margin: 0;">Extraction vs. Sustainability</h4>
           </div>
-          <p style="font-size: 13px; color: #b0b0b0; margin-bottom: 8px;"><strong>Source:</strong> Black maximizes short-term, Green preserves long-term</p>
+          <p style="font-size: 13px; color: #b0b0b0; margin-bottom: 8px;"><strong>Source:</strong> Black maximises short-term, Green preserves long-term</p>
           <p style="font-size: 13px; color: #10B981;"><strong>Resolution:</strong> Define regeneration rate, extract within sustainable limits</p>
         </div>
         
@@ -1398,7 +1398,7 @@ body {
             <span class="mana-symbol mana-U" style="width: 28px; height: 28px; font-size: 14px;">U</span>
             <h4 style="font-size: 16px; font-weight: 700; margin: 0;">Acceptance vs. Improvement</h4>
           </div>
-          <p style="font-size: 13px; color: #b0b0b0; margin-bottom: 8px;"><strong>Source:</strong> Green accepts what works, Blue wants to optimize everything</p>
+          <p style="font-size: 13px; color: #b0b0b0; margin-bottom: 8px;"><strong>Source:</strong> Green accepts what works, Blue wants to optimise everything</p>
           <p style="font-size: 13px; color: #10B981;"><strong>Resolution:</strong> Preserve what demonstrably works, improve what demonstrably doesn't</p>
         </div>
       </div>
@@ -1503,36 +1503,84 @@ function renderManaCost(costString) {
 }
 
 const POOL_A = [
-  {id:'A-WB-W01',pair:'W-B',ctx:'Team Success',sc:'Your team has delivered a major win, primarily driven by the exceptional effort of two specific individuals.',r:[{t:'Frame it as a collective victory to ensure the entire team feels equally recognized and valued',c:'W'},{t:'Single out the high performers to ensure they are explicitly rewarded for their disproportionate impact',c:'B'}]},
-  {id:'A-WB-W03',pair:'W-B',ctx:'Resource Allocation',sc:'Two initiatives require funding, but your budget only allows you to support one.',r:[{t:'Fund the initiative that distributes benefits to the widest group of stakeholders fairly',c:'W'},{t:'Fund the initiative that provides your specific department with the strongest strategic advantage',c:'B'}]},
-  {id:'A-WB-W05',pair:'W-B',ctx:'Process Integrity',sc:'A teammate bypassed standard protocols to complete a project ahead of schedule.',r:[{t:'Address the violation immediately—allowing exceptions undermines trust in the system',c:'W'},{t:'Evaluate the result first—if the outcome was superior, the rule-breaking was justified',c:'B'}]},
-  {id:'A-WB-L01',pair:'W-B',ctx:'Ethics',sc:'You find a wallet on the street with $200 cash and an ID inside.',r:[{t:'Return it intact; it is the right thing to do and what you would want someone to do for you',c:'W'},{t:'Return the wallet and ID, but keep the cash as a finder\'s fee for your time and effort',c:'B'}]},
-  {id:'A-WB-L02',pair:'W-B',ctx:'Competition',sc:'You are playing a competitive board game with friends.',r:[{t:'Prioritize the group having fun; you\'ll go easy on struggling players to keep the mood light',c:'W'},{t:'Play to win; the game has rules and a winner, and you intend to be that winner',c:'B'}]},
-  {id:'A-WB-L05',pair:'W-B',ctx:'Social Norms',sc:'You are driving and traffic is backed up at a merge point.',r:[{t:'Wait your turn in line like everyone else to maintain order',c:'W'},{t:'Drive to the very front of the merge lane to cut in; it is efficient and the space is there',c:'B'}]},
+  // WHITE vs BLACK (W-B) - Collective good vs individual advancement
+  {id:'A-WB-W01',pair:'W-B',ctx:'Team Success',sc:'Your team has delivered a major win, primarily driven by the exceptional effort of two specific individuals.',r:[{t:'Frame it as a collective victory to ensure the entire team feels equally recognised and valued',c:'W'},{t:'Single out the high performers to ensure they are explicitly rewarded for their disproportionate impact',c:'B'}]},
+  {id:'A-WB-W03',pair:'W-B',ctx:'Resource Allocation',sc:'Two initiatives need funding, but your budget only allows you to support one.',r:[{t:'Fund the initiative that distributes benefits to the widest group of stakeholders fairly',c:'W'},{t:'Fund the initiative that provides your specific department with the strongest strategic advantage',c:'B'}]},
+  {id:'A-WB-W05',pair:'W-B',ctx:'Process Integrity',sc:'A colleague bypassed standard protocols to complete a project ahead of schedule.',r:[{t:'Address the violation immediately—allowing exceptions undermines trust in the system',c:'W'},{t:'Evaluate the result first—if the outcome was superior, the rule-breaking was justified',c:'B'}]},
+  {id:'A-WB-L01',pair:'W-B',ctx:'Ethics',sc:'You find a wallet on the street with cash and an ID inside.',r:[{t:'Return it intact; it is the right thing to do and what you would want someone to do for you',c:'W'},{t:'Return the wallet and ID, but keep some cash as a finder\'s fee for your time and effort',c:'B'}]},
+  {id:'A-WB-L02',pair:'W-B',ctx:'Competition',sc:'You are playing a competitive board game with friends.',r:[{t:'Prioritise the group having fun; you\'ll go easy on struggling players to keep the mood light',c:'W'},{t:'Play to win; the game has rules and a winner, and you intend to be that winner',c:'B'}]},
+  {id:'A-WB-L05',pair:'W-B',ctx:'Social Norms',sc:'You are driving and traffic is backed up at a merge point.',r:[{t:'Wait your turn in the queue like everyone else to maintain order',c:'W'},{t:'Drive to the very front of the merge lane to cut in; it is efficient and the space is there',c:'B'}]},
+  // PSYCHOLOGY JOKE: W-B
+  {id:'A-WB-PSY',pair:'W-B',ctx:'Deep Reflection',sc:'A therapist shows you an inkblot and asks what you see.',r:[{t:'Two people shaking hands and reaching a fair agreement',c:'W'},{t:'A person climbing a ladder whilst others watch from below',c:'B'}]},
+
+  // BLUE vs RED (U-R) - Analysis vs action
   {id:'A-UR-W01',pair:'U-R',ctx:'Crisis Management',sc:'A critical system has crashed and customers are waiting for a resolution.',r:[{t:'Pause to map the architecture and identify the root cause before attempting a fix',c:'U'},{t:'Act immediately based on instinct—try solutions rapidly until the system is restored',c:'R'}]},
   {id:'A-UR-W03',pair:'U-R',ctx:'Innovation',sc:'Your team is tackling a complex new customer problem.',r:[{t:'Research precedents, build a prototype, and test systematically before launching',c:'U'},{t:'Build a minimum viable version quickly and iterate based on live feedback',c:'R'}]},
   {id:'A-UR-W05',pair:'U-R',ctx:'Team Leadership',sc:'You are choosing between two final candidates for a role.',r:[{t:'Select the candidate with the strongest objective qualifications and proven track record',c:'U'},{t:'Select the candidate who just "feels right" regarding the team\'s energy',c:'R'}]},
-  {id:'A-UR-L01',pair:'U-R',ctx:'Planning',sc:'You are planning a two-week international vacation.',r:[{t:'Create a detailed itinerary, researching the best spots and booking everything in advance',c:'U'},{t:'Book the flight and figure the rest out when you land based on what feels fun',c:'R'}]},
-  {id:'A-UR-L03',pair:'U-R',ctx:'Decision Making',sc:'You are buying a new car.',r:[{t:'Spend weeks comparing specs, fuel efficiency, and resale value spreadsheets',c:'U'},{t:'Test drive a few and buy the one that gives you the biggest thrill when you accelerate',c:'R'}]},
-  {id:'A-UR-L05',pair:'U-R',ctx:'Free Time',sc:'You have a free Saturday with zero obligations.',r:[{t:'Use the time to catch up on reading, learning, or organizing your life',c:'U'},{t:'Go on an adventure, see friends, or do something exciting and spontaneous',c:'R'}]},
-  {id:'A-GU-W08',pair:'G-U',ctx:'Strategic Planning',sc:'Your organization is evaluating a switch to a new software platform.',r:[{t:'Avoid the disruption—if the current tools function, there is no need to change them',c:'G'},{t:'Evaluate the specifications—if the new tool offers measurable improvements, make the switch',c:'U'}]},
+  {id:'A-UR-L01',pair:'U-R',ctx:'Planning',sc:'You are planning a two-week international holiday.',r:[{t:'Create a detailed itinerary, researching the best spots and booking everything in advance',c:'U'},{t:'Book the flight and figure the rest out when you land based on what feels fun',c:'R'}]},
+  {id:'A-UR-L03',pair:'U-R',ctx:'Decision Making',sc:'You are buying a new car.',r:[{t:'Spend weeks comparing specs, fuel efficiency, and resale value in spreadsheets',c:'U'},{t:'Test drive a few and buy the one that gives you the biggest thrill when you accelerate',c:'R'}]},
+  {id:'A-UR-L05',pair:'U-R',ctx:'Free Time',sc:'You have a free Saturday with zero obligations.',r:[{t:'Use the time to catch up on reading, learning, or organising your life',c:'U'},{t:'Go on an adventure, see friends, or do something exciting and spontaneous',c:'R'}]},
+  // PSYCHOLOGY JOKE: U-R
+  {id:'A-UR-PSY',pair:'U-R',ctx:'Meta-Analysis',sc:'On a scale of 1-10, how would you rate your relationship with scales of 1-10?',r:[{t:'I appreciate well-designed measurement instruments and would rate this question a 7.3',c:'U'},{t:'Scales are boring—I prefer to just know how I feel about something',c:'R'}]},
+
+  // GREEN vs BLUE (G-U) - Acceptance vs optimisation
+  {id:'A-GU-W08',pair:'G-U',ctx:'Strategic Planning',sc:'Your organisation is evaluating a switch to a new software platform.',r:[{t:'Avoid the disruption—if the current tools function, there is no need to change them',c:'G'},{t:'Evaluate the specifications—if the new tool offers measurable improvements, make the switch',c:'U'}]},
   {id:'A-GU-W10',pair:'G-U',ctx:'Innovation',sc:'You are facing a problem that looks very similar to one you solved three years ago.',r:[{t:'Use the solution that worked last time—rely on proven patterns',c:'G'},{t:'Re-evaluate from scratch—the old solution might not be the optimal one today',c:'U'}]},
-  {id:'A-GU-W12',pair:'G-U',ctx:'Strategic Planning',sc:'You are establishing a method for preserving institutional knowledge.',r:[{t:'Prioritize storytelling and wisdom transfer from long-tenured employees',c:'G'},{t:'Prioritize creating searchable databases and decision-making frameworks',c:'U'}]},
+  {id:'A-GU-W12',pair:'G-U',ctx:'Strategic Planning',sc:'You are establishing a method for preserving institutional knowledge.',r:[{t:'Prioritise storytelling and wisdom transfer from long-tenured employees',c:'G'},{t:'Prioritise creating searchable databases and decision-making frameworks',c:'U'}]},
   {id:'A-GU-L02',pair:'G-U',ctx:'Parenting',sc:'You are helping a child or younger relative with school.',r:[{t:'Encourage them to find their natural talents and let them develop at their own pace',c:'G'},{t:'Get them a tutor and specific tools to improve their grades in their weakest subjects',c:'U'}]},
-  {id:'A-GU-L04',pair:'G-U',ctx:'Environment',sc:'You are planning your garden or home decor.',r:[{t:'Use native plants and natural materials that fit the local environment',c:'G'},{t:'Engineer a landscape with irrigation systems and genetically improved hybrids',c:'U'}]},
-  {id:'A-GU-L05',pair:'G-U',ctx:'Aging',sc:'You are thinking about getting older.',r:[{t:'Accept it as a natural part of life; there is wisdom in every stage of existence',c:'G'},{t:'Fight it; use science, medicine, and technology to extend your prime as long as possible',c:'U'}]},
+  {id:'A-GU-L04',pair:'G-U',ctx:'Environment',sc:'You are planning your garden or home décor.',r:[{t:'Use native plants and natural materials that fit the local environment',c:'G'},{t:'Engineer a landscape with irrigation systems and carefully selected hybrids',c:'U'}]},
+  {id:'A-GU-L05',pair:'G-U',ctx:'Ageing',sc:'You are thinking about getting older.',r:[{t:'Accept it as a natural part of life; there is wisdom in every stage of existence',c:'G'},{t:'Fight it; use science, medicine, and technology to extend your prime as long as possible',c:'U'}]},
+  // PSYCHOLOGY JOKE: G-U
+  {id:'A-GU-PSY',pair:'G-U',ctx:'The Big Question',sc:'A researcher asks whether your personality is shaped more by nature or nurture.',r:[{t:'Nature—we are who we were born to be, and that\'s rather beautiful',c:'G'},{t:'Nurture—with the right interventions, anyone can optimise their development',c:'U'}]},
+
+  // WHITE vs RED (W-R) - Order vs freedom
   {id:'A-WR-W07',pair:'W-R',ctx:'Crisis Management',sc:'A sudden crisis has hit the department.',r:[{t:'Immediately convene the team to assign clear roles and ensure coordination',c:'W'},{t:'Jump into the fire immediately and coordinate on the fly',c:'R'}]},
-  {id:'A-WR-W09',pair:'W-R',ctx:'Performance',sc:'You witness a team member acting inappropriately.',r:[{t:'Document the incident and address it formally during your scheduled 1:1',c:'W'},{t:'Pull them aside right now and handle it while the emotion is fresh',c:'R'}]},
-  {id:'A-WR-W11',pair:'W-R',ctx:'Team Leadership',sc:'You are planning a team offsite to build cohesion.',r:[{t:'Create a structured agenda with facilitated activities to ensure everyone participates',c:'W'},{t:'Ditch the agenda—put everyone in a room and let the interactions happen spontaneously',c:'R'}]},
+  {id:'A-WR-W09',pair:'W-R',ctx:'Performance',sc:'You witness a colleague acting inappropriately.',r:[{t:'Document the incident and address it formally during your scheduled one-to-one',c:'W'},{t:'Pull them aside right now and handle it whilst the emotion is fresh',c:'R'}]},
+  {id:'A-WR-W11',pair:'W-R',ctx:'Team Leadership',sc:'You are planning a team away-day to build cohesion.',r:[{t:'Create a structured agenda with facilitated activities to ensure everyone participates',c:'W'},{t:'Ditch the agenda—put everyone in a room and let the interactions happen spontaneously',c:'R'}]},
   {id:'A-WR-L01',pair:'W-R',ctx:'Social',sc:'You are hosting a party for friends.',r:[{t:'Plan the start time, food service, and activities to ensure the event runs smoothly',c:'W'},{t:'Open the doors, crank the music, and let the night go wherever it goes',c:'R'}]},
   {id:'A-WR-L03',pair:'W-R',ctx:'Self-Expression',sc:'You are choosing an outfit for a public event.',r:[{t:'Wear something appropriate that respects the dress code and fits in with the group',c:'W'},{t:'Wear something bold that expresses your unique personality, even if it stands out',c:'R'}]},
   {id:'A-WR-L06',pair:'W-R',ctx:'Learning',sc:'You start a new hobby (e.g., painting, martial arts).',r:[{t:'Learn the fundamentals and proper forms before trying anything advanced',c:'W'},{t:'Jump straight into sparring or painting to experience the rush of doing it',c:'R'}]},
-  {id:'A-BG-W08',pair:'B-G',ctx:'Team Leadership',sc:'A high-output expert is causing friction with the team.',r:[{t:'Keep them—the value of their expertise outweighs the interpersonal cost',c:'B'},{t:'Correct them—if they cannot harmonize with the group, they cannot stay',c:'G'}]},
-  {id:'A-BG-W10',pair:'B-G',ctx:'Resource Allocation',sc:'You need a new capability quickly to compete.',r:[{t:'Buy it—hire a mercenary or acquire a smaller firm to plug the gap immediately',c:'B'},{t:'Grow it—identify internal potential and mentor them until they are ready',c:'G'}]},
-  {id:'A-BG-W12',pair:'B-G',ctx:'Strategic Planning',sc:'A long-term vendor relationship is no longer yielding high returns.',r:[{t:'Aggressively renegotiate or fire them—loyalty doesn\'t pay the bills',c:'B'},{t:'Stay loyal—long-term partners will come through for you when you need them most',c:'G'}]},
-  {id:'A-BG-L02',pair:'B-G',ctx:'Wealth',sc:'You come into a small inheritance.',r:[{t:'Invest it aggressively to maximize your personal wealth and status',c:'B'},{t:'Use it to support your extended family or secure your home for the future',c:'G'}]},
+  // PSYCHOLOGY JOKE: W-R
+  {id:'A-WR-PSY',pair:'W-R',ctx:'Delayed Gratification',sc:'A researcher offers you one biscuit now, or two biscuits if you wait fifteen minutes.',r:[{t:'Wait for two—delayed gratification is a sign of maturity and self-control',c:'W'},{t:'Take the one now—life is short and the future is uncertain',c:'R'}]},
+
+  // BLACK vs GREEN (B-G) - Exploitation vs sustainability
+  {id:'A-BG-W08',pair:'B-G',ctx:'Team Leadership',sc:'A high-output expert is causing friction with the team.',r:[{t:'Keep them—the value of their expertise outweighs the interpersonal cost',c:'B'},{t:'Address it—if they cannot harmonise with the group, they cannot stay',c:'G'}]},
+  {id:'A-BG-W10',pair:'B-G',ctx:'Resource Allocation',sc:'Your team needs to develop new skills quickly to stay competitive.',r:[{t:'Buy it—hire a contractor or acquire a smaller firm to plug the gap immediately',c:'B'},{t:'Grow it—identify internal potential and mentor them until they are ready',c:'G'}]},
+  {id:'A-BG-W12',pair:'B-G',ctx:'Strategic Planning',sc:'A long-term supplier relationship is no longer yielding high returns.',r:[{t:'Aggressively renegotiate or drop them—loyalty doesn\'t pay the bills',c:'B'},{t:'Stay loyal—long-term partners will come through for you when you need them most',c:'G'}]},
+  {id:'A-BG-L02',pair:'B-G',ctx:'Wealth',sc:'You come into a small inheritance.',r:[{t:'Invest it aggressively to maximise your personal wealth and status',c:'B'},{t:'Use it to support your extended family or secure your home for the future',c:'G'}]},
   {id:'A-BG-L04',pair:'B-G',ctx:'Relationships',sc:'You are looking for a romantic partner.',r:[{t:'Look for someone who elevates your status and helps you achieve your goals',c:'B'},{t:'Look for someone with whom you share a natural, effortless connection',c:'G'}]},
-  {id:'A-BG-L06',pair:'B-G',ctx:'Achievement',sc:'You have achieved a major personal milestone.',r:[{t:'Display your success proudly; you worked hard and deserve the recognition',c:'B'},{t:'Stay humble; acknowledge that luck and help from others played a huge role',c:'G'}]}
+  {id:'A-BG-L06',pair:'B-G',ctx:'Achievement',sc:'You have achieved a major personal milestone.',r:[{t:'Display your success proudly; you worked hard and deserve the recognition',c:'B'},{t:'Stay humble; acknowledge that luck and help from others played a huge role',c:'G'}]},
+  // PSYCHOLOGY JOKE: B-G
+  {id:'A-BG-PSY',pair:'B-G',ctx:'Therapeutic Exploration',sc:'A therapist asks: "And how does that make you feel?"',r:[{t:'I feel like we should focus on actionable outcomes rather than dwelling on feelings',c:'B'},{t:'I appreciate you asking—let me sit with that and see what comes up naturally',c:'G'}]},
+
+  // ============================================================================
+  // MTG HUMOR QUESTIONS - ENEMY PAIRS
+  // ============================================================================
+  
+  // MTG W-B Set 1
+  {id:'MTG-WB-01',pair:'W-B',ctx:'Commander Politics',sc:'You\'re about to win but it requires going back on something you sort of implied earlier.',r:[{t:'I look my opponent in the eye. I apologise. I pass the turn. I lose the game. I sleep peacefully.',c:'W'},{t:'I never *said* I wouldn\'t combo off. I said "that\'s interesting" when you asked if I was playing combo. Those are different sentences.',c:'B'}]},
+  // MTG W-B Set 2
+  {id:'MTG-WB-02',pair:'W-B',ctx:'Threat Assessment',sc:'You\'re kingmaking. Your next attack decides who wins, and it\'s not going to be you.',r:[{t:'I attack the person who played dirtiest. Justice matters even in defeat.',c:'W'},{t:'I attack whoever didn\'t offer me anything. Should\'ve negotiated.',c:'B'}]},
+  
+  // MTG U-R Set 1
+  {id:'MTG-UR-01',pair:'U-R',ctx:'Gameplay Decisions',sc:'Your opponent plays a card. You have a response in hand.',r:[{t:'I hold priority. I re-read their card. I re-read my card. I check the stack. I ask them to confirm the stack. I ask what\'s in their graveyard. I pick up my card. I put it back down. I ask "what\'s your life total" even though I know. I...',c:'U'},{t:'COUNTERSPELL. Wait, can I counter that? Whatever. COUNTERSPELL.',c:'R'}]},
+  // MTG U-R Set 2
+  {id:'MTG-UR-02',pair:'U-R',ctx:'Deckbuilding',sc:'You have a spicy combo piece but it only works 30% of the time.',r:[{t:'I ran the simulations. 30% is unacceptable. The slot goes to something consistent.',c:'U'},{t:'30% of the time it works EVERY time. She\'s going in.',c:'R'}]},
+  
+  // MTG G-U Set 1
+  {id:'MTG-GU-01',pair:'G-U',ctx:'Deckbuilding Philosophy',sc:'Someone asks why you\'re still playing that deck.',r:[{t:'She\'s old. She\'s outdated. Half these cards aren\'t legal anymore. But she\'s *mine*.',c:'G'},{t:'I retired it. The new version has 47% better mana efficiency. I have a graph. Would you like to see the graph.',c:'U'}]},
+  // MTG G-U Set 2
+  {id:'MTG-GU-02',pair:'G-U',ctx:'Collection Philosophy',sc:'Your cards are... not organised.',r:[{t:'I know where everything is. That pile is green. That pile is "probably green." It works.',c:'G'},{t:'I have a database. Cross-referenced by format legality, price history, and number of copies owned. Why are you looking at me like that.',c:'U'}]},
+  
+  // MTG W-R Set 1
+  {id:'MTG-WR-01',pair:'W-R',ctx:'Game Pacing',sc:'The game has gone 3 hours.',r:[{t:'I check the life totals. I verify the board state. I confirm everyone\'s hand size. I ask if anyone has responses. I move to my end step. I—',c:'W'},{t:'I AM GOING TO ATTACK SOMEONE OR I WILL FLIP THIS TABLE. I DON\'T CARE WHO. SOMEONE IS DYING.',c:'R'}]},
+  // MTG W-R Set 2
+  {id:'MTG-WR-02',pair:'W-R',ctx:'Table Rules',sc:'Someone wants to proxy a card they don\'t own.',r:[{t:'If we allow one proxy, where does it end? Everyone should play with the cards they actually have.',c:'W'},{t:'WHO CARES. Let them play the deck they want. We\'re not at a GP, we\'re in Dave\'s kitchen.',c:'R'}]},
+  
+  // MTG B-G Set 1
+  {id:'MTG-BG-01',pair:'B-G',ctx:'Gameplay Philosophy',sc:'Opponent asks why your graveyard has more cards than your library.',r:[{t:'Every single one of them died for a reason. I killed them. On purpose. You\'re next.',c:'B'},{t:'It\'s not a graveyard, it\'s a waiting room. They\'ll be back. They always come back. *gently pats graveyard*',c:'G'}]},
+  // MTG B-G Set 2
+  {id:'MTG-BG-02',pair:'B-G',ctx:'Threat Assessment',sc:'An opponent is struggling. They\'re mana screwed and clearly not having fun.',r:[{t:'Unfortunate. Anyway, I attack them for lethal. One less problem.',c:'B'},{t:'I\'ll attack someone else. They\'re already dead inside. Killing them now is just... wasteful.',c:'G'}]}
 ];
 
 // ============================================================================
@@ -1544,10 +1592,10 @@ const POOL_ALLY = [
   // WHITE vs BLUE (W-U) - Structure for fairness vs structure for optimization
   {id:'AL-WU-01',pair:'W-U',ctx:'Process Change',sc:'A new hire points out that several steps in your onboarding checklist seem redundant.',r:[{t:'Keep the current checklist—it ensures nothing gets missed and treats everyone consistently',c:'W'},{t:'Map out which steps are actually redundant and test a streamlined version',c:'U'}]},
   {id:'AL-WU-02',pair:'W-U',ctx:'Decision Making',sc:'Your team is debating a major direction change with strong opinions on both sides.',r:[{t:'Call a vote so everyone has equal say and the majority decides',c:'W'},{t:'Request each side present data and analysis before deciding based on evidence',c:'U'}]},
-  {id:'AL-WU-03',pair:'W-U',ctx:'Quality Standards',sc:'A deliverable meets the documented requirements but you sense it could be better.',r:[{t:'Ship it—the requirements exist for a reason and were met fairly',c:'W'},{t:'Hold it back to optimize further—meeting minimum standards isn\'t the same as excellence',c:'U'}]},
+  {id:'AL-WU-03',pair:'W-U',ctx:'Quality Standards',sc:'A deliverable meets the documented requirements but you sense it could be better.',r:[{t:'Ship it—the requirements exist for a reason and were met fairly',c:'W'},{t:'Hold it back to optimise further—meeting minimum standards isn\'t the same as excellence',c:'U'}]},
   {id:'AL-WU-04',pair:'W-U',ctx:'Team Conflict',sc:'Two team members disagree on the right approach to a technical problem.',r:[{t:'Facilitate a discussion focused on finding a solution everyone can support',c:'W'},{t:'Ask both to document their approaches so you can evaluate them objectively',c:'U'}]},
   {id:'AL-WU-05',pair:'W-U',ctx:'Resource Allocation',sc:'You have budget to either give everyone a small raise or fund one person\'s advanced training.',r:[{t:'Give everyone the raise—it\'s fair and maintains team cohesion',c:'W'},{t:'Fund the training—it creates expertise that benefits everyone long-term',c:'U'}]},
-  {id:'AL-WU-06',pair:'W-U',ctx:'Feedback Delivery',sc:'A colleague asks for your honest feedback on their presentation.',r:[{t:'Focus on what they did well and offer gentle suggestions for improvement',c:'W'},{t:'Provide specific, detailed critique on exactly what could be optimized',c:'U'}]},
+  {id:'AL-WU-06',pair:'W-U',ctx:'Feedback Delivery',sc:'A colleague asks for your honest feedback on their presentation.',r:[{t:'Focus on what they did well and offer gentle suggestions for improvement',c:'W'},{t:'Provide specific, detailed critique on exactly what could be optimised',c:'U'}]},
 
   // BLUE vs BLACK (U-B) - Knowledge for understanding vs knowledge for leverage
   {id:'AL-UB-01',pair:'U-B',ctx:'Information Advantage',sc:'You discover a flaw in a competitor\'s strategy during your research.',r:[{t:'Document it thoroughly to understand the full implications before deciding what to do',c:'U'},{t:'Figure out how to exploit it for maximum advantage before anyone else notices',c:'B'}]},
@@ -1555,7 +1603,7 @@ const POOL_ALLY = [
   {id:'AL-UB-03',pair:'U-B',ctx:'Project Timeline',sc:'You could deliver a project faster by cutting corners on documentation.',r:[{t:'Keep the documentation—future maintainability matters more than speed',c:'U'},{t:'Cut it—getting results now matters more than theoretical future problems',c:'B'}]},
   {id:'AL-UB-04',pair:'U-B',ctx:'Negotiation Prep',sc:'You\'re preparing for a difficult negotiation with another department.',r:[{t:'Research all aspects thoroughly so you understand everyone\'s constraints and can find optimal solutions',c:'U'},{t:'Research their weaknesses and pressure points so you can extract the best deal for yourself',c:'B'}]},
   {id:'AL-UB-05',pair:'U-B',ctx:'Mistake Discovery',sc:'You discover you made an error that no one else has noticed yet.',r:[{t:'Analyze what went wrong to understand the root cause and prevent future occurrences',c:'U'},{t:'Quietly fix it and move on—no point drawing attention to your mistakes',c:'B'}]},
-  {id:'AL-UB-06',pair:'U-B',ctx:'Meeting Strategy',sc:'You\'re attending a meeting where an important decision will be made.',r:[{t:'Come prepared with thorough analysis to contribute to the best possible outcome',c:'U'},{t:'Come prepared with talking points that position your preferred outcome favorably',c:'B'}]},
+  {id:'AL-UB-06',pair:'U-B',ctx:'Meeting Strategy',sc:'You\'re attending a meeting where an important decision will be made.',r:[{t:'Come prepared with thorough analysis to contribute to the best possible outcome',c:'U'},{t:'Come prepared with talking points that position your preferred outcome favourably',c:'B'}]},
 
   // BLACK vs RED (B-R) - Calculated self-interest vs impulsive self-expression
   {id:'AL-BR-01',pair:'B-R',ctx:'Opportunity Cost',sc:'An exciting but risky opportunity comes up that could pay off big or fail completely.',r:[{t:'Calculate the expected value carefully before committing any resources',c:'B'},{t:'Jump on it—you\'ll regret missing out more than you\'ll regret trying',c:'R'}]},
@@ -1569,7 +1617,7 @@ const POOL_ALLY = [
   {id:'AL-RG-01',pair:'R-G',ctx:'Problem Solving',sc:'A system that\'s worked for years is showing signs of strain.',r:[{t:'This is the push we need to rebuild it properly from scratch',c:'R'},{t:'It\'s survived this long for good reasons—patch it and let it continue',c:'G'}]},
   {id:'AL-RG-02',pair:'R-G',ctx:'Team Dynamics',sc:'Your team has settled into comfortable but perhaps stagnant patterns.',r:[{t:'Shake things up—introduce new challenges to keep everyone engaged',c:'R'},{t:'Let them be—they\'ve found a rhythm that works and stability has value',c:'G'}]},
   {id:'AL-RG-03',pair:'R-G',ctx:'Personal Growth',sc:'You\'re offered a role that would be a dramatic departure from your career path.',r:[{t:'Take it—life is too short to stay in your comfort zone',c:'R'},{t:'Stay your course—you\'ve built expertise here and change isn\'t always progress',c:'G'}]},
-  {id:'AL-RG-04',pair:'R-G',ctx:'Conflict Approach',sc:'Tension has been building between two parts of the organization.',r:[{t:'Force the issue into the open—suppressed conflict just festers',c:'R'},{t:'Let it resolve naturally—most tensions work themselves out over time',c:'G'}]},
+  {id:'AL-RG-04',pair:'R-G',ctx:'Conflict Approach',sc:'Tension has been building between two parts of the organisation.',r:[{t:'Force the issue into the open—suppressed conflict just festers',c:'R'},{t:'Let it resolve naturally—most tensions work themselves out over time',c:'G'}]},
   {id:'AL-RG-05',pair:'R-G',ctx:'Innovation',sc:'Someone proposes replacing a manual process with new technology.',r:[{t:'Yes! Embrace the future—automation frees us for more interesting work',c:'R'},{t:'Not so fast—the manual process has wisdom built into it that we might lose',c:'G'}]},
   {id:'AL-RG-06',pair:'R-G',ctx:'Life Decision',sc:'You\'re feeling restless in your current situation.',r:[{t:'That feeling is telling you something—make a change before you stagnate',c:'R'},{t:'Restlessness passes—contentment comes from accepting where you are',c:'G'}]},
 
@@ -1578,30 +1626,59 @@ const POOL_ALLY = [
   {id:'AL-GW-02',pair:'G-W',ctx:'Onboarding',sc:'A new team member is struggling to find their place.',r:[{t:'Give them time and space—they\'ll find their natural role as relationships form',c:'G'},{t:'Assign them a buddy and structured checkpoints to ensure they\'re integrated properly',c:'W'}]},
   {id:'AL-GW-03',pair:'G-W',ctx:'Decision Rights',sc:'Your team needs to decide who has authority over a shared resource.',r:[{t:'Let influence flow to whoever naturally emerges as most invested and capable',c:'G'},{t:'Establish clear ownership and documented decision rights to avoid confusion',c:'W'}]},
   {id:'AL-GW-04',pair:'G-W',ctx:'Performance Issues',sc:'A team member is underperforming but has been with the team for years.',r:[{t:'Trust that their experience has value—find a role where they can contribute naturally',c:'G'},{t:'Apply the same performance standards to everyone—tenure doesn\'t excuse underperformance',c:'W'}]},
-  {id:'AL-GW-05',pair:'G-W',ctx:'Knowledge Sharing',sc:'Critical knowledge is concentrated in a few long-tenured people.',r:[{t:'This is natural—wisdom takes time to develop and resides in experienced people',c:'G'},{t:'Document and distribute it—the organization shouldn\'t depend on any individual',c:'W'}]},
-  {id:'AL-GW-06',pair:'G-W',ctx:'Growth Strategy',sc:'Your team is deciding how quickly to expand.',r:[{t:'Grow slowly—sustainable growth lets culture and relationships develop properly',c:'G'},{t:'Staff to plan—we have commitments to meet and should scale accordingly',c:'W'}]}
+  {id:'AL-GW-05',pair:'G-W',ctx:'Knowledge Sharing',sc:'Critical knowledge is concentrated in a few long-tenured people.',r:[{t:'This is natural—wisdom takes time to develop and resides in experienced people',c:'G'},{t:'Document and distribute it—the organisation shouldn\'t depend on any individual',c:'W'}]},
+  {id:'AL-GW-06',pair:'G-W',ctx:'Growth Strategy',sc:'Your team is deciding how quickly to expand.',r:[{t:'Grow slowly—sustainable growth lets culture and relationships develop properly',c:'G'},{t:'Staff to plan—we have commitments to meet and should scale accordingly',c:'W'}]},
+
+  // ============================================================================
+  // MTG HUMOR QUESTIONS - ALLY PAIRS
+  // ============================================================================
+  
+  // MTG W-U Set 1
+  {id:'MTG-WU-01',pair:'W-U',ctx:'Rules Disputes',sc:'Someone asks to see your deck list.',r:[{t:'Of course. It\'s in a shared spreadsheet. Sorted alphabetically. With a changelog. The changelog has a changelog.',c:'W'},{t:'Of course. It\'s sleeved in order. By colour. Then by mana value. Then alphabetically. Then by set. I will now explain why.',c:'U'}]},
+  // MTG W-U Set 2
+  {id:'MTG-WU-02',pair:'W-U',ctx:'Rules Lawyering',sc:'There\'s a disagreement about how a card works. It\'s ambiguous.',r:[{t:'Let\'s check the comprehensive rules. Then the Gatherer rulings. Then we\'ll take a vote to be fair.',c:'W'},{t:'Let\'s check the comprehensive rules. Then the Gatherer rulings. Then I\'ll explain why I\'m right.',c:'U'}]},
+  
+  // MTG U-B Set 1
+  {id:'MTG-UB-01',pair:'U-B',ctx:'Missed Triggers',sc:'You notice an opponent has missed a trigger that would help them.',r:[{t:'I should tell them. It\'s important that we all play correctly. The game\'s integrity matters more than my advantage.',c:'U'},{t:'I should tell them. Later. Much later. Perhaps in the car park after they\'ve lost.',c:'B'}]},
+  // MTG U-B Set 2
+  {id:'MTG-UB-02',pair:'U-B',ctx:'Metagaming',sc:'You\'ve played against this person before. You know exactly what deck they\'re on.',r:[{t:'Interesting. I can prepare optimally now. I\'ll adjust my mulligan strategy accordingly.',c:'U'},{t:'Interesting. I\'ll pretend I don\'t know. I\'ll ask innocent questions. Then I\'ll crush them.',c:'B'}]},
+  
+  // MTG B-R Set 1
+  {id:'MTG-BR-01',pair:'B-R',ctx:'Vengeance',sc:'Someone just destroyed your favourite permanent.',r:[{t:'I make a note. I continue playing normally. Three turns from now they will understand what they did.',c:'B'},{t:'BLOOD FEUD. I don\'t care if they win. I don\'t care if I win. THEY HAVE TO LOSE.',c:'R'}]},
+  // MTG B-R Set 2
+  {id:'MTG-BR-02',pair:'B-R',ctx:'Grudges',sc:'The same player has knocked you out first in the last three games.',r:[{t:'I\'ve adjusted my deck specifically to counter them. 14 cards. I\'ve been planning this for weeks.',c:'B'},{t:'I\'M KILLING THEM FIRST. EVERY GAME. FOREVER. I DON\'T NEED A PLAN I NEED THEM DEAD.',c:'R'}]},
+  
+  // MTG R-G Set 1
+  {id:'MTG-RG-01',pair:'R-G',ctx:'New Releases',sc:'A new set just dropped with a card that\'s perfect for your deck.',r:[{t:'I\'VE ALREADY BOUGHT FOUR. I\'M REBUILDING TONIGHT. THE OLD VERSION IS DEAD TO ME.',c:'R'},{t:'I\'ll think about it. Maybe next year. I\'ve had this list for six years. She\'s not ready for surgery.',c:'G'}]},
+  // MTG R-G Set 2
+  {id:'MTG-RG-02',pair:'R-G',ctx:'Pet Cards',sc:'There\'s a card you love but it\'s objectively not very good.',r:[{t:'I DON\'T CARE. SHE STAYS. When she works, it\'s BEAUTIFUL. You don\'t understand our bond.',c:'R'},{t:'She\'s been in the deck since 2014. She\'ll be in the deck when I die. We\'ve been through too much together.',c:'G'}]},
+  
+  // MTG G-W Set 1
+  {id:'MTG-GW-01',pair:'G-W',ctx:'Playgroup Management',sc:'Your playgroup is growing and getting hard to manage.',r:[{t:'It\'ll sort itself out. The people who want to play will keep showing up. Nature finds a way.',c:'G'},{t:'I\'ve made a Discord. There\'s a calendar. There are roles. There is a waiting list. Sign here.',c:'W'}]},
+  // MTG G-W Set 2
+  {id:'MTG-GW-02',pair:'G-W',ctx:'New Players',sc:'Someone new wants to join your playgroup.',r:[{t:'They\'ll figure it out. Throw them in. If they vibe, they vibe. If not, they\'ll stop coming.',c:'G'},{t:'I\'ve prepared a welcome document. It covers deck power levels, house rules, and the schedule. There\'s a quiz.',c:'W'}]}
 ];
 
 const POOL_B = {
-  AZORIUS:[{sc:'Your organization needs new decision-making frameworks that work for everyone.',r:[{t:'Design comprehensive systematic processes ensuring both analytical rigor and equitable outcomes for all stakeholders',g:'AZORIUS'},{t:'Build inclusive community structures that allow people to develop shared approaches naturally over time',g:'SELESNYA'},{t:'Create analytical governance systems that strategically position your function for maximum influence',g:'DIMIR'}]},{sc:'You are implementing new policies that will affect how the entire team operates.',r:[{t:'Roll out systematic fair procedures with thorough documentation ensuring everyone understands and can apply them consistently',g:'AZORIUS'},{t:'Establish clear hierarchical protocols that serve organizational authority while maintaining fairness',g:'ORZHOV'},{t:'Let decision-making processes evolve organically based on what proves most effective in practice',g:'SIMIC'}]}],
-  SELESNYA:[{sc:'Shaping how your team works together and develops.',r:[{t:'Foster inclusive environment where people naturally support each other and grow sustainably',g:'SELESNYA'},{t:'Design systematic fair processes ensuring coordinated development',g:'AZORIUS'},{t:'Allow organic growth while thoughtfully optimizing team effectiveness',g:'SIMIC'}]},{sc:'Two team members have tension affecting group harmony.',r:[{t:'Create supportive space for the relationship to heal naturally while protecting team cohesion',g:'SELESNYA'},{t:'Mediate fairly while clarifying authority and what serves the organization',g:'ORZHOV'},{t:'Let them resolve it directly through authentic interaction',g:'GRUUL'}]}],
+  AZORIUS:[{sc:'Your organisation needs new decision-making frameworks that work for everyone.',r:[{t:'Design comprehensive systematic processes ensuring both analytical rigor and equitable outcomes for all stakeholders',g:'AZORIUS'},{t:'Build inclusive community structures that allow people to develop shared approaches naturally over time',g:'SELESNYA'},{t:'Create analytical governance systems that strategically position your function for maximum influence',g:'DIMIR'}]},{sc:'You are implementing new policies that will affect how the entire team operates.',r:[{t:'Roll out systematic fair procedures with thorough documentation ensuring everyone understands and can apply them consistently',g:'AZORIUS'},{t:'Establish clear hierarchical protocols that serve organisational authority while maintaining fairness',g:'ORZHOV'},{t:'Let decision-making processes evolve organically based on what proves most effective in practice',g:'SIMIC'}]}],
+  SELESNYA:[{sc:'Shaping how your team works together and develops.',r:[{t:'Foster inclusive environment where people naturally support each other and grow sustainably',g:'SELESNYA'},{t:'Design systematic fair processes ensuring coordinated development',g:'AZORIUS'},{t:'Allow organic growth while thoughtfully optimizing team effectiveness',g:'SIMIC'}]},{sc:'Two team members have tension affecting group harmony.',r:[{t:'Create supportive space for the relationship to heal naturally while protecting team cohesion',g:'SELESNYA'},{t:'Mediate fairly while clarifying authority and what serves the organisation',g:'ORZHOV'},{t:'Let them resolve it directly through authentic interaction',g:'GRUUL'}]}],
   ORZHOV:[{sc:'Designing governance for a cross-functional initiative.',r:[{t:'Create transparent fair hierarchy ensuring authority serves both team and strategic needs',g:'ORZHOV'},{t:'Build inclusive consensus-based structure from community values',g:'SELESNYA'},{t:'Design governance appearing fair while strategically positioning you',g:'DIMIR'}]},{sc:'Setting performance standards balancing consistency with pragmatism.',r:[{t:'Establish equitable standards fairly while making pragmatic exceptions when necessary',g:'ORZHOV'},{t:'Create systematic objective criteria ensuring consistent fair evaluation',g:'AZORIUS'},{t:'Set realistic bars and pragmatically cycle out underperformers',g:'GOLGARI'}]}],
   DIMIR:[{sc:'You have discovered valuable competitive information that could give you a significant advantage.',r:[{t:'Analyze it thoroughly and hold it strategically, only revealing when you can extract maximum positional advantage from the timing',g:'DIMIR'},{t:'Share it through appropriate channels while ensuring your role in discovering it is properly recognized by leadership',g:'ORZHOV'},{t:'Run rapid experiments to test what new approaches this information might enable for your work',g:'IZZET'}]},{sc:'You are deciding how much information to share with various stakeholders about your project progress and challenges.',r:[{t:'Share information selectively, revealing only what advances your strategic position while maintaining analytical understanding of impacts',g:'DIMIR'},{t:'Communicate progress thoughtfully and patiently, allowing stakeholders to naturally develop their own understanding over time',g:'SIMIC'},{t:'Be pragmatically transparent about what is working while letting less essential implementation details remain vague',g:'GOLGARI'}]}],
   IZZET:[{sc:'Developing a new solution to a complex problem.',r:[{t:'Try multiple rapid experiments learning what works through iteration',g:'IZZET'},{t:'Research systematically then execute with passionate commitment',g:'JESKAI'},{t:'Test boldly while directing energy toward strategic objectives',g:'GRIXIS'}]},{sc:'Your approach to innovation and improvement.',r:[{t:'Experiment rapidly with novel approaches and learn from results',g:'IZZET'},{t:'Design optimal systems through thorough analysis',g:'AZORIUS'},{t:'Thoughtfully enhance existing solutions through understanding patterns',g:'SIMIC'}]}],
   GRUUL:[{sc:'Your team is facing a high-stakes challenge that demands immediate powerful action.',r:[{t:'Apply overwhelming force directly, trusting the deep domain expertise and battle-tested approaches your team has proven over time',g:'GRUUL'},{t:'Trust your team\'s proven battle-tested instincts and apply overwhelming collective strength directly',g:'GRUUL'},{t:'Foster an inclusive supportive environment where people can contribute naturally, building collaborative solutions together patiently',g:'SELESNYA'}]},{sc:'Your team needs to deliver critical results while working under significant time pressure and resource constraints.',r:[{t:'Leverage your proven strength and instinctive expertise to apply overwhelming force where it matters most',g:'GRUUL'},{t:'Experiment with multiple different approaches rapidly, learning quickly from each attempt to find what actually works',g:'IZZET'},{t:'Focus pragmatically on the sustainable high-impact areas where you can extract maximum value without burning out',g:'GOLGARI'}]}],
-  RAKDOS:[{sc:'Your organization is stuck in comfortable patterns.',r:[{t:'Force immediate disruptive change to break free and create opportunities for yourself',g:'RAKDOS'},{t:'Position strategically to capitalize when the status quo inevitably shifts',g:'DIMIR'},{t:'Smash through restrictions directly using your strength',g:'GRUUL'}]},{sc:'An opportunity to advance requires breaking conventions.',r:[{t:'Seize it passionately regardless of rules limiting you',g:'RAKDOS'},{t:'Experiment boldly with unconventional methods',g:'IZZET'},{t:'Make pragmatic moves positioning you in emerging landscape',g:'GOLGARI'}]}],
-  GOLGARI:[{sc:'Some organizational areas thrive while others decline.',r:[{t:'Harvest value from declining areas to sustainably fuel growing ones',g:'GOLGARI'},{t:'Analyze which to extract from and position in growth areas',g:'DIMIR'},{t:'Let natural evolution occur while optimizing what works',g:'SIMIC'}]},{sc:'Managing team at different career stages.',r:[{t:'Make pragmatic investment decisions while accepting natural career cycles',g:'GOLGARI'},{t:'Replace declining performers decisively to keep competitive',g:'RAKDOS'},{t:'Manage transitions fairly while ensuring organizational needs are met',g:'ORZHOV'}]}],
+  RAKDOS:[{sc:'Your organisation is stuck in comfortable patterns.',r:[{t:'Force immediate disruptive change to break free and create opportunities for yourself',g:'RAKDOS'},{t:'Position strategically to capitalize when the status quo inevitably shifts',g:'DIMIR'},{t:'Smash through restrictions directly using your strength',g:'GRUUL'}]},{sc:'An opportunity to advance requires breaking conventions.',r:[{t:'Seize it passionately regardless of rules limiting you',g:'RAKDOS'},{t:'Experiment boldly with unconventional methods',g:'IZZET'},{t:'Make pragmatic moves positioning you in emerging landscape',g:'GOLGARI'}]}],
+  GOLGARI:[{sc:'Some organisational areas thrive while others decline.',r:[{t:'Harvest value from declining areas to sustainably fuel growing ones',g:'GOLGARI'},{t:'Analyze which to extract from and position in growth areas',g:'DIMIR'},{t:'Let natural evolution occur while optimizing what works',g:'SIMIC'}]},{sc:'Managing team at different career stages.',r:[{t:'Make pragmatic investment decisions while accepting natural career cycles',g:'GOLGARI'},{t:'Replace declining performers decisively to keep competitive',g:'RAKDOS'},{t:'Manage transitions fairly while ensuring organisational needs are met',g:'ORZHOV'}]}],
   SIMIC:[{sc:'Current processes work but could theoretically improve.',r:[{t:'Analyze carefully and evolve gradually without disrupting what works',g:'SIMIC'},{t:'Let improvements emerge naturally from community while maintaining harmony',g:'SELESNYA'},{t:'Design systematic optimization ensuring fair efficient outcomes',g:'AZORIUS'}]},{sc:'Deciding your approach to innovation.',r:[{t:'Thoughtfully enhance existing solutions through deep understanding of patterns',g:'SIMIC'},{t:'Trust powerful instincts proven through experience',g:'GRUUL'},{t:'Systematically innovate for competitive advantage',g:'DIMIR'}]}],
   BOROS:[{sc:'Leading a critical high-stakes initiative.',r:[{t:'Rally passionate coordinated commitment where everyone executes decisively together',g:'BOROS'},{t:'Drive powerful direct action based on proven approaches',g:'GRUUL'},{t:'Build inclusive supportive collaboration allowing natural contributions',g:'SELESNYA'}]},{sc:'Core values are challenged by external pressures.',r:[{t:'Fight passionately to defend what the community stands for with coordinated action',g:'BOROS'},{t:'Push back aggressively to protect your freedom and autonomy',g:'RAKDOS'},{t:'Systematically defend principles through proper procedures',g:'AZORIUS'}]}]
 };
 const POOL_C = {
   BANT:[{sc:'Leading a complex cross-functional team.',r:[{t:'Foster inclusive patient community with systematic analytical coordination',g:'BANT'},{t:'Build supportive harmonious team developing naturally together',g:'SELESNYA'},{t:'Create comprehensive fair processes with optimal systematic structure',g:'AZORIUS'},{t:'Allow organic team evolution while thoughtfully optimizing effectiveness',g:'SIMIC'}]},{sc:'Planning a major initiative requiring coordination, analysis, and sustainability.',r:[{t:'Design systematic inclusive approach allowing patient strategic development for everyone',g:'BANT'},{t:'Create analytically optimal fair procedures ensuring coordinated execution',g:'AZORIUS'},{t:'Build community-based strategy emerging naturally from collective wisdom',g:'SELESNYA'}]}],
-  ESPER:[{sc:'Designing systems for maximum effectiveness and control.',r:[{t:'Create comprehensive calculated systems that are fair yet ruthlessly optimized for results',g:'ESPER'},{t:'Design systematic equitable processes ensuring analytical coordination',g:'AZORIUS'},{t:'Build fair hierarchy serving organizational power and strategic goals',g:'ORZHOV'},{t:'Develop analytical positioning systems serving competitive advantage',g:'DIMIR'}]},{sc:'Managing team performance with focus on efficiency.',r:[{t:'Implement fair systematic metrics making pragmatic calls on who delivers optimal outcomes',g:'ESPER'},{t:'Set equitable standards while making tough pragmatic decisions',g:'ORZHOV'},{t:'Create comprehensive analytical evaluation ensuring fair consistent assessment',g:'AZORIUS'}]}],
+  ESPER:[{sc:'Designing systems for maximum effectiveness and control.',r:[{t:'Create comprehensive calculated systems that are fair yet ruthlessly optimised for results',g:'ESPER'},{t:'Design systematic equitable processes ensuring analytical coordination',g:'AZORIUS'},{t:'Build fair hierarchy serving organisational power and strategic goals',g:'ORZHOV'},{t:'Develop analytical positioning systems serving competitive advantage',g:'DIMIR'}]},{sc:'Managing team performance with focus on efficiency.',r:[{t:'Implement fair systematic metrics making pragmatic calls on who delivers optimal outcomes',g:'ESPER'},{t:'Set equitable standards while making tough pragmatic decisions',g:'ORZHOV'},{t:'Create comprehensive analytical evaluation ensuring fair consistent assessment',g:'AZORIUS'}]}],
   GRIXIS:[{sc:'Developing strategy to dominate a competitive situation.',r:[{t:'Analyze systematically and execute aggressive ruthless moves that position you to win',g:'GRIXIS'},{t:'Position strategically through patient analytical intelligence',g:'DIMIR'},{t:'Disrupt aggressively and break constraints to advance your interests',g:'RAKDOS'},{t:'Experiment boldly with innovative approaches and iterate rapidly',g:'IZZET'}]},{sc:'Executing a turnaround requiring smart aggressive moves.',r:[{t:'Execute analytically ruthless decisions with immediate decisive action',g:'GRIXIS'},{t:'Try multiple bold approaches rapidly learning what works',g:'IZZET'},{t:'Act immediately and aggressively to force transformation',g:'RAKDOS'}]}],
   JUND:[{sc:'High-stakes competition requiring aggression and proven instincts.',r:[{t:'Trust battle-tested predatory instincts and pragmatically devour the competition',g:'JUND'},{t:'Attack immediately with disruptive aggressive action',g:'RAKDOS'},{t:'Make patient pragmatic extraction moves',g:'GOLGARI'},{t:'Apply overwhelming instinctive force',g:'GRUUL'}]},{sc:'Facing rivals for a critical resource.',r:[{t:'Leverage proven predatory instincts to ruthlessly outcompete',g:'JUND'},{t:'Attack immediately and disrupt their position aggressively',g:'RAKDOS'},{t:'Make patient pragmatic moves as they naturally weaken',g:'GOLGARI'}]}],
-  NAYA:[{sc:'Rallying organization around shared mission requiring collective strength.',r:[{t:'Mobilize passionate coordinated community action leveraging natural collective power',g:'NAYA'},{t:'Rally aggressive disciplined unified commitment to the mission',g:'BOROS'},{t:'Trust the group\'s powerful instincts and act forcefully together',g:'GRUUL'},{t:'Foster inclusive patient community building harmonious support',g:'SELESNYA'}]},{sc:'Defending community values through decisive coordinated action.',r:[{t:'Execute passionate unified action grounded in shared natural community strength',g:'NAYA'},{t:'Protect community values through inclusive patient collective support',g:'SELESNYA'},{t:'Fight aggressively with disciplined coordination for what the team stands for',g:'BOROS'}]}],
-  ABZAN:[{sc:'Making decisions affecting your organization for generations.',r:[{t:'Build enduring fair structures through pragmatic patient multi-generational thinking',g:'ABZAN'},{t:'Create inclusive sustainable community that develops naturally over time',g:'SELESNYA'},{t:'Establish fair hierarchy with pragmatic succession serving institutional power',g:'ORZHOV'},{t:'Make pragmatic investments in what survives natural cycles',g:'GOLGARI'}]},{sc:'Building capacity to endure through changing conditions.',r:[{t:'Create fair resilient systems through pragmatic acceptance of natural cycles',g:'ABZAN'},{t:'Build sustainability through pragmatic extraction and patient regeneration',g:'GOLGARI'},{t:'Design fair institutional frameworks serving long-term survival',g:'ORZHOV'}]}],
-  JESKAI:[{sc:'Leading high-performance team requiring excellence and discipline.',r:[{t:'Drive passionate systematic excellence through disciplined coordinated mastery',g:'JESKAI'},{t:'Rally aggressive coordinated commitment with intense disciplined execution',g:'BOROS'},{t:'Create comprehensive systematic processes ensuring fair optimal performance',g:'AZORIUS'},{t:'Experiment passionately with analytical learning and rapid iteration',g:'IZZET'}]},{sc:'Mastering complex skills through practice.',r:[{t:'Train passionately with systematic discipline until technique becomes instinct',g:'JESKAI'},{t:'Execute aggressively with coordinated disciplined commitment',g:'BOROS'},{t:'Study analytically to optimize approaches systematically',g:'AZORIUS'}]}]
+  NAYA:[{sc:'Rallying organisation around shared mission requiring collective strength.',r:[{t:'Mobilize passionate coordinated community action leveraging natural collective power',g:'NAYA'},{t:'Rally aggressive disciplined unified commitment to the mission',g:'BOROS'},{t:'Trust the group\'s powerful instincts and act forcefully together',g:'GRUUL'},{t:'Foster inclusive patient community building harmonious support',g:'SELESNYA'}]},{sc:'Defending community values through decisive coordinated action.',r:[{t:'Execute passionate unified action grounded in shared natural community strength',g:'NAYA'},{t:'Protect community values through inclusive patient collective support',g:'SELESNYA'},{t:'Fight aggressively with disciplined coordination for what the team stands for',g:'BOROS'}]}],
+  ABZAN:[{sc:'Making decisions affecting your organisation for generations.',r:[{t:'Build enduring fair structures through pragmatic patient multi-generational thinking',g:'ABZAN'},{t:'Create inclusive sustainable community that develops naturally over time',g:'SELESNYA'},{t:'Establish fair hierarchy with pragmatic succession serving institutional power',g:'ORZHOV'},{t:'Make pragmatic investments in what survives natural cycles',g:'GOLGARI'}]},{sc:'Building capacity to endure through changing conditions.',r:[{t:'Create fair resilient systems through pragmatic acceptance of natural cycles',g:'ABZAN'},{t:'Build sustainability through pragmatic extraction and patient regeneration',g:'GOLGARI'},{t:'Design fair institutional frameworks serving long-term survival',g:'ORZHOV'}]}],
+  JESKAI:[{sc:'Leading high-performance team requiring excellence and discipline.',r:[{t:'Drive passionate systematic excellence through disciplined coordinated mastery',g:'JESKAI'},{t:'Rally aggressive coordinated commitment with intense disciplined execution',g:'BOROS'},{t:'Create comprehensive systematic processes ensuring fair optimal performance',g:'AZORIUS'},{t:'Experiment passionately with analytical learning and rapid iteration',g:'IZZET'}]},{sc:'Mastering complex skills through practice.',r:[{t:'Train passionately with systematic discipline until technique becomes instinct',g:'JESKAI'},{t:'Execute aggressively with coordinated disciplined commitment',g:'BOROS'},{t:'Study analytically to optimise approaches systematically',g:'AZORIUS'}]}]
 };
 
 const ROUND2_SCENARIOS = {
@@ -1624,9 +1701,9 @@ const ROUND2_SCENARIOS = {
       'RAKDOS': 'Make ruthless pragmatic triage decisions and execute aggressive immediate action',
       'BOROS': 'Rally the team into coordinated aggressive action to save what matters together',
       'GRUUL': 'Trust your instincts and act powerfully on gut feelings proven through experience',
-      'GRIXIS': 'Ruthlessly analyze failure points to identify and execute an optimal aggressive turnaround immediately',
+      'GRIXIS': 'Ruthlessly analyse failure points to identify and execute an optimal aggressive turnaround immediately',
       'JUND': 'Attack the challenge aggressively using proven instincts, focusing pragmatically on what will survive and grow',
-      'ESPER': 'Systematically assess the situation to make fair yet pragmatic decisions that optimize outcomes while respecting all stakeholders',
+      'ESPER': 'Systematically assess the situation to make fair yet pragmatic decisions that optimise outcomes while respecting all stakeholders',
       'SULTAI': 'Analyze which capabilities will provide sustainable competitive advantage and position strategically for long-term value extraction',
       'BANT': 'Build systematic inclusive frameworks that allow people to develop naturally while coordinating analytically for collective success',
       'NAYA': 'Rally the team\'s natural strengths into passionate coordinated action, trusting collective instincts',
@@ -1634,10 +1711,10 @@ const ROUND2_SCENARIOS = {
       'JESKAI': 'Lead coordinated rapid experimentation through systematic bold innovation that serves the collective',
       'MARDU': 'Execute aggressive coordinated strikes while pragmatically ensuring fair distribution of both risks and rewards',
       'TEMUR': 'Create through systematic bold experimentation grounded in proven powerful patterns',
-      'WITCH': 'Design fair systematic processes for aggressive pragmatic action that optimizes outcomes rapidly while respecting stakeholders',
+      'WITCH': 'Design fair systematic processes for aggressive pragmatic action that optimises outcomes rapidly while respecting stakeholders',
       'YORE': 'Build sustainable inclusive systems through patient pragmatic analysis ensuring fair long-term optimal outcomes',
       'DUNE': 'Rally collective strength for aggressive pragmatic action grounded in proven patterns while ensuring fair treatment',
-      'GLINT': 'Execute ruthlessly optimized aggressive strategy drawing on proven patterns for sustainable competitive advantage',
+      'GLINT': 'Execute ruthlessly optimised aggressive strategy drawing on proven patterns for sustainable competitive advantage',
       'INK': 'Lead systematic bold innovation through inclusive coordination while building on proven collective strengths',
       'WUBRG': 'Balance systematic analysis with pragmatic action, fair treatment, proven patterns, and aggressive innovation as the situation demands'
     }
@@ -1661,9 +1738,9 @@ const ROUND2_SCENARIOS = {
       'RAKDOS': 'Seize strategic opportunities aggressively, disrupting competitors to capture dominant position',
       'BOROS': 'Rally coordinated bold strategic action that serves collective objectives through decisive leadership',
       'GRUUL': 'Trust proven instincts to seize opportunities powerfully as they emerge naturally',
-      'GRIXIS': 'Ruthlessly analyze the competitive landscape to position for maximum advantage through bold aggressive strategic moves',
+      'GRIXIS': 'Ruthlessly analyse the competitive landscape to position for maximum advantage through bold aggressive strategic moves',
       'JUND': 'Seize opportunities aggressively using proven instincts, focusing pragmatically on sustainable competitive growth',
-      'ESPER': 'Design fair systematic strategy that optimizes outcomes pragmatically while ensuring inclusive analytical process',
+      'ESPER': 'Design fair systematic strategy that optimises outcomes pragmatically while ensuring inclusive analytical process',
       'SULTAI': 'Analyze systematically which proven capabilities provide sustainable competitive advantage and position strategically for long-term value extraction',
       'BANT': 'Create systematic inclusive planning process ensuring patient analytical coordination for sustainable collective success',
       'NAYA': 'Rally collective proven strengths into bold coordinated strategic action through passionate inclusive leadership',
@@ -1671,10 +1748,10 @@ const ROUND2_SCENARIOS = {
       'JESKAI': 'Lead systematic bold innovation through fair coordinated experimentation that serves collective strategic objectives',
       'MARDU': 'Execute bold coordinated strategic strikes while pragmatically ensuring fair distribution of opportunities and risks',
       'TEMUR': 'Experiment boldly through systematic innovation grounded in proven powerful patterns and natural strengths',
-      'WITCH': 'Design fair systematic strategy for aggressive pragmatic positioning that optimizes rapid competitive advantage while including all stakeholders',
+      'WITCH': 'Design fair systematic strategy for aggressive pragmatic positioning that optimises rapid competitive advantage while including all stakeholders',
       'YORE': 'Build sustainable inclusive strategy through patient pragmatic systematic analysis ensuring fair long-term optimal development',
       'DUNE': 'Rally collective proven strengths for bold pragmatic positioning while ensuring fair treatment and sustainable competitive growth',
-      'GLINT': 'Execute ruthlessly optimized aggressive strategy systematically, positioning in proven areas for sustainable competitive dominance',
+      'GLINT': 'Execute ruthlessly optimised aggressive strategy systematically, positioning in proven areas for sustainable competitive dominance',
       'INK': 'Lead systematic bold strategic innovation through inclusive fair coordination while building on proven collective capabilities',
       'WUBRG': 'Design comprehensive strategy through systematic analysis that balances bold innovation, pragmatic positioning, proven strengths, and fair inclusive development'
     }
@@ -1700,7 +1777,7 @@ const ROUND2_SCENARIOS = {
       'GRUUL': 'Trust authentic instinctive relationships to develop powerfully through natural organic interaction',
       'GRIXIS': 'Design systematic approaches focused on rapid individual advancement through aggressive competitive capability development',
       'JUND': 'Encourage aggressive authentic expression using proven instincts, focusing pragmatically on sustainable individual growth',
-      'ESPER': 'Design fair systematic processes that optimize collaboration pragmatically while ensuring inclusive supportive coordination',
+      'ESPER': 'Design fair systematic processes that optimise collaboration pragmatically while ensuring inclusive supportive coordination',
       'SULTAI': 'Design systematic approaches that enable sustainable individual advancement while allowing natural relationship development over time',
       'BANT': 'Create systematic inclusive framework enabling people to develop naturally while coordinating collaboration analytically for collective success',
       'NAYA': 'Foster passionate coordinated collaboration where collective natural strengths develop through authentic inclusive connection',
@@ -1708,7 +1785,7 @@ const ROUND2_SCENARIOS = {
       'JESKAI': 'Lead systematic bold innovation through coordinated passionate experimentation that serves inclusive collective growth',
       'MARDU': 'Foster passionate coordinated action while pragmatically ensuring fair distribution of advancement opportunities and collective support',
       'TEMUR': 'Create through systematic bold experimentation while allowing authentic natural team dynamics to develop powerfully',
-      'WITCH': 'Design fair systematic processes for aggressive pragmatic collaboration that optimizes rapid individual advancement while ensuring inclusive coordination',
+      'WITCH': 'Design fair systematic processes for aggressive pragmatic collaboration that optimises rapid individual advancement while ensuring inclusive coordination',
       'YORE': 'Build sustainable inclusive environment through patient pragmatic systematic coordination ensuring fair long-term optimal development for everyone',
       'DUNE': 'Foster passionate collective strength through aggressive pragmatic action grounded in proven natural relationships while ensuring fair supportive treatment',
       'GLINT': 'Design systematic approaches for aggressive individual advancement drawing on proven patterns for sustainable competitive capability development',
@@ -1718,10 +1795,10 @@ const ROUND2_SCENARIOS = {
   },
   CHANGE: {
     id: 'CHANGE',
-    context: 'Your organization is implementing major changes affecting how your team operates.',
+    context: 'Your organisation is implementing major changes affecting how your team operates.',
     responses: {
       'MONO-W': 'Ensure everyone is supported through the transition fairly and feels heard',
-      'MONO-U': 'Analyze the changes systematically to optimize the implementation process',
+      'MONO-U': 'Analyze the changes systematically to optimise the implementation process',
       'MONO-B': 'Focus on how the changes affect your team\'s position and opportunities',
       'MONO-R': 'Embrace the changes immediately with bold decisive action',
       'MONO-G': 'Allow people to adapt at their natural pace through the transition',
@@ -1737,7 +1814,7 @@ const ROUND2_SCENARIOS = {
       'GRUUL': 'Trust powerful instincts to adapt naturally, acting decisively as gut feelings guide the transition',
       'GRIXIS': 'Analyze the changes ruthlessly to identify and seize opportunities aggressively during optimal transition moments',
       'JUND': 'Adapt aggressively using proven instincts, focusing pragmatically on what will survive and thrive after the changes',
-      'ESPER': 'Design fair systematic transition that optimizes outcomes pragmatically while ensuring inclusive analytical support for everyone',
+      'ESPER': 'Design fair systematic transition that optimises outcomes pragmatically while ensuring inclusive analytical support for everyone',
       'SULTAI': 'Analyze systematically what provides sustainable advantage and position strategically while allowing natural patient adaptation',
       'BANT': 'Create systematic inclusive support process allowing patient natural adaptation while coordinating transition analytically for collective success',
       'NAYA': 'Rally collective natural adaptive capacity through passionate coordinated decisive action supporting everyone through transition',
@@ -1745,12 +1822,49 @@ const ROUND2_SCENARIOS = {
       'JESKAI': 'Lead systematic bold adaptive innovation through coordinated rapid experimentation that supports collective transition',
       'MARDU': 'Execute bold coordinated adaptive action while pragmatically ensuring fair distribution of transition opportunities and support',
       'TEMUR': 'Adapt through systematic bold experimentation grounded in proven powerful instincts about what works naturally',
-      'WITCH': 'Design fair systematic transition for aggressive pragmatic adaptation that optimizes rapid positioning while ensuring inclusive support',
+      'WITCH': 'Design fair systematic transition for aggressive pragmatic adaptation that optimises rapid positioning while ensuring inclusive support',
       'YORE': 'Build sustainable inclusive adaptation through patient pragmatic systematic analysis ensuring fair long-term optimal transition',
       'DUNE': 'Rally collective natural adaptive strength for bold pragmatic action while ensuring fair supportive treatment through transition',
-      'GLINT': 'Execute ruthlessly optimized aggressive adaptation strategy drawing on proven patterns for sustainable competitive advantage',
+      'GLINT': 'Execute ruthlessly optimised aggressive adaptation strategy drawing on proven patterns for sustainable competitive advantage',
       'INK': 'Lead systematic bold adaptive innovation through inclusive fair coordination while building on proven collective transition capacity',
       'WUBRG': 'Navigate transition through systematic analysis, fair support, pragmatic positioning, bold action, and patient adaptation as each situation demands'
+    }
+  },
+  MTG_STALL: {
+    id: 'MTG_STALL',
+    context: 'The game has stalled for 40 minutes. Full boards everywhere. Nobody wants to attack because it opens them up. Everyone is just... drawing and passing.',
+    responses: {
+      'MONO-W': 'I propose a formal rotation. Clockwise attacks. Everyone gets a turn to be aggressor. It\'s only fair.',
+      'MONO-U': 'I\'m fine. Every draw step brings me closer to inevitability. You\'ll all understand eventually.',
+      'MONO-B': 'I start making offers. Quietly. One by one. Someone at this table has a price.',
+      'MONO-R': 'I attack. Into the full board. With everything. I will lose creatures. I don\'t care. SOMETHING HAS TO HAPPEN.',
+      'MONO-G': 'I wait. The board will resolve itself. Boards always do. I\'ve been playing creatures for 40 minutes. I can play creatures for 40 more.',
+      'AZORIUS': 'I\'ve drafted a non-binding resolution for structured aggression. Section 3 covers reparations for blocked creatures. Please review.',
+      'DIMIR': 'I pass. I\'ve been passing for 40 minutes. What I haven\'t told anyone is that I\'ve been sculpting a hand that ends this in one turn.',
+      'RAKDOS': 'I attack the player who\'s having the most fun. The game is boring and now they should be bored too.',
+      'GRUUL': 'I ATTACK. They block? I don\'t care. They crack back? I don\'t care. Board goes sideways? GOOD. THINGS ARE HAPPENING.',
+      'SELESNYA': 'I suggest we all just... talk. Why are we fighting? We could just enjoy each other\'s company. The real treasure was the friends we—',
+      'ORZHOV': 'I start taking notes on who owes whom. This stall will end eventually. I intend to collect.',
+      'IZZET': 'What if I just... cast this? I don\'t know what it does to the board. Let\'s find out together.',
+      'GOLGARI': 'I\'m fine. While you\'ve been staring at your creatures, mine have been dying and coming back stronger. The graveyard grows.',
+      'BOROS': 'COWARDS. ALL OF YOU. Fine. I\'ll break this stall MYSELF. CHARGE. FOR GLORY. FOR SOMETHING TO HAPPEN.',
+      'SIMIC': 'I\'ve been quietly putting +1/+1 counters on things. Don\'t mind me. Keep stalling. Please. Take your time.',
+      'BANT': 'I propose we form a temporary alliance against whoever has the strongest board. Democratically. With ranked choice voting.',
+      'ESPER': 'The optimal play is to wait. I\'ve calculated that in 7 more turns, the board state favours me by 23%. I can wait.',
+      'GRIXIS': 'I whisper to my left: "Attack right. I\'ll back you up." I whisper to my right: "They\'re about to attack you. Strike first."',
+      'JUND': 'I attack the weakest player. Not because they\'re a threat. Because culling the herd is natural. Someone has to go.',
+      'NAYA': 'I rally the table. "We\'re all friends here! Let\'s just agree to attack and see what happens! It\'ll be FUN!"',
+      'ABZAN': 'I\'ve been here before. Stalls end. Players make mistakes. I outlast. My creatures outlast. Time is on my side.',
+      'JESKAI': 'I have calculated exactly who should attack whom for optimal damage distribution. Here\'s a diagram. You\'re welcome.',
+      'SULTAI': 'I wait. And watch. Someone will crack. When they do, I\'ll be ready to pick through the wreckage.',
+      'MARDU': 'Enough. I\'m attacking you. Why? Because you\'re THERE. We\'ll sort out the rest after the dust settles.',
+      'TEMUR': 'The board is a puzzle. Let me just... *turns all creatures sideways* THERE. Now it\'s a different puzzle.',
+      'YORE': 'I have 17 artifacts. You have creatures. Let me explain why this stall ends in my favour. Do you have three hours?',
+      'GLINT': 'The person to my right looks nervous. I\'m going to stare at them until they crack. I don\'t blink. I have time.',
+      'DUNE': 'I stop thinking. I attack. Strategy is for people who don\'t have enough power. I have enough power.',
+      'INK': 'What if we all just attacked at once? Same time? No takebacks? It\'d be chaos. Beautiful chaos.',
+      'WITCH': 'I\'ve been advancing my board incrementally for 40 minutes. I can do this for 40 more. Can you?',
+      'WUBRG': 'I have answers. I have threats. I have a plan. I have a backup plan. I have contingencies for the backup plan. I\'m fine. Are you fine? You don\'t look fine.'
     }
   }
 };
@@ -1823,8 +1937,8 @@ const ARCHETYPE_EXAMPLES = [
     normal: "They're really focused on team harmony and making sure everyone feels included.", 
     banter: "We cannot make a single decision without a team-building exercise. Everything has to be consensus and it takes forever."},
   {id: 'ORZHOV', name: 'ORZHOV', colors: ['W', 'B'], 
-    normal: "They're good at navigating organizational politics while maintaining fairness.", 
-    banter: "Every favor comes with interest later. They keep score on everything and weaponize policy the second it benefits them."},
+    normal: "They're good at navigating organisational politics while maintaining fairness.", 
+    banter: "Every favour comes with interest later. They keep score on everything and weaponize policy the second it benefits them."},
   {id: 'IZZET', name: 'IZZET', colors: ['U', 'R'], 
     normal: "They're innovative and like to experiment with new approaches rapidly.", 
     banter: "Did they test this? No. They just experimented on production again. And now they're yelling SCIENCE while everything's broken."},
@@ -1833,7 +1947,7 @@ const ARCHETYPE_EXAMPLES = [
     banter: "Why do they hoard every failed project? This workspace is a graveyard of ideas that died three years ago and won't stay buried."},
   {id: 'SIMIC', name: 'SIMIC', colors: ['G', 'U'], 
     normal: "They're thoughtful about improving existing systems without disrupting what works.", 
-    banter: "They optimize everything to death. Six months to improve a two-week process and somehow it's worse now."},
+    banter: "They optimise everything to death. Six months to improve a two-week process and somehow it's worse now."},
   {id: 'BOROS', name: 'BOROS', colors: ['R', 'W'], 
     normal: "They're passionate about team goals and rally people around shared missions.", 
     banter: "Not everything is a crusade but they treat quarterly planning like D-Day. The intensity is just a lot."},
@@ -1842,7 +1956,7 @@ const ARCHETYPE_EXAMPLES = [
     banter: "Great another two-hour planning session for a ten-minute task. Yes we all need to weigh in for the good of the team apparently."},
   {id: 'ESPER', name: 'ESPER', colors: ['W', 'U', 'B'], 
     normal: "They're systematic and effective at creating well-designed processes.", 
-    banter: "Do they feel anything? Every conversation is like talking to a spreadsheet. Literally optimized the humanity out of this place."},
+    banter: "Do they feel anything? Every conversation is like talking to a spreadsheet. Literally optimised the humanity out of this place."},
   {id: 'GRIXIS', name: 'GRIXIS', colors: ['U', 'B', 'R'], 
     normal: "They're strategically decisive and comfortable making bold moves.", 
     banter: "Pretty sure they create half the crises just to solve them dramatically. The evil laugh in the break room is not helping their case."},
@@ -1853,7 +1967,7 @@ const ARCHETYPE_EXAMPLES = [
     normal: "They're enthusiastic team builders who bring a lot of energy to initiatives.", 
     banter: "Why does every task need pep talks and a literal marching band. We just needed to update a spreadsheet not plan a parade."},
   {id: 'ABZAN', name: 'ABZAN', colors: ['W', 'B', 'G'], 
-    normal: "They're traditional and good at building enduring organizational structures.", 
+    normal: "They're traditional and good at building enduring organisational structures.", 
     banter: "They block every new idea with We've always done it this way. Also they definitely keep a ledger of who owes them what."},
   {id: 'JESKAI', name: 'JESKAI', colors: ['U', 'R', 'W'], 
     normal: "They're skilled and pursue excellence through disciplined practice.", 
@@ -2151,7 +2265,7 @@ const PROFILES = {
     tag:'Structure Through Power',
     colors:['W','B'],
     desc:"You're someone who combines systematic structure with self-interested ambition for organized extraction. Fair hierarchies serving strategic goals.",
-    pubBanter:"They become a soul-sucking bureaucrat in a fancy suit, the type who enforces every policy to the letter when it benefits them, extorts favors under the guise of procedure, and generally taxes everyone time and energy like a one-person corporate vampire.",
+    pubBanter:"They become a soul-sucking bureaucrat in a fancy suit, the type who enforces every policy to the letter when it benefits them, extorts favours under the guise of procedure, and generally taxes everyone time and energy like a one-person corporate vampire.",
     cmd:'Obzedat, Ghost Council',
     cmdDesc:'Extracts value through fair-seeming hierarchies and political leverage',
     str:['Building lasting institutions','Allocates resources pragmatically','Navigates politics expertly','Creates clear advancement paths','Balances ambition with sustainability'],
@@ -2223,7 +2337,7 @@ const PROFILES = {
     tag:'Evolution Through Design',
     colors:['G','U'],
     desc:"You're someone who combines organic growth with optimization for directed evolution. You carefully improve natural systems.",
-    pubBanter:"You're an overzealous lab geek. Can we ship something that's 80 percent instead of waiting for perfect? You optimize everything to death.",
+    pubBanter:"You're an overzealous lab geek. Can we ship something that's 80 percent instead of waiting for perfect? You optimise everything to death.",
     cmd:'Prime Speaker Vannifar',
     cmdDesc:'Evolves systems through careful optimization and adaptation',
     str:['Innovates sustainably over time','Improves things patiently and thoughtfully','Respects and works with existing systems','Develops capabilities for the long-term','Experiments thoughtfully not recklessly'],
@@ -2259,7 +2373,7 @@ const PROFILES = {
     tag:'Perfection Through Control',
     colors:['W','U','B'],
     desc:"You're someone who combines order, analysis, and ruthless power for cold calculated dominance. Excellence without emotion or nature.",
-    pubBanter:"You're a high-handed micromanager. Do you feel anything? You optimize everything including human relationships. Spreadsheets have feelings people don't.",
+    pubBanter:"You're a high-handed micromanager. Do you feel anything? You optimise everything including human relationships. Spreadsheets have feelings people don't.",
     cmd:'Oloro, Ageless Ascetic',
     cmdDesc:'Dominates through emotionless calculated perfection',
     str:['Superior systematic and strategic thinking','Ruthlessly effective at execution','Exercises comprehensive control','Positions strategically with patience','Achieves excellence in governance'],
@@ -2307,7 +2421,7 @@ const PROFILES = {
     tag:'Endurance Through Tradition',
     colors:['W','B','G'],
     desc:"You're someone who combines community, pragmatism, and patience for lasting institutions. Traditional power that endures.",
-    pubBanter:"You're an immovable curmudgeon. You block every new idea with We've always done it this way. Also you definitely keep a ledger of favors.",
+    pubBanter:"You're an immovable curmudgeon. You block every new idea with We've always done it this way. Also you definitely keep a ledger of favours.",
     cmd:'Anafenza, the Foremost',
     cmdDesc:'Endures through traditional power structures and pragmatic loyalty',
     str:['Builds long-term lasting institutions','Politically resilient and savvy','Practices sustainable pragmatism','Creates loyal deep relationships','Has strong survivor mentality'],
@@ -2630,10 +2744,30 @@ function selectMode(mode) {
 function startAssessment() {
   console.log('startAssessment called');
   console.log('POOL_A length:', POOL_A.length);
-  state.poolA = shuffleArray(POOL_A);
-  console.log('state.poolA shuffled, length:', state.poolA.length);
+  
+  // Select exactly 6 questions per enemy pair to ensure balanced scoring
+  const enemyPairs = ['W-B', 'U-R', 'G-U', 'W-R', 'B-G'];
+  const selectedQuestions = [];
+  
+  enemyPairs.forEach(pair => {
+    const pairQuestions = POOL_A.filter(q => q.pair === pair);
+    const shuffled = shuffleArray(pairQuestions);
+    selectedQuestions.push(...shuffled.slice(0, 6));
+  });
+  
+  // Shuffle the final selection
+  state.poolA = shuffleArray(selectedQuestions);
+  console.log('state.poolA selected and shuffled, length:', state.poolA.length);
+  
   document.getElementById('screen-welcome').classList.add('hidden');
   document.getElementById('screen-assessment').classList.remove('hidden');
+  
+  // Hide header mana symbols in draft mode to prevent demand characteristics
+  const headerSymbols = document.getElementById('header-mana-symbols');
+  if (headerSymbols && state.mode === 'draft') {
+    headerSymbols.style.display = 'none';
+  }
+  
   updateHeaderRoundIndicator(1);
   console.log('Screens toggled, calling showQ');
   showQ();
@@ -2811,10 +2945,67 @@ function updateDebug() {
   
   if (state.stage === 2 || state.stage === 3) {
     html += '<div style="margin-bottom: 16px;"><strong style="color: #a78bfa;">ROUND 3: FINAL DETERMINATION</strong></div>';
-    html += `<div style="margin-bottom: 12px; padding: 12px; background: rgba(139, 92, 246, 0.1); border-radius: 8px;">`;
-    html += `<strong>Questions:</strong> ${state.qNum}/${state.qTot}<br>`;
-    html += `<strong>Goal:</strong> Confirm final identity from calibrated candidates`;
-    html += `</div>`;
+    
+    // Tournament-specific debug info
+    if (state.tournament) {
+      const tournament = state.tournament;
+      const matchup = tournament.currentMatchup;
+      
+      html += `<div style="margin-bottom: 12px; padding: 12px; background: rgba(139, 92, 246, 0.1); border-radius: 8px;">`;
+      html += `<strong>Tournament:</strong> Question ${tournament.questionCount + 1}/${tournament.maxQuestions}<br>`;
+      html += `<strong>Mode:</strong> Adaptive forced-choice`;
+      html += `</div>`;
+      
+      // Current standings
+      html += '<div style="margin-bottom: 16px;">';
+      html += '<div style="color: #a78bfa; font-weight: 700; margin-bottom: 8px;">TOURNAMENT STANDINGS</div>';
+      
+      const sortedCandidates = [...tournament.candidates].sort((a, b) => {
+        const aScore = a.wins - a.losses;
+        const bScore = b.wins - b.losses;
+        if (bScore !== aScore) return bScore - aScore;
+        return b.combinedScore - a.combinedScore;
+      });
+      
+      sortedCandidates.forEach((c, idx) => {
+        const isLeader = idx === 0;
+        const eliminated = c.losses >= 2;
+        const color = eliminated ? '#EF4444' : (isLeader ? '#10B981' : '#d0d0d0');
+        html += `<div style="color: ${color}; padding: 2px 0;">`;
+        html += `${isLeader ? '👑 ' : '   '}${c.id}: ${c.wins}W-${c.losses}L`;
+        html += ` (R1+R2: ${Math.round(c.combinedScore*100)}%)`;
+        if (eliminated) html += ' [ELIMINATED]';
+        html += '</div>';
+      });
+      html += '</div>';
+      
+      // Current matchup
+      if (matchup) {
+        html += '<div style="margin-bottom: 16px;">';
+        html += '<div style="color: #F59E0B; font-weight: 700; margin-bottom: 8px;">CURRENT MATCHUP</div>';
+        html += `<div>${matchup.a.id} vs ${matchup.b.id}</div>`;
+        html += `<div style="color: #808090;">Type: ${matchup.type}</div>`;
+        html += '</div>';
+      }
+      
+      // Match history
+      if (tournament.matchHistory.length > 0) {
+        html += '<div>';
+        html += '<div style="color: #3B82F6; font-weight: 700; margin-bottom: 8px;">MATCH HISTORY</div>';
+        tournament.matchHistory.forEach((m, i) => {
+          html += `<div style="padding: 2px 0;">`;
+          html += `Q${i+1}: ${m.winner.id} defeats ${m.loser.id} <span style="color: #808090;">(${m.type})</span>`;
+          html += '</div>';
+        });
+        html += '</div>';
+      }
+    } else {
+      // Legacy ranking debug
+      html += `<div style="margin-bottom: 12px; padding: 12px; background: rgba(139, 92, 246, 0.1); border-radius: 8px;">`;
+      html += `<strong>Questions:</strong> ${state.qNum}/${state.qTot}<br>`;
+      html += `<strong>Goal:</strong> Confirm final identity from calibrated candidates`;
+      html += `</div>`;
+    }
     
     // Show Round 1 summary
     if (state.activationSorted && state.activationSorted.length > 0) {
@@ -2977,31 +3168,14 @@ function showQ() {
       }
     }
   } else if (state.stage === 3) {
-    // Round 3: Width Determination (Ranking)
-    document.getElementById('stage-label').textContent = 'Round 3: Final Determination';
-    const prog1Bar = document.getElementById('prog-s1');
-    const prog2Bar = document.getElementById('prog-s2');
-    const prog3Bar = document.getElementById('prog-s3');
-    
-    // Keep Stage 1 visible but dimmed, hide calibration bar, show stage 3
-    prog1Bar.style.opacity = '0.3';
-    prog2Bar.style.opacity = '0.3';
-    if (prog3Bar) {
-      prog3Bar.style.opacity = '1';
-      prog3Bar.style.width = '0%';
-      
-      const pct = Math.round((state.qNum / state.qTot) * 100);
-      setTimeout(() => {
-        prog3Bar.style.width = pct + '%';
-      }, 50);
+    // Round 3 is now handled by tournament system - this shouldn't be called
+    // but if it is, redirect to tournament question
+    if (state.tournament) {
+      showTournamentQuestion();
+      return;
     }
-    
-    // STAGE 3: Show ranking interface
-    document.getElementById('ctx').textContent = `Scenario ${state.qNum + 1} of ${state.qTot}`;
-    document.getElementById('scenario').innerHTML = `<span style="color: #c4b5fd; font-size: 14px; display: block; margin-bottom: 8px;">Imagine this situation:</span>${q.context}`;
-    document.getElementById('instr').innerHTML = '';
-    document.getElementById('choices').innerHTML = buildRankingInterface(q);
-    setTimeout(() => initRanking(), 100);
+    // Legacy fallback
+    document.getElementById('stage-label').textContent = 'Round 3: Final Determination';
     return;
   } else {
     // Fallback for any other stage (shouldn't happen normally)
@@ -3415,7 +3589,7 @@ function calculateUncertainty(winsArray) {
   return entropy;
 }
 
-function analyzeGapBasedPatterns() {
+function analyseGapBasedPatterns() {
   const pairwise = state.pairwise;
   
   const colorData = {
@@ -3705,7 +3879,7 @@ function generateCandidatesGapBased(analysis) {
 
 function finishS1() {
   // NEW: Use gap-based analysis
-  const analysis = analyzeGapBasedPatterns();
+  const analysis = analyseGapBasedPatterns();
   const candidates = generateCandidatesGapBased(analysis);
   
   // Calculate activation strength for display
@@ -4370,108 +4544,437 @@ function continueToStage2() {
 
 
 // ============================================================================
-// ROUND 3: FINAL DETERMINATION (uses calibration outcomes)
+// ROUND 3: FINAL DETERMINATION (ADAPTIVE TOURNAMENT SYSTEM)
+// Mobile-friendly forced-choice pairwise comparisons
 // ============================================================================
 
+// Tournament helper functions
+function initTournament(candidates) {
+  return {
+    candidates: candidates.map(c => ({
+      ...c,
+      wins: 0,
+      losses: 0,
+      opponents: []
+    })),
+    matchHistory: [],
+    currentMatchup: null,
+    questionCount: 0,
+    maxQuestions: 4,
+    terminated: false,
+    termReason: null
+  };
+}
+
+function getTournamentCandidateType(id) {
+  if (id.startsWith('MONO-')) return 'MONO';
+  if (['AZORIUS','DIMIR','RAKDOS','GRUUL','SELESNYA','ORZHOV','IZZET','GOLGARI','BOROS','SIMIC'].includes(id)) return 'GUILD';
+  if (['ESPER','GRIXIS','JUND','NAYA','BANT','ABZAN','JESKAI','SULTAI','MARDU','TEMUR'].includes(id)) return 'THREE';
+  if (['YORE','GLINT','DUNE','INK','WITCH'].includes(id)) return 'FOUR';
+  if (id === 'WUBRG') return 'FIVE';
+  return 'UNKNOWN';
+}
+
+function findTournamentLeader(tournament) {
+  const validCandidates = tournament.candidates.filter(c => c.losses < 2);
+  if (validCandidates.length === 0) return tournament.candidates[0];
+  
+  return validCandidates.reduce((best, c) => {
+    const cWinRate = c.wins / Math.max(1, c.wins + c.losses);
+    const bestWinRate = best.wins / Math.max(1, best.wins + best.losses);
+    
+    if (cWinRate > bestWinRate) return c;
+    if (cWinRate === bestWinRate && c.combinedScore > best.combinedScore) return c;
+    return best;
+  }, validCandidates[0]);
+}
+
+function tournamentHasPlayed(c1, c2, matchHistory) {
+  return matchHistory.some(m => 
+    (m.a.id === c1.id && m.b.id === c2.id) ||
+    (m.a.id === c2.id && m.b.id === c1.id)
+  );
+}
+
+function selectNextMatchup(tournament) {
+  const { candidates, matchHistory } = tournament;
+  const leader = findTournamentLeader(tournament);
+  
+  if (!leader) return null;
+  
+  const contenders = candidates.filter(c => c.losses < 2 && c.id !== leader.id);
+  
+  if (contenders.length === 0) return null;
+  
+  // Priority 1: Width challenge (different type)
+  const leaderType = getTournamentCandidateType(leader.id);
+  const widthChallenger = contenders.find(c => 
+    getTournamentCandidateType(c.id) !== leaderType && 
+    !tournamentHasPlayed(leader, c, matchHistory)
+  );
+  if (widthChallenger) {
+    console.log(`MATCHUP: Width challenge - ${leader.id} (${leaderType}) vs ${widthChallenger.id} (${getTournamentCandidateType(widthChallenger.id)})`);
+    return { a: leader, b: widthChallenger, type: 'WIDTH' };
+  }
+  
+  // Priority 2: Same-type competitor
+  const sameTypeChallenger = contenders.find(c =>
+    getTournamentCandidateType(c.id) === leaderType &&
+    !tournamentHasPlayed(leader, c, matchHistory)
+  );
+  if (sameTypeChallenger) {
+    console.log(`MATCHUP: Same-type - ${leader.id} vs ${sameTypeChallenger.id} (both ${leaderType})`);
+    return { a: leader, b: sameTypeChallenger, type: 'SAME_TYPE' };
+  }
+  
+  // Priority 3: Any unplayed contender
+  const anyChallenger = contenders.find(c => !tournamentHasPlayed(leader, c, matchHistory));
+  if (anyChallenger) {
+    console.log(`MATCHUP: General - ${leader.id} vs ${anyChallenger.id}`);
+    return { a: leader, b: anyChallenger, type: 'GENERAL' };
+  }
+  
+  // Priority 4: Runoff between other contenders
+  for (let i = 0; i < contenders.length; i++) {
+    for (let j = i + 1; j < contenders.length; j++) {
+      if (!tournamentHasPlayed(contenders[i], contenders[j], matchHistory)) {
+        console.log(`MATCHUP: Runoff - ${contenders[i].id} vs ${contenders[j].id}`);
+        return { a: contenders[i], b: contenders[j], type: 'RUNOFF' };
+      }
+    }
+  }
+  
+  return null;
+}
+
+function shouldTerminateEarly(tournament) {
+  const leader = findTournamentLeader(tournament);
+  if (!leader) return { terminate: false };
+  
+  const { candidates, matchHistory } = tournament;
+  
+  const contenders = candidates
+    .filter(c => c.id !== leader.id && c.losses < 2)
+    .sort((a, b) => {
+      const aRate = a.wins / Math.max(1, a.wins + a.losses);
+      const bRate = b.wins / Math.max(1, b.wins + b.losses);
+      return bRate - aRate;
+    });
+  
+  const secondPlace = contenders[0];
+  
+  // Condition 1: Leader has 2+ wins with no losses
+  if (leader.wins >= 2 && leader.losses === 0) {
+    return { 
+      terminate: true, 
+      reason: 'DOMINANT',
+      message: `${leader.id} won ${leader.wins} consecutive matchups`
+    };
+  }
+  
+  // Condition 2: Leader won 1+ and entered with big gap (>15%)
+  const initialGap = leader.combinedScore - (secondPlace?.combinedScore || 0);
+  if (leader.wins >= 1 && leader.losses === 0 && initialGap > 0.15) {
+    return { 
+      terminate: true, 
+      reason: 'CONFIRMED_FRONTRUNNER',
+      message: `${leader.id} confirmed strong R1/R2 signal`
+    };
+  }
+  
+  // Condition 3: Only one candidate left with < 2 losses
+  if (contenders.length === 0) {
+    return { 
+      terminate: true, 
+      reason: 'LAST_STANDING',
+      message: `${leader.id} eliminated all challengers`
+    };
+  }
+  
+  // Condition 4: All possible matchups exhausted
+  const nextMatch = selectNextMatchup(tournament);
+  if (!nextMatch) {
+    return { 
+      terminate: true, 
+      reason: 'EXHAUSTED',
+      message: 'All relevant matchups completed'
+    };
+  }
+  
+  return { terminate: false };
+}
+
+function recordTournamentResult(tournament, winnerId) {
+  const matchup = tournament.currentMatchup;
+  const winner = matchup.a.id === winnerId ? matchup.a : matchup.b;
+  const loser = matchup.a.id === winnerId ? matchup.b : matchup.a;
+  
+  const winnerCandidate = tournament.candidates.find(c => c.id === winner.id);
+  const loserCandidate = tournament.candidates.find(c => c.id === loser.id);
+  
+  winnerCandidate.wins++;
+  winnerCandidate.opponents.push(loser.id);
+  loserCandidate.losses++;
+  loserCandidate.opponents.push(winner.id);
+  
+  tournament.matchHistory.push({
+    a: matchup.a,
+    b: matchup.b,
+    winner: winner,
+    loser: loser,
+    type: matchup.type,
+    questionNum: tournament.questionCount
+  });
+  
+  tournament.questionCount++;
+  
+  console.log(`RESULT: ${winner.id} defeats ${loser.id} (${matchup.type})`);
+  console.log(`  ${winnerCandidate.id}: ${winnerCandidate.wins}W-${winnerCandidate.losses}L`);
+  console.log(`  ${loserCandidate.id}: ${loserCandidate.wins}W-${loserCandidate.losses}L`);
+  
+  return tournament;
+}
+
+function getTournamentWinner(tournament) {
+  const leader = findTournamentLeader(tournament);
+  
+  let confidence = 'MODERATE';
+  let gap = 0;
+  
+  const contenders = tournament.candidates
+    .filter(c => c.id !== leader.id)
+    .sort((a, b) => (b.wins - b.losses) - (a.wins - a.losses));
+  
+  const runnerUp = contenders[0];
+  
+  if (runnerUp) {
+    const leaderScore = leader.wins - leader.losses;
+    const runnerUpScore = runnerUp.wins - runnerUp.losses;
+    gap = leaderScore - runnerUpScore;
+    
+    if (gap >= 2 || (leader.wins >= 2 && leader.losses === 0)) {
+      confidence = 'HIGH';
+    } else if (gap <= 0) {
+      confidence = 'LOW';
+    }
+  } else {
+    confidence = 'HIGH';
+  }
+  
+  return {
+    winner: leader,
+    runnerUp: runnerUp,
+    confidence: confidence,
+    gap: gap,
+    totalQuestions: tournament.questionCount,
+    matchHistory: tournament.matchHistory
+  };
+}
+
 function startRound3(candidates) {
-  console.log('=== ROUND 3: FINAL DETERMINATION ===');
+  console.log('=== ROUND 3: ADAPTIVE TOURNAMENT ===');
   console.log('Incoming candidates:', candidates.map(c => `${c.id} (${Math.round(c.s1*100)}%)`).join(', '));
   
   // STEP 1: Refine candidates based on calibration results
   const refinedCandidates = refineWithCalibration(candidates);
   console.log('Refined candidates:', refinedCandidates.map(c => `${c.id} (${Math.round(c.combinedScore*100)}%)`).join(', '));
   
-  // STEP 2: Determine what discriminations actually need testing
-  const discriminationsNeeded = identifyNeededDiscriminations(refinedCandidates);
-  console.log('Discriminations needed:', discriminationsNeeded);
+  // Take top 4-5 candidates for tournament
+  const topCandidates = refinedCandidates.slice(0, Math.min(5, refinedCandidates.length));
   
-  // STEP 3: Reorder candidates to lead with "middle ground" option
-  // If top is MONO → lead with best GUILD, then MONO
-  // If top is FOUR → lead with best THREE, then FOUR
-  // Otherwise keep current order (GUILD or THREE already are middle ground)
-  let topCandidates = refinedCandidates.slice(0, 5);
-  
-  const topCandidate = topCandidates[0];
-  const topType = getCandidateType(topCandidate.id);
-  
-  console.log(`Top candidate: ${topCandidate.id} (type: ${topType})`);
-  
-  if (topType === 'MONO') {
-    // Find best GUILD containing this mono's color
-    const monoColor = topCandidate.id.replace('MONO-', '');
-    const bestGuild = topCandidates.find(c => {
-      const cType = getCandidateType(c.id);
-      if (cType !== 'GUILD') return false;
-      const colors = PROFILES[c.id]?.colors || [];
-      return colors.includes(monoColor);
-    });
-    
-    if (bestGuild) {
-      // Reorder: guild first, then mono, then rest
-      topCandidates = topCandidates.filter(c => c.id !== bestGuild.id);
-      const monoIdx = topCandidates.findIndex(c => c.id === topCandidate.id);
-      topCandidates.splice(monoIdx, 0, bestGuild); // Insert guild before mono
-      console.log(`Reordered: Leading with ${bestGuild.id} (guild) before ${topCandidate.id} (mono)`);
-    }
-  } else if (topType === 'FOUR') {
-    // Find best THREE from the four colors
-    const fourColors = PROFILES[topCandidate.id]?.colors || [];
-    const bestThree = topCandidates.find(c => {
-      const cType = getCandidateType(c.id);
-      if (cType !== 'THREE') return false;
-      const colors = PROFILES[c.id]?.colors || [];
-      // Check if all three colors are in the four
-      return colors.every(col => fourColors.includes(col));
-    });
-    
-    if (bestThree) {
-      // Reorder: three first, then four, then rest
-      topCandidates = topCandidates.filter(c => c.id !== bestThree.id);
-      const fourIdx = topCandidates.findIndex(c => c.id === topCandidate.id);
-      topCandidates.splice(fourIdx, 0, bestThree); // Insert three before four
-      console.log(`Reordered: Leading with ${bestThree.id} (three) before ${topCandidate.id} (four)`);
-    }
-  }
-  
-  console.log('Final candidate order:', topCandidates.map(c => c.id).join(', '));
-  
-  // STEP 4: Generate questions that test those specific discriminations
-  // Select scenarios that best discriminate between remaining candidates
-  const allScenarioIds = ['CRISIS', 'PLANNING', 'TEAM', 'CHANGE'];
-  const scenarioIds = shuffleArray(allScenarioIds).slice(0, 4);
-  
-  const questions = scenarioIds.map((sid, i) => ({
-    questionNum: i + 1,
-    scenarioId: sid,
-    context: ROUND2_SCENARIOS[sid].context,
-    discriminationType: discriminationsNeeded[i % discriminationsNeeded.length] || 'GENERAL',
-    options: topCandidates.map((cand, idx) => ({
-      id: cand.id,
-      text: ROUND2_SCENARIOS[sid].responses[cand.id] || `[Missing response for ${cand.id}]`,
-      combinedScore: cand.combinedScore,
-      rank: idx + 1
-    }))
-  }));
-  
-  // Initialize state
+  // Initialize tournament
+  state.tournament = initTournament(topCandidates);
   state.stage = 3;
-  state.qNum = 0;
-  state.poolS2 = questions;
-  state.qTot = questions.length;
   state.candidates = topCandidates;
-  state.round3Rankings = {}; // Track rankings per candidate
-  state.discriminationsNeeded = discriminationsNeeded;
+  state.qNum = 0;
+  state.qTot = 4; // Maximum questions
   
-  // Update UI labels
+  // Update UI
   document.getElementById('stage-label').textContent = 'Round 3: Final Determination';
   updateHeaderRoundIndicator(3);
   
-  topCandidates.forEach(cand => {
-    state.round3Rankings[cand.id] = [];
+  // Get first matchup
+  const firstMatchup = selectNextMatchup(state.tournament);
+  if (!firstMatchup) {
+    // No matchups needed - use R1/R2 result directly
+    console.log('No matchups needed, using R1/R2 result');
+    finishRound3Tournament();
+    return;
+  }
+  
+  state.tournament.currentMatchup = firstMatchup;
+  showTournamentQuestion();
+}
+
+function showTournamentQuestion() {
+  const tournament = state.tournament;
+  const matchup = tournament.currentMatchup;
+  
+  // Pick a scenario - rotate through available ones (includes MTG humor scenario)
+  const scenarioIds = ['CRISIS', 'PLANNING', 'TEAM', 'CHANGE', 'MTG_STALL'];
+  const scenarioId = scenarioIds[tournament.questionCount % scenarioIds.length];
+  const scenario = ROUND2_SCENARIOS[scenarioId];
+  
+  // Update progress display
+  document.getElementById('q-num').textContent = tournament.questionCount + 1;
+  document.getElementById('q-tot').textContent = tournament.maxQuestions;
+  document.getElementById('stage-label').textContent = 'Round 3: Final Determination';
+  
+  // Update progress bar
+  const pct = ((tournament.questionCount + 1) / tournament.maxQuestions) * 100;
+  const prog1 = document.getElementById('prog-s1');
+  const prog2 = document.getElementById('prog-s2');
+  const prog3 = document.getElementById('prog-s3');
+  
+  prog1.style.opacity = '0.3';
+  prog2.style.opacity = '0.3';
+  if (prog3) {
+    prog3.style.opacity = '1';
+    prog3.style.width = `${pct}%`;
+  }
+  
+  // Build the question UI
+  document.getElementById('ctx').textContent = `Final Determination • ${scenario.context}`;
+  document.getElementById('scenario').innerHTML = `<span style="color: #c4b5fd; font-size: 14px; display: block; margin-bottom: 8px;">Imagine this situation:</span>${scenario.context}`;
+  document.getElementById('instr').innerHTML = 'Which approach feels <strong>more like you</strong>?';
+  
+  // Build the two choices
+  const choicesDiv = document.getElementById('choices');
+  choicesDiv.innerHTML = '';
+  
+  // Randomise order
+  const options = Math.random() > 0.5 
+    ? [matchup.a, matchup.b] 
+    : [matchup.b, matchup.a];
+  
+  options.forEach((candidate, i) => {
+    const profile = PROFILES[candidate.id];
+    const colors = profile?.colors || [];
+    const responseText = scenario.responses[candidate.id] || `[Response for ${candidate.id}]`;
+    
+    const btn = document.createElement('button');
+    btn.className = 'choice-button';
+    btn.style.cssText = 'flex-direction: column; align-items: flex-start; padding: 20px;';
+    btn.onclick = () => selectTournamentChoice(candidate.id);
+    
+    // Header with mana symbols (constructed mode only) or letter (draft mode)
+    const headerDiv = document.createElement('div');
+    headerDiv.style.cssText = 'display: flex; align-items: center; gap: 12px; margin-bottom: 12px; width: 100%;';
+    
+    if (state.mode === 'constructed') {
+      // Show mana symbols and name
+      const symbolsDiv = document.createElement('div');
+      symbolsDiv.style.cssText = 'display: flex; gap: 6px;';
+      colors.forEach(c => {
+        const symbol = document.createElement('span');
+        symbol.className = `mana-symbol mana-${c}`;
+        symbol.style.cssText = 'width: 28px; height: 28px; font-size: 14px;';
+        symbol.textContent = c;
+        symbolsDiv.appendChild(symbol);
+      });
+      headerDiv.appendChild(symbolsDiv);
+      
+      const nameSpan = document.createElement('span');
+      nameSpan.style.cssText = 'font-weight: 700; font-size: 14px; color: #a78bfa; text-transform: uppercase; letter-spacing: 0.5px;';
+      nameSpan.textContent = profile?.name || candidate.id;
+      headerDiv.appendChild(nameSpan);
+    } else {
+      // Blind draft - just show letter, no colours
+      const letterSpan = document.createElement('span');
+      letterSpan.style.cssText = 'font-weight: 700; color: #a78bfa; font-size: 18px; background: rgba(139,92,246,0.2); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;';
+      letterSpan.textContent = String.fromCharCode(65 + i);
+      headerDiv.appendChild(letterSpan);
+    }
+    
+    btn.appendChild(headerDiv);
+    
+    // Response text
+    const textDiv = document.createElement('div');
+    textDiv.style.cssText = 'font-size: 15px; line-height: 1.6; color: #e0e0e0;';
+    textDiv.textContent = responseText;
+    btn.appendChild(textDiv);
+    
+    choicesDiv.appendChild(btn);
   });
   
   updateDebug();
-  showQ();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function selectTournamentChoice(winnerId) {
+  console.log(`Tournament Q${state.tournament.questionCount + 1}: Selected ${winnerId}`);
+  
+  // Record result
+  recordTournamentResult(state.tournament, winnerId);
+  
+  // Check for early termination
+  const termCheck = shouldTerminateEarly(state.tournament);
+  if (termCheck.terminate) {
+    console.log(`EARLY TERMINATION: ${termCheck.reason} - ${termCheck.message}`);
+    state.tournament.terminated = true;
+    state.tournament.termReason = termCheck;
+    finishRound3Tournament();
+    return;
+  }
+  
+  // Check max questions
+  if (state.tournament.questionCount >= state.tournament.maxQuestions) {
+    console.log('MAX QUESTIONS reached');
+    finishRound3Tournament();
+    return;
+  }
+  
+  // Get next matchup
+  const nextMatchup = selectNextMatchup(state.tournament);
+  if (!nextMatchup) {
+    console.log('No more matchups available');
+    finishRound3Tournament();
+    return;
+  }
+  
+  state.tournament.currentMatchup = nextMatchup;
+  showTournamentQuestion();
+}
+
+function finishRound3Tournament() {
+  console.log('=== ROUND 3 TOURNAMENT COMPLETE ===');
+  
+  const result = getTournamentWinner(state.tournament);
+  
+  console.log('Winner:', result.winner.id);
+  console.log('Runner-up:', result.runnerUp?.id);
+  console.log('Confidence:', result.confidence);
+  console.log('Questions asked:', result.totalQuestions);
+  console.log('Match history:', result.matchHistory.map(m => `${m.winner.id} > ${m.loser.id}`).join(', '));
+  
+  // Store result in format compatible with existing results display
+  state.result = {
+    identity: result.winner.id,
+    confidence: result.confidence,
+    round3Data: {
+      allScores: state.tournament.candidates.map(c => ({
+        id: c.id,
+        wins: c.wins,
+        losses: c.losses,
+        combinedScore: c.combinedScore
+      })).sort((a, b) => (b.wins - b.losses) - (a.wins - a.losses)),
+      gap: result.gap,
+      runnerUp: result.runnerUp ? {
+        id: result.runnerUp.id,
+        wins: result.runnerUp.wins,
+        losses: result.runnerUp.losses
+      } : null,
+      matchHistory: result.matchHistory,
+      terminated: state.tournament.terminated,
+      termReason: state.tournament.termReason,
+      isTournament: true
+    }
+  };
+  
+  // Show transition then results
+  showRoundTransition(3, 4, () => {
+    showCalculating();
+  });
 }
 
 // Alias for backward compatibility
@@ -5625,56 +6128,171 @@ function displayFinalDetermination() {
   if (!introText || !barsDiv) return;
   
   const data = state.result.round3Data;
-  const numQuestions = state.qTot || 4;
   
-  questionCount.textContent = numQuestions + ' scenario rankings';
-  
-  // Explain what was tested
-  let introHTML = '<p style="margin-bottom: 12px;">';
-  introHTML += 'After calibration, we identified <strong>' + data.allScores.length + ' candidate identities</strong>. ';
-  introHTML += 'You ranked ' + numQuestions + ' workplace scenarios to determine which approach felt most natural.';
-  introHTML += '</p>';
-  introText.innerHTML = introHTML;
-  
-  // Show candidate rankings
-  const barColors = {W:'#FDE047', U:'#93C5FD', B:'#D1D5DB', R:'#FCA5A5', G:'#6EE7B7'};
-  let html = '<div style="font-size: 14px; font-weight: 600; color: #e0e0e0; margin-bottom: 16px;">Final Rankings</div>';
-  
-  data.allScores.forEach((score, idx) => {
-    const isWinner = score.id === state.result.identity;
-    const colors = PROFILES[score.id]?.colors || [];
-    const avgRank = score.avgRank.toFixed(1);
+  // Check if this is tournament data
+  if (data.isTournament) {
+    // Tournament format display
+    const numQuestions = data.matchHistory?.length || 0;
+    questionCount.textContent = numQuestions + ' tournament matchup' + (numQuestions !== 1 ? 's' : '');
     
-    html += '<div style="margin: 8px 0; padding: 12px; background: ' + (isWinner ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255,255,255,0.03)') + '; border-radius: 8px; border: ' + (isWinner ? '2px solid rgba(16, 185, 129, 0.4)' : '1px solid transparent') + ';">';
-    html += '<div style="display: flex; justify-content: space-between; align-items: center;">';
-    html += '<div style="display: flex; align-items: center; gap: 8px;">';
-    colors.forEach(c => {
-      html += '<span class="mana-symbol mana-' + c + '" style="width: 20px; height: 20px; font-size: 10px;">' + c + '</span>';
+    // Intro text
+    let introHTML = '<p style="margin-bottom: 12px;">';
+    introHTML += 'We tested <strong>' + data.allScores.length + ' candidate identities</strong> through head-to-head matchups. ';
+    introHTML += 'Each question forced you to choose between two approaches to the same situation.';
+    introHTML += '</p>';
+    
+    if (data.terminated && data.termReason) {
+      introHTML += '<p style="color: #10B981; font-style: italic; margin-bottom: 12px;">';
+      introHTML += 'Early termination: ' + data.termReason.message;
+      introHTML += '</p>';
+    }
+    introText.innerHTML = introHTML;
+    
+    // Show match history as bracket
+    let html = '';
+    
+    if (data.matchHistory && data.matchHistory.length > 0) {
+      html += '<div style="font-size: 14px; font-weight: 600; color: #e0e0e0; margin-bottom: 16px;">Tournament Results</div>';
+      
+      data.matchHistory.forEach((match, i) => {
+        const winnerProf = PROFILES[match.winner.id];
+        const loserProf = PROFILES[match.loser.id];
+        
+        html += '<div style="display: flex; align-items: center; gap: 12px; margin: 12px 0; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px;">';
+        
+        // Question number
+        html += '<div style="background: rgba(139,92,246,0.2); color: #a78bfa; font-weight: 700; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px;">Q' + (i+1) + '</div>';
+        
+        // Winner
+        html += '<div style="flex: 1; display: flex; align-items: center; gap: 8px;">';
+        if (winnerProf?.colors) {
+          winnerProf.colors.forEach(c => {
+            html += '<span class="mana-symbol mana-' + c + '" style="width: 20px; height: 20px; font-size: 10px;">' + c + '</span>';
+          });
+        }
+        html += '<span style="color: #10B981; font-weight: 600;">' + (winnerProf?.name || match.winner.id) + '</span>';
+        html += '<span style="color: #10B981;">✓</span>';
+        html += '</div>';
+        
+        // vs
+        html += '<div style="color: #808090; font-size: 12px;">vs</div>';
+        
+        // Loser
+        html += '<div style="flex: 1; display: flex; align-items: center; gap: 8px; opacity: 0.6;">';
+        if (loserProf?.colors) {
+          loserProf.colors.forEach(c => {
+            html += '<span class="mana-symbol mana-' + c + '" style="width: 20px; height: 20px; font-size: 10px;">' + c + '</span>';
+          });
+        }
+        html += '<span style="color: #a0a0a0;">' + (loserProf?.name || match.loser.id) + '</span>';
+        html += '</div>';
+        
+        html += '</div>';
+      });
+    }
+    
+    // Final standings
+    html += '<div style="margin-top: 24px;">';
+    html += '<div style="font-size: 14px; font-weight: 600; color: #e0e0e0; margin-bottom: 16px;">Final Standings</div>';
+    
+    data.allScores.forEach((c, idx) => {
+      const isWinner = c.id === state.result.identity;
+      const prof = PROFILES[c.id];
+      
+      html += '<div style="display: flex; align-items: center; gap: 12px; margin: 8px 0; padding: 12px; background: rgba(' + (isWinner ? '16,185,129' : '255,255,255') + ', 0.05); border: 1px solid rgba(' + (isWinner ? '16,185,129' : '255,255,255') + ', 0.1); border-radius: 8px;">';
+      
+      // Rank
+      html += '<div style="font-weight: 700; color: ' + (isWinner ? '#10B981' : '#808090') + '; font-size: 16px;">#' + (idx + 1) + '</div>';
+      
+      // Identity
+      html += '<div style="flex: 1; display: flex; align-items: center; gap: 8px;">';
+      if (prof?.colors) {
+        prof.colors.forEach(col => {
+          html += '<span class="mana-symbol mana-' + col + '" style="width: 22px; height: 22px; font-size: 11px;">' + col + '</span>';
+        });
+      }
+      html += '<span style="font-weight: ' + (isWinner ? '700' : '500') + '; color: ' + (isWinner ? '#e0e0e0' : '#a0a0a0') + ';">' + (prof?.name || c.id) + '</span>';
+      if (isWinner) html += '<span style="color: #10B981; margin-left: 8px; font-size: 12px; font-weight: 600;">WINNER</span>';
+      html += '</div>';
+      
+      // Record
+      html += '<div style="font-weight: 600; color: ' + (isWinner ? '#10B981' : '#808090') + ';">' + c.wins + 'W-' + c.losses + 'L</div>';
+      
+      html += '</div>';
     });
-    html += '<span style="font-size: 13px; font-weight: 600; color: ' + (isWinner ? '#10B981' : '#e0e0e0') + ';">' + score.id + '</span>';
-    if (isWinner) {
-      html += '<span style="font-size: 10px; background: rgba(16, 185, 129, 0.3); color: #10B981; padding: 2px 6px; border-radius: 4px; font-weight: 700;">WINNER</span>';
+    
+    html += '</div>';
+    
+    barsDiv.innerHTML = html;
+    
+    // Explanation
+    if (explanationDiv) {
+      let expHTML = '<div style="padding: 16px; background: rgba(16, 185, 129, 0.05); border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.2); margin-top: 16px;">';
+      expHTML += '<p style="font-size: 13px; color: #d0d0d0; margin: 0; line-height: 1.6;">';
+      const winner = data.allScores[0];
+      expHTML += '<strong style="color: #10B981;">' + state.result.identity + '</strong> finished with the best record (' + winner.wins + 'W-' + winner.losses + 'L)';
+      if (data.runnerUp) {
+        expHTML += ', ahead of <strong>' + data.runnerUp.id + '</strong> (' + data.runnerUp.wins + 'W-' + data.runnerUp.losses + 'L).';
+      } else {
+        expHTML += '.';
+      }
+      expHTML += '</p>';
+      expHTML += '</div>';
+      explanationDiv.innerHTML = expHTML;
     }
-    html += '</div>';
-    html += '<span style="font-size: 12px; color: #a0a0b0;">Avg rank: ' + avgRank + '</span>';
-    html += '</div>';
-    html += '</div>';
-  });
-  
-  barsDiv.innerHTML = html;
-  
-  // Explanation
-  if (explanationDiv) {
-    let expHTML = '<div style="padding: 16px; background: rgba(16, 185, 129, 0.05); border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.2); margin-top: 16px;">';
-    expHTML += '<p style="font-size: 13px; color: #d0d0d0; margin: 0; line-height: 1.6;">';
-    expHTML += '<strong style="color: #10B981;">' + state.result.identity + '</strong> had the best average rank (' + data.allScores[0].avgRank.toFixed(2) + '), ';
-    if (data.runnerUp) {
-      expHTML += 'beating <strong>' + data.runnerUp.id + '</strong> (avg rank ' + data.runnerUp.avgRank.toFixed(2) + ') ';
-      expHTML += 'by a margin of ' + data.gap.toFixed(2) + ' positions.';
+    
+  } else {
+    // Legacy ranking format display
+    const numQuestions = state.qTot || 4;
+    questionCount.textContent = numQuestions + ' scenario rankings';
+    
+    // Explain what was tested
+    let introHTML = '<p style="margin-bottom: 12px;">';
+    introHTML += 'After calibration, we identified <strong>' + data.allScores.length + ' candidate identities</strong>. ';
+    introHTML += 'You ranked ' + numQuestions + ' workplace scenarios to determine which approach felt most natural.';
+    introHTML += '</p>';
+    introText.innerHTML = introHTML;
+    
+    // Show candidate rankings
+    const barColors = {W:'#FDE047', U:'#93C5FD', B:'#D1D5DB', R:'#FCA5A5', G:'#6EE7B7'};
+    let html = '<div style="font-size: 14px; font-weight: 600; color: #e0e0e0; margin-bottom: 16px;">Final Rankings</div>';
+    
+    data.allScores.forEach((score, idx) => {
+      const isWinner = score.id === state.result.identity;
+      const colors = PROFILES[score.id]?.colors || [];
+      const avgRank = score.avgRank?.toFixed(1) || 'N/A';
+      
+      html += '<div style="margin: 8px 0; padding: 12px; background: ' + (isWinner ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255,255,255,0.03)') + '; border-radius: 8px; border: ' + (isWinner ? '2px solid rgba(16, 185, 129, 0.4)' : '1px solid transparent') + ';">';
+      html += '<div style="display: flex; justify-content: space-between; align-items: center;">';
+      html += '<div style="display: flex; align-items: center; gap: 8px;">';
+      colors.forEach(c => {
+        html += '<span class="mana-symbol mana-' + c + '" style="width: 20px; height: 20px; font-size: 10px;">' + c + '</span>';
+      });
+      html += '<span style="font-size: 13px; font-weight: 600; color: ' + (isWinner ? '#10B981' : '#e0e0e0') + ';">' + score.id + '</span>';
+      if (isWinner) {
+        html += '<span style="font-size: 10px; background: rgba(16, 185, 129, 0.3); color: #10B981; padding: 2px 6px; border-radius: 4px; font-weight: 700;">WINNER</span>';
+      }
+      html += '</div>';
+      html += '<span style="font-size: 12px; color: #a0a0b0;">Avg rank: ' + avgRank + '</span>';
+      html += '</div>';
+      html += '</div>';
+    });
+    
+    barsDiv.innerHTML = html;
+    
+    // Explanation
+    if (explanationDiv) {
+      let expHTML = '<div style="padding: 16px; background: rgba(16, 185, 129, 0.05); border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.2); margin-top: 16px;">';
+      expHTML += '<p style="font-size: 13px; color: #d0d0d0; margin: 0; line-height: 1.6;">';
+      expHTML += '<strong style="color: #10B981;">' + state.result.identity + '</strong> had the best average rank (' + (data.allScores[0]?.avgRank?.toFixed(2) || 'N/A') + '), ';
+      if (data.runnerUp) {
+        expHTML += 'beating <strong>' + data.runnerUp.id + '</strong> (avg rank ' + (data.runnerUp.avgRank?.toFixed(2) || 'N/A') + ') ';
+        expHTML += 'by a margin of ' + (data.gap?.toFixed(2) || 'N/A') + ' positions.';
+      }
+      expHTML += '</p>';
+      expHTML += '</div>';
+      explanationDiv.innerHTML = expHTML;
     }
-    expHTML += '</p>';
-    expHTML += '</div>';
-    explanationDiv.innerHTML = expHTML;
   }
 }
 
@@ -6360,7 +6978,7 @@ function getStressPatterns(id) {
     'SELESNYA': ['Enables dysfunction through acceptance', 'Sacrifices too much for false harmony', 'Avoids all necessary conflict', 'Toxic positivity', 'Won\'t address real problems'],
     'ORZHOV': ['Increasingly extractive and exploitative', 'Rigid hierarchy enforcement', 'Debt collection mentality', 'Political manipulation intensifies', 'Everything becomes transactional'],
     'GOLGARI': ['Fatalistic acceptance of decay', 'Exploits death and failure coldly', 'Patient to point of complete passivity', 'Cynical about all improvement', 'Waiting for things to die'],
-    'SIMIC': ['Over-optimizes organic systems destructively', 'Experiments on people without consent', 'Perfectionism paralysis', 'Loses sight of "good enough"', 'Hubris about improvement capability'],
+    'SIMIC': ['Over-optimises organic systems destructively', 'Experiments on people without consent', 'Perfectionism paralysis', 'Loses sight of "good enough"', 'Hubris about improvement capability'],
     'BOROS': ['Zealous to dangerous fault', 'Aggressively enforces "right" way', 'Burnout from unsustainable intensity', 'Rigid about honor code', 'Cult-like fervor'],
     'MONO-W': ['Rigidly rule-bound', 'Excessive self-sacrifice', 'Martyr complex', 'Slow consensus-seeking', 'Judges others harshly for rule-breaking'],
     'MONO-U': ['Analysis paralysis worsens', 'Condescending intellectualism', 'Avoids action completely', 'Designs over-complex solutions', 'Dismisses all emotions'],
@@ -6536,7 +7154,9 @@ function showResults() {
   // Calculate total questions across all rounds
   const r1Questions = state.responses?.length || 30;
   const r2Questions = state.calibrationAnswers?.length || 0;
-  const r3Questions = state.result?.round3Data?.allScores ? 4 : 0; // 4 ranking scenarios
+  // R3 questions: use tournament match count if available, otherwise fall back to 4
+  const r3Questions = state.result?.round3Data?.matchHistory?.length || 
+                      (state.result?.round3Data?.allScores ? 4 : 0);
   const totalQuestions = r1Questions + r2Questions + r3Questions;
   document.getElementById('tot-q').textContent = totalQuestions;
   
