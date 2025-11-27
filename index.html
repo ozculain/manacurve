@@ -3504,10 +3504,29 @@ function generateCandidatesGapBased(analysis) {
   const MIN_CANDIDATES = 4;
   const MAX_CANDIDATES = 6;
   
-  console.log('=== REFACTORED CANDIDATE GENERATION ===');
+  console.log('=== GAP-BASED CANDIDATE GENERATION ===');
   console.log('Sorted:', sorted.map(c => `${c.color}:${Math.round(c.winRate*100)}%`).join(', '));
   
-  // Step 1: Generate ALL plausible candidates
+  // Step 1: Analyze gap structure to find natural cluster size
+  // gaps[i] = difference between sorted[i] and sorted[i+1]
+  const gapAnalysis = [];
+  for (let i = 0; i < sorted.length - 1; i++) {
+    gapAnalysis.push({
+      position: i + 1, // gap after position i+1 (1-indexed)
+      gap: sorted[i].winRate - sorted[i + 1].winRate,
+      from: sorted[i].color,
+      to: sorted[i + 1].color
+    });
+  }
+  
+  // Find the largest gap - this suggests where the "natural break" is
+  const largestGap = gapAnalysis.reduce((max, g) => g.gap > max.gap ? g : max, gapAnalysis[0]);
+  const naturalClusterSize = largestGap.position; // e.g., if gap at position 4→5, cluster is 4
+  
+  console.log('Gap analysis:', gapAnalysis.map(g => `${g.from}→${g.to}: ${Math.round(g.gap*100)}%`).join(', '));
+  console.log(`Largest gap: ${Math.round(largestGap.gap*100)}% after position ${largestGap.position} (${largestGap.from}→${largestGap.to})`);
+  console.log(`Natural cluster size: ${naturalClusterSize}`);
+  
   const allCandidates = [];
   const seen = new Set();
   
@@ -3518,25 +3537,12 @@ function generateCandidatesGapBased(analysis) {
     }
   };
   
-  // Calculate key metrics
-  const topColor = sorted[0].color;
-  const topRate = sorted[0].winRate;
-  const secondRate = sorted[1]?.winRate || 0;
-  const thirdRate = sorted[2]?.winRate || 0;
-  const topGap = topRate - secondRate;
-  const top3Spread = topRate - thirdRate;
-  const top4Spread = topRate - (sorted[3]?.winRate || 0);
-  const totalSpread = topRate - (sorted[4]?.winRate || 0);
-  
-  console.log(`Top gap: ${Math.round(topGap*100)}%, Top3 spread: ${Math.round(top3Spread*100)}%`);
-  
-  // MONO colors: Always add top 3, plus top 2 if gap is significant
+  // Step 2: Always add MONOs for top 3 colors
   sorted.slice(0, 3).forEach((c, idx) => {
-    const reasoning = idx === 0 ? `Top color` : `#${idx + 1} color`;
-    addCandidate('MONO-' + c.color, c.winRate, reasoning, 'MONO');
+    addCandidate('MONO-' + c.color, c.winRate, `#${idx + 1} color`, 'MONO');
   });
   
-  // GUILDS: Add guilds formed by top 4 colors
+  // Step 3: Add guilds formed by top 4 colors
   const top4Colors = sorted.slice(0, 4).map(c => c.color);
   for (let i = 0; i < top4Colors.length; i++) {
     for (let j = i + 1; j < top4Colors.length; j++) {
@@ -3551,32 +3557,56 @@ function generateCandidatesGapBased(analysis) {
     }
   }
   
-  // THREE-COLOR: Add if top 3 are clustered (within 20%)
-  if (top3Spread < 0.20) {
+  // Step 4: Add multi-color based on natural cluster size AND adjacent sizes
+  // This ensures we don't miss identities due to noise in the data
+  
+  // If natural cluster suggests 3+ colors, add three-color
+  if (naturalClusterSize >= 3) {
     const top3 = sorted.slice(0, 3).map(c => c.color);
     const threeKey = top3.sort().join('');
     const threeId = getThree(threeKey);
     if (threeId) {
       const score = sorted.slice(0, 3).reduce((sum, c) => sum + c.winRate, 0) / 3;
-      addCandidate(threeId, score, 'Top 3 clustered', 'THREE');
+      addCandidate(threeId, score, `Natural cluster includes 3+ (gap at ${naturalClusterSize})`, 'THREE');
     }
   }
   
-  // FOUR-COLOR: Add if top 4 are close and 5th is clearly out
-  const bottomGap = (sorted[3]?.winRate || 0) - (sorted[4]?.winRate || 0);
-  if (top4Spread < 0.18 && bottomGap > 0.12) {
+  // If natural cluster suggests 4+ colors, add four-color
+  if (naturalClusterSize >= 4) {
     const absentColor = sorted[4].color;
     const fourId = getFour(absentColor);
     if (fourId) {
       const score = sorted.slice(0, 4).reduce((sum, c) => sum + c.winRate, 0) / 4;
-      addCandidate(fourId, score, `No ${absentColor}`, 'FOUR');
+      addCandidate(fourId, score, `Natural cluster is 4 (${absentColor} clearly out)`, 'FOUR');
     }
   }
   
-  // FIVE-COLOR: Add if all colors balanced
-  if (totalSpread < 0.12) {
+  // ALSO add three-color if 3rd color is meaningfully active (>40%), even if gap structure doesn't suggest it
+  // This catches cases where gaps are evenly distributed
+  if (sorted[2]?.winRate >= 0.40 && !seen.has(getThree(sorted.slice(0, 3).map(c => c.color).sort().join('')))) {
+    const top3 = sorted.slice(0, 3).map(c => c.color);
+    const threeKey = top3.sort().join('');
+    const threeId = getThree(threeKey);
+    if (threeId) {
+      const score = sorted.slice(0, 3).reduce((sum, c) => sum + c.winRate, 0) / 3;
+      addCandidate(threeId, score, `3rd color active (${Math.round(sorted[2].winRate*100)}%)`, 'THREE');
+    }
+  }
+  
+  // ALSO add four-color if 4th color is active (>30%) and 5th is clearly out (<25%)
+  if (sorted[3]?.winRate >= 0.30 && (sorted[4]?.winRate || 0) < 0.25) {
+    const absentColor = sorted[4].color;
+    const fourId = getFour(absentColor);
+    if (fourId && !seen.has(fourId)) {
+      const score = sorted.slice(0, 4).reduce((sum, c) => sum + c.winRate, 0) / 4;
+      addCandidate(fourId, score, `4th color active, 5th out (${sorted[4].color}: ${Math.round((sorted[4]?.winRate || 0)*100)}%)`, 'FOUR');
+    }
+  }
+  
+  // Five-color: add if all colors are reasonably balanced (largest gap < 15%)
+  if (largestGap.gap < 0.15) {
     const score = sorted.reduce((sum, c) => sum + c.winRate, 0) / 5;
-    addCandidate('WUBRG', score, 'All balanced', 'FIVE');
+    addCandidate('WUBRG', score, 'No significant gaps', 'FIVE');
   }
   
   // Step 2: Sort by score
