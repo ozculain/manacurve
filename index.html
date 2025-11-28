@@ -4952,10 +4952,36 @@ function finishRound3Tournament() {
   console.log('Questions asked:', result.totalQuestions);
   console.log('Match history:', result.matchHistory.map(m => `${m.winner.id} > ${m.loser.id}`).join(', '));
   
+  // Build allResults from tournament candidates, sorted by performance
+  const sortedCandidates = [...state.tournament.candidates].sort((a, b) => {
+    // Primary: win-loss differential
+    const aDiff = a.wins - a.losses;
+    const bDiff = b.wins - b.losses;
+    if (bDiff !== aDiff) return bDiff - aDiff;
+    // Secondary: win rate
+    const aRate = a.wins / Math.max(1, a.wins + a.losses);
+    const bRate = b.wins / Math.max(1, b.wins + b.losses);
+    if (bRate !== aRate) return bRate - aRate;
+    // Tertiary: original combined score
+    return (b.combinedScore || 0) - (a.combinedScore || 0);
+  });
+  
+  const allResults = sortedCandidates.map(c => [c.id, {
+    s1: c.combinedScore || 0,
+    s2: (c.wins - c.losses + 2) / 4, // Normalize tournament performance to 0-1
+    combined: c.combinedScore || 0,
+    wins: c.wins,
+    losses: c.losses,
+    isTournament: true
+  }]);
+  
+  console.log('allResults for display:', allResults.map(a => `${a[0]}(${a[1].wins}W-${a[1].losses}L)`).join(', '));
+  
   // Store result in format compatible with existing results display
   state.result = {
     identity: result.winner.id,
     confidence: result.confidence,
+    allResults: allResults,
     round3Data: {
       allScores: state.tournament.candidates.map(c => ({
         id: c.id,
@@ -7186,7 +7212,7 @@ function showResults() {
   document.getElementById('conf-exp').textContent = expl[state.result.confidence];
   
   // Generate identity explanation
-  const sorted = state.activationSorted;
+  const sorted = state.activationSorted || [];
   const id = state.result.identity;
   const idExp = generateIdentityExplanation(id, sorted);
   document.getElementById('identity-exp').textContent = idExp;
@@ -7211,6 +7237,7 @@ function showResults() {
   
   // Show alternatives for LOW or MODERATE confidence if borderline
   const allResults = state.result.allResults || [];
+  // sorted already defined above
   console.log('=== DISPLAYING ALTERNATIVES ===');
   console.log('Confidence:', state.result.confidence);
   console.log('allResults:', allResults.map(a => a[0]).join(', '));
@@ -7338,17 +7365,17 @@ function showResults() {
         guidanceDiv.innerHTML = `
           <div style="font-size: 16px; font-weight: 600; color: #F59E0B; margin-bottom: 12px;">⚠️ Pattern Not Clear</div>
           <div style="font-size: 14px; color: #c0c0d0; line-height: 1.6;">
-            Your color distribution doesn't show strong clustering. You might be genuinely balanced across approaches,
+            Your colour distribution doesn't show strong clustering. You might be genuinely balanced across approaches,
             or the assessment questions may not have captured enough nuance.
             <br><br>
-            <strong>Your result is still valid</strong> — consider the alternatives below to see if any resonate more strongly.
+            <strong>Your result is still valid</strong> — this identity represents your strongest signal, even if confidence is lower.
           </div>
         `;
       } else {
         guidanceDiv.innerHTML = `
           <div style="font-size: 14px; color: #c0c0d0; line-height: 1.6;">
             Your pattern points most strongly to <strong>${state.result.identity}</strong>, 
-            though confidence is moderate. Review the alternatives below to see if another pattern fits better.
+            though confidence is moderate. The balance between your top colours may shift by context.
           </div>
         `;
       }
