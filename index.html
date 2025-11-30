@@ -871,7 +871,7 @@ body {
       </div>
       
       <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.1);">
-        <div style="font-size: 13px; font-weight: 600; color: #a0a0b0; margin-bottom: 8px;">Why this identity:</div>
+        <div style="font-size: 13px; font-weight: 600; color: #a0a0b0; margin-bottom: 8px;">What drives you:</div>
         <p style="font-size: 14px; line-height: 1.6; color: #d0d0d0;" id="identity-exp">Explanation</p>
       </div>
     </div>
@@ -2290,6 +2290,7 @@ const PROFILES = {
     name:'MONO-WHITE',
     tag:'Peace Through Structure',
     colors:['W'],
+    philosophy:"You believe the group matters more than any individual. Rules exist to protect everyone, and fairness sometimes requires subordinating personal desires to collective good.",
     desc:"You're someone who believes in community, fairness, and moral order. You build systems that protect everyone and ensure justice.",
     pubBanter:"You're an absolute stickler who bogs down every decision with rule-checking. Can we just make a decision without consulting the entire team?",
     cmd:'Heliod, God of the Sun',
@@ -2302,6 +2303,7 @@ const PROFILES = {
     name:'MONO-BLUE',
     tag:'Perfection Through Knowledge',
     colors:['U'],
+    philosophy:"You believe there's always a better way, and finding it requires patience and rigorous thinking. Emotion clouds judgment; knowledge illuminates the path.",
     desc:"You're someone who believes knowledge and analysis lead to optimal outcomes. You solve problems through systematic thinking and continuous improvement.",
     pubBanter:"You're an insufferable know-it-all. It's always Well actually before every decision. Can we stop analyzing and just DO something?",
     cmd:'Urza, Lord High Artificer',
@@ -2314,6 +2316,7 @@ const PROFILES = {
     name:'MONO-BLACK',
     tag:'Power Through Agency',
     colors:['B'],
+    philosophy:"You believe everyone acts in their own interest—you're just honest about it. Power isn't evil; it's the ability to shape your own fate.",
     desc:"You're someone who believes in pragmatic self-interest and making hard calls. You achieve goals through clear-eyed assessment of reality.",
     pubBanter:"You're ruthlessly pragmatic and everything is transactional. Does everything have to be a calculation about what you get out of it?",
     cmd:"K'rrik, Son of Yawgmoth",
@@ -2326,6 +2329,7 @@ const PROFILES = {
     name:'MONO-RED',
     tag:'Freedom Through Action',
     colors:['R'],
+    philosophy:"You believe life is too short for hesitation. Authentic action matters more than perfect plans. Feel it, do it, deal with consequences later.",
     desc:"You're someone who believes in authentic expression and immediate action. You trust your instincts and act with passion.",
     pubBanter:"You're a complete loose cannon. Could you think about things for like five minutes first? We're always cleaning up after your impulsive decisions.",
     cmd:'Krenko, Mob Boss',
@@ -2338,6 +2342,7 @@ const PROFILES = {
     name:'MONO-GREEN',
     tag:'Growth Through Acceptance',
     colors:['G'],
+    philosophy:"You believe nature got it right the first time. What works, works. Growth comes from accepting your place in the larger system, not fighting against it.",
     desc:"You're someone who believes in natural growth, patience, and respecting what works. You trust proven patterns and organic development.",
     pubBanter:"You're a stubborn bulldozer who resists every change. Your entire argument is We've always done it this way. That's it. That's the whole argument.",
     cmd:'Omnath, Locus of Mana',
@@ -2350,6 +2355,7 @@ const PROFILES = {
     name:'AZORIUS',
     tag:'Order Through Knowledge',
     colors:['W','U'],
+    philosophy:"You believe the best outcomes come from fair systems applied consistently. Rules aren't constraints—they're the foundation of civilisation.",
     desc:"You're someone who combines moral order with logical perfection for systematic control. You build comprehensive rules fairly and efficiently applied.",
     pubBanter:"They become the walking pile of red tape who will cite chapter and verse of the rulebook to veto anything fun, turning even a trivial task into a drawn-out committee meeting that could have been an email.",
     cmd:'Grand Arbiter Augustin IV',
@@ -2362,6 +2368,7 @@ const PROFILES = {
     name:'SELESNYA',
     tag:'Community Through Nature',
     colors:['W','G'],
+    philosophy:"You believe people flourish when they belong to something larger than themselves. Community and nature know how to grow; your job is to nurture, not force.",
     desc:"You're someone who combines organized community with organic interconnection for living harmony. Communities that are both alive and coordinated.",
     pubBanter:"You're an overbearing team-builder. Can we fire anyone? Ever? Every conflict needs healing and patience. Every 1-on-1 becomes a team retreat.",
     cmd:"Trostani, Selesnya's Voice",
@@ -2374,6 +2381,7 @@ const PROFILES = {
     name:'ORZHOV',
     tag:'Structure Through Power',
     colors:['W','B'],
+    philosophy:"You believe structure and ambition aren't opposites. Systems should reward those who maintain them. Hierarchy creates order; order creates opportunity.",
     desc:"You're someone who combines systematic structure with self-interested ambition for organized extraction. Fair hierarchies serving strategic goals.",
     pubBanter:"They become a soul-sucking bureaucrat in a fancy suit, the type who enforces every policy to the letter when it benefits them, extorts favours under the guise of procedure, and generally taxes everyone time and energy like a one-person corporate vampire.",
     cmd:'Obzedat, Ghost Council',
@@ -2386,6 +2394,7 @@ const PROFILES = {
     name:'DIMIR',
     tag:'Intelligence Through Control',
     colors:['U','B'],
+    philosophy:"You believe knowledge is the ultimate advantage. Everyone has hidden motives—you just pay attention. The best move is the one nobody sees coming.",
     desc:"You're someone who combines knowledge-seeking with power-seeking to weaponize information. You win through patient strategic positioning.",
     pubBanter:"You're an information hoarder. Why do you know that? Why won't you share what you know? Always playing 4D chess when we're playing checkers.",
     cmd:"Yuriko, the Tiger's Shadow",
@@ -2398,6 +2407,7 @@ const PROFILES = {
     name:'IZZET',
     tag:'Discovery Through Experimentation',
     colors:['U','R'],
+    philosophy:"You believe understanding comes through experimentation, not just observation. You'd rather try something bold and fail than theorise safely from the sidelines.",
     desc:"You're someone who combines analytical curiosity with experimental courage for mad science. You innovate through bold testing.",
     pubBanter:"You're a scatterbrained mad scientist. Did you test this? At all? You experiment on production and yell SCIENCE when it breaks.",
     cmd:'Niv-Mizzet, Parun',
@@ -2410,6 +2420,7 @@ const PROFILES = {
     name:'GRUUL',
     tag:'Power Through Instinct',
     colors:['R','G'],
+    philosophy:"You believe civilisation overcomplicates everything. Trust your instincts, apply overwhelming force, let weak ideas die. Simplicity is strength.",
     desc:"You're someone who combines passionate action with primal strength for unstoppable force. You trust gut instinct and apply overwhelming power.",
     pubBanter:"You're a rampaging force of nature. Have you considered that not everything needs overwhelming force? Subtlety exists. You wouldn't know it from watching you.",
     cmd:'Borborygmos Enraged',
@@ -2422,6 +2433,7 @@ const PROFILES = {
     name:'RAKDOS',
     tag:'Freedom Through Chaos',
     colors:['B','R'],
+    philosophy:"You believe rules are for people afraid to live. If you want something, take it. If it feels right, do it. Regret is for people who didn't commit.",
     desc:"You're someone who combines self-interest with passionate action for uninhibited pursuit. You do what you want without apology.",
     pubBanter:"You're the chaos-loving prankster who treats coworkers like an unwitting audience for destructive antics, gleefully burning down hours of work for the LOLs while everyone else scrambles to put out the fires.",
     cmd:'Rakdos, Lord of Riots',
@@ -2434,6 +2446,7 @@ const PROFILES = {
     name:'GOLGARI',
     tag:'Growth Through Decay',
     colors:['B','G'],
+    philosophy:"You believe nothing is wasted. Death feeds life, failure teaches success. The cycle continues regardless of your feelings about it—work with it, not against it.",
     desc:"You're someone who combines use of death with acceptance of cycles for sustainable extraction. You harvest without killing the host.",
     pubBanter:"You're a morbid hoarder. Why is everything a metaphor about death and compost? You view layoffs as natural cycles which is unsettling.",
     cmd:'Meren of Clan Nel Toth',
@@ -2446,6 +2459,7 @@ const PROFILES = {
     name:'SIMIC',
     tag:'Evolution Through Design',
     colors:['G','U'],
+    philosophy:"You believe evolution never stops. Everything can be improved, adapted, optimised. Nature provides the template; intelligence accelerates the process.",
     desc:"You're someone who combines organic growth with optimization for directed evolution. You carefully improve natural systems.",
     pubBanter:"You're an overzealous lab geek. Can we ship something that's 80 percent instead of waiting for perfect? You optimise everything to death.",
     cmd:'Prime Speaker Vannifar',
@@ -2458,6 +2472,7 @@ const PROFILES = {
     name:'BOROS',
     tag:'Justice Through Action',
     colors:['R','W'],
+    philosophy:"You believe some things are worth fighting for. Justice requires action, not just principles. When something matters, you show up and commit fully.",
     desc:"You're someone who combines passionate action with moral purpose for zealous execution. You fight passionately for just causes.",
     pubBanter:"You're an overzealous drill sergeant. Not everything is a crusade. You treat quarterly planning like D-Day. The intensity is exhausting.",
     cmd:'Aurelia, the Warleader',
@@ -2470,6 +2485,7 @@ const PROFILES = {
     name:'BANT',
     tag:'Harmony Through Structure',
     colors:['W','U','G'],
+    philosophy:"You believe civilisation and nature aren't opposites. Systems should evolve organically, communities should be fair, and growth should be sustainable.",
     desc:"You're someone who combines order, analysis, and natural growth for harmonious civilization. Patient coordinated excellence.",
     pubBanter:"They become the sanctimonious project manager who wraps micromanagement in a smiley for the good of the team blanket, relentlessly organizing, scheduling team yoga sessions, and smothering any creative spark under so many best practices and polite check-ins that you long for one un-scheduled hour to actually get work done.",
     cmd:'Rafiq of the Many',
@@ -2482,6 +2498,7 @@ const PROFILES = {
     name:'ESPER',
     tag:'Perfection Through Control',
     colors:['W','U','B'],
+    philosophy:"You believe optimal outcomes require both fair systems and strategic advantage. The best frameworks serve everyone while positioning you to lead them.",
     desc:"You're someone who combines order, analysis, and ruthless power for cold calculated dominance. Excellence without emotion or nature.",
     pubBanter:"You're a high-handed micromanager. Do you feel anything? You optimise everything including human relationships. Spreadsheets have feelings people don't.",
     cmd:'Oloro, Ageless Ascetic',
@@ -2494,6 +2511,7 @@ const PROFILES = {
     name:'GRIXIS',
     tag:'Power Through Ruthless Action',
     colors:['U','B','R'],
+    philosophy:"You believe intelligence, ambition, and aggression together are unstoppable. Analyse the situation, position yourself, strike decisively—and don't apologise for winning.",
     desc:"You're someone who combines intelligence, ruthlessness, and decisive action for amoral competence. Smart and ruthless.",
     pubBanter:"You're a cackling instigator. Are you the villain? You create crises to solve them dramatically. The laugh doesn't help.",
     cmd:'Nekusar, the Mindrazer',
@@ -2506,6 +2524,7 @@ const PROFILES = {
     name:'JUND',
     tag:'Survival Through Hunger',
     colors:['B','R','G'],
+    philosophy:"You believe survival rewards the ruthless and the adapted. Trust your predatory instincts, act decisively, let natural selection handle the rest.",
     desc:"You're someone who combines predation, passion, and natural selection for brutal survival. The food chain incarnate.",
     pubBanter:"You're an office predator. Is everything a competition? You turn meetings into cage matches and dominate every conversation.",
     cmd:'Prossh, Skyraider of Kher',
@@ -2518,6 +2537,7 @@ const PROFILES = {
     name:'NAYA',
     tag:'Power Through Community',
     colors:['R','G','W'],
+    philosophy:"You believe strength comes from community aligned with natural purpose. Fight for your people, trust your instincts, grow together.",
     desc:"You're someone who combines passion, strength, and community for exuberant collective power. Big hearts, big ideas.",
     pubBanter:"You're an overenthusiastic steamroller. Why does every task need to be an EPIC ADVENTURE? We just needed to update a spreadsheet.",
     cmd:'Samut, Voice of Dissent',
@@ -2530,6 +2550,7 @@ const PROFILES = {
     name:'ABZAN',
     tag:'Endurance Through Tradition',
     colors:['W','B','G'],
+    philosophy:"You believe lasting power comes from patience and pragmatism within community. Invest in what endures, cut what doesn't, protect what matters.",
     desc:"You're someone who combines community, pragmatism, and patience for lasting institutions. Traditional power that endures.",
     pubBanter:"You're an immovable curmudgeon. You block every new idea with We've always done it this way. Also you definitely keep a ledger of favours.",
     cmd:'Anafenza, the Foremost',
@@ -2542,6 +2563,7 @@ const PROFILES = {
     name:'JESKAI',
     tag:'Excellence Through Discipline',
     colors:['U','R','W'],
+    philosophy:"You believe innovation serves the greater good. Bold experimentation within ethical frameworks creates breakthroughs that benefit everyone.",
     desc:"You're someone who combines knowledge, passion, and order for disciplined excellence. Mastery through practice.",
     pubBanter:"You're a pretentious prodigy. Everything we do is basic apparently. You roll your eyes at our approach constantly. Very smug.",
     cmd:'Narset, Enlightened Master',
@@ -2554,6 +2576,7 @@ const PROFILES = {
     name:'SULTAI',
     tag:'Growth Through Exploitation',
     colors:['B','G','U'],
+    philosophy:"You believe patient analysis and strategic positioning create sustainable advantage. Understand the cycles, position yourself within them, extract value over time.",
     desc:"You're someone who combines ruthlessness, patience, and intelligence for patient empire-building. You cultivate power.",
     pubBanter:"You're a slimy empire-builder. You co-opt everyone's work as fertilizer for your success. Very friendly about it though. Very slimy.",
     cmd:'Sidisi, Brood Tyrant',
@@ -2566,6 +2589,7 @@ const PROFILES = {
     name:'MARDU',
     tag:'Victory Through Sacrifice',
     colors:['R','W','B'],
+    philosophy:"You believe decisive action within hierarchical structure wins. Lead from the front, reward loyalty, crush opposition, move fast.",
     desc:"You're someone who combines passion, order, and ruthlessness for relentless execution. Glory through any means.",
     pubBanter:"You're a tyrannical taskmaster. Every deadline is life or death. You glorify burnout and will flip tables to make us move faster.",
     cmd:'Queen Marchesa',
@@ -2578,6 +2602,7 @@ const PROFILES = {
     name:'TEMUR',
     tag:'Power Through Adaptation',
     colors:['G','U','R'],
+    philosophy:"You believe wild creativity and raw power combine best when guided by understanding. Experiment boldly, trust instincts, learn from nature's patterns.",
     desc:"You're someone who combines strength, intelligence, and passion for adaptive innovation. Wild creativity.",
     pubBanter:"You're an erratic adrenaline junkie. The pivot whiplash is real. We're just constantly adapting to whatever idea pounced out this week.",
     cmd:'Surrak Dragonclaw',
@@ -2590,6 +2615,7 @@ const PROFILES = {
     name:'FOUR-COLOR (No Red)',
     tag:'Perfection Without Passion',
     colors:['W','U','B','G'],
+    philosophy:"You believe sustainable success requires patience, not passion. Analyse carefully, position strategically, build systematically, grow naturally. Impulse just gets in the way.",
     desc:"You're someone who combines order, knowledge, ambition, and growth without passion. Patient calculated excellence.",
     pubBanter:"You're an emotionless overlord running things like a spreadsheet simulation. You dismiss any passionate idea as inefficient. Joyless.",
     cmd:"Atraxa, Praetors' Voice",
@@ -2602,6 +2628,7 @@ const PROFILES = {
     name:'FOUR-COLOR (No Green)',
     tag:'Innovation Without Nature',
     colors:['W','U','B','R'],
+    philosophy:"You believe progress comes from transcending natural limitations. Tradition is a starting point, not a destination. Build something new.",
     desc:"You're someone who combines order, knowledge, ambition, and passion without patience. Artificial perfection.",
     pubBanter:"You're an over-engineering fanatic. Simple solution? Nope. Needs seventeen moving parts that will require emergency fixes in two weeks.",
     cmd:'Breya, Etherium Shaper',
@@ -2614,6 +2641,7 @@ const PROFILES = {
     name:'FOUR-COLOR (No White)',
     tag:'Power Without Morality',
     colors:['U','B','R','G'],
+    philosophy:"You believe effectiveness matters more than morality. Understand the system, exploit opportunities, act decisively, adapt naturally. Ethics just slow you down.",
     desc:"You're someone who combines knowledge, ambition, passion, and growth without morality. Amoral excellence.",
     pubBanter:"You're an unmanageable rebel. Rules are for suckers apparently. You hijack projects for fun and leave smoking wreckage everywhere.",
     cmd:'Yidris, Maelstrom Wielder',
@@ -2626,6 +2654,7 @@ const PROFILES = {
     name:'FOUR-COLOR (No Blue)',
     tag:'Action Without Analysis',
     colors:['W','B','R','G'],
+    philosophy:"You believe action reveals truth faster than analysis. Trust your gut, commit fully, adapt as you go. Overthinking is the enemy of progress.",
     desc:"You're someone who combines order, ambition, passion, and growth without analysis. Instinctive execution.",
     pubBanter:"You're a bullheaded action hero. Planning? Never. Already yelling NO TIME NEXT while we're picking up pieces from the last impulse decision.",
     cmd:'Saskia the Unyielding',
@@ -2638,6 +2667,7 @@ const PROFILES = {
     name:'FOUR-COLOR (No Black)',
     tag:'Altruism Without Pragmatism',
     colors:['W','U','R','G'],
+    philosophy:"You believe genuine progress comes from serving something larger than yourself. Analyse, create, build community, trust nature—but never exploit.",
     desc:"You're someone who combines order, knowledge, passion, and growth without self-interest. Pure altruism.",
     pubBanter:"You're a chaotic do-gooder. Trying to help everyone at once. It's a circus. Unintended confetti explosions. So chaotic.",
     cmd:'Kynaios and Tiro of Meletis',
@@ -2650,6 +2680,7 @@ const PROFILES = {
     name:'FIVE-COLOR',
     tag:'Chaos or Mastery',
     colors:['W','U','B','R','G'],
+    philosophy:"You believe every approach has its place. Context determines which philosophy applies. The trick is knowing when to apply which—and having the range to do so.",
     desc:"You're someone who has access to everything—all strategies, all tools, all philosophies. Renaissance person or unfocused generalist.",
     pubBanter:"You're an overambitious jack-of-all-trades. Kitchen sink into every project. Taking bets on which spinning plate crashes first.",
     cmd:'Kenrith, the Returned King',
@@ -5832,73 +5863,15 @@ function updateHeaderRoundIndicator(currentRound) {
 }
 
 function generateIdentityExplanation(identity, activationSorted) {
-  const pct = (act) => Math.round(act * 100);
-  const colorName = {W:'White', U:'Blue', B:'Black', R:'Red', G:'Green'};
-  
-  // Get guild/three-color/etc colors
-  let idColors = [];
-  if (identity.startsWith('MONO-')) {
-    idColors = [identity.split('-')[1]];
-  } else if (PROFILES[identity]) {
-    idColors = PROFILES[identity].colors;
+  // Simply return the philosophy from the profile
+  // This tells users what DRIVES this type, not how they got here
+  const profile = PROFILES[identity];
+  if (profile && profile.philosophy) {
+    return profile.philosophy;
   }
   
-  // Get confidence and round 3 data for context
-  const confidence = state.result?.confidence || 'MODERATE';
-  const round3Data = state.result?.round3Data;
-  const wasConsistent = round3Data?.allScores?.[0]?.ranks?.filter(r => r === 1).length >= 3;
-  
-  // Generate explanation based on pattern AND how we got there
-  if (identity.startsWith('MONO-')) {
-    const color = idColors[0];
-    const topPct = pct(activationSorted[0][1]);
-    
-    if (wasConsistent) {
-      return `${colorName[color]} dominated your choices across all three rounds. You consistently picked ${colorName[color]}-aligned approaches over alternatives.`;
-    } else if (confidence === 'HIGH') {
-      return `${colorName[color]} emerged clearly as your primary driver. The gap between ${colorName[color]} and other colors was consistent throughout.`;
-    } else {
-      return `${colorName[color]} came out on top, though you showed some flexibility. You lean ${colorName[color]} but aren't rigid about it.`;
-    }
-  }
-  else if (idColors.length === 2) {
-    const c1 = idColors[0], c2 = idColors[1];
-    const c1Name = colorName[c1], c2Name = colorName[c2];
-    
-    if (wasConsistent) {
-      return `You consistently chose ${identity} approaches over mono-color and other guild options. The ${c1Name}-${c2Name} combination resonates with how you actually think.`;
-    } else if (confidence === 'HIGH') {
-      return `The ${c1Name}-${c2Name} combination emerged clearly. You blend both colors rather than leaning heavily into just one.`;
-    } else if (confidence === 'MODERATE') {
-      return `${c1Name} and ${c2Name} both showed up strongly, and you preferred their combination over single-color approaches. The balance between them may shift by context.`;
-    } else {
-      return `You landed on ${identity}, but it was close. You have ${c1Name}-${c2Name} tendencies, but could plausibly operate in adjacent modes too.`;
-    }
-  }
-  else if (idColors.length === 3) {
-    const names = idColors.map(c => colorName[c]);
-    
-    if (wasConsistent) {
-      return `You consistently preferred three-color approaches over simpler options. ${names.join(', ')} work together in how you operate—you're not easily reduced to two colors.`;
-    } else if (confidence === 'HIGH') {
-      return `Three colors emerged as genuinely active: ${names.join(', ')}. You blend all three rather than focusing on a pair.`;
-    } else {
-      return `${names.join(', ')} all showed up in your choices. You operate across this three-color space, though which colors dominate may vary by situation.`;
-    }
-  }
-  else if (idColors.length === 4) {
-    const absent = ['W','U','B','R','G'].find(c => !idColors.includes(c));
-    const absentName = colorName[absent];
-    
-    return `Four colors are active for you—everything except ${absentName}. You're versatile but have a clear blind spot or disinterest in ${absentName} approaches.`;
-  }
-  else {
-    if (confidence === 'HIGH') {
-      return `All five colors showed up meaningfully. You're genuinely versatile, drawing on different approaches as situations demand.`;
-    } else {
-      return `You spread across all five colors without a clear dominant pattern. You may be highly adaptable, or your style shifts significantly by context.`;
-    }
-  }
+  // Fallback for any edge cases
+  return "You operate with a distinctive blend of approaches that emerged from your choices.";
 }
 
 // ============================================================================
