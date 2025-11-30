@@ -4004,18 +4004,59 @@ function generateCandidatesGapBased(analysis) {
     }
   };
   
-  // Always add MONOs for top 3 colors
+  // ========================================
+  // RELATIVE THRESHOLD CALCULATION
+  // Colors must be within a reasonable % of the top color to form multi-color identities
+  // This adapts to both peaked and flat profiles
+  // ========================================
+  const topWinRate = sorted[0]?.winRate || 0;
+  const bottomWinRate = sorted[4]?.winRate || 0;
+  const totalSpread = topWinRate - bottomWinRate;
+  
+  // RELATIVE_THRESHOLD: A color is "eligible" if it's within 60% of the spread from the top
+  // Example: Top=58%, Bottom=13%, Spread=45% → Threshold = 58% - (45% * 0.6) = 31%
+  // Example: Top=35%, Bottom=25%, Spread=10% → Threshold = 35% - (10% * 0.6) = 29%
+  // Minimum threshold of 15% to avoid truly negligible colors
+  const RELATIVE_DROPOFF = 0.60;
+  const MIN_ABSOLUTE_THRESHOLD = 0.15;
+  const relativeThreshold = Math.max(MIN_ABSOLUTE_THRESHOLD, topWinRate - (totalSpread * RELATIVE_DROPOFF));
+  
+  // Eligible colors for multi-color identities
+  const eligibleColors = sorted.filter(c => c.winRate >= relativeThreshold).map(c => c.color);
+  
+  console.log(`Threshold calculation: top=${Math.round(topWinRate*100)}%, spread=${Math.round(totalSpread*100)}%, threshold=${Math.round(relativeThreshold*100)}%`);
+  console.log(`Guild-eligible colors (≥${Math.round(relativeThreshold*100)}%): [${eligibleColors.join(', ')}]`);
+  
+  // ========================================
+  // FIVE-COLOR DETECTION
+  // If the spread is very small, consider WUBRG
+  // ========================================
+  const isFlatProfile = totalSpread < 0.20; // Top to bottom within 20%
+  const allGapsSmall = largestGap.gap < 0.12;
+  
+  if (isFlatProfile || allGapsSmall) {
+    console.log(`Flat profile detected: spread=${Math.round(totalSpread*100)}%, largestGap=${Math.round(largestGap.gap*100)}%`);
+    addCandidate('WUBRG', ['W','U','B','R','G'], 'All colors balanced', 'FIVE');
+  }
+  
+  // ========================================
+  // ADD MONO CANDIDATES
+  // Top 3 colors always get MONOs, but only if they're above minimum viability
+  // ========================================
+  const MONO_MIN_VIABILITY = 0.20; // Need at least 20% to be a viable mono identity
   sorted.slice(0, 3).forEach((c, idx) => {
-    addCandidate('MONO-' + c.color, [c.color], `#${idx + 1} color`, 'MONO');
+    if (c.winRate >= MONO_MIN_VIABILITY) {
+      addCandidate('MONO-' + c.color, [c.color], `#${idx + 1} color`, 'MONO');
+    } else {
+      console.log(`Skipping MONO-${c.color}: ${Math.round(c.winRate*100)}% below ${Math.round(MONO_MIN_VIABILITY*100)}% viability threshold`);
+    }
   });
   
-  // Add guilds formed by top colors, but ONLY if both colors have reasonable activation
-  // A color below 25% shouldn't be forming guild identities
-  const MIN_COLOR_ACTIVATION = 0.25;
-  const eligibleColors = sorted.filter(c => c.winRate >= MIN_COLOR_ACTIVATION).map(c => c.color);
+  // ========================================
+  // ADD GUILD CANDIDATES
+  // Only from eligible colors (within relative threshold)
+  // ========================================
   const guildEligibleColors = eligibleColors.slice(0, 4); // Max 4 colors for guild combos
-  
-  console.log(`Guild-eligible colors (≥25%): [${guildEligibleColors.join(', ')}]`);
   
   for (let i = 0; i < guildEligibleColors.length; i++) {
     for (let j = i + 1; j < guildEligibleColors.length; j++) {
@@ -4029,8 +4070,9 @@ function generateCandidatesGapBased(analysis) {
     }
   }
   
-  // Add three-color if cluster size >= 3 OR if 3rd color is reasonably active
-  // Only include colors that meet the minimum threshold
+  // ========================================
+  // ADD THREE-COLOR CANDIDATES
+  // ========================================
   if ((naturalClusterSize >= 3 || (sorted[2]?.winRate >= 0.40)) && eligibleColors.length >= 3) {
     const top3Eligible = eligibleColors.slice(0, 3);
     const threeKey = [...top3Eligible].sort().join('');
@@ -4040,9 +4082,10 @@ function generateCandidatesGapBased(analysis) {
     }
   }
   
-  // Add four-color if cluster size >= 4 OR if 4th color active and 5th clearly out
-  // Only if we have 4 eligible colors
-  if ((naturalClusterSize >= 4 || (sorted[3]?.winRate >= 0.35 && (sorted[4]?.winRate || 0) < 0.25)) && eligibleColors.length >= 4) {
+  // ========================================
+  // ADD FOUR-COLOR CANDIDATES
+  // ========================================
+  if ((naturalClusterSize >= 4 || (sorted[3]?.winRate >= relativeThreshold)) && eligibleColors.length >= 4) {
     const absentColor = sorted[4].color;
     const fourId = getFour(absentColor);
     if (fourId && !seen.has(fourId)) {
@@ -4051,28 +4094,27 @@ function generateCandidatesGapBased(analysis) {
     }
   }
   
-  // Add five-color if no significant gaps (all balanced)
-  if (largestGap.gap < 0.12) {
-    addCandidate('WUBRG', ['W','U','B','R','G'], 'All colors balanced', 'FIVE');
-  }
-  
   // Sort by cluster-match score
   allCandidates.sort((a, b) => b.s1 - a.s1);
   
-  // Ensure minimum candidates for discrimination
+  // ========================================
+  // ENSURE MINIMUM CANDIDATES
+  // If we don't have enough, add more but with viability checks
+  // ========================================
   if (allCandidates.length < MIN_CANDIDATES) {
     console.log(`Only ${allCandidates.length} candidates, adding more`);
     
-    // Add remaining MONOs
+    // Add remaining MONOs (with lower threshold for backup)
+    const BACKUP_MONO_THRESHOLD = 0.15;
     sorted.forEach(c => {
       if (allCandidates.length >= MIN_CANDIDATES) return;
       const monoId = 'MONO-' + c.color;
-      if (!seen.has(monoId)) {
+      if (!seen.has(monoId) && c.winRate >= BACKUP_MONO_THRESHOLD) {
         addCandidate(monoId, [c.color], 'Added for discrimination', 'MONO');
       }
     });
     
-    // Add more guilds if needed - but still respect minimum activation
+    // Add more guilds if needed - from eligible colors only
     for (let i = 0; i < eligibleColors.length && allCandidates.length < MIN_CANDIDATES; i++) {
       for (let j = i + 1; j < eligibleColors.length && allCandidates.length < MIN_CANDIDATES; j++) {
         const c1 = eligibleColors[i], c2 = eligibleColors[j];
@@ -4620,9 +4662,6 @@ function finishCalibration() {
   // Analyze calibration results and adjust activation estimates
   const adjustedActivation = calculateCalibratedActivation();
   
-  // Store for later use
-  state.calibratedActivation = adjustedActivation;
-  
   // Recalculate candidates with calibrated data
   const calibratedCandidates = recalculateCandidates(adjustedActivation);
   
@@ -4706,41 +4745,18 @@ function recalculateCandidates(calibratedData) {
   const {sorted} = calibratedData;
   
   console.log('=== RECALCULATING CANDIDATES WITH CALIBRATED DATA ===');
+  console.log('Calibrated activation:', sorted.map(([c, v]) => `${c}:${Math.round(v*100)}%`).join(', '));
   
-  // Rebuild gap analysis with calibrated data
-  const wins = {};
-  sorted.forEach(([color, value]) => {
-    wins[color] = Math.round(value * 12); // Convert back to "win" scale
-  });
-  
-  // Calculate gaps
-  const gaps = [];
-  for (let i = 0; i < 4; i++) {
-    gaps.push(sorted[i][1] * 12 - sorted[i+1][1] * 12);
-  }
-  
-  // Build clusters
-  const GAP_THRESHOLD = 1.5;
-  const clusters = [];
-  let currentCluster = [{color: sorted[0][0], total: sorted[0][1] * 12, winRate: sorted[0][1]}];
-  
-  for (let i = 0; i < 4; i++) {
-    if (gaps[i] <= GAP_THRESHOLD) {
-      currentCluster.push({color: sorted[i+1][0], total: sorted[i+1][1] * 12, winRate: sorted[i+1][1]});
-    } else {
-      clusters.push(currentCluster);
-      currentCluster = [{color: sorted[i+1][0], total: sorted[i+1][1] * 12, winRate: sorted[i+1][1]}];
-    }
-  }
-  clusters.push(currentCluster);
-  
-  console.log('Calibrated clusters:', clusters.map(cl => cl.map(c => c.color).join('-')).join(' | '));
-  
-  // Generate candidates using existing logic
+  // Build analysis object for generateCandidatesGapBased
+  // Only need sorted with color and winRate - the function calculates its own gaps
   const analysis = {
-    sorted: sorted.map(([c, v]) => ({color: c, total: v * 12, winRate: v})),
-    gaps: gaps.map((g, i) => ({index: i, gap: g})),
-    clusters: clusters
+    sorted: sorted.map(([color, rate]) => ({
+      color: color,
+      winRate: rate,
+      total: rate * 12  // For backward compatibility with any code that uses total
+    })),
+    gaps: [],     // Not used - generateCandidatesGapBased recalculates
+    clusters: []  // Not used - generateCandidatesGapBased recalculates
   };
   
   return generateCandidatesGapBased(analysis);
@@ -5002,27 +5018,9 @@ function shouldTerminateEarly(tournament) {
     });
   
   const secondPlace = contenders[0];
-  
-  // Condition 1: Leader has 2+ wins with no losses
-  if (leader.wins >= 2 && leader.losses === 0) {
-    return { 
-      terminate: true, 
-      reason: 'DOMINANT',
-      message: `${leader.id} won ${leader.wins} consecutive matchups`
-    };
-  }
-  
-  // Condition 2: Leader won 2+ and entered with big gap (>15%)
   const initialGap = leader.combinedScore - (secondPlace?.combinedScore || 0);
-  if (leader.wins >= 2 && leader.losses === 0 && initialGap > 0.15) {
-    return { 
-      terminate: true, 
-      reason: 'CONFIRMED_FRONTRUNNER',
-      message: `${leader.id} confirmed strong R1/R2 signal`
-    };
-  }
   
-  // Condition 3: Only one candidate left with < 2 losses
+  // Condition 1: Only one candidate left with < 2 losses (everyone else eliminated)
   if (contenders.length === 0) {
     return { 
       terminate: true, 
@@ -5031,13 +5029,26 @@ function shouldTerminateEarly(tournament) {
     };
   }
   
-  // Condition 4: All possible matchups exhausted
+  // Condition 2: All possible matchups exhausted
   const nextMatch = selectNextMatchup(tournament);
   if (!nextMatch) {
     return { 
       terminate: true, 
       reason: 'EXHAUSTED',
       message: 'All relevant matchups completed'
+    };
+  }
+  
+  // Condition 3: Leader is dominant (2+ wins, no losses)
+  // If they also entered with a big gap, note that in the message
+  if (leader.wins >= 2 && leader.losses === 0) {
+    const hasInitialGap = initialGap > 0.15;
+    return { 
+      terminate: true, 
+      reason: hasInitialGap ? 'CONFIRMED_FRONTRUNNER' : 'DOMINANT',
+      message: hasInitialGap 
+        ? `${leader.id} confirmed strong R1/R2 signal with ${leader.wins} wins`
+        : `${leader.id} won ${leader.wins} consecutive matchups`
     };
   }
   
@@ -5115,17 +5126,20 @@ function startRound3(candidates) {
   console.log('=== ROUND 3: ADAPTIVE TOURNAMENT ===');
   console.log('Incoming candidates:', candidates.map(c => `${c.id} (${Math.round(c.s1*100)}%)`).join(', '));
   
-  // STEP 1: Refine candidates based on calibration results
-  const refinedCandidates = refineWithCalibration(candidates);
-  console.log('Refined candidates:', refinedCandidates.map(c => `${c.id} (${Math.round(c.combinedScore*100)}%)`).join(', '));
+  // Candidates come pre-scored from R1/R2 - use them directly
+  // Add combinedScore field for tournament compatibility (same as s1 since calibration already applied)
+  const tournamentCandidates = candidates.map(c => ({
+    ...c,
+    combinedScore: c.s1
+  }));
   
-  // Take top 4-5 candidates for tournament
-  const topCandidates = refinedCandidates.slice(0, Math.min(5, refinedCandidates.length));
+  // Take top 5 candidates for tournament
+  const topCandidates = tournamentCandidates.slice(0, Math.min(5, tournamentCandidates.length));
   
   // Initialize tournament
   state.tournament = initTournament(topCandidates);
   state.stage = 3;
-  state.candidates = topCandidates;
+  state.candidates = topCandidates;  // Keep for debug panel and explanation
   state.qNum = 0;
   state.qTot = 4; // Maximum questions
   
@@ -5361,130 +5375,8 @@ function startS2(candidates) {
   startRound3(candidates);
 }
 
-function refineWithCalibration(candidates) {
-  // If no calibration was done, return candidates with original scores
-  if (!state.calibrationPairwise || !state.calibrationAnswers || state.calibrationAnswers.length === 0) {
-    return candidates.map(c => ({...c, combinedScore: c.s1, calibrationBoost: 0}));
-  }
-  
-  console.log('=== REFINING CANDIDATES WITH CALIBRATION DATA ===');
-  
-  // Calculate calibration adjustments for each color
-  const colorAdjustments = {W: 0, U: 0, B: 0, R: 0, G: 0};
-  
-  Object.entries(state.calibrationPairwise).forEach(([pair, scores]) => {
-    const [c1, c2] = pair.split('-');
-    const c1Wins = scores[c1];
-    const c2Wins = scores[c2];
-    const total = c1Wins + c2Wins;
-    
-    if (total > 0) {
-      // Calculate relative strength from ally pair
-      const c1Rate = c1Wins / total;
-      const c2Rate = c2Wins / total;
-      
-      // Significant win (>66%) gives a boost, significant loss gives a penalty
-      if (c1Rate >= 0.66) {
-        colorAdjustments[c1] += 0.08;
-        colorAdjustments[c2] -= 0.05;
-        console.log(`  ${pair}: ${c1} dominated → boost ${c1}, reduce ${c2}`);
-      } else if (c2Rate >= 0.66) {
-        colorAdjustments[c2] += 0.08;
-        colorAdjustments[c1] -= 0.05;
-        console.log(`  ${pair}: ${c2} dominated → boost ${c2}, reduce ${c1}`);
-      } else {
-        // Close matchup - slight adjustment toward winner
-        if (c1Rate > c2Rate) {
-          colorAdjustments[c1] += 0.03;
-        } else if (c2Rate > c1Rate) {
-          colorAdjustments[c2] += 0.03;
-        }
-      }
-    }
-  });
-  
-  console.log('Color adjustments:', colorAdjustments);
-  
-  // Apply adjustments to candidates
-  const refinedCandidates = candidates.map(cand => {
-    const colors = PROFILES[cand.id]?.colors || [];
-    let calibrationBoost = 0;
-    
-    colors.forEach(c => {
-      calibrationBoost += colorAdjustments[c] || 0;
-    });
-    
-    // Average the boost across colors
-    if (colors.length > 0) {
-      calibrationBoost /= colors.length;
-    }
-    
-    const combinedScore = Math.max(0, Math.min(1, cand.s1 + calibrationBoost));
-    
-    console.log(`  ${cand.id}: R1=${Math.round(cand.s1*100)}% + calibration=${Math.round(calibrationBoost*100)}% = ${Math.round(combinedScore*100)}%`);
-    
-    return {
-      ...cand,
-      combinedScore: combinedScore,
-      calibrationBoost: calibrationBoost
-    };
-  }).sort((a, b) => b.combinedScore - a.combinedScore);
-  
-  // CHECK: Did calibration reveal an unexpectedly strong color not in candidates?
-  // If a color dominated its ally pairs but isn't represented, consider adding it
-  const topCandidateColors = new Set();
-  refinedCandidates.forEach(c => {
-    (PROFILES[c.id]?.colors || []).forEach(col => topCandidateColors.add(col));
-  });
-  
-  // Find colors that dominated calibration but aren't in candidates
-  const calibrationDominators = [];
-  Object.entries(colorAdjustments).forEach(([color, adjustment]) => {
-    if (adjustment >= 0.10 && !topCandidateColors.has(color)) {
-      // This color got significant boost but isn't in any candidate
-      calibrationDominators.push({color, boost: adjustment});
-      console.log(`CALIBRATION ALERT: ${color} dominated ally pairs (boost +${Math.round(adjustment*100)}%) but not in candidates`);
-    }
-  });
-  
-  // If we found calibration dominators, try to add relevant candidates
-  if (calibrationDominators.length > 0 && refinedCandidates.length > 0) {
-    const topCandidate = refinedCandidates[0];
-    const topCandidateColorList = PROFILES[topCandidate.id]?.colors || [];
-    
-    calibrationDominators.forEach(({color, boost}) => {
-      // Try to form a guild with top candidate's colors
-      topCandidateColorList.forEach(existingColor => {
-        if (areAllies(color, existingColor)) {
-          const guildKey = [color, existingColor].sort().join('');
-          const guildId = getGuild(guildKey);
-          
-          if (guildId && !refinedCandidates.find(c => c.id === guildId)) {
-            // Calculate combined score for new guild
-            const colorScore1 = state.activationSorted?.find(c => c[0] === color)?.[1] || 0.5;
-            const colorScore2 = state.activationSorted?.find(c => c[0] === existingColor)?.[1] || 0.5;
-            const guildS1 = (colorScore1 + colorScore2) / 2;
-            const guildCombined = guildS1 + boost;
-            
-            refinedCandidates.push({
-              id: guildId,
-              s1: guildS1,
-              combinedScore: Math.min(1, guildCombined),
-              calibrationBoost: boost,
-              reasoning: `Added based on ${color} calibration dominance`
-            });
-            console.log(`  Added ${guildId} (calibration-revealed candidate)`);
-          }
-        }
-      });
-    });
-    
-    // Re-sort after adding
-    refinedCandidates.sort((a, b) => b.combinedScore - a.combinedScore);
-  }
-  
-  return refinedCandidates;
-}
+// refineWithCalibration REMOVED - calibration is now applied once in calculateCalibratedActivation
+// Candidates from recalculateCandidates go directly to tournament
 
 function identifyNeededDiscriminations(candidates) {
   const discriminations = [];
