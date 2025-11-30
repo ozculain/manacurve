@@ -1600,6 +1600,11 @@ function renderManaCost(costString) {
     if (/^\d+$/.test(content)) {
       return `<span class="mana-symbol" style="background: linear-gradient(135deg, #9CA3AF, #6B7280); color: #1F2937; border-color: #4B5563; width: 28px; height: 28px; font-size: 14px; font-weight: 800;">${content}</span>`;
     }
+    // Check if it's Phyrexian mana like {B/P} - just render as the base color
+    else if (content.includes('/P')) {
+      const baseColor = content.split('/')[0];
+      return `<span class="mana-symbol mana-${baseColor}" style="width: 28px; height: 28px; font-size: 14px;">${baseColor}</span>`;
+    }
     // Check if it's hybrid mana like {G/W}
     else if (content.includes('/')) {
       const [c1, c2] = content.split('/');
