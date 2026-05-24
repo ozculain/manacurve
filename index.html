@@ -914,6 +914,33 @@ main { position: relative; z-index: 2; }
    style="display:none;" → class="hidden" cleanup. */
 .hidden { display: none; }
 
+/* Seed banner: shown above the result when arrived via a shared seed URL */
+.mc-seed-banner {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  padding: 16px 22px;
+  margin-bottom: 24px;
+  background: var(--inset);
+  border: 1px solid var(--gilt-soft);
+}
+.mc-seed-banner__text {
+  font-family: var(--f-flavor);
+  font-style: italic;
+  color: var(--ink-muted);
+  font-size: 14px;
+  line-height: 1.5;
+  flex: 1;
+  min-width: 200px;
+}
+.mc-seed-banner__cta {
+  padding: 12px 24px;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
 .result-card {
   /* Legacy .result-card overridden to match the redesign plinth. */
   position: relative;
@@ -1845,10 +1872,10 @@ button:focus-visible { outline: 2px solid #a78bfa; outline-offset: 2px; }
         </div>
       </div>
 
-      <!-- Seed banner: shown only when the result was loaded via shared URL -->
-      <div id="seed-banner" style="display: none; margin-bottom: 24px; padding: 16px 22px; background: var(--inset); border: 1px solid var(--gilt-soft); display: flex; gap: 18px; align-items: center; justify-content: space-between; flex-wrap: wrap;">
-        <span style="font-family: var(--f-flavor); font-style: italic; color: var(--ink-muted); font-size: 14px; line-height: 1.5; flex: 1; min-width: 200px;">You're viewing someone else's result. Curious what yours is?</span>
-        <button onclick="restart()" class="mc-btn mc-btn--primary" style="padding: 12px 24px; font-size: 14px; flex-shrink: 0;">Take the test yourself ›</button>
+      <!-- Seed banner: shown only when the result was loaded via a shared seed URL -->
+      <div id="seed-banner" class="mc-seed-banner hidden">
+        <span class="mc-seed-banner__text">You're viewing someone else's result. Curious what yours is?</span>
+        <button onclick="restart()" class="mc-btn mc-btn--primary mc-seed-banner__cta">Take the test yourself ›</button>
       </div>
 
       <!-- Workplace disclaimer banner (audience-aware) -->
@@ -1934,7 +1961,8 @@ button:focus-visible { outline: 2px solid #a78bfa; outline-offset: 2px; }
 
         <!-- Action row -->
         <div style="display:flex;gap:12px;margin-top:32px;flex-wrap:wrap;">
-          <button class="mc-btn mc-btn--primary" onclick="showShareScreen()">⚜ Share my result</button>
+          <button id="share-result-btn" class="mc-btn mc-btn--primary" onclick="shareResult(this)">⚜ Share my result</button>
+          <button class="mc-btn" onclick="showShareScreen()">Make an image</button>
           <button class="mc-btn" onclick="document.getElementById('legacy-detail').classList.toggle('hidden'); this.textContent = document.getElementById('legacy-detail').classList.contains('hidden') ? 'View Full Breakdown' : 'Hide Full Breakdown';">View Full Breakdown</button>
           <button class="mc-btn mc-btn--ghost" onclick="restart()">Retake</button>
         </div>
@@ -3531,8 +3559,42 @@ function loadFromSeed(seed) {
   document.body.dataset.audience = seed.audience === 'workplace' ? 'workplace' : 'forfun';
   document.getElementById('screen-welcome').classList.add('hidden');
   const seedBanner = document.getElementById('seed-banner');
-  if (seedBanner) seedBanner.style.display = '';
+  if (seedBanner) seedBanner.classList.remove('hidden');
   showResults();
+}
+
+// Primary share action. Uses the Web Share API (system share sheet on mobile,
+// some desktop browsers); falls back to clipboard with button feedback.
+async function shareResult(btn) {
+  if (!state.result || !state.result.identity) return;
+  const p = PROFILES[state.result.identity];
+  if (!p) return;
+  const url = buildResultURL();
+  const title = `I'm ${p.name} — ${p.tag}`;
+  const text = `${title}\n\nThe Mana Curve — find your MTG colour identity:`;
+
+  if (navigator.share) {
+    try {
+      await navigator.share({ title, text, url });
+      return;
+    } catch (e) {
+      if (e && e.name === 'AbortError') return; // user cancelled the share sheet
+      // Any other error: fall through to clipboard fallback below.
+    }
+  }
+
+  // Clipboard fallback — copy the link and flash button feedback.
+  const restore = btn ? btn.textContent : null;
+  try {
+    await navigator.clipboard.writeText(url);
+    if (btn) {
+      btn.textContent = '✓ Link copied!';
+      setTimeout(() => { btn.textContent = restore; }, 2200);
+    }
+  } catch (e) {
+    // Last-resort fallback for older browsers without clipboard API.
+    window.prompt('Copy your share link:', url);
+  }
 }
 
 function offerSessionRestore() {
@@ -9194,7 +9256,7 @@ function restart() {
     try { history.replaceState(null, '', location.pathname); } catch(e) {}
   }
   const seedBanner = document.getElementById('seed-banner');
-  if (seedBanner) seedBanner.style.display = 'none';
+  if (seedBanner) seedBanner.classList.add('hidden');
 
   // Reset gaming toggle UI
   const gamingCheck = document.getElementById('gaming-check');
