@@ -1,0 +1,28 @@
+# Dependencies (huge, not needed at runtime)
+node_modules/
+
+# Working drafts and source material (private, not for publication)
+research/
+_archive/
+scripts/
+ALL_*.md
+COMMANDERS.md
+COPY.md
+FRONT_AND_END.md
+MONO_BLUE.md
+Integration Map.md
+Mana Curve Redesign.html
+
+# Backups
+*.bak
+*.bak2
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
+
+# Local-only / experimental HTML scratch
+scripts/_followup/_processed.html
