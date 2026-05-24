@@ -942,6 +942,21 @@ main { position: relative; z-index: 2; }
   flex-shrink: 0;
 }
 
+/* Wisp canvas — animated WUBRG drift, weighted by the user's emerging
+   colour activation. Sits behind all content. Pointer events disabled. */
+#wisp-bg {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+  pointer-events: none;
+}
+/* Disable animation entirely for users with reduced-motion preference */
+@media (prefers-reduced-motion: reduce) {
+  #wisp-bg { display: none; }
+}
+
 .result-card {
   /* Legacy .result-card overridden to match the redesign plinth. */
   position: relative;
@@ -1410,6 +1425,7 @@ button:focus-visible { outline: 2px solid #a78bfa; outline-offset: 2px; }
 </style>
 </head>
 <body data-mode="draft" data-audience="consumer" data-flavor="9">
+<canvas id="wisp-bg" aria-hidden="true"></canvas>
 
 <!-- Reusable corner-fleuron SVG, referenced by <use> (Phase 0 lift). -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -3503,6 +3519,232 @@ function restoreSession(snapshot) {
   return true;
 }
 
+// ─── STAR SKY (animated WUBRG night sky) ───────────────────────────────────
+// Fullscreen canvas behind all content. Scattered twinkling stars whose
+// colours are weighted by the user's emerging activation profile — the sky
+// tints toward the colours they're choosing. At result, the WUBRG pentagon
+// constellation emerges in the centre with only the identity's colours lit
+// and lines drawn between them.
+
+const STAR_COLORS = {
+  W: [241, 231, 196], // #F1E7C4
+  U: [120, 175, 230], // brighter sky blue for star
+  B: [170, 140, 200], // brighter purple for star (B on dark needs lift)
+  R: [230, 120, 90],  // brighter rust
+  G: [140, 200, 110]  // brighter forest
+};
+
+class StarSky {
+  constructor(canvas) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext('2d');
+    this.stars = [];
+    this.constellation = [];
+    this.weights = { W: 0.2, U: 0.2, B: 0.2, R: 0.2, G: 0.2 };
+    this.identityColors = null;     // set when state.result.identity exists
+    this.constTransition = 0;       // 0..1, ramps when identity becomes set
+    this.running = false;
+    this.resize = this.resize.bind(this);
+    window.addEventListener('resize', this.resize);
+    this.resize();
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) this.stop();
+      else this.start();
+    });
+  }
+  resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    this.canvas.width = window.innerWidth * dpr;
+    this.canvas.height = window.innerHeight * dpr;
+    this.canvas.style.width = window.innerWidth + 'px';
+    this.canvas.style.height = window.innerHeight + 'px';
+    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    this.w = window.innerWidth;
+    this.h = window.innerHeight;
+    this.populate();
+    this.layoutConstellation();
+  }
+  populate() {
+    // Density-based: ~1 star per 6000 px², capped at 240 so dense displays
+    // don't pay an enormous paint cost.
+    const target = Math.min(240, Math.floor(this.w * this.h / 6000));
+    if (this.stars.length === 0) {
+      for (let i = 0; i < target; i++) this.stars.push(this.makeStar());
+    } else {
+      // Resize: trim or pad
+      while (this.stars.length > target) this.stars.pop();
+      while (this.stars.length < target) this.stars.push(this.makeStar());
+    }
+  }
+  makeStar() {
+    return {
+      x: Math.random() * this.w,
+      y: Math.random() * this.h,
+      r: Math.random() * 1.0 + 0.5,             // 0.5–1.5 px
+      baseAlpha: Math.random() * 0.5 + 0.3,
+      twinklePhase: Math.random() * Math.PI * 2,
+      twinkleSpeed: Math.random() * 0.0014 + 0.0004,
+      vx: (Math.random() - 0.5) * 0.004,        // very slow drift
+      vy: (Math.random() - 0.5) * 0.004,
+      color: this.weightedColor(),
+      colorAge: Math.random() * 8000             // stagger recolour timing
+    };
+  }
+  weightedColor() {
+    const total = Object.values(this.weights).reduce((a, b) => a + b, 0) || 1;
+    let r = Math.random() * total;
+    for (const [c, w] of Object.entries(this.weights)) {
+      if (r < w) return c;
+      r -= w;
+    }
+    return 'W';
+  }
+  layoutConstellation() {
+    // Five WUBRG points in a pentagon centred on the viewport, clockwise from
+    // the top — matches the favicon arrangement.
+    const cx = this.w / 2;
+    const cy = this.h / 2;
+    const radius = Math.min(this.w, this.h) * 0.22;
+    const order = ['W', 'U', 'B', 'R', 'G'];
+    this.constellation = order.map((c, i) => {
+      const angle = (-Math.PI / 2) + (i * 2 * Math.PI / 5);
+      return { color: c, x: cx + Math.cos(angle) * radius, y: cy + Math.sin(angle) * radius };
+    });
+  }
+  setWeights(activation) {
+    const total = ['W','U','B','R','G'].reduce((s, c) => s + (activation[c] || 0), 0);
+    if (total <= 0) return;
+    const FLOOR = 0.05;
+    const raw = {};
+    for (const c of ['W','U','B','R','G']) raw[c] = Math.max(FLOOR, (activation[c] || 0) / total);
+    const rawTotal = Object.values(raw).reduce((a, b) => a + b, 0);
+    for (const c of ['W','U','B','R','G']) this.weights[c] = raw[c] / rawTotal;
+  }
+  setIdentity(colors) {
+    if (!colors || !colors.length) { this.identityColors = null; this.constTransition = 0; return; }
+    if (this.identityColors && this.identityColors.join() === colors.join()) return;
+    this.identityColors = colors.slice();
+    this.constTransition = 0;
+  }
+  clearIdentity() { this.identityColors = null; this.constTransition = 0; }
+  step(dt) {
+    this.ctx.clearRect(0, 0, this.w, this.h);
+    // Constellation alpha ramp once identity is set — eases in over ~2.5s.
+    if (this.identityColors && this.constTransition < 1) {
+      this.constTransition = Math.min(1, this.constTransition + dt / 2500);
+    }
+    // Background stars dim slightly when the constellation is the focal point.
+    const bgDim = this.identityColors ? (1 - 0.4 * this.constTransition) : 1;
+    for (const s of this.stars) {
+      s.x += s.vx * dt;
+      s.y += s.vy * dt;
+      if (s.x < -2) s.x = this.w + 2;
+      if (s.x > this.w + 2) s.x = -2;
+      if (s.y < -2) s.y = this.h + 2;
+      if (s.y > this.h + 2) s.y = -2;
+      s.twinklePhase += s.twinkleSpeed * dt;
+      // Periodically nudge a star toward the current colour mix
+      s.colorAge += dt;
+      if (s.colorAge > 12000) {
+        if (Math.random() < 0.3) s.color = this.weightedColor();
+        s.colorAge = 0;
+      }
+      const twinkle = 0.55 + 0.45 * Math.sin(s.twinklePhase);
+      const alpha = s.baseAlpha * twinkle * bgDim;
+      const [r, g, b] = STAR_COLORS[s.color];
+      // Soft outer halo
+      this.ctx.fillStyle = `rgba(${r},${g},${b},${alpha * 0.28})`;
+      this.ctx.beginPath();
+      this.ctx.arc(s.x, s.y, s.r * 3.5, 0, Math.PI * 2);
+      this.ctx.fill();
+      // Sharp core
+      this.ctx.fillStyle = `rgba(${r},${g},${b},${alpha})`;
+      this.ctx.beginPath();
+      this.ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      this.ctx.fill();
+    }
+    // Constellation overlay (centred WUBRG pentagon, identity colours lit)
+    if (this.identityColors && this.constellation.length) {
+      const t = this.constTransition;
+      const ident = this.identityColors;
+      // Connecting lines between any pair of lit (in-identity) stars
+      this.ctx.strokeStyle = `rgba(212, 175, 106, ${0.28 * t})`;
+      this.ctx.lineWidth = 1;
+      this.ctx.beginPath();
+      for (let i = 0; i < this.constellation.length; i++) {
+        for (let j = i + 1; j < this.constellation.length; j++) {
+          const a = this.constellation[i], b = this.constellation[j];
+          if (ident.includes(a.color) && ident.includes(b.color)) {
+            this.ctx.moveTo(a.x, a.y);
+            this.ctx.lineTo(b.x, b.y);
+          }
+        }
+      }
+      this.ctx.stroke();
+      // The five points themselves
+      for (const pt of this.constellation) {
+        const inIdent = ident.includes(pt.color);
+        const alpha = (inIdent ? 0.85 : 0.18) * t;
+        const size = inIdent ? 3.0 : 1.4;
+        const [r, g, b] = STAR_COLORS[pt.color];
+        // Bloom halo
+        this.ctx.fillStyle = `rgba(${r},${g},${b},${alpha * 0.35})`;
+        this.ctx.beginPath();
+        this.ctx.arc(pt.x, pt.y, size * 4, 0, Math.PI * 2);
+        this.ctx.fill();
+        // Sharp star
+        this.ctx.fillStyle = `rgba(${r},${g},${b},${alpha})`;
+        this.ctx.beginPath();
+        this.ctx.arc(pt.x, pt.y, size, 0, Math.PI * 2);
+        this.ctx.fill();
+      }
+    }
+  }
+  start() {
+    if (this.running) return;
+    this.running = true;
+    let last = performance.now();
+    const loop = (now) => {
+      if (!this.running) return;
+      const dt = Math.min(50, now - last);
+      last = now;
+      this.step(dt);
+      requestAnimationFrame(loop);
+    };
+    requestAnimationFrame(loop);
+  }
+  stop() { this.running = false; }
+}
+
+let _sky = null;
+
+function initWisps() {
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const canvas = document.getElementById('wisp-bg');
+  if (!canvas) return;
+  _sky = new StarSky(canvas);
+  _sky.start();
+}
+
+// Called after every answer + on result render + on restart — derives weights
+// from whatever signal is most current in state, and toggles the constellation
+// when state.result.identity becomes set/unset.
+function updateWispWeights() {
+  if (!_sky) return;
+  // Weights: prefer activationSorted (post-R1), fall back to raw colorScores (mid-R1)
+  if (state.activationSorted && state.activationSorted.length > 0) {
+    _sky.setWeights(Object.fromEntries(state.activationSorted));
+  } else if (state.colorScores) {
+    _sky.setWeights(state.colorScores);
+  }
+  // Constellation: lit when identity is known
+  if (state.result && state.result.identity && PROFILES[state.result.identity]) {
+    _sky.setIdentity(PROFILES[state.result.identity].colors || []);
+  } else {
+    _sky.clearIdentity();
+  }
+}
+
 // ─── SEED URL (deep-link to a specific result) ─────────────────────────────
 // Encodes the result + mana bars into URL params so a shared link lands on
 // the original taker's exact result. URL shape: ?r=DIMIR&p=20,15,40,5,20&c=high&a=consumer
@@ -3561,6 +3803,7 @@ function loadFromSeed(seed) {
   document.getElementById('screen-welcome').classList.add('hidden');
   const seedBanner = document.getElementById('seed-banner');
   if (seedBanner) seedBanner.classList.remove('hidden');
+  updateWispWeights();
   showResults();
 }
 
@@ -3738,6 +3981,9 @@ window.addEventListener('DOMContentLoaded', function() {
   } catch(e) {
     console.error('Error in initArchetypeOfMonth:', e);
   }
+
+  // Wisp field — animated WUBRG drift in the background
+  try { initWisps(); } catch (e) { console.warn('Wisp init failed:', e); }
 
   // Seed URL — if a ?r=<identity> param is present, skip welcome/preflight
   // and render that result directly with the original taker's mana bars.
@@ -4523,7 +4769,8 @@ function answerQ(resp, optionIdx) {
     }
   }
   updateDebug();
-  
+  updateWispWeights();
+
   if (state.qNum < state.qTot) {
     showQ();
   } else if (state.stage === 1) {
@@ -4583,7 +4830,8 @@ function answerNeither(q) {
     }
   }
   updateDebug();
-  
+  updateWispWeights();
+
   if (state.qNum < state.qTot) {
     showQ();
   } else if (state.stage === 1) {
@@ -8372,7 +8620,9 @@ function showResults() {
   document.getElementById('screen-interstitial').classList.add('hidden');
   document.getElementById('screen-preflight').classList.add('hidden');
   document.getElementById('screen-results').classList.remove('hidden');
-  
+
+  updateWispWeights();
+
   const p = PROFILES[state.result.identity];
   
   document.getElementById('res-id').textContent = p.name;
@@ -9258,6 +9508,9 @@ function restart() {
   }
   const seedBanner = document.getElementById('seed-banner');
   if (seedBanner) seedBanner.classList.add('hidden');
+
+  // Reset the night-sky constellation (state.result is null, weights reset)
+  updateWispWeights();
 
   // Reset gaming toggle UI
   const gamingCheck = document.getElementById('gaming-check');
