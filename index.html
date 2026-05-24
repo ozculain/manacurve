@@ -3644,10 +3644,29 @@ class StarSky {
     // Five mana-symbol slots in a pentagon around viewport centre. Each slot
     // holds a full mana-symbol constellation (sunburst / droplet / skull /
     // flame / tree) sized to the viewport.
+    //
+    // Responsive sizing rules:
+    //   radius — naive `min(w,h) * 0.34` collapses on phones (127px on 375px
+    //     viewport, symbols cram into the centre). Clamp to a sensible floor
+    //     so the pentagon stays spread even on narrow screens, and use the
+    //     LONGER dimension on desktop so symbols can sit OUTSIDE typical
+    //     720px-wide content cards rather than overlapping them.
+    //   scale — symbols render in a -50..50 local box, so a 6-10 star shape
+    //     spans ~80 local units. Clamp so the rendered size never drops below
+    //     ~56px (readable) and never exceeds ~140px (overpowering).
+    //
+    // On mobile (≤640px viewport) the content card fills the width and will
+    // partially obscure constellations regardless of placement — that's
+    // accepted as atmospheric "depth behind the card." The symbols peek out
+    // around the card edges and between sections.
     const cx = this.w / 2;
     const cy = this.h / 2;
-    const radius = Math.min(this.w, this.h) * 0.34;
-    const scale = Math.min(this.w, this.h) * 0.0012;
+    const minDim = Math.min(this.w, this.h);
+    const maxDim = Math.max(this.w, this.h);
+    // Use the wider dim as a guide on landscape/desktop, keep a 150px floor
+    const radius = Math.max(150, Math.min(maxDim * 0.34, minDim * 0.42));
+    // Scale 0.7 floor (mobile) up to 1.5 ceiling (large desktop)
+    const scale = Math.max(0.7, Math.min(1.5, minDim * 0.0016));
     const order = ['W', 'U', 'B', 'R', 'G'];
     this.constellation = order.map((c, i) => {
       const angle = (-Math.PI / 2) + (i * 2 * Math.PI / 5);
