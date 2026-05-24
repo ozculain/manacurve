@@ -3610,37 +3610,40 @@ const COLOR_ALLIES = { W:['U','G'], U:['W','B'], B:['U','R'], R:['B','G'], G:['R
 const COLOR_ENEMIES = { W:['B','R'], U:['R','G'], B:['W','G'], R:['W','U'], G:['U','B'] };
 const COLOR_DISPLAY = { W: 'White', U: 'Blue', B: 'Black', R: 'Red', G: 'Green' };
 
-// One concise line per colour you have — what this gives you.
+// One concise line per colour you have. The actual psychological function the
+// colour serves — not aspirational, not flattering, just what it does.
 const COLOR_STRENGTHS = {
-  W: "You build trust and frameworks. People know where they stand with you.",
-  U: "You think before acting. Your decisions hold up to inspection later.",
-  B: "You see the real stakes. You don't get blindsided.",
-  R: "You move when others are still talking. You make things happen.",
-  G: "You read what's already working. You don't break things that don't need fixing."
+  W: "You experience the team as something real that deserves care, not as a backdrop to your task. Standards stay visible. Trust accumulates because your behaviour is predictable across days. You build what holds together when individuals come and go.",
+  U: "You model the second-order consequences before committing. Work survives review because you already considered the version where it didn't. You notice two months early what's about to bite everyone else, and you're capable of acting on it rather than just naming it.",
+  B: "You read the actual game being played, not the rules everyone pretends to follow. You can tell who benefits from what without needing to ask. The politics don't surprise you because you were already accounting for them. Leverage doesn't slip past you.",
+  R: "You generate the heat that breaks deadlocks. Decisions get made when you're in the room — sometimes wrong, often right, almost never deferred indefinitely. You feel what the room is suppressing and you say it. You're the one who picks up the phone.",
+  G: "You can tell when an existing process has wisdom baked in even if no one can articulate why. You restrain the impulse to rebuild what's working. Institutional knowledge survives in you because you didn't discard it as 'legacy'. Pattern recognition across years."
 };
 
-// For each colour you LACK: the gap (what your absence creates) and the
-// complement (the type of colleague to actively seek out).
+// For each colour you LACK: the specific cognitive function that's absent and
+// what that creates, plus a named complementary colleague. Goal: psychological
+// precision over generic personality observations. The gap should describe a
+// *mechanism* (what process is missing in your head), not just a deficit.
 const COLOR_GAPS = {
   W: {
-    gap: "You don't naturally track the group's wellbeing. You make calls without quite checking whether everyone's on board.",
-    complement: "A White colleague will tell you when you've left someone behind. Don't filter them out as slow."
+    gap: "You don't experience the team as something you owe care to. The group is the environment you operate in, not an entity that deserves attention. Decisions get made for you and the task; the social cost lands as a surprise three weeks later in someone's resignation letter or a quiet refusal to help.",
+    complement: "A White colleague feels the temperature of the room as live data. They'll tell you when your plan is technically fine but will cost trust. That isn't them being slow or risk-averse — that's them seeing a bill you're about to be handed and don't yet know about."
   },
   U: {
-    gap: "You act without doing the modelling first. You'll trip on things a spreadsheet would have caught.",
-    complement: "A Blue colleague will do the analysis you won't. Bring them in before the launch, not after."
+    gap: "You move on instinct, momentum, or feeling. You'll do the thing, then learn — sometimes expensively — what the thing actually meant. The same kinds of mistakes recur because you don't pause long enough to recognise them as a pattern; each one feels like its own situation.",
+    complement: "A Blue colleague will model the second-order consequences you wouldn't have thought to ask about. Bring them in before the decision, not after. Their 'what about…' is the cheapest insurance you'll ever buy, and the version of you that resists it is the version that ends up explaining the same kind of mistake to a different audience next quarter."
   },
   B: {
-    gap: "You don't naturally see who's playing you. You'll be the one holding the bill when the politics shift.",
-    complement: "A Black colleague will name what's actually happening. Their cynicism is your insurance."
+    gap: "You take people's stated motives as their real ones. You give away leverage you didn't know you were holding. When the politics shift, you're the person holding the bill — not because anyone targeted you, but because you weren't watching the table while everyone else was.",
+    complement: "A Black colleague reads the actual incentives in the room, not the polite ones. They'll tell you who benefits if your project quietly fails, and who's already routing around you. Their take will sometimes feel uncharitable — listen anyway. They're keeping you off a list you didn't know was being kept."
   },
   R: {
-    gap: "You don't generate urgency. You'll watch the window close while the analysis matures.",
-    complement: "A Red colleague will start the fire that gets you moving. Stop waiting for the right moment to begin."
+    gap: "You don't generate the heat that gets things moving. Decisions defer. The window closes while you collect one more data point, refine one more spec, run one more pass. The result: things you cared about don't happen, and to others you read as flat or strategically aloof even when neither describes how you actually feel.",
+    complement: "A Red colleague will start the fire that gets you moving. Their 'why are we still talking about this' is doing you a favour — it's the social pressure that converts your analysis into a decision. You don't need to match their pitch; just don't dismiss the urgency as drama. Their impatience is often correctly calibrated."
   },
   G: {
-    gap: "You don't trust what already works. You'll rebuild things that were fine.",
-    complement: "A Green colleague will say 'leave it' when it's the right call. They've watched more cycles than you have."
+    gap: "You distrust existing systems on principle and find rebuilding more satisfying than maintaining. Things that were working get torn down because the rebuilt version is more interesting to you. Your team's institutional knowledge — the *why* behind the how — gets discarded as 'legacy' and has to be relearned the expensive way.",
+    complement: "A Green colleague has watched more cycles than you have. When they say 'we tried that in 2019, here's what happened,' they're saving you the cost of relearning it from scratch. Their reluctance to change isn't conservatism or fear; it's pattern recognition across years that you don't yet have. Override them sparingly and only when you can name what's actually different this time."
   }
 };
 
