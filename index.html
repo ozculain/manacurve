@@ -401,7 +401,7 @@ body[data-mode="constructed"] .mc-choice[data-c="G"] { --choice-color: var(--G);
 /* ─── SCREEN: WELCOME ─────────────────────────────────────────────────────── */
 .mc-welcome { max-width: 760px; margin: 64px auto; padding: 0 20px; }
 .mc-welcome__crest { display: flex; flex-direction: column; align-items: center; margin-bottom: 32px; }
-.mc-welcome__pips { display: flex; gap: 10px; padding: 14px 22px; border: 1px solid var(--gilt-line); border-radius: 999px; background: var(--inset); margin-bottom: 28px; }
+.mc-welcome__pips { display: flex; justify-content: center; gap: 10px; padding: 14px 22px; border: 1px solid var(--gilt-line); border-radius: 999px; background: var(--inset); margin-bottom: 28px; width: fit-content; }
 .mc-welcome__pips .mc-pip { filter: none; opacity: 1; }
 .mc-welcome__title { font-family: var(--f-display); font-weight: 800; font-size: clamp(40px, 6vw, 64px); letter-spacing: 0.16em; line-height: 1; text-align: center; color: var(--ink); text-shadow: 0 2px 0 var(--void), 0 0 80px var(--gilt-glow); }
 .mc-welcome__title em { font-style: normal; color: var(--gilt); display: block; font-size: 0.42em; letter-spacing: 0.4em; margin-top: 18px; font-weight: 600; }
@@ -913,7 +913,7 @@ main { position: relative; z-index: 2; }
    Inline declarations beat class-level ones at the same specificity, so removing
    !important restores the legacy escape hatch without rolling back the
    style="display:none;" → class="hidden" cleanup. */
-.hidden { display: none; }
+.hidden { display: none !important; }
 
 /* Seed banner: shown above the result when arrived via a shared seed URL */
 .mc-seed-banner {
@@ -3534,43 +3534,73 @@ const STAR_COLORS = {
   G: [140, 200, 110]  // forest
 };
 
-// Mana symbol constellations. Each is point-array + line-pair-array in a
-// -50..50 local coordinate space, scaled and translated to its slot on layout.
-// Shapes are deliberately schematic (sun, droplet, skull, flame, tree) — enough
-// to be readable as that mana symbol from the lines and points alone.
+// Mana symbol constellations — point arrays + line indices in a -50..50 local
+// space. `bigPoints` are indices that render larger when locked into the
+// constellation (e.g. skull eyes, sun centre, fireball core).
 const MANA_CONSTELLATIONS = {
   W: {
-    // Sunburst: 1 centre + 8 rays
-    points: [[0,0],[40,0],[28,-28],[0,-40],[-28,-28],[-40,0],[-28,28],[0,40],[28,28]],
-    lines: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8]]
+    // Sun: bright centre + 8 rays. Centre is a "big" star.
+    points: [[0,0],[38,0],[27,-27],[0,-38],[-27,-27],[-38,0],[-27,27],[0,38],[27,27]],
+    lines: [[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[0,8]],
+    bigPoints: [0]
   },
   U: {
-    // Teardrop: apex top, round bottom
-    points: [[0,-40],[-25,0],[25,0],[-15,30],[15,30],[0,38]],
+    // Water droplet: apex top, widest just above middle, rounded bottom.
+    points: [[0,-38],[-22,-5],[22,-5],[-18,18],[18,18],[0,32]],
     lines: [[0,1],[0,2],[1,3],[2,4],[3,5],[4,5]]
   },
   B: {
-    // Skull: crown + temples + jaw + chin, plus two unconnected eye dots
+    // Skull: cranium outline + jaw + chin, with TWO BIG EYE STARS that are
+    // the visual hook. Eyes are drawn larger and brighter than the outline.
     points: [
-      [0,-35],[-25,-25],[25,-25],[-30,-5],[30,-5],
-      [-15,-5],[15,-5],            // eye dots (drawn, not connected)
-      [-22,20],[22,20],[0,30]
+      [0,-32],     // 0 crown
+      [-22,-22],   // 1 cranium upper-left
+      [22,-22],    // 2 cranium upper-right
+      [-25,-5],    // 3 cheek-left
+      [25,-5],     // 4 cheek-right
+      [-13,-10],   // 5 EYE left  (BIG)
+      [13,-10],    // 6 EYE right (BIG)
+      [-13,18],    // 7 jaw-left
+      [13,18],     // 8 jaw-right
+      [0,28]       // 9 chin
     ],
-    lines: [[0,1],[0,2],[1,3],[2,4],[3,7],[4,8],[7,9],[8,9]]
+    lines: [[0,1],[0,2],[1,3],[2,4],[3,7],[4,8],[7,9],[8,9]],
+    bigPoints: [5, 6]
   },
   R: {
-    // Flame: wide base narrowing to flickering tip
-    points: [[0,40],[-22,25],[22,25],[-12,0],[12,0],[-8,-20],[8,-25],[0,-42]],
-    lines: [[0,1],[0,2],[1,3],[2,4],[3,5],[4,6],[5,7],[6,7]]
+    // Fireball: 6-point ring forming an orb, with a spark trailing up-right
+    // (motion implied). Reads as "circle + spark" = projectile/fireball.
+    // Ring at radius 22, angles 0/60/120/180/240/300°.
+    points: [
+      [22, 0],     // 0 ring east
+      [11, -19],   // 1 ring upper-right
+      [-11, -19],  // 2 ring upper-left
+      [-22, 0],    // 3 ring west
+      [-11, 19],   // 4 ring lower-left
+      [11, 19],    // 5 ring lower-right
+      [18, -34],   // 6 spark 1 (close trail)
+      [6, -44]     // 7 spark 2 (far trail)
+    ],
+    lines: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,0],[1,6],[6,7]],
+    bigPoints: []
   },
   G: {
-    // Tree: rounded crown with trunk
+    // Tree: rounded crown narrowing into a trunk. Crown follows an oval-ish
+    // outline; trunk is a short vertical at centre.
     points: [
-      [0,-38],[-25,-20],[25,-20],[-30,5],[30,5],
-      [-12,15],[12,15],            // crown narrowing into trunk
-      [-6,25],[6,25],[-6,40],[6,40]
+      [0,-38],     // 0 crown apex
+      [-22,-22],   // 1 crown upper-left
+      [22,-22],    // 2 crown upper-right
+      [-25,-2],    // 3 crown wide-left
+      [25,-2],     // 4 crown wide-right
+      [-12,14],    // 5 crown narrowing left
+      [12,14],     // 6 crown narrowing right
+      [0,22],      // 7 trunk top (centre)
+      [-5,38],     // 8 trunk base-left
+      [5,38]       // 9 trunk base-right
     ],
-    lines: [[0,1],[0,2],[1,3],[2,4],[3,5],[4,6],[5,6],[7,9],[8,10]]
+    lines: [[0,1],[0,2],[1,3],[2,4],[3,5],[4,6],[5,7],[6,7],[7,8],[7,9]],
+    bigPoints: []
   }
 };
 
@@ -3614,21 +3644,34 @@ class StarSky {
     }
   }
   makeStar() {
+    // Varied size distribution so the sky has lighthouse stars and tiny twinkles
+    // instead of a uniform field. 60% small, 30% medium, 10% large/bright.
+    const sb = Math.random();
+    let r;
+    if (sb < 0.6) r = Math.random() * 0.6 + 0.3;        // 0.3–0.9 px (small, faint)
+    else if (sb < 0.9) r = Math.random() * 0.9 + 1.0;   // 1.0–1.9 px (medium)
+    else r = Math.random() * 1.8 + 1.9;                  // 1.9–3.7 px (large, bright)
     return {
       x: Math.random() * this.w,
       y: Math.random() * this.h,
-      r: Math.random() * 1.0 + 0.5,
+      r,
+      baseR: r,
       baseAlpha: Math.random() * 0.5 + 0.3,
       twinklePhase: Math.random() * Math.PI * 2,
       twinkleSpeed: Math.random() * 0.0014 + 0.0004,
       vx: (Math.random() - 0.5) * 0.004,
       vy: (Math.random() - 0.5) * 0.004,
       color: this.weightedColor(),
-      // Per-click transition fields: when a click marks this star to recolour,
-      // nextColor is set and transitionStart records the moment. Render blends
-      // from `color` toward `nextColor` over ~1.4s, then commits.
+      // Per-click colour transition
       nextColor: null,
-      transitionStart: 0
+      transitionStart: 0,
+      // Travel-to-constellation state
+      originX: 0, originY: 0,
+      originColor: null,
+      targetX: null, targetY: null, targetColor: null,
+      targetIsBig: false,
+      travelStart: 0,
+      isLocked: false
     };
   }
   weightedColor() {
@@ -3681,7 +3724,7 @@ class StarSky {
       };
     });
   }
-  setWeights(activation) {
+  setWeights(activation, opts = {}) {
     const total = ['W','U','B','R','G'].reduce((s, c) => s + (activation[c] || 0), 0);
     if (total <= 0) return;
     const FLOOR = 0.05;
@@ -3689,122 +3732,211 @@ class StarSky {
     for (const c of ['W','U','B','R','G']) raw[c] = Math.max(FLOOR, (activation[c] || 0) / total);
     const rawTotal = Object.values(raw).reduce((a, b) => a + b, 0);
     for (const c of ['W','U','B','R','G']) this.weights[c] = raw[c] / rawTotal;
-    // PER-CLICK TRANSITION: kick a small fraction (~8%) of non-transitioning
-    // stars into a smooth ~1.4s colour transition toward a newly-rolled
-    // weighted colour. Over 30-50 answers this accumulates into a clearly
-    // tinted sky while no single click is jarring.
-    const fraction = 0.08;
-    const candidates = this.stars.filter(s => !s.nextColor);
+    // Per-click transition. Fraction & duration scale up by round so Round 3
+    // visibly accelerates as the result converges (caller passes `opts`).
+    const fraction = opts.fraction || 0.08;
+    const duration = opts.duration || 1400;
+    // Don't recolour locked constellation stars — they belong to the result
+    const candidates = this.stars.filter(s => !s.nextColor && !s.isLocked && s.targetX === null);
     const N = Math.max(1, Math.floor(this.stars.length * fraction));
     for (let i = 0; i < N && candidates.length > 0; i++) {
       const idx = Math.floor(Math.random() * candidates.length);
       const star = candidates.splice(idx, 1)[0];
       star.nextColor = this.weightedColor();
       star.transitionStart = performance.now();
+      star.transitionDuration = duration;
     }
   }
   setIdentity(colors) {
-    if (!colors || !colors.length) { this.identityColors = null; this.constTransition = 0; return; }
+    if (!colors || !colors.length) { this.clearIdentity(); return; }
     if (this.identityColors && this.identityColors.join() === colors.join()) return;
+    this.releaseAllLocked();
     this.identityColors = colors.slice();
     this.constTransition = 0;
+    this.assignConstellationStars();
   }
-  clearIdentity() { this.identityColors = null; this.constTransition = 0; }
+  clearIdentity() {
+    this.releaseAllLocked();
+    this.identityColors = null;
+    this.constTransition = 0;
+  }
+  assignConstellationStars() {
+    // Collect every (target x, y, color, isBig) tuple for lit slots
+    const targets = [];
+    for (const con of this.constellation) {
+      if (!this.identityColors.includes(con.color)) continue;
+      for (let i = 0; i < con.points.length; i++) {
+        targets.push({
+          x: con.points[i][0],
+          y: con.points[i][1],
+          color: con.color,
+          isBig: con.bigPoints && con.bigPoints.includes(i)
+        });
+      }
+    }
+    // Pool of available background stars (not already locked/travelling)
+    const available = this.stars.filter(s => !s.isLocked && s.targetX === null);
+    const now = performance.now();
+    // Greedy nearest-neighbour: for each target, pull the closest free star
+    for (const t of targets) {
+      if (available.length === 0) break;
+      let bestIdx = 0, bestDist = Infinity;
+      for (let i = 0; i < available.length; i++) {
+        const s = available[i];
+        const dx = s.x - t.x, dy = s.y - t.y;
+        const d = dx * dx + dy * dy;
+        if (d < bestDist) { bestDist = d; bestIdx = i; }
+      }
+      const star = available.splice(bestIdx, 1)[0];
+      star.originX = star.x;
+      star.originY = star.y;
+      star.originColor = STAR_COLORS[star.color];
+      star.targetX = t.x;
+      star.targetY = t.y;
+      star.targetColor = t.color;
+      star.targetIsBig = t.isBig;
+      star.travelStart = now;
+      // Cancel any pending per-click colour transition (overridden by travel)
+      star.nextColor = null;
+      star.transitionStart = 0;
+    }
+  }
+  releaseAllLocked() {
+    for (const s of this.stars) {
+      if (s.isLocked || s.targetX !== null) {
+        s.isLocked = false;
+        s.targetX = null;
+        s.targetY = null;
+        s.targetColor = null;
+        s.originColor = null;
+        s.targetIsBig = false;
+        s.travelStart = 0;
+        s.r = s.baseR;
+        s.vx = (Math.random() - 0.5) * 0.004;
+        s.vy = (Math.random() - 0.5) * 0.004;
+      }
+    }
+  }
   step(dt) {
     this.ctx.clearRect(0, 0, this.w, this.h);
     if (this.identityColors && this.constTransition < 1) {
-      this.constTransition = Math.min(1, this.constTransition + dt / 2500);
+      this.constTransition = Math.min(1, this.constTransition + dt / 3200);
     }
-    const bgDim = this.identityColors ? (1 - 0.4 * this.constTransition) : 1;
+    const bgDim = this.identityColors ? (1 - 0.35 * this.constTransition) : 1;
     const now = performance.now();
-    const TRANSITION_MS = 1400;
+    const TRAVEL_MS = 2400;
     for (const s of this.stars) {
-      s.x += s.vx * dt;
-      s.y += s.vy * dt;
-      if (s.x < -2) s.x = this.w + 2;
-      if (s.x > this.w + 2) s.x = -2;
-      if (s.y < -2) s.y = this.h + 2;
-      if (s.y > this.h + 2) s.y = -2;
-      s.twinklePhase += s.twinkleSpeed * dt;
-      // Compute render colour, blending toward nextColor if transitioning
       let cr, cg, cb;
-      if (s.nextColor) {
-        const elapsed = now - s.transitionStart;
-        if (elapsed >= TRANSITION_MS) {
-          s.color = s.nextColor;
-          s.nextColor = null;
-          s.transitionStart = 0;
+      // ── Travel: star is heading to a constellation slot ────────────
+      if (s.targetX !== null && !s.isLocked) {
+        const elapsed = now - s.travelStart;
+        if (elapsed >= TRAVEL_MS) {
+          // Arrived: lock in place
+          s.x = s.targetX; s.y = s.targetY;
+          s.color = s.targetColor;
+          s.r = s.targetIsBig ? s.baseR * 2.4 : s.baseR * 1.5;
+          s.vx = 0; s.vy = 0;
+          s.targetX = null; s.targetY = null;
+          s.travelStart = 0;
+          s.isLocked = true;
           [cr, cg, cb] = STAR_COLORS[s.color];
         } else {
-          const t = elapsed / TRANSITION_MS;
-          const e = t * t * (3 - 2 * t); // smoothstep ease
-          const [fr, fg, fb] = STAR_COLORS[s.color];
-          const [tr, tg, tb] = STAR_COLORS[s.nextColor];
+          const t = elapsed / TRAVEL_MS;
+          const e = t * t * (3 - 2 * t); // smoothstep
+          s.x = s.originX + (s.targetX - s.originX) * e;
+          s.y = s.originY + (s.targetY - s.originY) * e;
+          const [fr, fg, fb] = s.originColor;
+          const [tr, tg, tb] = STAR_COLORS[s.targetColor];
           cr = fr + (tr - fr) * e;
           cg = fg + (tg - fg) * e;
           cb = fb + (tb - fb) * e;
+          // Star grows during travel for emphasis
+          const growMul = s.targetIsBig ? 1.4 : 0.5;
+          s.r = s.baseR * (1 + growMul * e);
         }
-      } else {
+      } else if (s.isLocked) {
+        // Locked in constellation: no drift, just twinkle in place
         [cr, cg, cb] = STAR_COLORS[s.color];
+      } else {
+        // ── Background drift + optional per-click colour transition ──
+        s.x += s.vx * dt;
+        s.y += s.vy * dt;
+        if (s.x < -2) s.x = this.w + 2;
+        if (s.x > this.w + 2) s.x = -2;
+        if (s.y < -2) s.y = this.h + 2;
+        if (s.y > this.h + 2) s.y = -2;
+        if (s.nextColor) {
+          const dur = s.transitionDuration || 1400;
+          const elapsed = now - s.transitionStart;
+          if (elapsed >= dur) {
+            s.color = s.nextColor; s.nextColor = null; s.transitionStart = 0;
+            [cr, cg, cb] = STAR_COLORS[s.color];
+          } else {
+            const t = elapsed / dur;
+            const e = t * t * (3 - 2 * t);
+            const [fr, fg, fb] = STAR_COLORS[s.color];
+            const [tr, tg, tb] = STAR_COLORS[s.nextColor];
+            cr = fr + (tr - fr) * e;
+            cg = fg + (tg - fg) * e;
+            cb = fb + (tb - fb) * e;
+          }
+        } else {
+          [cr, cg, cb] = STAR_COLORS[s.color];
+        }
       }
-      const twinkle = 0.55 + 0.45 * Math.sin(s.twinklePhase);
-      const alpha = s.baseAlpha * twinkle * bgDim;
-      this.ctx.fillStyle = `rgba(${cr|0},${cg|0},${cb|0},${alpha * 0.28})`;
+      // ── Render: bloom halo + sharp core. Locked stars twinkle gentler. ──
+      s.twinklePhase += s.twinkleSpeed * dt;
+      const twinkle = s.isLocked
+        ? 0.75 + 0.25 * Math.sin(s.twinklePhase)
+        : 0.55 + 0.45 * Math.sin(s.twinklePhase);
+      const dim = s.isLocked ? 1 : bgDim; // locked stars stay bright
+      const alpha = s.baseAlpha * twinkle * dim;
+      const haloMul = s.isLocked ? 3.8 : 3.5;
+      this.ctx.fillStyle = `rgba(${cr|0},${cg|0},${cb|0},${alpha * 0.3})`;
       this.ctx.beginPath();
-      this.ctx.arc(s.x, s.y, s.r * 3.5, 0, Math.PI * 2);
+      this.ctx.arc(s.x, s.y, s.r * haloMul, 0, Math.PI * 2);
       this.ctx.fill();
       this.ctx.fillStyle = `rgba(${cr|0},${cg|0},${cb|0},${alpha})`;
       this.ctx.beginPath();
       this.ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
       this.ctx.fill();
     }
-    // Mana-symbol constellations: one per colour in the identity, drawn at
-    // their pentagon slot. Multi-colour identities also get a faint gilt
-    // dashed line between slots to show the combination.
+    // ── Constellation lines ── fade in once stars have mostly arrived ──
     if (this.identityColors && this.constellation.length) {
-      const t = this.constTransition;
       const ident = this.identityColors;
-      for (const con of this.constellation) {
-        if (!ident.includes(con.color)) continue;
-        const [r, g, b] = STAR_COLORS[con.color];
-        // Lines of the mana symbol
-        this.ctx.strokeStyle = `rgba(${r},${g},${b},${0.5 * t})`;
-        this.ctx.lineWidth = 1;
-        this.ctx.beginPath();
-        for (const [from, to] of con.lines) {
-          this.ctx.moveTo(con.points[from][0], con.points[from][1]);
-          this.ctx.lineTo(con.points[to][0], con.points[to][1]);
-        }
-        this.ctx.stroke();
-        // Stars at each point
-        for (const [px, py] of con.points) {
-          this.ctx.fillStyle = `rgba(${r},${g},${b},${0.35 * t})`;
+      // Lines fade in from formProgress 0.55 to 1.0 (last ~45% of ramp)
+      const lineAlpha = Math.max(0, (this.constTransition - 0.55) / 0.45);
+      if (lineAlpha > 0) {
+        for (const con of this.constellation) {
+          if (!ident.includes(con.color)) continue;
+          const [r, g, b] = STAR_COLORS[con.color];
+          this.ctx.strokeStyle = `rgba(${r},${g},${b},${0.55 * lineAlpha})`;
+          this.ctx.lineWidth = 1;
           this.ctx.beginPath();
-          this.ctx.arc(px, py, 4, 0, Math.PI * 2);
-          this.ctx.fill();
-          this.ctx.fillStyle = `rgba(${r},${g},${b},${0.95 * t})`;
-          this.ctx.beginPath();
-          this.ctx.arc(px, py, 1.6, 0, Math.PI * 2);
-          this.ctx.fill();
+          for (const [from, to] of con.lines) {
+            this.ctx.moveTo(con.points[from][0], con.points[from][1]);
+            this.ctx.lineTo(con.points[to][0], con.points[to][1]);
+          }
+          this.ctx.stroke();
         }
-      }
-      // Inter-symbol gilt dashed line for multi-colour identities
-      if (ident.length > 1) {
-        this.ctx.strokeStyle = `rgba(212, 175, 106, ${0.2 * t})`;
-        this.ctx.lineWidth = 1;
-        this.ctx.setLineDash([4, 6]);
-        this.ctx.beginPath();
-        for (let i = 0; i < this.constellation.length; i++) {
-          for (let j = i + 1; j < this.constellation.length; j++) {
-            const a = this.constellation[i], b = this.constellation[j];
-            if (ident.includes(a.color) && ident.includes(b.color)) {
-              this.ctx.moveTo(a.slotX, a.slotY);
-              this.ctx.lineTo(b.slotX, b.slotY);
+        // Multi-colour identities: faint gilt dashed line between slot centres
+        if (ident.length > 1) {
+          this.ctx.strokeStyle = `rgba(212, 175, 106, ${0.22 * lineAlpha})`;
+          this.ctx.lineWidth = 1;
+          this.ctx.setLineDash([4, 6]);
+          this.ctx.beginPath();
+          for (let i = 0; i < this.constellation.length; i++) {
+            for (let j = i + 1; j < this.constellation.length; j++) {
+              const a = this.constellation[i], b = this.constellation[j];
+              if (ident.includes(a.color) && ident.includes(b.color)) {
+                this.ctx.moveTo(a.slotX, a.slotY);
+                this.ctx.lineTo(b.slotX, b.slotY);
+              }
             }
           }
+          this.ctx.stroke();
+          this.ctx.setLineDash([]);
         }
-        this.ctx.stroke();
-        this.ctx.setLineDash([]);
       }
     }
   }
@@ -3836,16 +3968,26 @@ function initWisps() {
 
 // Called after every answer + on result render + on restart — derives weights
 // from whatever signal is most current in state, and toggles the constellation
-// when state.result.identity becomes set/unset.
+// when state.result.identity becomes set/unset. Transition speed scales by
+// round so the sky visibly accelerates as the result converges in Round 3.
 function updateWispWeights() {
   if (!_sky) return;
+  // Round-aware transition speed: R3 (tournament) feels rapid, R1 feels slow.
+  let opts;
+  if (state.tournament) {
+    opts = { fraction: 0.22, duration: 850 };   // Round 3 — rapid convergence
+  } else if (state.stage === 2) {
+    opts = { fraction: 0.12, duration: 1100 };  // Round 2 — quickening
+  } else {
+    opts = { fraction: 0.07, duration: 1500 };  // Round 1 — gradual
+  }
   // Weights: prefer activationSorted (post-R1), fall back to raw colorScores (mid-R1)
   if (state.activationSorted && state.activationSorted.length > 0) {
-    _sky.setWeights(Object.fromEntries(state.activationSorted));
+    _sky.setWeights(Object.fromEntries(state.activationSorted), opts);
   } else if (state.colorScores) {
-    _sky.setWeights(state.colorScores);
+    _sky.setWeights(state.colorScores, opts);
   }
-  // Constellation: lit when identity is known
+  // Constellation: lit when identity is known. Stars travel to it.
   if (state.result && state.result.identity && PROFILES[state.result.identity]) {
     _sky.setIdentity(PROFILES[state.result.identity].colors || []);
   } else {
@@ -6545,9 +6687,10 @@ function selectTournamentChoice(winnerId) {
   lockAnswers();
   
   console.log(`Tournament Q${state.tournament.questionCount + 1}: Selected ${winnerId}`);
-  
+
   // Record result
   recordTournamentResult(state.tournament, winnerId);
+  updateWispWeights();
   
   // Check for early termination
   const termCheck = shouldTerminateEarly(state.tournament);
