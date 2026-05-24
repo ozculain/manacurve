@@ -1845,6 +1845,12 @@ button:focus-visible { outline: 2px solid #a78bfa; outline-offset: 2px; }
         </div>
       </div>
 
+      <!-- Seed banner: shown only when the result was loaded via shared URL -->
+      <div id="seed-banner" style="display: none; margin-bottom: 24px; padding: 16px 22px; background: var(--inset); border: 1px solid var(--gilt-soft); display: flex; gap: 18px; align-items: center; justify-content: space-between; flex-wrap: wrap;">
+        <span style="font-family: var(--f-flavor); font-style: italic; color: var(--ink-muted); font-size: 14px; line-height: 1.5; flex: 1; min-width: 200px;">You're viewing someone else's result. Curious what yours is?</span>
+        <button onclick="restart()" class="mc-btn mc-btn--primary" style="padding: 12px 24px; font-size: 14px; flex-shrink: 0;">Take the test yourself ›</button>
+      </div>
+
       <!-- Workplace disclaimer banner (audience-aware) -->
       <div id="workplace-disclaimer" style="display: none; margin-bottom: 28px; padding: 18px 22px; background: var(--inset); border: 1px dashed var(--gilt-soft); font-family: var(--f-body); font-size: 14px; color: var(--ink-muted); line-height: 1.6;">
         <span class="mc-eyebrow mc-eyebrow--gilt" style="display: inline-block; margin-bottom: 6px;">⚠ Team / Workplace Mode</span><br>
@@ -3468,6 +3474,67 @@ function restoreSession(snapshot) {
   return true;
 }
 
+// ─── SEED URL (deep-link to a specific result) ─────────────────────────────
+// Encodes the result + mana bars into URL params so a shared link lands on
+// the original taker's exact result. URL shape: ?r=DIMIR&p=20,15,40,5,20&c=high&a=consumer
+//   r = identity key (PROFILES key)
+//   p = mana bar percentages in WUBRG order, comma-separated ints 0..100
+//   c = confidence (low/moderate/high)
+//   a = audience (consumer/workplace)
+
+function buildResultURL() {
+  if (!state.result || !state.result.identity || !state.activationSorted) {
+    return location.origin + location.pathname;
+  }
+  const map = Object.fromEntries(state.activationSorted);
+  const p = ['W','U','B','R','G']
+    .map(c => Math.round((map[c] || 0) * 100))
+    .join(',');
+  const c = (state.result.confidence || 'MODERATE').toLowerCase();
+  const a = state.audience || 'consumer';
+  const r = encodeURIComponent(state.result.identity);
+  return `${location.origin}${location.pathname}?r=${r}&p=${p}&c=${c}&a=${a}`;
+}
+
+function parseSeedURL() {
+  const params = new URLSearchParams(location.search);
+  const r = params.get('r');
+  if (!r || !PROFILES[r]) return null;
+  const pcts = (params.get('p') || '').split(',').map(n => {
+    const v = parseInt(n, 10);
+    return isNaN(v) ? 0 : Math.max(0, Math.min(100, v));
+  });
+  while (pcts.length < 5) pcts.push(0);
+  const wubrg = ['W','U','B','R','G'];
+  const activationSorted = wubrg
+    .map((c, i) => [c, pcts[i] / 100])
+    .sort((a, b) => b[1] - a[1]);
+  const conf = (params.get('c') || 'moderate').toUpperCase();
+  const audience = params.get('a') === 'workplace' ? 'workplace' : 'consumer';
+  return {
+    identity: r,
+    confidence: ['LOW','MODERATE','HIGH'].includes(conf) ? conf : 'MODERATE',
+    activationSorted,
+    audience
+  };
+}
+
+function loadFromSeed(seed) {
+  state.result = {
+    identity: seed.identity,
+    confidence: seed.confidence,
+    allResults: []
+  };
+  state.activationSorted = seed.activationSorted;
+  state.audience = seed.audience;
+  state.disclaimerAcknowledged = true;
+  document.body.dataset.audience = seed.audience === 'workplace' ? 'workplace' : 'forfun';
+  document.getElementById('screen-welcome').classList.add('hidden');
+  const seedBanner = document.getElementById('seed-banner');
+  if (seedBanner) seedBanner.style.display = '';
+  showResults();
+}
+
 function offerSessionRestore() {
   const snapshot = loadSession();
   if (!snapshot || !snapshot.qNum || snapshot.qNum < 3) return false;
@@ -3608,7 +3675,19 @@ window.addEventListener('DOMContentLoaded', function() {
   } catch(e) {
     console.error('Error in initArchetypeOfMonth:', e);
   }
-  
+
+  // Seed URL — if a ?r=<identity> param is present, skip welcome/preflight
+  // and render that result directly with the original taker's mana bars.
+  try {
+    const seed = parseSeedURL();
+    if (seed) {
+      loadFromSeed(seed);
+      return;
+    }
+  } catch (e) {
+    console.warn('Seed URL load failed, falling back to welcome:', e);
+  }
+
   // Check for saved session and offer resume
   offerSessionRestore();
 });
@@ -8700,7 +8779,7 @@ function showResults() {
   if (sharePreview && p) {
     const colorEmojis = {W:'☀️', U:'💧', B:'💀', R:'🔥', G:'🌿'};
     const symbols = p.colors.map(c => colorEmojis[c] || c).join(' ');
-    const url = `${window.location.origin}${window.location.pathname}`;
+    const url = buildResultURL();
     const audience = state.audience || 'consumer';
     const topStrength = (p.str && p.str[0]) ? p.str[0] : '';
     const banter = (p.pubBanter || '').replace(/^"|"$/g, '');
@@ -9065,7 +9144,7 @@ async function copyShareImage() {
 }
 
 function copyShareLink() {
-  const url = location.href;
+  const url = buildResultURL();
   if (navigator.clipboard) navigator.clipboard.writeText(url);
 }
 
@@ -9109,7 +9188,14 @@ function restart() {
   document.getElementById('screen-round-transition').classList.add('hidden');
   document.getElementById('screen-welcome').classList.remove('hidden');
   window.scrollTo({top: 0});
-  
+
+  // Clear seed URL params and hide seed banner — we're starting fresh
+  if (location.search) {
+    try { history.replaceState(null, '', location.pathname); } catch(e) {}
+  }
+  const seedBanner = document.getElementById('seed-banner');
+  if (seedBanner) seedBanner.style.display = 'none';
+
   // Reset gaming toggle UI
   const gamingCheck = document.getElementById('gaming-check');
   const gamingBox = document.getElementById('gaming-check-box');
