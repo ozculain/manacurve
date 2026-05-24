@@ -776,7 +776,7 @@ body {
 }
 main { position: relative; z-index: 2; }
 
-.container { max-width: 900px; margin: 0 auto; }
+.container { max-width: 900px; margin: 0 auto; position: relative; z-index: 2; }
 
 /* Mana symbols. The official Scryfall SVG fills the container as a background
    image; the W/U/B/R/G letter inside the original markup is rendered
@@ -914,6 +914,15 @@ main { position: relative; z-index: 2; }
    !important restores the legacy escape hatch without rolling back the
    style="display:none;" → class="hidden" cleanup. */
 .hidden { display: none !important; }
+
+/* Working With Others: expandable per-other-colour interaction list */
+.mc-relations { padding: 18px 22px; background: var(--inset); border-left: 2px solid var(--gilt-soft); margin-bottom: 8px; }
+.mc-relations__item { display: flex; gap: 14px; align-items: flex-start; padding: 14px 0; border-bottom: 1px solid var(--gilt-line); }
+.mc-relations__item:last-child { border-bottom: none; }
+.mc-relations__pip { flex-shrink: 0; }
+.mc-relations__body { flex: 1; font-family: var(--f-body); }
+.mc-relations__title { font-family: var(--f-display); letter-spacing: 0.16em; font-size: 12px; color: var(--ink); margin-bottom: 6px; text-transform: uppercase; }
+.mc-relations__desc { font-size: 14px; line-height: 1.55; color: var(--ink-muted); }
 
 /* Seed banner: shown above the result when arrived via a shared seed URL */
 .mc-seed-banner {
@@ -1975,6 +1984,15 @@ button:focus-visible { outline: 2px solid #a78bfa; outline-offset: 2px; }
             </p>
           </div>
         </div>
+
+        <!-- Working With Others — interactions with allied and enemy colours -->
+        <div class="mc-typeline" style="margin-top: 36px;"><span class="mc-typeline__diamond"></span>Working With Others<span class="mc-typeline__diamond"></span></div>
+        <div style="display:flex;gap:12px;margin-top: 18px;margin-bottom: 24px;flex-wrap:wrap;">
+          <button class="mc-btn" id="btn-relations-clash" onclick="toggleRelations('clash')">Who I clash with ›</button>
+          <button class="mc-btn" id="btn-relations-align" onclick="toggleRelations('align')">Who I align with ›</button>
+        </div>
+        <div id="relations-clash" class="hidden mc-relations"></div>
+        <div id="relations-align" class="hidden mc-relations"></div>
 
         <!-- Action row -->
         <div style="display:flex;gap:12px;margin-top:32px;flex-wrap:wrap;">
@@ -3517,6 +3535,107 @@ function restoreSession(snapshot) {
     return false;
   }
   return true;
+}
+
+// ─── COLOUR RELATIONS (Working With Others) ────────────────────────────────
+// MTG canon: each colour has two allies (adjacent on the wheel) and two
+// enemies (opposite). For multi-colour identities, enemies/allies are the
+// union across the identity's colours, minus the colours you already have.
+
+const COLOR_ALLIES = { W:['U','G'], U:['W','B'], B:['U','R'], R:['B','G'], G:['R','W'] };
+const COLOR_ENEMIES = { W:['B','R'], U:['R','G'], B:['W','G'], R:['W','U'], G:['U','B'] };
+
+// Friction text per enemy pair (keys are sorted-colour pairs so symmetric)
+const COLOR_FRICTIONS = {
+  'B-W': "Your sense of group fairness lands on their self-interest like a complaint form. They think you're naive; you think they're a wrong'un. Both correct.",
+  'R-W': "Your insistence on structure is what they call 'admin'. They'll skip the meeting and apologise for the urgency after. Their urgency keeps being real, somehow.",
+  'R-U': "Your analysis is what they call overthinking, mostly because they don't want to think. They'll make the call before your model finishes loading. Sometimes their call is right.",
+  'G-U': "Your enthusiasm for designing the better way runs into their loyalty to what's working. They'll resist your roadmap quietly, then ignore it loudly.",
+  'B-G': "Your willingness to put a number on someone runs into their sense of who's owed what. They will not be optimised. They will, however, remember."
+};
+
+// Alignment text per ally pair (sorted-colour key)
+const COLOR_ALIGNMENTS = {
+  'U-W': "You both believe the right answer matters AND can be reached methodically. Reliable on anything that needs both fairness and rigor.",
+  'B-U': "You both think before acting and you both know what you're after. Mutual respect for competence, low on sentiment.",
+  'B-R': "You both have appetite for things to actually happen. Get on famously while there are wins on the table.",
+  'G-R': "You both trust instinct over slides. You'll move fast together and figure out the rest when you get there.",
+  'G-W': "You both build things that last. Slower than the room would like, but you'll still be standing in five years."
+};
+
+const COLOR_DISPLAY = { W: 'White', U: 'Blue', B: 'Black', R: 'Red', G: 'Green' };
+
+function pairKey(a, b) { return [a, b].sort().join('-'); }
+
+function getColorRelations(identityColors) {
+  const enemies = new Set();
+  const allies = new Set();
+  for (const c of identityColors) {
+    for (const e of COLOR_ENEMIES[c]) enemies.add(e);
+    for (const a of COLOR_ALLIES[c]) allies.add(a);
+  }
+  // Remove identity colours from these sets — you don't clash/ally with yourself
+  for (const c of identityColors) { enemies.delete(c); allies.delete(c); }
+  // Also remove from allies anything that's also in enemies (rare: only with
+  // 3+ colour identities where one colour's ally is another's enemy)
+  for (const c of enemies) allies.delete(c);
+  return { enemies: Array.from(enemies), allies: Array.from(allies) };
+}
+
+function buildRelationItem(otherColor, identityColors, source) {
+  // Pick which of MY colours has the strongest relation to theirs
+  let myColor = identityColors[0];
+  for (const mc of identityColors) {
+    const list = source === COLOR_FRICTIONS ? COLOR_ENEMIES[mc] : COLOR_ALLIES[mc];
+    if (list.includes(otherColor)) { myColor = mc; break; }
+  }
+  const desc = source[pairKey(myColor, otherColor)] || '';
+  const title = `${COLOR_DISPLAY[otherColor]}-heavy colleagues`;
+  return `<div class="mc-relations__item">
+    <span class="mc-pip is-lit mc-relations__pip" data-color="${otherColor}" aria-label="${otherColor}"></span>
+    <div class="mc-relations__body">
+      <div class="mc-relations__title">${title}</div>
+      <div class="mc-relations__desc">${desc}</div>
+    </div>
+  </div>`;
+}
+
+function renderRelations() {
+  if (!state.result || !state.result.identity) return;
+  const p = PROFILES[state.result.identity];
+  if (!p || !p.colors) return;
+  const { enemies, allies } = getColorRelations(p.colors);
+  const clashEl = document.getElementById('relations-clash');
+  const alignEl = document.getElementById('relations-align');
+  if (clashEl) {
+    clashEl.innerHTML = enemies.length > 0
+      ? enemies.map(c => buildRelationItem(c, p.colors, COLOR_FRICTIONS)).join('')
+      : `<div class="mc-relations__desc" style="padding: 10px 0; text-align: center;">Five-colour identities don't really clash with any one type — you contain all of them.</div>`;
+  }
+  if (alignEl) {
+    alignEl.innerHTML = allies.length > 0
+      ? allies.map(c => buildRelationItem(c, p.colors, COLOR_ALIGNMENTS)).join('')
+      : `<div class="mc-relations__desc" style="padding: 10px 0; text-align: center;">No strict allies left after deduplication — you draw from every adjacent style.</div>`;
+  }
+  // Reset both expand states so previous-result toggle doesn't carry over
+  if (clashEl) clashEl.classList.add('hidden');
+  if (alignEl) alignEl.classList.add('hidden');
+  const cb = document.getElementById('btn-relations-clash');
+  const ab = document.getElementById('btn-relations-align');
+  if (cb) cb.textContent = 'Who I clash with ›';
+  if (ab) ab.textContent = 'Who I align with ›';
+}
+
+function toggleRelations(which) {
+  const elId = which === 'clash' ? 'relations-clash' : 'relations-align';
+  const btnId = which === 'clash' ? 'btn-relations-clash' : 'btn-relations-align';
+  const el = document.getElementById(elId);
+  const btn = document.getElementById(btnId);
+  if (!el || !btn) return;
+  const willOpen = el.classList.contains('hidden');
+  el.classList.toggle('hidden');
+  const label = which === 'clash' ? 'Who I clash with' : 'Who I align with';
+  btn.textContent = willOpen ? `${label} ⌄` : `${label} ›`;
 }
 
 // ─── STAR SKY (animated WUBRG night sky) ───────────────────────────────────
@@ -9056,6 +9175,7 @@ function showResults() {
   }
 
   renderQualityWarning();
+  renderRelations();
 
   // ENHANCEMENT: Detect PRIMARY color in multi-color combinations
   const primaryIndicator = document.getElementById('primary-color-indicator');
