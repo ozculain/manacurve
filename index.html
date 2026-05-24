@@ -1338,8 +1338,8 @@ button:focus-visible { outline: 2px solid #a78bfa; outline-offset: 2px; }
 .box-content ul { list-style: none; padding: 0; margin: 0; }
 .box-content li { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
 .box-content li:last-child { border-bottom: none; }
-.quick-fact { background: rgba(139,92,246,0.08); padding: 16px; border-radius: 8px; margin: 12px 0; border-left: 3px solid #a78bfa; }
-.quick-fact strong { color: #c4b5fd; display: block; margin-bottom: 6px; font-size: 13px; }
+.quick-fact { background: var(--inset); padding: 14px 18px; margin: 12px 0; border-left: 2px solid var(--gilt-soft); border: 1px solid var(--gilt-line); border-left-width: 2px; }
+.quick-fact strong { color: var(--gilt); display: block; margin-bottom: 6px; font-family: var(--f-display); font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; }
 
 /* Round 2 Ranked List */
 .ranking-instructions { background: rgba(139,92,246,0.1); border: 2px solid rgba(139,92,246,0.3); border-radius: 12px; padding: 20px; margin-bottom: 24px; font-size: 14px; line-height: 1.6; }
@@ -1561,7 +1561,7 @@ button:focus-visible { outline: 2px solid #a78bfa; outline-offset: 2px; }
         <!-- Identity name, tagline, symbols go here -->
       </div>
       
-      <div class="modal-tabs" style="display: flex; gap: 8px; border-bottom: 2px solid rgba(255,255,255,0.1); margin-bottom: 32px;">
+      <div class="modal-tabs">
         <button class="tab-btn active" onclick="switchModalTab(event, 'overview')">Overview</button>
         <button class="tab-btn" onclick="switchModalTab(event, 'philosophy')">Philosophy</button>
         <button class="tab-btn" onclick="switchModalTab(event, 'workplace')">Workplace</button>
@@ -3614,9 +3614,9 @@ function renderManaRow(colors, size = 'md') {
 }
 
 function renderInfoBox(type, title, content) {
-  const borderColors = {strength:'#10B981', shadow:'#EF4444', stress:'#F59E0B', development:'#3B82F6', info:'#a78bfa'};
-  const borderColor = borderColors[type] || borderColors.info;
-  return `<div class="info-box ${type}" style="border-left-color:${borderColor};">
+  // Border colour is set by .info-box.${type} CSS rules (var(--G)/(--R)/etc.).
+  // No inline style — inline would override the gilt/parchment theme.
+  return `<div class="info-box ${type}">
     <div class="box-header"><h4>${title}</h4></div>
     <div class="box-content">${content}</div>
   </div>`;
@@ -8652,15 +8652,15 @@ function openModal(id) {
     return;
   }
   
-  // Populate header
-  let headerHTML = '<div style="display: flex; justify-content: center; gap: 12px; margin-bottom: 16px;">';
-  profile.colors.forEach(c => {
-    headerHTML += `<span class="mana-symbol mana-${c}" style="width: 36px; height: 36px; font-size: 18px;">${c}</span>`;
-  });
-  headerHTML += '</div>';
-  headerHTML += `<h2 style="font-size: 32px; font-weight: 800; text-align: center; margin-bottom: 8px; color: #e0e0e0;">${profile.name}</h2>`;
-  headerHTML += `<p style="font-size: 18px; color: #a78bfa; text-align: center; font-style: italic;">${profile.tag}</p>`;
-  
+  // Header — gilt/parchment, uses the actual mana-symbol artwork
+  const pipsHTML = profile.colors.map(c =>
+    `<span class="mc-pip is-lit mc-pip--lg" data-color="${c}" aria-label="${c}"></span>`
+  ).join('');
+  const headerHTML = `
+    <div class="mc-manastrip" style="justify-content: center; margin-bottom: 14px;">${pipsHTML}</div>
+    <h2 class="mc-display" style="font-size: 32px; letter-spacing: 0.08em; text-align: center; margin-bottom: 6px; color: var(--gilt);">${profile.name}</h2>
+    <p class="mc-flavor" style="font-size: 18px; color: var(--ink-muted); text-align: center; margin: 0;">${profile.tag}</p>
+  `;
   document.getElementById('modal-header').innerHTML = headerHTML;
   
   // Populate all tab contents
@@ -8713,7 +8713,7 @@ function getOverviewContent(id) {
   let html = '';
   
   // Core philosophy
-  html += `<div class="info-box" style="border-left-color: #a78bfa;">
+  html += `<div class="info-box">
     <div class="box-header">
       <span class="text-20">🔮</span>
       <h4>Core Philosophy</h4>
@@ -8769,7 +8769,7 @@ function getOverviewContent(id) {
 
 function getQuickFacts(id, profile, type) {
   const colorNames = {W:'White', U:'Blue', B:'Black', R:'Red', G:'Green'};
-  let html = `<div class="info-box" style="border-left-color: #60A5FA;">
+  let html = `<div class="info-box">
     <div class="box-header">
       <span class="text-20">📊</span>
       <h4>Quick Facts</h4>
