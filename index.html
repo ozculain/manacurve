@@ -3615,6 +3615,7 @@ class StarSky {
     this.weights = { W: 0.2, U: 0.2, B: 0.2, R: 0.2, G: 0.2 };
     this.identityColors = null;
     this.constTransition = 0;
+    this.previewIntensity = 1.0;   // 0..1; during R3 ramps up across picks
     this.running = false;
     this.resize = this.resize.bind(this);
     window.addEventListener('resize', this.resize);
@@ -3756,8 +3757,13 @@ class StarSky {
       star.transitionDuration = duration;
     }
   }
-  setIdentity(colors) {
+  setIdentity(colors, opts = {}) {
     if (!colors || !colors.length) { this.clearIdentity(); return; }
+    // previewIntensity controls how "fully formed" the constellation is.
+    // Used during R3 to ramp brightness/glow with picks.
+    if (opts.previewIntensity !== undefined) this.previewIntensity = opts.previewIntensity;
+    else this.previewIntensity = 1.0;
+    // If colours unchanged, don't release/reassign — just let intensity update
     if (this.identityColors && this.identityColors.join() === colors.join()) return;
     this.releaseAllLocked();
     this.identityColors = colors.slice();
@@ -3768,6 +3774,7 @@ class StarSky {
     this.releaseAllLocked();
     this.identityColors = null;
     this.constTransition = 0;
+    this.previewIntensity = 1.0;
   }
   assignConstellationStars() {
     // Collect every (target x, y, color, isBig) tuple for lit slots
@@ -3950,41 +3957,66 @@ class StarSky {
       this.ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
       this.ctx.fill();
     }
-    // ── Constellation lines ── fade in once stars have mostly arrived ──
-    if (this.identityColors && this.constellation.length) {
-      const ident = this.identityColors;
-      // Lines fade in from formProgress 0.55 to 1.0 (last ~45% of ramp)
-      const lineAlpha = Math.max(0, (this.constTransition - 0.55) / 0.45);
-      if (lineAlpha > 0) {
-        for (const con of this.constellation) {
-          if (!ident.includes(con.color)) continue;
-          const [r, g, b] = STAR_COLORS[con.color];
-          this.ctx.strokeStyle = `rgba(${r},${g},${b},${0.55 * lineAlpha})`;
-          this.ctx.lineWidth = 1;
-          this.ctx.beginPath();
-          for (const [from, to] of con.lines) {
-            this.ctx.moveTo(con.points[from][0], con.points[from][1]);
-            this.ctx.lineTo(con.points[to][0], con.points[to][1]);
-          }
-          this.ctx.stroke();
+    // ── Constellation rendering ──
+    // ALWAYS draw all 5 mana-symbol placeholders as faint ghosts so the night
+    // sky shows the full pentagon of possibilities. Identity colours overlay
+    // bright lines + the traveling stars; non-identity colours stay faint.
+    if (this.constellation.length) {
+      const ident = this.identityColors || [];
+      // Faint ghost outlines for every slot (placeholders — what you could be)
+      for (const con of this.constellation) {
+        if (ident.includes(con.color)) continue;
+        const [r, g, b] = STAR_COLORS[con.color];
+        this.ctx.strokeStyle = `rgba(${r},${g},${b},0.10)`;
+        this.ctx.lineWidth = 0.7;
+        this.ctx.beginPath();
+        for (const [from, to] of con.lines) {
+          this.ctx.moveTo(con.points[from][0], con.points[from][1]);
+          this.ctx.lineTo(con.points[to][0], con.points[to][1]);
         }
-        // Multi-colour identities: faint gilt dashed line between slot centres
-        if (ident.length > 1) {
-          this.ctx.strokeStyle = `rgba(212, 175, 106, ${0.22 * lineAlpha})`;
-          this.ctx.lineWidth = 1;
-          this.ctx.setLineDash([4, 6]);
+        this.ctx.stroke();
+        for (const [px, py] of con.points) {
+          this.ctx.fillStyle = `rgba(${r},${g},${b},0.18)`;
           this.ctx.beginPath();
-          for (let i = 0; i < this.constellation.length; i++) {
-            for (let j = i + 1; j < this.constellation.length; j++) {
-              const a = this.constellation[i], b = this.constellation[j];
-              if (ident.includes(a.color) && ident.includes(b.color)) {
-                this.ctx.moveTo(a.slotX, a.slotY);
-                this.ctx.lineTo(b.slotX, b.slotY);
+          this.ctx.arc(px, py, 0.9, 0, Math.PI * 2);
+          this.ctx.fill();
+        }
+      }
+      // Bright identity lines (and inter-symbol dashed connection) — scaled
+      // by both the formation ramp (constTransition) AND previewIntensity
+      // (which is < 1 during R3 progressive build).
+      if (ident.length > 0) {
+        const lineAlpha = Math.max(0, (this.constTransition - 0.55) / 0.45) * this.previewIntensity;
+        if (lineAlpha > 0) {
+          for (const con of this.constellation) {
+            if (!ident.includes(con.color)) continue;
+            const [r, g, b] = STAR_COLORS[con.color];
+            this.ctx.strokeStyle = `rgba(${r},${g},${b},${0.6 * lineAlpha})`;
+            this.ctx.lineWidth = 1 + 0.4 * this.previewIntensity;
+            this.ctx.beginPath();
+            for (const [from, to] of con.lines) {
+              this.ctx.moveTo(con.points[from][0], con.points[from][1]);
+              this.ctx.lineTo(con.points[to][0], con.points[to][1]);
+            }
+            this.ctx.stroke();
+          }
+          if (ident.length > 1) {
+            this.ctx.strokeStyle = `rgba(212, 175, 106, ${0.22 * lineAlpha})`;
+            this.ctx.lineWidth = 1;
+            this.ctx.setLineDash([4, 6]);
+            this.ctx.beginPath();
+            for (let i = 0; i < this.constellation.length; i++) {
+              for (let j = i + 1; j < this.constellation.length; j++) {
+                const a = this.constellation[i], b = this.constellation[j];
+                if (ident.includes(a.color) && ident.includes(b.color)) {
+                  this.ctx.moveTo(a.slotX, a.slotY);
+                  this.ctx.lineTo(b.slotX, b.slotY);
+                }
               }
             }
+            this.ctx.stroke();
+            this.ctx.setLineDash([]);
           }
-          this.ctx.stroke();
-          this.ctx.setLineDash([]);
         }
       }
     }
@@ -4078,8 +4110,23 @@ function updateWispWeights() {
     _sky.setWeights(state.colorScores, opts);
   }
   // Constellation: lit when identity is known. Stars travel to it.
+  // During R3, the constellation builds progressively toward the current
+  // leader; previewIntensity ramps with each pick so the glow visibly grows.
   if (state.result && state.result.identity && PROFILES[state.result.identity]) {
-    _sky.setIdentity(PROFILES[state.result.identity].colors || []);
+    _sky.setIdentity(PROFILES[state.result.identity].colors || [], { previewIntensity: 1.0 });
+  } else if (state.tournament && state.tournament.candidates) {
+    // Find current leader by wins (ties broken by most recent — sort by wins desc)
+    const sorted = [...state.tournament.candidates].sort((a, b) => (b.wins || 0) - (a.wins || 0));
+    const leader = sorted[0];
+    if (leader && (leader.wins || 0) > 0 && PROFILES[leader.id]) {
+      const progress = Math.min(1, (state.tournament.questionCount || 0) / Math.max(1, state.tournament.maxQuestions || 1));
+      // Build intensity ramps from 0.25 (just barely visible at pick 1) to ~0.85
+      // (strongly glowing by R3 end). Final result push sets it to 1.0.
+      const intensity = 0.25 + 0.6 * progress;
+      _sky.setIdentity(PROFILES[leader.id].colors || [], { previewIntensity: intensity });
+    } else {
+      _sky.clearIdentity();
+    }
   } else {
     _sky.clearIdentity();
   }
