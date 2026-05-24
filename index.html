@@ -3610,6 +3610,8 @@ class StarSky {
     this.ctx = canvas.getContext('2d');
     this.stars = [];
     this.constellation = [];
+    this.shootingStars = [];
+    this.nextShootingTime = 0;
     this.weights = { W: 0.2, U: 0.2, B: 0.2, R: 0.2, G: 0.2 };
     this.identityColors = null;
     this.constTransition = 0;
@@ -3801,6 +3803,38 @@ class StarSky {
       star.transitionStart = 0;
     }
   }
+  spawnShootingStar() {
+    // Pick a starting edge (top or one of the sides) and a diagonal velocity
+    // angled toward the opposite quadrant. Speed in px/ms.
+    const speed = 0.55 + Math.random() * 0.45;
+    let x, y, vx, vy;
+    const edge = Math.random();
+    if (edge < 0.5) {
+      // From top edge — drift down-and-across
+      x = Math.random() * this.w;
+      y = -30;
+      const angle = (Math.PI / 4) + (Math.random() * Math.PI / 2); // 45°–135° from +x
+      vx = Math.cos(angle) * speed * (Math.random() < 0.5 ? -1 : 1);
+      vy = Math.abs(Math.sin(angle)) * speed;
+    } else if (edge < 0.75) {
+      // From left edge — drift right-and-down
+      x = -30;
+      y = Math.random() * this.h * 0.6;
+      vx = speed;
+      vy = (Math.random() * 0.5 + 0.3) * speed;
+    } else {
+      // From right edge — drift left-and-down
+      x = this.w + 30;
+      y = Math.random() * this.h * 0.6;
+      vx = -speed;
+      vy = (Math.random() * 0.5 + 0.3) * speed;
+    }
+    this.shootingStars.push({
+      x, y, vx, vy,
+      color: this.weightedColor(),
+      life: 0
+    });
+  }
   releaseAllLocked() {
     for (const s of this.stars) {
       if (s.isLocked || s.targetX !== null) {
@@ -3825,6 +3859,14 @@ class StarSky {
     const bgDim = this.identityColors ? (1 - 0.35 * this.constTransition) : 1;
     const now = performance.now();
     const TRAVEL_MS = 2400;
+    // Schedule a new shooting star every ~8–22s. Round 3 is denser.
+    if (now >= this.nextShootingTime) {
+      this.spawnShootingStar();
+      const isR3 = (typeof state !== 'undefined' && state.tournament);
+      const min = isR3 ? 4000 : 8000;
+      const range = isR3 ? 6000 : 14000;
+      this.nextShootingTime = now + min + Math.random() * range;
+    }
     for (const s of this.stars) {
       let cr, cg, cb;
       // ── Travel: star is heading to a constellation slot ────────────
@@ -3938,6 +3980,46 @@ class StarSky {
           this.ctx.setLineDash([]);
         }
       }
+    }
+    // ── Shooting stars ── drawn last so they pass OVER everything else ─────
+    for (let i = this.shootingStars.length - 1; i >= 0; i--) {
+      const ss = this.shootingStars[i];
+      ss.x += ss.vx * dt;
+      ss.y += ss.vy * dt;
+      ss.life += dt;
+      // Remove if off-screen
+      if (ss.x > this.w + 80 || ss.y > this.h + 80 || ss.x < -80 || ss.y < -80 || ss.life > 4000) {
+        this.shootingStars.splice(i, 1);
+        continue;
+      }
+      // Fade in over first 120ms, fade out over last 250ms before going offscreen
+      const fadeIn = Math.min(1, ss.life / 120);
+      // Compute trail tail point (a fixed pixel distance behind the head along velocity vector)
+      const speed = Math.hypot(ss.vx, ss.vy);
+      const tailLen = 110;
+      const tailX = ss.x - (ss.vx / speed) * tailLen;
+      const tailY = ss.y - (ss.vy / speed) * tailLen;
+      const [r, g, b] = STAR_COLORS[ss.color];
+      // Coloured tail with gradient — invisible at tail end, bright at head
+      const grad = this.ctx.createLinearGradient(tailX, tailY, ss.x, ss.y);
+      grad.addColorStop(0, `rgba(${r},${g},${b},0)`);
+      grad.addColorStop(0.6, `rgba(${r},${g},${b},${0.35 * fadeIn})`);
+      grad.addColorStop(1, `rgba(${r},${g},${b},${0.7 * fadeIn})`);
+      this.ctx.strokeStyle = grad;
+      this.ctx.lineWidth = 1.6;
+      this.ctx.beginPath();
+      this.ctx.moveTo(tailX, tailY);
+      this.ctx.lineTo(ss.x, ss.y);
+      this.ctx.stroke();
+      // Bright white head with coloured halo
+      this.ctx.fillStyle = `rgba(${r},${g},${b},${0.45 * fadeIn})`;
+      this.ctx.beginPath();
+      this.ctx.arc(ss.x, ss.y, 5, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.fillStyle = `rgba(255, 248, 230, ${0.95 * fadeIn})`;
+      this.ctx.beginPath();
+      this.ctx.arc(ss.x, ss.y, 1.8, 0, Math.PI * 2);
+      this.ctx.fill();
     }
   }
   start() {
