@@ -1284,32 +1284,56 @@ button:focus-visible { outline: 2px solid #a78bfa; outline-offset: 2px; }
   0%, 100% { box-shadow: 0 0 10px rgba(167,139,250,0.5), inset 0 0 10px rgba(167,139,250,0.2); }
   50% { box-shadow: 0 0 20px rgba(167,139,250,0.8), inset 0 0 15px rgba(167,139,250,0.4); }
 }
-#modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.90); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+#modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(7,7,12,0.92); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(2px); }
 #modal-overlay.hidden { display: none; }
-.modal-content-wrapper { max-width: 900px; max-height: 90vh; width: 100%; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border: 2px solid rgba(139,92,246,0.4); border-radius: 20px; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.8); animation: slideUp 0.4s; }
+.modal-content-wrapper { max-width: 900px; max-height: 90vh; width: 100%; background: var(--plinth); border: 1px solid var(--gilt-line); border-radius: 0; overflow-y: auto; box-shadow: var(--shadow-deep); animation: slideUp 0.4s; position: relative; }
+.modal-content-wrapper::before, .modal-content-wrapper::after { content: ""; position: absolute; left: 16px; right: 16px; height: 1px; background: linear-gradient(90deg, transparent, var(--gilt-line) 18%, var(--gilt-line) 82%, transparent); }
+.modal-content-wrapper::before { top: 0; }
+.modal-content-wrapper::after { bottom: 0; }
 @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
-.modal-close { position: sticky; top: 16px; float: right; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #e0e0e0; width: 40px; height: 40px; border-radius: 50%; font-size: 20px; line-height: 38px; text-align: center; cursor: pointer; transition: all 0.2s; margin: 16px; }
-.modal-close:hover { background: rgba(255,255,255,0.2); transform: rotate(90deg); }
-.deep-dive-btn { width: 100%; background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.3); color: #c4b5fd; padding: 18px 24px; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin: 10px 0; text-align: left; display: block; }
-.deep-dive-btn:hover { background: rgba(139,92,246,0.2); border-color: rgba(139,92,246,0.5); transform: translateX(6px); color: #e9d5ff; }
-.round-section { background: rgba(30,30,46,0.5); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 24px; margin: 20px 0; }
+.modal-close { position: sticky; top: 16px; float: right; background: var(--inset); border: 1px solid var(--gilt-line); color: var(--ink-muted); width: 40px; height: 40px; border-radius: 0; font-family: var(--f-display); font-size: 18px; line-height: 38px; text-align: center; cursor: pointer; transition: color 220ms, background 220ms; margin: 16px; }
+.modal-close:hover { background: rgba(212,175,106,0.08); color: var(--gilt); }
+.deep-dive-btn { background: var(--inset); border: 1px solid var(--gilt-line); color: var(--gilt); padding: 12px 22px; font-family: var(--f-display); font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; cursor: pointer; transition: background 220ms, color 220ms; }
+.deep-dive-btn:hover { background: rgba(212,175,106,0.08); color: var(--gilt-bright); }
+.round-section { background: var(--inset); border: 1px solid var(--gilt-line); border-radius: 0; padding: 24px; margin: 20px 0; }
 
 /* Modal Tab System */
-.modal-tabs { display: flex; gap: 8px; border-bottom: 2px solid rgba(255,255,255,0.1); margin-bottom: 32px; flex-wrap: wrap; }
-.tab-btn { background: none; border: none; color: #a0a0b0; padding: 12px 20px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; border-bottom: 3px solid transparent; margin-bottom: -2px; }
-.tab-btn.active { color: #c4b5fd; border-bottom-color: #a78bfa; }
-.tab-btn:hover { color: #d0d0e0; }
+.modal-tabs { display: flex; gap: 8px; border-bottom: 1px solid var(--gilt-line); margin-bottom: 32px; flex-wrap: wrap; }
+.tab-btn { background: none; border: none; color: var(--ink-faded); padding: 14px 20px; font-family: var(--f-display); font-size: 12px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; cursor: pointer; transition: color 220ms, border-color 220ms; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tab-btn.active { color: var(--gilt); border-bottom-color: var(--gilt); }
+.tab-btn:hover { color: var(--ink); }
 .tab-content { display: block; }
 .tab-content.hidden { display: none; }
 
 /* Info Boxes Within Tabs */
-.info-box { background: rgba(30, 30, 46, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-left: 4px solid #a78bfa; border-radius: 12px; padding: 24px; margin: 20px 0; }
-.info-box.strength { border-left-color: #10B981; }
-.info-box.shadow { border-left-color: #EF4444; }
-.info-box.stress { border-left-color: #F59E0B; }
-.info-box.development { border-left-color: #3B82F6; }
-.box-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
-.box-header h4 { font-size: 16px; font-weight: 700; color: #e0e0e0; text-transform: uppercase; letter-spacing: 1px; margin: 0; }
+.info-box { background: var(--inset); border: 1px solid var(--gilt-line); border-left: 2px solid var(--gilt-soft); border-radius: 0; padding: 22px 26px; margin: 18px 0; }
+.info-box.strength { border-left-color: var(--G); }
+.info-box.shadow { border-left-color: var(--R); }
+.info-box.stress { border-left-color: var(--gilt); }
+.info-box.development { border-left-color: var(--U); }
+.info-box p, .info-box li { font-family: var(--f-body); font-size: 14.5px; line-height: 1.75; color: var(--ink); }
+.info-box ul { list-style: none; padding: 0; margin: 0; }
+.info-box ul li + li { margin-top: 8px; }
+.box-header { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--gilt-line); }
+.box-header h4 { font-family: var(--f-display); font-size: 12px; font-weight: 700; color: var(--gilt); text-transform: uppercase; letter-spacing: 0.18em; margin: 0; }
+.box-header .text-20 { display: none; } /* hide emoji glyphs in box headers without touching the JS builders */
+
+/* Candidate-identity pills used in Round 2/3 methodology intros */
+.mc-cand-pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--inset); border: 1px solid var(--gilt-line); font-family: var(--f-display); font-size: 11px; letter-spacing: 0.12em; color: var(--ink-muted); }
+.mc-cand-pill.is-winner { border-color: var(--gilt); color: var(--ink); background: rgba(212,175,106,0.06); }
+.mc-cand-pill__pips { display: inline-flex; gap: 3px; }
+.mc-cand-pill__name { text-transform: uppercase; }
+.mc-cand-pill__mark { color: var(--gilt-bright); font-size: 8px; }
+
+/* Explorer card — clickable identity preview in the All 31 Types grid */
+.mc-explorer-card { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; background: var(--inset); border: 1px solid var(--gilt-line); border-left: 2px solid transparent; cursor: pointer; transition: background 220ms, border-color 220ms, transform 180ms; }
+.mc-explorer-card:hover { background: rgba(212,175,106,0.05); border-left-color: var(--gilt-soft); }
+.mc-explorer-card.selected { background: rgba(212,175,106,0.08); border-color: var(--gilt-line); border-left-color: var(--gilt); }
+.mc-explorer-card__pips { display: flex; gap: 4px; flex-shrink: 0; padding-top: 3px; }
+.mc-explorer-card__body { flex: 1; min-width: 0; font-family: var(--f-body); }
+.mc-explorer-card__name { font-family: var(--f-display); font-size: 14px; letter-spacing: 0.06em; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mc-explorer-card__tag { font-family: var(--f-flavor); font-style: italic; font-size: 12px; color: var(--ink-muted); margin-top: 3px; }
+.mc-explorer-card__preview { font-family: var(--f-body); font-size: 12.5px; color: var(--ink-faded); line-height: 1.5; margin-top: 6px; }
 .box-content { font-size: 14px; line-height: 1.7; color: #d0d0d0; }
 .box-content ul { list-style: none; padding: 0; margin: 0; }
 .box-content li { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
@@ -2423,166 +2447,231 @@ button:focus-visible { outline: 2px solid #a78bfa; outline-offset: 2px; }
 
   <!-- EXPLORER SCREEN -->
   <div id="screen-explorer" class="hidden">
-    <div class="card fade-in text-center">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-        <button onclick="closeExplorer()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: #a0a0b0; padding: 8px 16px; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: 600;">
-          ← Back
-        </button>
-        <h1 style="font-size: 32px; margin: 0;">The Complete Framework</h1>
-        <div style="width: 80px;"></div>
+    <div class="mc-plinth fade-in" style="padding: 28px 36px; text-align: left;">
+      <svg class="mc-corner mc-corner--tl"><use href="#fleuron"/></svg>
+      <svg class="mc-corner mc-corner--tr"><use href="#fleuron"/></svg>
+      <svg class="mc-corner mc-corner--bl"><use href="#fleuron"/></svg>
+      <svg class="mc-corner mc-corner--br"><use href="#fleuron"/></svg>
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap;">
+        <button class="mc-btn mc-btn--ghost" onclick="closeExplorer()">‹ Back</button>
+        <div style="text-align: center;">
+          <div class="mc-eyebrow mc-eyebrow--gilt">The Complete Framework</div>
+          <h1 class="mc-display" style="font-size: 28px; letter-spacing: 0.1em; margin: 6px 0 0; color: var(--ink);">All 31 Identities</h1>
+        </div>
+        <span style="min-width: 80px;"></span>
       </div>
-      
-      <p style="color: #a0a0b0; margin-bottom: 8px;">All 31 color identities in the Mana Curve framework</p>
-      <p style="color: #808090; font-size: 13px; font-style: italic;">Click any identity to view its complete profile</p>
+      <p class="mc-flavor" style="font-size: 15px; color: var(--ink-muted); text-align: center; margin: 14px 0 0;">
+        Click an identity to see which colours it runs, which it lacks, and the kind of colleague that completes it.
+      </p>
     </div>
-    
-    <!-- Two Column Layout: Grid + Detail -->
-    <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 24px; align-items: start;">
-      
+
+    <!-- Two-column: left = grouped identity grid; right = sticky detail panel with mini pentagon. -->
+    <div style="display: grid; grid-template-columns: 1fr 1.15fr; gap: 24px; align-items: start; margin-top: 24px;">
+
       <!-- LEFT: Identity Grid -->
-      <div>
-        <!-- Mono-Colors -->
-        <div class="card fade-in mb-20">
-          <h3 style="font-size: 16px; margin-bottom: 8px; color: #a78bfa; text-transform: uppercase; letter-spacing: 1px;">Mono-Color (5)</h3>
-          <p style="font-size: 12px; color: #808090; margin-bottom: 16px; font-style: italic;">Pure, focused, uncompromising</p>
+      <div style="display: flex; flex-direction: column; gap: 18px;">
+        <div class="mc-plinth" style="padding: 22px 26px;">
+          <svg class="mc-corner mc-corner--tl"><use href="#fleuron"/></svg>
+          <svg class="mc-corner mc-corner--tr"><use href="#fleuron"/></svg>
+          <svg class="mc-corner mc-corner--bl"><use href="#fleuron"/></svg>
+          <svg class="mc-corner mc-corner--br"><use href="#fleuron"/></svg>
+          <div class="mc-eyebrow mc-eyebrow--gilt">Mono-Colour · 5</div>
+          <p class="mc-flavor" style="font-size: 13px; color: var(--ink-faded); margin: 4px 0 14px;">Pure, focused, uncompromising.</p>
           <div style="display: grid; gap: 10px;" id="explorer-mono"></div>
         </div>
-        
-        <!-- Two-Color Guilds -->
-        <div class="card fade-in mb-20">
-          <h3 style="font-size: 16px; margin-bottom: 8px; color: #a78bfa; text-transform: uppercase; letter-spacing: 1px;">Two-Color Guilds (10)</h3>
-          <p style="font-size: 12px; color: #808090; margin-bottom: 16px; font-style: italic;">Allied and enemy pairs</p>
+
+        <div class="mc-plinth" style="padding: 22px 26px;">
+          <svg class="mc-corner mc-corner--tl"><use href="#fleuron"/></svg>
+          <svg class="mc-corner mc-corner--tr"><use href="#fleuron"/></svg>
+          <svg class="mc-corner mc-corner--bl"><use href="#fleuron"/></svg>
+          <svg class="mc-corner mc-corner--br"><use href="#fleuron"/></svg>
+          <div class="mc-eyebrow mc-eyebrow--gilt">Two-Colour Guilds · 10</div>
+          <p class="mc-flavor" style="font-size: 13px; color: var(--ink-faded); margin: 4px 0 14px;">Allied and enemy pairs.</p>
           <div style="display: grid; gap: 10px;" id="explorer-guilds"></div>
         </div>
-        
-        <!-- Three-Color -->
-        <div class="card fade-in mb-20">
-          <h3 style="font-size: 16px; margin-bottom: 8px; color: #a78bfa; text-transform: uppercase; letter-spacing: 1px;">Three-Color (10)</h3>
-          <p style="font-size: 12px; color: #808090; margin-bottom: 16px; font-style: italic;">Shards and wedges</p>
+
+        <div class="mc-plinth" style="padding: 22px 26px;">
+          <svg class="mc-corner mc-corner--tl"><use href="#fleuron"/></svg>
+          <svg class="mc-corner mc-corner--tr"><use href="#fleuron"/></svg>
+          <svg class="mc-corner mc-corner--bl"><use href="#fleuron"/></svg>
+          <svg class="mc-corner mc-corner--br"><use href="#fleuron"/></svg>
+          <div class="mc-eyebrow mc-eyebrow--gilt">Three-Colour · 10</div>
+          <p class="mc-flavor" style="font-size: 13px; color: var(--ink-faded); margin: 4px 0 14px;">Shards and wedges.</p>
           <div style="display: grid; gap: 10px;" id="explorer-three"></div>
         </div>
-        
-        <!-- Four-Color -->
-        <div class="card fade-in mb-20">
-          <h3 style="font-size: 16px; margin-bottom: 8px; color: #a78bfa; text-transform: uppercase; letter-spacing: 1px;">Four-Color (5)</h3>
-          <p style="font-size: 12px; color: #808090; margin-bottom: 16px; font-style: italic;">Defined by what's missing</p>
+
+        <div class="mc-plinth" style="padding: 22px 26px;">
+          <svg class="mc-corner mc-corner--tl"><use href="#fleuron"/></svg>
+          <svg class="mc-corner mc-corner--tr"><use href="#fleuron"/></svg>
+          <svg class="mc-corner mc-corner--bl"><use href="#fleuron"/></svg>
+          <svg class="mc-corner mc-corner--br"><use href="#fleuron"/></svg>
+          <div class="mc-eyebrow mc-eyebrow--gilt">Four-Colour · 5</div>
+          <p class="mc-flavor" style="font-size: 13px; color: var(--ink-faded); margin: 4px 0 14px;">Defined by what's missing.</p>
           <div style="display: grid; gap: 10px;" id="explorer-four"></div>
         </div>
-        
-        <!-- Five-Color -->
-        <div class="card fade-in mb-20">
-          <h3 style="font-size: 16px; margin-bottom: 8px; color: #a78bfa; text-transform: uppercase; letter-spacing: 1px;">Five-Color (1)</h3>
-          <p style="font-size: 12px; color: #808090; margin-bottom: 16px; font-style: italic;">Everything at once</p>
+
+        <div class="mc-plinth" style="padding: 22px 26px;">
+          <svg class="mc-corner mc-corner--tl"><use href="#fleuron"/></svg>
+          <svg class="mc-corner mc-corner--tr"><use href="#fleuron"/></svg>
+          <svg class="mc-corner mc-corner--bl"><use href="#fleuron"/></svg>
+          <svg class="mc-corner mc-corner--br"><use href="#fleuron"/></svg>
+          <div class="mc-eyebrow mc-eyebrow--gilt">Five-Colour · 1</div>
+          <p class="mc-flavor" style="font-size: 13px; color: var(--ink-faded); margin: 4px 0 14px;">Everything at once.</p>
           <div style="display: grid; gap: 10px;" id="explorer-five"></div>
         </div>
       </div>
-      
-      <!-- RIGHT: Detail Panel -->
-      <div id="detail-panel" class="card fade-in" style="position: sticky; top: 20px; min-height: 600px;">
-        <div id="detail-placeholder" style="text-align: center; padding: 60px 20px; color: #808090;">
-          <div style="font-size: 48px; margin-bottom: 16px; opacity: 0.3;">👈</div>
-          <p style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">Select an Identity</p>
-          <p class="text-sm">Click any personality type to view its complete profile</p>
+
+      <!-- RIGHT: Sticky Detail Panel -->
+      <div id="detail-panel" class="mc-plinth fade-in" style="position: sticky; top: 20px; min-height: 600px; padding: 28px 32px;">
+        <svg class="mc-corner mc-corner--tl"><use href="#fleuron"/></svg>
+        <svg class="mc-corner mc-corner--tr"><use href="#fleuron"/></svg>
+        <svg class="mc-corner mc-corner--bl"><use href="#fleuron"/></svg>
+        <svg class="mc-corner mc-corner--br"><use href="#fleuron"/></svg>
+
+        <!-- Placeholder -->
+        <div id="detail-placeholder" style="text-align: center; padding: 80px 20px; color: var(--ink-faded);">
+          <div class="mc-typeline"><span class="mc-typeline__diamond"></span><span class="mc-typeline__diamond"></span><span class="mc-typeline__diamond"></span></div>
+          <p class="mc-display" style="font-size: 18px; letter-spacing: 0.16em; color: var(--ink-muted); margin: 24px 0 8px;">Select an identity</p>
+          <p class="mc-flavor" style="font-size: 14px; color: var(--ink-faded);">Pick any type to see its colour shape and what it lacks.</p>
         </div>
-        
+
+        <!-- Content -->
         <div id="detail-content" class="hidden">
           <!-- Identity Header -->
-          <div style="text-align: center; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 2px solid rgba(255,255,255,0.1);">
-            <div id="detail-symbols" style="display: flex; justify-content: center; gap: 8px; margin-bottom: 16px;"></div>
-            <h2 id="detail-name" style="font-size: 32px; margin-bottom: 8px;">Identity Name</h2>
-            <p id="detail-tag" style="font-size: 16px; color: #a78bfa; font-style: italic;">Tagline</p>
+          <div style="text-align: center; padding-bottom: 22px; border-bottom: 1px solid var(--gilt-line);">
+            <div id="detail-symbols" class="mc-manastrip" style="justify-content: center; margin-bottom: 14px;"></div>
+            <h2 id="detail-name" class="mc-display" style="font-size: 32px; letter-spacing: 0.08em; color: var(--gilt); margin: 0 0 6px;">Identity Name</h2>
+            <p id="detail-tag" class="mc-flavor" style="font-size: 16px; color: var(--ink-muted); margin: 0;">Tagline</p>
           </div>
-          
-          <!-- The Pitch -->
-          <div class="mb-24">
-            <h4 style="font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #808090; margin-bottom: 12px;">What This Is</h4>
-            <p id="detail-desc" style="font-size: 15px; color: #d0d0d0; line-height: 1.7;"></p>
+
+          <!-- Mini pentagon (re-uses the rel-* class system, scoped to #explorer-pentagon) -->
+          <div style="margin: 24px auto; max-width: 280px;">
+            <svg id="explorer-pentagon" viewBox="0 0 400 400" class="mc-pentagon" aria-label="Colour wheel for this identity">
+              <line class="rel-edge rel-edge-ally" data-pair="U-W" x1="200" y1="70" x2="324" y2="160"/>
+              <line class="rel-edge rel-edge-ally" data-pair="B-U" x1="324" y1="160" x2="276" y2="305"/>
+              <line class="rel-edge rel-edge-ally" data-pair="B-R" x1="276" y1="305" x2="124" y2="305"/>
+              <line class="rel-edge rel-edge-ally" data-pair="G-R" x1="124" y1="305" x2="76" y2="160"/>
+              <line class="rel-edge rel-edge-ally" data-pair="G-W" x1="76" y1="160" x2="200" y2="70"/>
+              <line class="rel-edge rel-edge-enemy" data-pair="B-W" x1="200" y1="70" x2="276" y2="305"/>
+              <line class="rel-edge rel-edge-enemy" data-pair="R-W" x1="200" y1="70" x2="124" y2="305"/>
+              <line class="rel-edge rel-edge-enemy" data-pair="R-U" x1="324" y1="160" x2="124" y2="305"/>
+              <line class="rel-edge rel-edge-enemy" data-pair="G-U" x1="324" y1="160" x2="76" y2="160"/>
+              <line class="rel-edge rel-edge-enemy" data-pair="B-G" x1="276" y1="305" x2="76" y2="160"/>
+              <g class="rel-vertex rel-vertex--explorer" data-color="W"><circle class="rel-vertex-hit" cx="200" cy="70" r="34"/><image class="rel-vertex-img" href="images/symbols/W.svg" x="172" y="42" width="56" height="56"/></g>
+              <g class="rel-vertex rel-vertex--explorer" data-color="U"><circle class="rel-vertex-hit" cx="324" cy="160" r="34"/><image class="rel-vertex-img" href="images/symbols/U.svg" x="296" y="132" width="56" height="56"/></g>
+              <g class="rel-vertex rel-vertex--explorer" data-color="B"><circle class="rel-vertex-hit" cx="276" cy="305" r="34"/><image class="rel-vertex-img" href="images/symbols/B.svg" x="248" y="277" width="56" height="56"/></g>
+              <g class="rel-vertex rel-vertex--explorer" data-color="R"><circle class="rel-vertex-hit" cx="124" cy="305" r="34"/><image class="rel-vertex-img" href="images/symbols/R.svg" x="96" y="277" width="56" height="56"/></g>
+              <g class="rel-vertex rel-vertex--explorer" data-color="G"><circle class="rel-vertex-hit" cx="76" cy="160" r="34"/><image class="rel-vertex-img" href="images/symbols/G.svg" x="48" y="132" width="56" height="56"/></g>
+            </svg>
           </div>
-          
-          <!-- Pub Descriptions -->
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
-            <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; padding: 16px;">
-              <div style="font-size: 11px; font-weight: 600; color: #10B981; text-transform: uppercase; margin-bottom: 8px;">💼 To Your Face</div>
-              <p id="detail-normal" style="font-size: 13px; color: #b0d0c0; line-height: 1.6; font-style: italic;"></p>
+
+          <!-- What's Missing — populated from COLOR_GAPS by the JS below -->
+          <div class="mc-relations-detail" id="explorer-relations-detail" style="margin-bottom: 24px;"></div>
+
+          <!-- Philosophy -->
+          <div style="margin-bottom: 22px;">
+            <div class="mc-eyebrow mc-eyebrow--gilt" style="margin-bottom: 8px;">Philosophy</div>
+            <p id="detail-desc" class="mc-body" style="font-size: 15px; color: var(--ink); line-height: 1.75;"></p>
+          </div>
+
+          <!-- To-Your-Face / Behind-Your-Back -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 22px;">
+            <div style="padding: 16px 18px; background: var(--inset); border: 1px solid var(--gilt-line); border-left: 2px solid var(--gilt-soft);">
+              <div class="mc-eyebrow mc-eyebrow--gilt" style="margin-bottom: 8px;">To your face</div>
+              <p id="detail-normal" class="mc-flavor" style="font-size: 13.5px; color: var(--ink); line-height: 1.6; margin: 0;"></p>
             </div>
-            <div style="background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 8px; padding: 16px;">
-              <div style="font-size: 11px; font-weight: 600; color: #F59E0B; text-transform: uppercase; margin-bottom: 8px;">🍺 Behind Your Back</div>
-              <p id="detail-banter" style="font-size: 13px; color: #d0a070; line-height: 1.6; font-style: italic;"></p>
+            <div class="mc-fun-only" style="padding: 16px 18px; background: var(--inset); border: 1px solid var(--gilt-line); border-left: 2px solid var(--gilt-soft);">
+              <div class="mc-eyebrow mc-eyebrow--gilt" style="margin-bottom: 8px;">Behind your back</div>
+              <p id="detail-banter" class="mc-flavor" style="font-size: 13.5px; color: var(--ink); line-height: 1.6; margin: 0;"></p>
             </div>
           </div>
-          
-          <!-- Commander Reference -->
-          <div style="background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 8px; padding: 16px; margin-bottom: 24px;">
-            <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #a78bfa; margin-bottom: 8px;">⚡ Legendary Commander</div>
-            <div style="font-weight: 700; font-size: 16px; margin-bottom: 4px;" id="detail-cmd-name"></div>
-            <p style="font-size: 13px; color: #b0b0c0; font-style: italic;" id="detail-cmd-desc"></p>
+
+          <!-- Commander -->
+          <div style="padding: 18px 20px; background: var(--inset); border: 1px solid var(--gilt-line); margin-bottom: 22px;">
+            <div class="mc-eyebrow mc-eyebrow--gilt" style="margin-bottom: 6px;">Legendary commander</div>
+            <div id="detail-cmd-name" class="mc-display" style="font-size: 18px; letter-spacing: 0.08em; color: var(--ink); margin-bottom: 4px;"></div>
+            <p id="detail-cmd-desc" class="mc-flavor" style="font-size: 14px; color: var(--ink-muted); margin: 0;"></p>
           </div>
-          
-          <!-- Quick Reference -->
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+
+          <!-- Strengths / Shadows -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-bottom: 22px;">
             <div>
-              <h4 style="font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #808090; margin-bottom: 8px;">⚔ Key Strengths</h4>
-              <ul id="detail-strengths" style="list-style: none; padding: 0; font-size: 13px; color: #10B981;"></ul>
+              <div class="mc-eyebrow mc-eyebrow--gilt" style="margin-bottom: 10px;">Strengths</div>
+              <ul id="detail-strengths" class="mc-result__list"></ul>
             </div>
             <div>
-              <h4 style="font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #808090; margin-bottom: 8px;">⚠ Key Shadows</h4>
-              <ul id="detail-shadows" style="list-style: none; padding: 0; font-size: 13px; color: #EF4444;"></ul>
+              <div class="mc-eyebrow mc-eyebrow--gilt" style="margin-bottom: 10px;">Shadows</div>
+              <ul id="detail-shadows" class="mc-result__list"></ul>
             </div>
           </div>
-          
-          <!-- Typical Roles -->
+
+          <!-- Roles -->
           <div>
-            <h4 style="font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #808090; margin-bottom: 8px;">📋 Typical Roles</h4>
-            <p id="detail-roles" style="font-size: 14px; color: #a0a0b0;"></p>
+            <div class="mc-eyebrow mc-eyebrow--gilt" style="margin-bottom: 8px;">Natural roles</div>
+            <p id="detail-roles" class="mc-body" style="font-size: 14.5px; color: var(--ink); line-height: 1.7; margin: 0;"></p>
+          </div>
+
+          <!-- Open in modal CTA -->
+          <div style="text-align: center; margin-top: 26px;">
+            <button class="mc-btn" onclick="openModal(currentExplorerId)">Open the full dossier</button>
           </div>
         </div>
       </div>
-      
+
     </div>
   </div>
   
   <!-- INTERACTIONS GUIDE SCREEN -->
   <div id="screen-interactions" class="hidden">
-    <div class="card fade-in text-center">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-        <button onclick="closeInteractions()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: #a0a0b0; padding: 8px 16px; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: 600;">
-          ← Back
-        </button>
-        <h1 style="font-size: 32px; margin: 0;">How Colors Interact</h1>
-        <div style="width: 80px;"></div>
-      </div>
-      
-      <p style="color: #a0a0b0; margin-bottom: 8px;">Communication and conflict resolution across the five colors</p>
-    </div>
-    
-    <!-- YOUR COLORS (personalized, shown when user has results) -->
-    <div id="your-colors-section" class="card fade-in" style="display: none; border-left: 4px solid rgba(139, 92, 246, 0.5);">
-      <h3 style="font-size: 18px; margin-bottom: 12px; color: #a78bfa;">Your Colors</h3>
-      <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
-        <div id="interactions-your-symbols" style="display: flex; gap: 8px;"></div>
+    <div class="mc-plinth fade-in" style="padding: 28px 36px; text-align: center;">
+      <svg class="mc-corner mc-corner--tl"><use href="#fleuron"/></svg>
+      <svg class="mc-corner mc-corner--tr"><use href="#fleuron"/></svg>
+      <svg class="mc-corner mc-corner--bl"><use href="#fleuron"/></svg>
+      <svg class="mc-corner mc-corner--br"><use href="#fleuron"/></svg>
+      <div style="display: flex; justify-content: space-between; align-items: center; gap: 16px;">
+        <button class="mc-btn mc-btn--ghost" onclick="closeInteractions()">‹ Back</button>
         <div>
-          <div id="interactions-your-name" style="font-size: 18px; font-weight: 700; color: #e0e0e0;"></div>
-          <div id="interactions-your-tag" style="font-size: 13px; color: #a0a0b0;"></div>
+          <div class="mc-eyebrow mc-eyebrow--gilt">Across the Five Colours</div>
+          <h1 class="mc-display" style="font-size: 28px; letter-spacing: 0.1em; margin: 6px 0 0; color: var(--ink);">How Colours Interact</h1>
+        </div>
+        <span style="min-width: 80px;"></span>
+      </div>
+      <p class="mc-flavor" style="font-size: 15px; color: var(--ink-muted); margin: 14px 0 0;">Communication, conflict, and de-escalation.</p>
+    </div>
+
+    <!-- YOUR COLORS (personalized, shown when user has results) -->
+    <div id="your-colors-section" class="mc-plinth fade-in" style="display: none; padding: 24px 28px; margin-top: 18px; border-left: 2px solid var(--gilt-soft);">
+      <svg class="mc-corner mc-corner--tl"><use href="#fleuron"/></svg>
+      <svg class="mc-corner mc-corner--tr"><use href="#fleuron"/></svg>
+      <svg class="mc-corner mc-corner--bl"><use href="#fleuron"/></svg>
+      <svg class="mc-corner mc-corner--br"><use href="#fleuron"/></svg>
+      <div class="mc-eyebrow mc-eyebrow--gilt" style="margin-bottom: 12px;">Your Colours</div>
+      <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 14px;">
+        <div id="interactions-your-symbols" class="mc-manastrip"></div>
+        <div>
+          <div id="interactions-your-name" class="mc-display" style="font-size: 18px; letter-spacing: 0.08em; color: var(--ink);"></div>
+          <div id="interactions-your-tag" class="mc-flavor" style="font-size: 13px; color: var(--ink-muted);"></div>
         </div>
       </div>
-      <div id="interactions-your-content"></div>
+      <div id="interactions-your-content" class="mc-body" style="font-size: 14.5px; line-height: 1.7;"></div>
     </div>
     
     <!-- Communication Strategies -->
     <div class="card fade-in">
-      <h3 style="font-size: 20px; margin-bottom: 16px; color: #a78bfa;">Communication Strategies</h3>
-      <p style="font-size: 13px; color: #808090; margin-bottom: 24px; font-style: italic;">How to effectively communicate with each color</p>
+      <div class="mc-eyebrow mc-eyebrow--gilt">Communication Strategies</div>
+      <h3 class="mc-display" style="font-size: 22px; letter-spacing: 0.08em; color: var(--ink); margin: 6px 0 8px;">How to talk to each colour</h3>
+      <p class="mc-flavor" style="font-size: 14px; color: var(--ink-muted); margin: 0 0 20px;">Match the language to the colour's value system.</p>
       
       <div style="display: grid; gap: 16px;">
         <!-- White -->
-        <div style="background: rgba(255,255,255,0.03); border-left: 4px solid #F59E0B; padding: 16px; border-radius: 8px;">
+        <div style="background: var(--inset); border-left: 2px solid var(--W); padding: 18px 22px;">
           <div class="mc-row-12">
             <span class="mc-pip is-lit" data-color="W" aria-label="W"></span>
             <h4 class="mc-heading-md">Talking to WHITE</h4>
           </div>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
             <div>
-              <div style="font-size: 12px; color: #10B981; text-transform: uppercase; margin-bottom: 8px; font-weight: 600;">✓ DO</div>
+              <div class="mc-eyebrow" style="color: var(--G); margin-bottom: 8px;">Do</div>
               <ul class="mc-list-clean">
                 <li>• Frame in terms of team benefit</li>
                 <li>• Acknowledge fairness concerns</li>
@@ -2591,7 +2680,7 @@ button:focus-visible { outline: 2px solid #a78bfa; outline-offset: 2px; }
               </ul>
             </div>
             <div>
-              <div style="font-size: 12px; color: #EF4444; text-transform: uppercase; margin-bottom: 8px; font-weight: 600;">✗ DON'T</div>
+              <div class="mc-eyebrow" style="color: var(--R); margin-bottom: 8px;">Don't</div>
               <ul class="mc-list-clean">
                 <li>• Present as purely self-serving</li>
                 <li>• Skip process or ignore rules</li>
@@ -2603,14 +2692,14 @@ button:focus-visible { outline: 2px solid #a78bfa; outline-offset: 2px; }
         </div>
         
         <!-- Blue -->
-        <div style="background: rgba(255,255,255,0.03); border-left: 4px solid #3B82F6; padding: 16px; border-radius: 8px;">
+        <div style="background: var(--inset); border-left: 2px solid var(--U); padding: 18px 22px;">
           <div class="mc-row-12">
             <span class="mc-pip is-lit" data-color="U" aria-label="U"></span>
             <h4 class="mc-heading-md">Talking to BLUE</h4>
           </div>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
             <div>
-              <div style="font-size: 12px; color: #10B981; text-transform: uppercase; margin-bottom: 8px; font-weight: 600;">✓ DO</div>
+              <div class="mc-eyebrow" style="color: var(--G); margin-bottom: 8px;">Do</div>
               <ul class="mc-list-clean">
                 <li>• Provide data and analysis</li>
                 <li>• Explain the logic</li>
@@ -2619,7 +2708,7 @@ button:focus-visible { outline: 2px solid #a78bfa; outline-offset: 2px; }
               </ul>
             </div>
             <div>
-              <div style="font-size: 12px; color: #EF4444; text-transform: uppercase; margin-bottom: 8px; font-weight: 600;">✗ DON'T</div>
+              <div class="mc-eyebrow" style="color: var(--R); margin-bottom: 8px;">Don't</div>
               <ul class="mc-list-clean">
                 <li>• Rush without analysis</li>
                 <li>• Appeal only to emotion</li>
@@ -2631,14 +2720,14 @@ button:focus-visible { outline: 2px solid #a78bfa; outline-offset: 2px; }
         </div>
         
         <!-- Black -->
-        <div style="background: rgba(255,255,255,0.03); border-left: 4px solid #6B7280; padding: 16px; border-radius: 8px;">
+        <div style="background: var(--inset); border-left: 2px solid var(--B); padding: 18px 22px;">
           <div class="mc-row-12">
             <span class="mc-pip is-lit" data-color="B" aria-label="B"></span>
             <h4 class="mc-heading-md">Talking to BLACK</h4>
           </div>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
             <div>
-              <div style="font-size: 12px; color: #10B981; text-transform: uppercase; margin-bottom: 8px; font-weight: 600;">✓ DO</div>
+              <div class="mc-eyebrow" style="color: var(--G); margin-bottom: 8px;">Do</div>
               <ul class="mc-list-clean">
                 <li>• Be direct about mutual benefit</li>
                 <li>• Respect boundaries</li>
@@ -2647,7 +2736,7 @@ button:focus-visible { outline: 2px solid #a78bfa; outline-offset: 2px; }
               </ul>
             </div>
             <div>
-              <div style="font-size: 12px; color: #EF4444; text-transform: uppercase; margin-bottom: 8px; font-weight: 600;">✗ DON'T</div>
+              <div class="mc-eyebrow" style="color: var(--R); margin-bottom: 8px;">Don't</div>
               <ul class="mc-list-clean">
                 <li>• Expect altruism</li>
                 <li>• Be indirect or hint</li>
@@ -2659,14 +2748,14 @@ button:focus-visible { outline: 2px solid #a78bfa; outline-offset: 2px; }
         </div>
         
         <!-- Red -->
-        <div style="background: rgba(255,255,255,0.03); border-left: 4px solid #EF4444; padding: 16px; border-radius: 8px;">
+        <div style="background: var(--inset); border-left: 2px solid var(--R); padding: 18px 22px;">
           <div class="mc-row-12">
             <span class="mc-pip is-lit" data-color="R" aria-label="R"></span>
             <h4 class="mc-heading-md">Talking to RED</h4>
           </div>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
             <div>
-              <div style="font-size: 12px; color: #10B981; text-transform: uppercase; margin-bottom: 8px; font-weight: 600;">✓ DO</div>
+              <div class="mc-eyebrow" style="color: var(--G); margin-bottom: 8px;">Do</div>
               <ul class="mc-list-clean">
                 <li>• Be authentic and passionate</li>
                 <li>• Get to the point quickly</li>
@@ -2675,7 +2764,7 @@ button:focus-visible { outline: 2px solid #a78bfa; outline-offset: 2px; }
               </ul>
             </div>
             <div>
-              <div style="font-size: 12px; color: #EF4444; text-transform: uppercase; margin-bottom: 8px; font-weight: 600;">✗ DON'T</div>
+              <div class="mc-eyebrow" style="color: var(--R); margin-bottom: 8px;">Don't</div>
               <ul class="mc-list-clean">
                 <li>• Over-analyse everything</li>
                 <li>• Be cold or emotionless</li>
@@ -2687,14 +2776,14 @@ button:focus-visible { outline: 2px solid #a78bfa; outline-offset: 2px; }
         </div>
         
         <!-- Green -->
-        <div style="background: rgba(255,255,255,0.03); border-left: 4px solid #10B981; padding: 16px; border-radius: 8px;">
+        <div style="background: var(--inset); border-left: 2px solid var(--G); padding: 18px 22px;">
           <div class="mc-row-12">
             <span class="mc-pip is-lit" data-color="G" aria-label="G"></span>
             <h4 class="mc-heading-md">Talking to GREEN</h4>
           </div>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
             <div>
-              <div style="font-size: 12px; color: #10B981; text-transform: uppercase; margin-bottom: 8px; font-weight: 600;">✓ DO</div>
+              <div class="mc-eyebrow" style="color: var(--G); margin-bottom: 8px;">Do</div>
               <ul class="mc-list-clean">
                 <li>• Give them time</li>
                 <li>• Respect precedent</li>
@@ -2703,7 +2792,7 @@ button:focus-visible { outline: 2px solid #a78bfa; outline-offset: 2px; }
               </ul>
             </div>
             <div>
-              <div style="font-size: 12px; color: #EF4444; text-transform: uppercase; margin-bottom: 8px; font-weight: 600;">✗ DON'T</div>
+              <div class="mc-eyebrow" style="color: var(--R); margin-bottom: 8px;">Don't</div>
               <ul class="mc-list-clean">
                 <li>• Rush or pressure</li>
                 <li>• Dismiss tradition</li>
@@ -2718,74 +2807,76 @@ button:focus-visible { outline: 2px solid #a78bfa; outline-offset: 2px; }
     
     <!-- Conflict Resolution -->
     <div class="card fade-in">
-      <h3 style="font-size: 20px; margin-bottom: 16px; color: #a78bfa;">Conflict Resolution</h3>
-      <p style="font-size: 13px; color: #808090; margin-bottom: 24px; font-style: italic;">Understanding and resolving the five core color tensions</p>
+      <div class="mc-eyebrow mc-eyebrow--gilt">Conflict Resolution</div>
+      <h3 class="mc-display" style="font-size: 22px; letter-spacing: 0.08em; color: var(--ink); margin: 6px 0 8px;">The five core tensions</h3>
+      <p class="mc-flavor" style="font-size: 14px; color: var(--ink-muted); margin: 0 0 20px;">Where opposing colours predictably collide, and how to disarm it.</p>
       
       <div style="display: grid; gap: 16px;">
-        <div style="background: rgba(255,255,255,0.03); padding: 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+        <div style="background: var(--inset); padding: 18px 22px; border: 1px solid var(--gilt-line);">
           <div class="mc-row-12">
             <span class="mc-pip is-lit" data-color="W" aria-label="W"></span>
             <span style="font-size: 20px; color: #808090;">↔</span>
             <span class="mc-pip is-lit" data-color="B" aria-label="B"></span>
             <h4 class="mc-heading-md">Community vs. Self-Interest</h4>
           </div>
-          <p style="font-size: 13px; color: #b0b0b0; margin-bottom: 8px;"><strong>Source:</strong> White prioritizes team, Black prioritizes self</p>
-          <p style="font-size: 13px; color: #10B981;"><strong>Resolution:</strong> Clarify when each value applies ("our people first" = Black's tribe, broader community = White's fairness)</p>
+          <p style="font-size: 13.5px; color: var(--ink-muted); font-family: var(--f-body); line-height: 1.6; margin: 8px 0 4px;"><strong style="color: var(--gilt); font-family: var(--f-display); letter-spacing: 0.12em; text-transform: uppercase; font-size: 11px;">Source:</strong> White prioritizes team, Black prioritizes self</p>
+          <p style="font-size: 13.5px; color: var(--ink); font-family: var(--f-body); line-height: 1.6; margin: 4px 0 0;"><strong style="color: var(--gilt); font-family: var(--f-display); letter-spacing: 0.12em; text-transform: uppercase; font-size: 11px;">Resolution:</strong> Clarify when each value applies ("our people first" = Black's tribe, broader community = White's fairness)</p>
         </div>
         
-        <div style="background: rgba(255,255,255,0.03); padding: 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+        <div style="background: var(--inset); padding: 18px 22px; border: 1px solid var(--gilt-line);">
           <div class="mc-row-12">
             <span class="mc-pip is-lit" data-color="U" aria-label="U"></span>
             <span style="font-size: 20px; color: #808090;">↔</span>
             <span class="mc-pip is-lit" data-color="R" aria-label="R"></span>
             <h4 class="mc-heading-md">Planning vs. Action</h4>
           </div>
-          <p style="font-size: 13px; color: #b0b0b0; margin-bottom: 8px;"><strong>Source:</strong> Blue wants more analysis, Red wants to act now</p>
-          <p style="font-size: 13px; color: #10B981;"><strong>Resolution:</strong> Time-box planning phase, then execute with learning loops</p>
+          <p style="font-size: 13.5px; color: var(--ink-muted); font-family: var(--f-body); line-height: 1.6; margin: 8px 0 4px;"><strong style="color: var(--gilt); font-family: var(--f-display); letter-spacing: 0.12em; text-transform: uppercase; font-size: 11px;">Source:</strong> Blue wants more analysis, Red wants to act now</p>
+          <p style="font-size: 13.5px; color: var(--ink); font-family: var(--f-body); line-height: 1.6; margin: 4px 0 0;"><strong style="color: var(--gilt); font-family: var(--f-display); letter-spacing: 0.12em; text-transform: uppercase; font-size: 11px;">Resolution:</strong> Time-box planning phase, then execute with learning loops</p>
         </div>
         
-        <div style="background: rgba(255,255,255,0.03); padding: 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+        <div style="background: var(--inset); padding: 18px 22px; border: 1px solid var(--gilt-line);">
           <div class="mc-row-12">
             <span class="mc-pip is-lit" data-color="B" aria-label="B"></span>
             <span style="font-size: 20px; color: #808090;">↔</span>
             <span class="mc-pip is-lit" data-color="G" aria-label="G"></span>
             <h4 class="mc-heading-md">Extraction vs. Sustainability</h4>
           </div>
-          <p style="font-size: 13px; color: #b0b0b0; margin-bottom: 8px;"><strong>Source:</strong> Black maximises short-term, Green preserves long-term</p>
-          <p style="font-size: 13px; color: #10B981;"><strong>Resolution:</strong> Define regeneration rate, extract within sustainable limits</p>
+          <p style="font-size: 13.5px; color: var(--ink-muted); font-family: var(--f-body); line-height: 1.6; margin: 8px 0 4px;"><strong style="color: var(--gilt); font-family: var(--f-display); letter-spacing: 0.12em; text-transform: uppercase; font-size: 11px;">Source:</strong> Black maximises short-term, Green preserves long-term</p>
+          <p style="font-size: 13.5px; color: var(--ink); font-family: var(--f-body); line-height: 1.6; margin: 4px 0 0;"><strong style="color: var(--gilt); font-family: var(--f-display); letter-spacing: 0.12em; text-transform: uppercase; font-size: 11px;">Resolution:</strong> Define regeneration rate, extract within sustainable limits</p>
         </div>
         
-        <div style="background: rgba(255,255,255,0.03); padding: 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+        <div style="background: var(--inset); padding: 18px 22px; border: 1px solid var(--gilt-line);">
           <div class="mc-row-12">
             <span class="mc-pip is-lit" data-color="R" aria-label="R"></span>
             <span style="font-size: 20px; color: #808090;">↔</span>
             <span class="mc-pip is-lit" data-color="W" aria-label="W"></span>
             <h4 class="mc-heading-md">Freedom vs. Order</h4>
           </div>
-          <p style="font-size: 13px; color: #b0b0b0; margin-bottom: 8px;"><strong>Source:</strong> Red wants autonomy, White wants coordination</p>
-          <p style="font-size: 13px; color: #10B981;"><strong>Resolution:</strong> Minimum viable structure with clear boundaries but freedom inside</p>
+          <p style="font-size: 13.5px; color: var(--ink-muted); font-family: var(--f-body); line-height: 1.6; margin: 8px 0 4px;"><strong style="color: var(--gilt); font-family: var(--f-display); letter-spacing: 0.12em; text-transform: uppercase; font-size: 11px;">Source:</strong> Red wants autonomy, White wants coordination</p>
+          <p style="font-size: 13.5px; color: var(--ink); font-family: var(--f-body); line-height: 1.6; margin: 4px 0 0;"><strong style="color: var(--gilt); font-family: var(--f-display); letter-spacing: 0.12em; text-transform: uppercase; font-size: 11px;">Resolution:</strong> Minimum viable structure with clear boundaries but freedom inside</p>
         </div>
         
-        <div style="background: rgba(255,255,255,0.03); padding: 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+        <div style="background: var(--inset); padding: 18px 22px; border: 1px solid var(--gilt-line);">
           <div class="mc-row-12">
             <span class="mc-pip is-lit" data-color="G" aria-label="G"></span>
             <span style="font-size: 20px; color: #808090;">↔</span>
             <span class="mc-pip is-lit" data-color="U" aria-label="U"></span>
             <h4 class="mc-heading-md">Acceptance vs. Improvement</h4>
           </div>
-          <p style="font-size: 13px; color: #b0b0b0; margin-bottom: 8px;"><strong>Source:</strong> Green accepts what works, Blue wants to optimise everything</p>
-          <p style="font-size: 13px; color: #10B981;"><strong>Resolution:</strong> Preserve what demonstrably works, improve what demonstrably doesn't</p>
+          <p style="font-size: 13.5px; color: var(--ink-muted); font-family: var(--f-body); line-height: 1.6; margin: 8px 0 4px;"><strong style="color: var(--gilt); font-family: var(--f-display); letter-spacing: 0.12em; text-transform: uppercase; font-size: 11px;">Source:</strong> Green accepts what works, Blue wants to optimise everything</p>
+          <p style="font-size: 13.5px; color: var(--ink); font-family: var(--f-body); line-height: 1.6; margin: 4px 0 0;"><strong style="color: var(--gilt); font-family: var(--f-display); letter-spacing: 0.12em; text-transform: uppercase; font-size: 11px;">Resolution:</strong> Preserve what demonstrably works, improve what demonstrably doesn't</p>
         </div>
       </div>
     </div>
     
     <!-- De-escalation Strategies -->
     <div class="card fade-in">
-      <h3 style="font-size: 20px; margin-bottom: 16px; color: #a78bfa;">De-escalation Strategies</h3>
-      <p style="font-size: 13px; color: #808090; margin-bottom: 24px; font-style: italic;">When someone is upset, here's what they need</p>
+      <div class="mc-eyebrow mc-eyebrow--gilt">De-escalation</div>
+      <h3 class="mc-display" style="font-size: 22px; letter-spacing: 0.08em; color: var(--ink); margin: 6px 0 8px;">When someone is upset</h3>
+      <p class="mc-flavor" style="font-size: 14px; color: var(--ink-muted); margin: 0 0 20px;">What each colour needs to climb back down.</p>
       
       <div style="display: grid; gap: 12px;">
-        <div style="background: rgba(255,255,255,0.03); padding: 14px; border-radius: 6px; border-left: 3px solid #F59E0B;">
+        <div style="background: var(--inset); padding: 14px 18px; border-left: 2px solid var(--W);">
           <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
             <span class="mc-pip is-lit" data-color="W" aria-label="W"></span>
             <strong class="text-md">When WHITE is upset:</strong>
@@ -2793,7 +2884,7 @@ button:focus-visible { outline: 2px solid #a78bfa; outline-offset: 2px; }
           <p style="font-size: 13px; color: #d0d0d0;">Acknowledge impact on team, show concern for fairness, propose systematic solution, rebuild community connection</p>
         </div>
         
-        <div style="background: rgba(255,255,255,0.03); padding: 14px; border-radius: 6px; border-left: 3px solid #3B82F6;">
+        <div style="background: var(--inset); padding: 14px 18px; border-left: 2px solid var(--U);">
           <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
             <span class="mc-pip is-lit" data-color="U" aria-label="U"></span>
             <strong class="text-md">When BLUE is upset:</strong>
@@ -2801,7 +2892,7 @@ button:focus-visible { outline: 2px solid #a78bfa; outline-offset: 2px; }
           <p style="font-size: 13px; color: #d0d0d0;">Provide analysis and data, show logical reasoning, give time to process, address inefficiency directly</p>
         </div>
         
-        <div style="background: rgba(255,255,255,0.03); padding: 14px; border-radius: 6px; border-left: 3px solid #6B7280;">
+        <div style="background: var(--inset); padding: 14px 18px; border-left: 2px solid var(--B);">
           <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
             <span class="mc-pip is-lit" data-color="B" aria-label="B"></span>
             <strong class="text-md">When BLACK is upset:</strong>
@@ -2809,7 +2900,7 @@ button:focus-visible { outline: 2px solid #a78bfa; outline-offset: 2px; }
           <p style="font-size: 13px; color: #d0d0d0;">Acknowledge their interests weren't served, negotiate clear resolution, make explicit commitments, respect their boundaries</p>
         </div>
         
-        <div style="background: rgba(255,255,255,0.03); padding: 14px; border-radius: 6px; border-left: 3px solid #EF4444;">
+        <div style="background: var(--inset); padding: 14px 18px; border-left: 2px solid var(--R);">
           <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
             <span class="mc-pip is-lit" data-color="R" aria-label="R"></span>
             <strong class="text-md">When RED is upset:</strong>
@@ -2817,7 +2908,7 @@ button:focus-visible { outline: 2px solid #a78bfa; outline-offset: 2px; }
           <p style="font-size: 13px; color: #d0d0d0;">Let them express emotion, don't invalidate feelings, act quickly to resolve, bring energy and passion</p>
         </div>
         
-        <div style="background: rgba(255,255,255,0.03); padding: 14px; border-radius: 6px; border-left: 3px solid #10B981;">
+        <div style="background: var(--inset); padding: 14px 18px; border-left: 2px solid var(--G);">
           <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
             <span class="mc-pip is-lit" data-color="G" aria-label="G"></span>
             <strong class="text-md">When GREEN is upset:</strong>
@@ -7809,16 +7900,16 @@ function displayRound2Bars() {
     introHTML += '<div style="display: flex; flex-wrap: wrap; gap: 8px; margin: 16px 0;">';
     allScores.forEach(cand => {
       const prof = PROFILES[cand.id];
-      if (prof) {
-        const isWinner = cand.id === winnerIdentity;
-        introHTML += '<div style="padding: 6px 12px; background: rgba(' + (isWinner ? '16,185,129' : '255,255,255') + ', 0.08); border: 1px solid rgba(' + (isWinner ? '16,185,129' : '255,255,255') + ', 0.2); border-radius: 20px; font-size: 12px; display: flex; align-items: center; gap: 6px;">';
-        prof.colors.forEach(c => {
-          introHTML += '<span class="mana-symbol mana-' + c + '" style="width: 16px; height: 16px; font-size: 9px;">' + c + '</span>';
-        });
-        introHTML += '<span style="font-weight: 600;">' + prof.name + '</span>';
-        if (isWinner) introHTML += ' <span class="text-accent">✓</span>';
-        introHTML += '</div>';
-      }
+      if (!prof) return;
+      const isWinner = cand.id === winnerIdentity;
+      const pipsHTML = prof.colors.map(c =>
+        `<span class="mc-pip is-lit mc-pip--sm" data-color="${c}" aria-label="${c}"></span>`
+      ).join('');
+      introHTML += `<div class="mc-cand-pill ${isWinner ? 'is-winner' : ''}">
+        <span class="mc-cand-pill__pips">${pipsHTML}</span>
+        <span class="mc-cand-pill__name">${prof.name}</span>
+        ${isWinner ? '<span class="mc-cand-pill__mark">●</span>' : ''}
+      </div>`;
     });
     introHTML += '</div>';
     introHTML += '<p>We presented workplace scenarios and asked you to <strong>rank</strong> how each identity would respond. ';
@@ -10222,11 +10313,10 @@ function createExplorerCard(id) {
   if (!p) return '';
 
   const symbolsHTML = p.colors.map(c =>
-    `<span class="mana-symbol mana-${c}" style="width: 24px; height: 24px; font-size: 12px;">${c}</span>`
+    `<span class="mc-pip is-lit mc-pip--sm" data-color="${c}" aria-label="${c}"></span>`
   ).join('');
 
-  // Preview line under the tag. Consumer mode shows a pubBanter sliver (the "find your
-  // coworker" replay vector); workplace mode shows a strengths sliver instead.
+  // Preview line under the tag. Consumer = pubBanter sliver; workplace = strengths.
   const audience = state.audience || 'consumer';
   const previewSource = (audience === 'consumer' && p.pubBanter) ? p.pubBanter
                       : (p.str && p.str[0]) ? p.str[0]
@@ -10234,104 +10324,127 @@ function createExplorerCard(id) {
   const preview = previewSource.length > 90 ? previewSource.slice(0, 87) + '…' : previewSource;
 
   return `
-    <div id="card-${id}" onclick="showDetail('${id}')" style="
-      background: rgba(255,255,255,0.03);
-      border: 2px solid rgba(255,255,255,0.1);
-      border-radius: 8px;
-      padding: 12px;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-    "
-    onmouseover="this.style.background='rgba(139, 92, 246, 0.1)'; this.style.borderColor='rgba(139, 92, 246, 0.4)';"
-    onmouseout="if(!this.classList.contains('selected')) { this.style.background='rgba(255,255,255,0.03)'; this.style.borderColor='rgba(255,255,255,0.1)'; }">
-
-      <div style="display: flex; gap: 4px; flex-shrink: 0; padding-top: 2px;">
-        ${symbolsHTML}
-      </div>
-
-      <div style="flex: 1; min-width: 0;">
-        <div style="font-size: 14px; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${p.name}</div>
-        <div style="font-size: 11px; color: #a0a0b0; font-style: italic; margin-bottom: 4px;">${p.tag}</div>
-        <div style="font-size: 11px; color: #909098; line-height: 1.4;">${preview}</div>
+    <div id="card-${id}" class="mc-explorer-card" onclick="showDetail('${id}')">
+      <div class="mc-explorer-card__pips">${symbolsHTML}</div>
+      <div class="mc-explorer-card__body">
+        <div class="mc-explorer-card__name">${p.name}</div>
+        <div class="mc-explorer-card__tag">${p.tag}</div>
+        <div class="mc-explorer-card__preview">${preview}</div>
       </div>
     </div>
   `;
 }
 
+let currentExplorerId = null;
+
 function showDetail(id) {
   const p = PROFILES[id];
   if (!p) return;
-  
-  // Clear previous selection
-  document.querySelectorAll('[id^="card-"]').forEach(card => {
-    card.classList.remove('selected');
-    card.style.background = 'rgba(255,255,255,0.03)';
-    card.style.borderColor = 'rgba(255,255,255,0.1)';
-  });
-  
-  // Highlight selected card
-  const selectedCard = document.getElementById(`card-${id}`);
-  if (selectedCard) {
-    selectedCard.classList.add('selected');
-    selectedCard.style.background = 'rgba(139, 92, 246, 0.15)';
-    selectedCard.style.borderColor = 'rgba(139, 92, 246, 0.6)';
-  }
-  
-  // Hide placeholder, show content
+  currentExplorerId = id;
+
+  // Toggle .selected (CSS handles colours via .mc-explorer-card.selected)
+  document.querySelectorAll('.mc-explorer-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById(`card-${id}`)?.classList.add('selected');
+
   document.getElementById('detail-placeholder').style.display = 'none';
   document.getElementById('detail-content').style.display = 'block';
-  
-  // Populate detail panel
+
+  // Identity header — use mc-pip artwork (the actual mana symbols)
   const symbolsDiv = document.getElementById('detail-symbols');
   symbolsDiv.innerHTML = '';
   p.colors.forEach(c => {
     const s = document.createElement('span');
-    s.className = `mana-symbol mana-${c}`;
-    s.style.cssText = 'width: 40px; height: 40px; font-size: 20px;';
-    s.textContent = c;
+    s.className = 'mc-pip is-lit mc-pip--lg';
+    s.setAttribute('data-color', c);
+    s.setAttribute('aria-label', c);
     symbolsDiv.appendChild(s);
   });
-  
+
   document.getElementById('detail-name').textContent = p.name;
   document.getElementById('detail-tag').textContent = p.tag;
   document.getElementById('detail-desc').textContent = p.desc;
-  
-  // Get archetype example descriptions
-  const example = ARCHETYPE_EXAMPLES.find(e => e.id === id);
-  document.getElementById('detail-normal').textContent = example ? example.normal : p.desc;
-  document.getElementById('detail-banter').textContent = example ? example.banter : p.pubBanter;
-  
-  // Commander
-  document.getElementById('detail-cmd-name').textContent = p.cmd;
-  document.getElementById('detail-cmd-desc').textContent = p.cmdDesc;
-  
-  // Strengths (show first 3)
-  const strList = document.getElementById('detail-strengths');
-  strList.innerHTML = '';
-  p.str.slice(0, 3).forEach(s => {
-    const li = document.createElement('li');
-    li.style.cssText = 'padding: 4px 0; font-size: 13px;';
-    li.textContent = '• ' + s;
-    strList.appendChild(li);
-  });
-  
-  // Shadows (show first 3)
-  const shadowList = document.getElementById('detail-shadows');
-  shadowList.innerHTML = '';
-  p.weak.slice(0, 3).forEach(w => {
-    const li = document.createElement('li');
-    li.style.cssText = 'padding: 4px 0; font-size: 13px;';
-    li.textContent = '• ' + w;
-    shadowList.appendChild(li);
-  });
-  
-  document.getElementById('detail-roles').textContent = p.roles;
-  
-  // Scroll detail panel to top
+
+  const example = (typeof ARCHETYPE_EXAMPLES !== 'undefined') ? ARCHETYPE_EXAMPLES.find(e => e.id === id) : null;
+  document.getElementById('detail-normal').textContent = example ? example.normal : (p.desc || '');
+  document.getElementById('detail-banter').textContent = example ? example.banter : (p.pubBanter || '');
+
+  document.getElementById('detail-cmd-name').textContent = p.cmd || '';
+  document.getElementById('detail-cmd-desc').textContent = p.cmdDesc || '';
+
+  // Strengths (5) and shadows (5) — match the results page rhythm
+  const fillList = (el, items) => {
+    el.innerHTML = '';
+    (items || []).slice(0, 5).forEach(t => {
+      const li = document.createElement('li');
+      li.textContent = t;
+      el.appendChild(li);
+    });
+  };
+  fillList(document.getElementById('detail-strengths'), p.str);
+  fillList(document.getElementById('detail-shadows'), p.weak);
+
+  document.getElementById('detail-roles').textContent = p.roles || '';
+
+  // ── PENTAGON LENS — the actual insight machinery ──────────────────────
+  renderExplorerRelations(id);
+
   document.getElementById('detail-panel').scrollTop = 0;
+}
+
+/**
+ * Mirrors renderRelations() but scoped to the #explorer-pentagon and runs
+ * against any identity, not just state.result. The vertex/edge selectors are
+ * scoped so we never fight with the results-page pentagon.
+ */
+function renderExplorerRelations(identityKey) {
+  const p = PROFILES[identityKey];
+  if (!p || !p.colors) return;
+  const identitySet = new Set(p.colors);
+  const missing = ['W','U','B','R','G'].filter(c => !identitySet.has(c));
+
+  const pent = document.getElementById('explorer-pentagon');
+  if (!pent) return;
+
+  pent.querySelectorAll('.rel-vertex').forEach(v => {
+    const c = v.getAttribute('data-color');
+    const lit = identitySet.has(c);
+    v.classList.toggle('is-lit', lit);
+    v.classList.toggle('is-unlit', !lit);
+  });
+  pent.querySelectorAll('.rel-edge-ally').forEach(e => {
+    const [a, b] = e.getAttribute('data-pair').split('-');
+    e.classList.toggle('is-lit-ally', identitySet.has(a) && identitySet.has(b));
+  });
+  pent.querySelectorAll('.rel-edge-enemy').forEach(e => {
+    const [a, b] = e.getAttribute('data-pair').split('-');
+    e.classList.toggle('is-lit-enemy', identitySet.has(a) !== identitySet.has(b));
+  });
+
+  const el = document.getElementById('explorer-relations-detail');
+  if (!el) return;
+
+  if (missing.length === 0) {
+    el.innerHTML = `<div class="mc-relations-detail__heading">Five-Colour</div>
+      <div class="mc-relations-detail__sub">No single colour completes this type because no single colour is absent. The friction is internal — different colours pull against each other.</div>`;
+    return;
+  }
+
+  const subtitle = `What this type doesn't naturally run. Each missing colour is a colleague worth keeping close.`;
+  const cards = missing.map(c => {
+    const g = COLOR_GAPS[c];
+    return `<div class="mc-gap-card" data-color="${c}">
+      <span class="mc-pip is-lit mc-gap-card__pip" data-color="${c}" aria-label="${c}"></span>
+      <div class="mc-gap-card__body">
+        <div class="mc-gap-card__head"><span class="mc-gap-card__plus">+</span>${COLOR_DISPLAY[c]} colleague</div>
+        <div class="mc-gap-card__gap">${g.gap}</div>
+        <div class="mc-gap-card__complement">→ ${g.complement}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  el.innerHTML = `<div class="mc-relations-detail__heading">What this type lacks</div>
+    <div class="mc-relations-detail__sub">${subtitle}</div>
+    ${cards}`;
 }
 
 // ============================================================================
