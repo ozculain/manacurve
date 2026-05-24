@@ -915,14 +915,45 @@ main { position: relative; z-index: 2; }
    style="display:none;" → class="hidden" cleanup. */
 .hidden { display: none !important; }
 
-/* Working With Others: expandable per-other-colour interaction list */
-.mc-relations { padding: 18px 22px; background: var(--inset); border-left: 2px solid var(--gilt-soft); margin-bottom: 8px; }
-.mc-relations__item { display: flex; gap: 14px; align-items: flex-start; padding: 14px 0; border-bottom: 1px solid var(--gilt-line); }
-.mc-relations__item:last-child { border-bottom: none; }
-.mc-relations__pip { flex-shrink: 0; }
-.mc-relations__body { flex: 1; font-family: var(--f-body); }
-.mc-relations__title { font-family: var(--f-display); letter-spacing: 0.16em; font-size: 12px; color: var(--ink); margin-bottom: 6px; text-transform: uppercase; }
-.mc-relations__desc { font-size: 14px; line-height: 1.55; color: var(--ink-muted); }
+/* Working With Others: pentagon diagram + per-colour callouts */
+.mc-relations-wrap { display: grid; grid-template-columns: minmax(280px, 360px) 1fr; gap: 36px; align-items: start; margin-top: 22px; }
+@media (max-width: 720px) { .mc-relations-wrap { grid-template-columns: 1fr; gap: 24px; } }
+.mc-relations-svg-wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+#relations-pentagon { width: 100%; max-width: 360px; height: auto; display: block; }
+.mc-relations-legend { font-family: var(--f-flavor); font-style: italic; font-size: 12px; color: var(--ink-faded); display: flex; flex-direction: column; gap: 4px; text-align: left; }
+.mc-rel-legend-mark { display: inline-block; width: 16px; height: 2px; vertical-align: middle; margin-right: 8px; }
+.mc-rel-legend-mark--ally { background: rgba(212,175,106,0.85); }
+.mc-rel-legend-mark--enemy { background: rgba(220,90,60,0.5); border-top: 1px dashed rgba(220,90,60,0.5); height: 0; border-bottom: none; }
+/* SVG state styling */
+.rel-edge { stroke-width: 1.2; transition: all 240ms; fill: none; }
+.rel-edge-ally { stroke: rgba(212,175,106,0.08); }
+.rel-edge-enemy { stroke: rgba(220,90,60,0.06); stroke-dasharray: 4 3; }
+.rel-edge.is-lit-ally { stroke: rgba(212,175,106,0.85); stroke-width: 2.4; }
+.rel-edge.is-lit-enemy { stroke: rgba(220,90,60,0.55); stroke-width: 1.4; stroke-dasharray: 4 3; }
+.rel-vertex { fill: rgba(20,20,30,0.5); stroke-width: 1.5; transition: all 240ms; }
+.rel-vertex[data-color="W"] { stroke: rgba(241,231,196,0.35); }
+.rel-vertex[data-color="U"] { stroke: rgba(120,175,230,0.35); }
+.rel-vertex[data-color="B"] { stroke: rgba(170,140,200,0.35); }
+.rel-vertex[data-color="R"] { stroke: rgba(230,120,90,0.35); }
+.rel-vertex[data-color="G"] { stroke: rgba(140,200,110,0.35); }
+.rel-vertex.is-lit[data-color="W"] { fill: #F1E7C4; stroke: #FFF8E0; stroke-width: 2; }
+.rel-vertex.is-lit[data-color="U"] { fill: #78AFE6; stroke: #B8D8F2; stroke-width: 2; }
+.rel-vertex.is-lit[data-color="B"] { fill: #AA8CC8; stroke: #D4BFE2; stroke-width: 2; }
+.rel-vertex.is-lit[data-color="R"] { fill: #E6785A; stroke: #F2B59E; stroke-width: 2; }
+.rel-vertex.is-lit[data-color="G"] { fill: #8CC86E; stroke: #BFE0A8; stroke-width: 2; }
+.rel-letter { font-family: var(--f-display); font-size: 16px; font-weight: 700; text-anchor: middle; dominant-baseline: middle; letter-spacing: 0.05em; fill: var(--ink-faded); pointer-events: none; }
+.rel-letter.is-lit { fill: #1a1a2e; }
+/* Callouts: per-colour strength (if have) or gap+complement (if lack) */
+.mc-relations-callouts { display: flex; flex-direction: column; gap: 0; }
+.mc-relation { display: flex; gap: 14px; padding: 16px 0; border-bottom: 1px solid var(--gilt-line); align-items: flex-start; }
+.mc-relation:last-child { border-bottom: none; }
+.mc-relation .mc-pip { flex-shrink: 0; margin-top: 2px; }
+.mc-relation__body { flex: 1; font-family: var(--f-body); }
+.mc-relation__head { font-family: var(--f-display); letter-spacing: 0.16em; font-size: 12px; text-transform: uppercase; margin-bottom: 6px; }
+.mc-relation[data-state="have"] .mc-relation__head { color: var(--ink); }
+.mc-relation[data-state="lack"] .mc-relation__head { color: var(--ink-faded); }
+.mc-relation__desc { font-size: 14px; line-height: 1.55; color: var(--ink-muted); }
+.mc-relation__complement { font-family: var(--f-flavor); font-style: italic; font-size: 13px; line-height: 1.55; color: var(--gilt); margin-top: 8px; }
 
 /* Seed banner: shown above the result when arrived via a shared seed URL */
 .mc-seed-banner {
@@ -1985,14 +2016,45 @@ button:focus-visible { outline: 2px solid #a78bfa; outline-offset: 2px; }
           </div>
         </div>
 
-        <!-- Working With Others — interactions with allied and enemy colours -->
+        <!-- Working With Others — pentagon diagram + per-colour callouts -->
         <div class="mc-typeline" style="margin-top: 36px;"><span class="mc-typeline__diamond"></span>Working With Others<span class="mc-typeline__diamond"></span></div>
-        <div style="display:flex;gap:12px;margin-top: 18px;margin-bottom: 24px;flex-wrap:wrap;">
-          <button class="mc-btn" id="btn-relations-clash" onclick="toggleRelations('clash')">Who I clash with ›</button>
-          <button class="mc-btn" id="btn-relations-align" onclick="toggleRelations('align')">Who I align with ›</button>
+        <div class="mc-relations-wrap">
+          <div class="mc-relations-svg-wrap">
+            <svg viewBox="0 0 400 400" id="relations-pentagon" aria-label="Colour wheel showing your identity and its relationships">
+              <!-- Pentagon outline (always faint baseline) -->
+              <polygon points="200,70 324,160 276,305 124,305 76,160" fill="none" stroke="rgba(212,175,106,0.10)" stroke-width="1"/>
+              <!-- Pentagon ally edges (lit when both endpoints in identity) -->
+              <line class="rel-edge rel-edge-ally" data-pair="U-W" x1="200" y1="70" x2="324" y2="160"/>
+              <line class="rel-edge rel-edge-ally" data-pair="B-U" x1="324" y1="160" x2="276" y2="305"/>
+              <line class="rel-edge rel-edge-ally" data-pair="B-R" x1="276" y1="305" x2="124" y2="305"/>
+              <line class="rel-edge rel-edge-ally" data-pair="G-R" x1="124" y1="305" x2="76" y2="160"/>
+              <line class="rel-edge rel-edge-ally" data-pair="G-W" x1="76" y1="160" x2="200" y2="70"/>
+              <!-- Pentagram enemy edges (lit when one endpoint in identity, one missing) -->
+              <line class="rel-edge rel-edge-enemy" data-pair="B-W" x1="200" y1="70" x2="276" y2="305"/>
+              <line class="rel-edge rel-edge-enemy" data-pair="R-W" x1="200" y1="70" x2="124" y2="305"/>
+              <line class="rel-edge rel-edge-enemy" data-pair="R-U" x1="324" y1="160" x2="124" y2="305"/>
+              <line class="rel-edge rel-edge-enemy" data-pair="G-U" x1="324" y1="160" x2="76" y2="160"/>
+              <line class="rel-edge rel-edge-enemy" data-pair="B-G" x1="276" y1="305" x2="76" y2="160"/>
+              <!-- Vertex pips (filled colour if in identity, hollow otherwise) -->
+              <circle class="rel-vertex" data-color="W" cx="200" cy="70" r="22"/>
+              <circle class="rel-vertex" data-color="U" cx="324" cy="160" r="22"/>
+              <circle class="rel-vertex" data-color="B" cx="276" cy="305" r="22"/>
+              <circle class="rel-vertex" data-color="R" cx="124" cy="305" r="22"/>
+              <circle class="rel-vertex" data-color="G" cx="76" cy="160" r="22"/>
+              <!-- Colour labels (single letter on each pip) -->
+              <text class="rel-letter" data-color="W" x="200" y="76">W</text>
+              <text class="rel-letter" data-color="U" x="324" y="166">U</text>
+              <text class="rel-letter" data-color="B" x="276" y="311">B</text>
+              <text class="rel-letter" data-color="R" x="124" y="311">R</text>
+              <text class="rel-letter" data-color="G" x="76" y="166">G</text>
+            </svg>
+            <div class="mc-relations-legend">
+              <span><span class="mc-rel-legend-mark mc-rel-legend-mark--ally"></span> Ally edge (within you)</span>
+              <span><span class="mc-rel-legend-mark mc-rel-legend-mark--enemy"></span> Tension to what you lack</span>
+            </div>
+          </div>
+          <div class="mc-relations-callouts" id="relations-callouts"></div>
         </div>
-        <div id="relations-clash" class="hidden mc-relations"></div>
-        <div id="relations-align" class="hidden mc-relations"></div>
 
         <!-- Action row -->
         <div style="display:flex;gap:12px;margin-top:32px;flex-wrap:wrap;">
@@ -3538,104 +3600,100 @@ function restoreSession(snapshot) {
 }
 
 // ─── COLOUR RELATIONS (Working With Others) ────────────────────────────────
-// MTG canon: each colour has two allies (adjacent on the wheel) and two
-// enemies (opposite). For multi-colour identities, enemies/allies are the
-// union across the identity's colours, minus the colours you already have.
+// Renders a WUBRG pentagon diagram showing your colours filled, missing
+// colours hollow, ally edges within identity lit gold, and pentagram-enemy
+// edges from your colours to missing colours lit dashed red. Beside the
+// diagram, per-colour callouts: strength for colours you have, gap +
+// "find this colleague" for colours you lack.
 
 const COLOR_ALLIES = { W:['U','G'], U:['W','B'], B:['U','R'], R:['B','G'], G:['R','W'] };
 const COLOR_ENEMIES = { W:['B','R'], U:['R','G'], B:['W','G'], R:['W','U'], G:['U','B'] };
-
-// Friction text per enemy pair (keys are sorted-colour pairs so symmetric)
-const COLOR_FRICTIONS = {
-  'B-W': "Your sense of group fairness lands on their self-interest like a complaint form. They think you're naive; you think they're a wrong'un. Both correct.",
-  'R-W': "Your insistence on structure is what they call 'admin'. They'll skip the meeting and apologise for the urgency after. Their urgency keeps being real, somehow.",
-  'R-U': "Your analysis is what they call overthinking, mostly because they don't want to think. They'll make the call before your model finishes loading. Sometimes their call is right.",
-  'G-U': "Your enthusiasm for designing the better way runs into their loyalty to what's working. They'll resist your roadmap quietly, then ignore it loudly.",
-  'B-G': "Your willingness to put a number on someone runs into their sense of who's owed what. They will not be optimised. They will, however, remember."
-};
-
-// Alignment text per ally pair (sorted-colour key)
-const COLOR_ALIGNMENTS = {
-  'U-W': "You both believe the right answer matters AND can be reached methodically. Reliable on anything that needs both fairness and rigor.",
-  'B-U': "You both think before acting and you both know what you're after. Mutual respect for competence, low on sentiment.",
-  'B-R': "You both have appetite for things to actually happen. Get on famously while there are wins on the table.",
-  'G-R': "You both trust instinct over slides. You'll move fast together and figure out the rest when you get there.",
-  'G-W': "You both build things that last. Slower than the room would like, but you'll still be standing in five years."
-};
-
 const COLOR_DISPLAY = { W: 'White', U: 'Blue', B: 'Black', R: 'Red', G: 'Green' };
 
-function pairKey(a, b) { return [a, b].sort().join('-'); }
+// One concise line per colour you have — what this gives you.
+const COLOR_STRENGTHS = {
+  W: "You build trust and frameworks. People know where they stand with you.",
+  U: "You think before acting. Your decisions hold up to inspection later.",
+  B: "You see the real stakes. You don't get blindsided.",
+  R: "You move when others are still talking. You make things happen.",
+  G: "You read what's already working. You don't break things that don't need fixing."
+};
 
-function getColorRelations(identityColors) {
-  const enemies = new Set();
-  const allies = new Set();
-  for (const c of identityColors) {
-    for (const e of COLOR_ENEMIES[c]) enemies.add(e);
-    for (const a of COLOR_ALLIES[c]) allies.add(a);
+// For each colour you LACK: the gap (what your absence creates) and the
+// complement (the type of colleague to actively seek out).
+const COLOR_GAPS = {
+  W: {
+    gap: "You don't naturally track the group's wellbeing. You make calls without quite checking whether everyone's on board.",
+    complement: "A White colleague will tell you when you've left someone behind. Don't filter them out as slow."
+  },
+  U: {
+    gap: "You act without doing the modelling first. You'll trip on things a spreadsheet would have caught.",
+    complement: "A Blue colleague will do the analysis you won't. Bring them in before the launch, not after."
+  },
+  B: {
+    gap: "You don't naturally see who's playing you. You'll be the one holding the bill when the politics shift.",
+    complement: "A Black colleague will name what's actually happening. Their cynicism is your insurance."
+  },
+  R: {
+    gap: "You don't generate urgency. You'll watch the window close while the analysis matures.",
+    complement: "A Red colleague will start the fire that gets you moving. Stop waiting for the right moment to begin."
+  },
+  G: {
+    gap: "You don't trust what already works. You'll rebuild things that were fine.",
+    complement: "A Green colleague will say 'leave it' when it's the right call. They've watched more cycles than you have."
   }
-  // Remove identity colours from these sets — you don't clash/ally with yourself
-  for (const c of identityColors) { enemies.delete(c); allies.delete(c); }
-  // Also remove from allies anything that's also in enemies (rare: only with
-  // 3+ colour identities where one colour's ally is another's enemy)
-  for (const c of enemies) allies.delete(c);
-  return { enemies: Array.from(enemies), allies: Array.from(allies) };
-}
-
-function buildRelationItem(otherColor, identityColors, source) {
-  // Pick which of MY colours has the strongest relation to theirs
-  let myColor = identityColors[0];
-  for (const mc of identityColors) {
-    const list = source === COLOR_FRICTIONS ? COLOR_ENEMIES[mc] : COLOR_ALLIES[mc];
-    if (list.includes(otherColor)) { myColor = mc; break; }
-  }
-  const desc = source[pairKey(myColor, otherColor)] || '';
-  const title = `${COLOR_DISPLAY[otherColor]}-heavy colleagues`;
-  return `<div class="mc-relations__item">
-    <span class="mc-pip is-lit mc-relations__pip" data-color="${otherColor}" aria-label="${otherColor}"></span>
-    <div class="mc-relations__body">
-      <div class="mc-relations__title">${title}</div>
-      <div class="mc-relations__desc">${desc}</div>
-    </div>
-  </div>`;
-}
+};
 
 function renderRelations() {
   if (!state.result || !state.result.identity) return;
   const p = PROFILES[state.result.identity];
   if (!p || !p.colors) return;
-  const { enemies, allies } = getColorRelations(p.colors);
-  const clashEl = document.getElementById('relations-clash');
-  const alignEl = document.getElementById('relations-align');
-  if (clashEl) {
-    clashEl.innerHTML = enemies.length > 0
-      ? enemies.map(c => buildRelationItem(c, p.colors, COLOR_FRICTIONS)).join('')
-      : `<div class="mc-relations__desc" style="padding: 10px 0; text-align: center;">Five-colour identities don't really clash with any one type — you contain all of them.</div>`;
-  }
-  if (alignEl) {
-    alignEl.innerHTML = allies.length > 0
-      ? allies.map(c => buildRelationItem(c, p.colors, COLOR_ALIGNMENTS)).join('')
-      : `<div class="mc-relations__desc" style="padding: 10px 0; text-align: center;">No strict allies left after deduplication — you draw from every adjacent style.</div>`;
-  }
-  // Reset both expand states so previous-result toggle doesn't carry over
-  if (clashEl) clashEl.classList.add('hidden');
-  if (alignEl) alignEl.classList.add('hidden');
-  const cb = document.getElementById('btn-relations-clash');
-  const ab = document.getElementById('btn-relations-align');
-  if (cb) cb.textContent = 'Who I clash with ›';
-  if (ab) ab.textContent = 'Who I align with ›';
-}
+  const identitySet = new Set(p.colors);
 
-function toggleRelations(which) {
-  const elId = which === 'clash' ? 'relations-clash' : 'relations-align';
-  const btnId = which === 'clash' ? 'btn-relations-clash' : 'btn-relations-align';
-  const el = document.getElementById(elId);
-  const btn = document.getElementById(btnId);
-  if (!el || !btn) return;
-  const willOpen = el.classList.contains('hidden');
-  el.classList.toggle('hidden');
-  const label = which === 'clash' ? 'Who I clash with' : 'Who I align with';
-  btn.textContent = willOpen ? `${label} ⌄` : `${label} ›`;
+  // Light up vertices + letter labels for identity colours
+  document.querySelectorAll('.rel-vertex').forEach(v => {
+    v.classList.toggle('is-lit', identitySet.has(v.getAttribute('data-color')));
+  });
+  document.querySelectorAll('.rel-letter').forEach(t => {
+    t.classList.toggle('is-lit', identitySet.has(t.getAttribute('data-color')));
+  });
+  // Light up ally edges where BOTH endpoints are in identity
+  document.querySelectorAll('.rel-edge-ally').forEach(e => {
+    const [a, b] = e.getAttribute('data-pair').split('-');
+    e.classList.toggle('is-lit-ally', identitySet.has(a) && identitySet.has(b));
+  });
+  // Light up enemy edges where exactly ONE endpoint is in identity (tension to missing)
+  document.querySelectorAll('.rel-edge-enemy').forEach(e => {
+    const [a, b] = e.getAttribute('data-pair').split('-');
+    e.classList.toggle('is-lit-enemy', identitySet.has(a) !== identitySet.has(b));
+  });
+  // Build callouts: one per colour, ordered WUBRG. Identity = strength;
+  // missing = gap + complement.
+  const callouts = ['W', 'U', 'B', 'R', 'G'].map(c => {
+    const has = identitySet.has(c);
+    const name = COLOR_DISPLAY[c];
+    if (has) {
+      return `<div class="mc-relation" data-state="have">
+        <span class="mc-pip is-lit mc-pip--sm" data-color="${c}" aria-label="${c}"></span>
+        <div class="mc-relation__body">
+          <div class="mc-relation__head">You have ${name}</div>
+          <div class="mc-relation__desc">${COLOR_STRENGTHS[c]}</div>
+        </div>
+      </div>`;
+    } else {
+      const g = COLOR_GAPS[c];
+      return `<div class="mc-relation" data-state="lack">
+        <span class="mc-pip mc-pip--sm" data-color="${c}" aria-label="${c}" style="opacity:0.35;"></span>
+        <div class="mc-relation__body">
+          <div class="mc-relation__head">You lack ${name}</div>
+          <div class="mc-relation__desc">${g.gap}</div>
+          <div class="mc-relation__complement">→ ${g.complement}</div>
+        </div>
+      </div>`;
+    }
+  }).join('');
+  const el = document.getElementById('relations-callouts');
+  if (el) el.innerHTML = callouts;
 }
 
 // ─── STAR SKY (animated WUBRG night sky) ───────────────────────────────────
