@@ -1052,6 +1052,18 @@ main { position: relative; z-index: 2; }
   50% { transform: translateY(-20px); }
 }
 
+/* calcPulse — divinatory pip cadence on the calculating screen */
+@keyframes calcPulse {
+  0%, 60%, 100% { filter: grayscale(0.85) brightness(0.55); transform: translateY(0) scale(1); }
+  20% { filter: grayscale(0) brightness(1.2); transform: translateY(-4px) scale(1.08); }
+}
+#bouncing-symbols .mc-pip { animation: calcPulse 1.6s ease-in-out infinite; }
+#bouncing-symbols .mc-pip:nth-child(1) { animation-delay: 0s; }
+#bouncing-symbols .mc-pip:nth-child(2) { animation-delay: 0.18s; }
+#bouncing-symbols .mc-pip:nth-child(3) { animation-delay: 0.36s; }
+#bouncing-symbols .mc-pip:nth-child(4) { animation-delay: 0.54s; }
+#bouncing-symbols .mc-pip:nth-child(5) { animation-delay: 0.72s; }
+
 .bounce-box {
   width: 16px;
   height: 16px;
@@ -1805,65 +1817,70 @@ button:focus-visible { outline: 2px solid #a78bfa; outline-offset: 2px; }
   </div>
 
   <div id="screen-early-offer" class="hidden">
-    <div class="card fade-in text-center">
-      <svg class="mc-corner mc-corner--tl"><use href="#fleuron"/></svg>
-      <svg class="mc-corner mc-corner--tr"><use href="#fleuron"/></svg>
-      <svg class="mc-corner mc-corner--bl"><use href="#fleuron"/></svg>
-      <svg class="mc-corner mc-corner--br"><use href="#fleuron"/></svg>
-      <div style="display: flex; justify-content: center; gap: 12px; margin-bottom: 24px;">
-        <span class="mc-pip is-lit" data-color="W" aria-label="W"></span>
-        <span class="mc-pip is-lit" data-color="U" aria-label="U"></span>
-        <span class="mc-pip is-lit" data-color="B" aria-label="B"></span>
-        <span class="mc-pip is-lit" data-color="R" aria-label="R"></span>
-        <span class="mc-pip is-lit" data-color="G" aria-label="G"></span>
-      </div>
-      
-      <h2 style="font-size: 32px; margin-bottom: 16px;">📊 Round 1 Complete</h2>
-      <p style="color: #a0a0b0; margin-bottom: 24px;">30 enemy pair comparisons analysed</p>
-      
-      <div style="background: rgba(139, 92, 246, 0.1); border: 2px solid rgba(139, 92, 246, 0.4); border-radius: 16px; padding: 28px; margin: 24px auto; max-width: 500px;">
-        <p style="font-size: 14px; color: #a0a0b0; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 1px;">You're trending toward</p>
-        <div style="display: flex; justify-content: center; gap: 12px; margin-bottom: 16px;" id="early-symbols"></div>
-        <h3 style="font-size: 28px; margin-bottom: 12px;" id="early-result-name">IDENTITY</h3>
-        <p style="font-size: 16px; color: #a0a0b0; margin-bottom: 12px;" id="early-result-tag">Tagline</p>
-        <span class="confidence-badge confidence-HIGH" id="early-confidence">Preliminary</span>
-        <p style="margin-top: 12px; font-size: 13px; color: #c0c0d0; line-height: 1.5;" id="early-message">Explanation message</p>
-      </div>
-      
-      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 20px; margin: 24px auto; max-width: 500px;">
-        <p style="font-size: 14px; color: #d0d0d0; margin-bottom: 8px;">
-          <strong class="text-accent">Next:</strong> Round 2 refines your ally colors
+    <div class="mc-inter fade-in">
+      <div class="mc-inter__crest" aria-hidden="true">✦</div>
+      <h2 class="mc-inter__title">Round 1 Complete</h2>
+
+      <div class="mc-plinth mc-inter__plinth">
+        <svg class="mc-corner mc-corner--tl"><use href="#fleuron"/></svg>
+        <svg class="mc-corner mc-corner--tr"><use href="#fleuron"/></svg>
+        <svg class="mc-corner mc-corner--bl"><use href="#fleuron"/></svg>
+        <svg class="mc-corner mc-corner--br"><use href="#fleuron"/></svg>
+
+        <div class="mc-typeline"><span class="mc-typeline__diamond"></span>Early Read<span class="mc-typeline__diamond"></span></div>
+
+        <div style="text-align:center; margin: 18px 0 8px;">
+          <div class="mc-manastrip" id="early-symbols" style="justify-content:center;margin-bottom:14px;"></div>
+          <div class="mc-display" style="font-size:44px; letter-spacing:0.08em; color:var(--gilt); margin-bottom:6px;" id="early-result-name">IDENTITY</div>
+          <p class="mc-flavor" style="font-size:18px; color:var(--ink-muted); margin-bottom:14px;" id="early-result-tag">Tagline</p>
+          <span class="mc-confidence" id="early-confidence" data-level="high" style="display:inline-flex;"><span class="mc-confidence__dot"></span><span>Preliminary read</span></span>
+          <p class="mc-body" style="margin: 18px auto 0; max-width: 480px; color:var(--ink); line-height:1.7; font-size:15px;" id="early-message">Explanation message</p>
+        </div>
+
+        <div class="mc-typeline" style="margin-top: 26px;"><span class="mc-typeline__diamond"></span></div>
+
+        <p class="mc-flavor" style="font-size:16px; color:var(--ink-muted); text-align:center; margin: 14px auto 4px; max-width: 520px;">
+          Round 2 tests <em>ally pairs</em> — the ones Round 1 never asked you about — to sharpen this read.
         </p>
-        <p style="font-size: 13px; color: #909090;">
-          Round 1 tested enemy pairs. Round 2 tests ally pairs — the ones Round 1 never saw — to sharpen the estimate.
+        <p class="mc-body" style="font-size: 13px; color: var(--ink-faded); font-style: italic; text-align: center; margin-top: 4px;">
+          You can stop here, or refine. Most people refine.
         </p>
+
+        <div class="mc-inter__cta" style="display:flex; flex-direction:column; align-items:center; gap:12px; margin-top: 24px;">
+          <button class="mc-btn mc-btn--primary" onclick="continueToRound2()">Continue to Round 2</button>
+          <button class="mc-btn mc-btn--ghost" onclick="showResultsEarly()">Reveal now without refining</button>
+          <p class="mc-inter__caption">Refining is ~12 more questions · 4–5 minutes</p>
+        </div>
       </div>
-      
-      <button onclick="continueToRound2()" style="background: linear-gradient(135deg, #a78bfa 0%, #8b5cf6 100%); border: none; color: #fff; padding: 18px 40px; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4); margin-top: 8px;">
-        Continue to Round 2 →
-      </button>
-      
-      <p style="font-size: 12px; color: #606070; margin-top: 16px;">~12 more questions • 4-5 minutes</p>
     </div>
   </div>
 
   <div id="screen-calculating" class="hidden">
-    <div class="card fade-in" style="text-align: center; min-height: 400px; display: flex; flex-direction: column; justify-content: center; align-items: center;">
-      <svg class="mc-corner mc-corner--tl"><use href="#fleuron"/></svg>
-      <svg class="mc-corner mc-corner--tr"><use href="#fleuron"/></svg>
-      <svg class="mc-corner mc-corner--bl"><use href="#fleuron"/></svg>
-      <svg class="mc-corner mc-corner--br"><use href="#fleuron"/></svg>
-      <h2 class="mc-display" style="font-size: 36px; margin-bottom: 32px; color: var(--ink);">Calculating Your Mana Curve...</h2>
-      
-      <div id="bouncing-symbols" style="display: flex; gap: 16px; margin-bottom: 32px;">
-        <span class="mc-pip is-lit" data-color="W" aria-label="W"></span>
-        <span class="mc-pip is-lit" data-color="U" aria-label="U"></span>
-        <span class="mc-pip is-lit" data-color="B" aria-label="B"></span>
-        <span class="mc-pip is-lit" data-color="R" aria-label="R"></span>
-        <span class="mc-pip is-lit" data-color="G" aria-label="G"></span>
+    <div class="mc-inter fade-in" style="max-width: 640px;">
+      <div class="mc-inter__crest" aria-hidden="true">✦</div>
+      <h2 class="mc-inter__title" style="margin-bottom: 28px;">Reading your hand</h2>
+
+      <div class="mc-plinth" style="padding: 40px 36px; text-align: center;">
+        <svg class="mc-corner mc-corner--tl"><use href="#fleuron"/></svg>
+        <svg class="mc-corner mc-corner--tr"><use href="#fleuron"/></svg>
+        <svg class="mc-corner mc-corner--bl"><use href="#fleuron"/></svg>
+        <svg class="mc-corner mc-corner--br"><use href="#fleuron"/></svg>
+
+        <div id="bouncing-symbols" style="display: flex; gap: 18px; margin-bottom: 22px; justify-content: center;">
+          <span class="mc-pip is-lit mc-pip--lg" data-color="W" aria-label="W"></span>
+          <span class="mc-pip is-lit mc-pip--lg" data-color="U" aria-label="U"></span>
+          <span class="mc-pip is-lit mc-pip--lg" data-color="B" aria-label="B"></span>
+          <span class="mc-pip is-lit mc-pip--lg" data-color="R" aria-label="R"></span>
+          <span class="mc-pip is-lit mc-pip--lg" data-color="G" aria-label="G"></span>
+        </div>
+        <div class="mc-typeline"><span class="mc-typeline__diamond"></span></div>
+        <p class="mc-flavor" style="font-size: 18px; color: var(--ink-muted); margin-top: 14px;">
+          Weighing your enemy pairs, ally pairs, and the head-to-heads between them.
+        </p>
+        <p class="mc-body" style="font-size: 13px; color: var(--ink-faded); font-style: italic; margin-top: 12px;">
+          A moment, while the cards settle.
+        </p>
       </div>
-      
-      <p style="color: #808090; font-size: 14px;">Analyzing your color distribution...</p>
     </div>
   </div>
 
@@ -1871,15 +1888,12 @@ button:focus-visible { outline: 2px solid #a78bfa; outline-offset: 2px; }
   <div id="screen-round-transition" class="hidden">
     <div class="mc-transition fade-in">
       <div id="transition-round-indicator" style="display:none"></div>
+      <div class="mc-typeline" style="margin-bottom: 20px;"><span class="mc-typeline__diamond"></span><span style="font-family:var(--f-display); letter-spacing:0.32em; color:var(--ink-muted); font-size:12px;">Round</span><span class="mc-typeline__diamond"></span></div>
       <div class="mc-transition__roman" id="transition-roman">II</div>
       <div class="mc-transition__name" id="transition-title">Refinement</div>
       <div class="mc-transition__flavor" id="transition-subtitle">Tests ally pairs Round 1 never saw, to sharpen the estimate.</div>
-      <p id="transition-banter" style="color: var(--gilt); font-family: var(--f-flavor); font-style: italic; font-size: 16px; margin-bottom: 32px; min-height: 1.4em;"></p>
-      <div style="display: flex; gap: 8px; justify-content: center;">
-        <div class="bounce-box" style="animation-delay: 0s;"></div>
-        <div class="bounce-box" style="animation-delay: 0.15s;"></div>
-        <div class="bounce-box" style="animation-delay: 0.3s;"></div>
-      </div>
+      <p id="transition-banter" style="color: var(--gilt); font-family: var(--f-flavor); font-style: italic; font-size: 16px; margin-bottom: 36px; min-height: 1.4em;"></p>
+      <div class="mc-typeline" style="max-width: 320px; margin: 0 auto;"><span class="mc-typeline__diamond"></span><span class="mc-typeline__diamond"></span><span class="mc-typeline__diamond"></span></div>
     </div>
   </div>
 
@@ -2091,171 +2105,183 @@ button:focus-visible { outline: 2px solid #a78bfa; outline-offset: 2px; }
       </div>
 
     <!-- LEGACY DETAIL — hidden by default, revealed by the "View Full Breakdown" button in the main plinth. -->
+    <!-- LEGACY DETAIL — hidden by default, revealed by the "View Full Breakdown" button in the main plinth.
+         Restyled to match the gilt/parchment system. Duplicated share UI removed (Share Studio handles it). -->
     <div id="legacy-detail" class="hidden">
 
     <!-- NORMATIVE CONTEXT (right after identity reveal) -->
-    <div id="normative-context" class="card fade-in" style="border-left: 4px solid rgba(139, 92, 246, 0.5);">
-      <h4 style="font-size: 16px; margin-bottom: 12px; color: #a78bfa;">📊 What This Means</h4>
-      <div id="normative-text" style="font-size: 14px; color: #b0b0c0; line-height: 1.7;"></div>
+    <div id="normative-context" class="mc-plinth fade-in" style="padding: 28px 36px; margin-top: 32px;">
+      <svg class="mc-corner mc-corner--tl"><use href="#fleuron"/></svg>
+      <svg class="mc-corner mc-corner--tr"><use href="#fleuron"/></svg>
+      <svg class="mc-corner mc-corner--bl"><use href="#fleuron"/></svg>
+      <svg class="mc-corner mc-corner--br"><use href="#fleuron"/></svg>
+      <div class="mc-eyebrow mc-eyebrow--gilt" style="margin-bottom: 12px;">What this means</div>
+      <div id="normative-text" class="mc-body" style="font-size: 15px; color: var(--ink); line-height: 1.75;"></div>
     </div>
-    
-    <div class="card fade-in">
-      <h3 style="font-size: 24px; margin-bottom: 8px;">Commander Reference</h3>
-      <p style="font-size: 13px; color: #808090; margin-bottom: 24px; font-style: italic;">The Magic card that maps to your colour identity, in full.</p>
 
-      <div style="background: rgba(255,255,255,0.05); padding: 24px; border-radius: 12px; margin: 24px 0; border: 1px solid rgba(255,255,255,0.1);" id="cmd-container">
-        <div onclick="toggleCommanderCard()" style="cursor: pointer; display: flex; align-items: center; gap: 12px;">
-          <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #808090;">⚡ Legendary Commander</div>
-          <span style="font-size: 14px; color: #606070; font-weight: 700;" id="cmd-name-preview"></span>
-          <span class="cmd-arrow" style="color: #808090; font-size: 12px; margin-left: auto;">▶</span>
+    <!-- COMMANDER REFERENCE — the Magic card that maps to your identity, in full -->
+    <div class="mc-plinth fade-in" style="padding: 32px 36px; margin-top: 24px;">
+      <svg class="mc-corner mc-corner--tl"><use href="#fleuron"/></svg>
+      <svg class="mc-corner mc-corner--tr"><use href="#fleuron"/></svg>
+      <svg class="mc-corner mc-corner--bl"><use href="#fleuron"/></svg>
+      <svg class="mc-corner mc-corner--br"><use href="#fleuron"/></svg>
+
+      <div class="mc-eyebrow mc-eyebrow--gilt" style="margin-bottom: 6px;">Commander Reference</div>
+      <p class="mc-flavor" style="font-size: 14px; color: var(--ink-faded); margin-bottom: 24px;">The card that maps to your colour identity, in full.</p>
+
+      <div id="cmd-container">
+        <div onclick="toggleCommanderCard()" style="cursor: pointer; display: flex; align-items: center; gap: 12px; padding: 14px 18px; background: var(--inset); border: 1px solid var(--gilt-line);">
+          <div style="font-family: var(--f-display); font-size: 11px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--gilt);">Legendary Commander</div>
+          <span style="font-family: var(--f-flavor); font-style: italic; font-size: 15px; color: var(--ink); margin-left: 8px;" id="cmd-name-preview"></span>
+          <span class="cmd-arrow" style="color: var(--gilt); font-size: 12px; margin-left: auto;">▶</span>
         </div>
-        
-        <!-- Card Frame (only if oracle data exists) -->
-        <div id="cmd-card-frame" style="background: linear-gradient(135deg, #2a2a3e 0%, #1f1f2e 100%); border: 3px solid rgba(139, 92, 246, 0.4); border-radius: 12px; padding: 16px; max-width: 500px; display: none;">
-          
+
+        <!-- Card Frame (only if oracle data exists) — rendered in MTG card aesthetic, deliberately distinct from page chrome -->
+        <div id="cmd-card-frame" style="background: linear-gradient(135deg, #1a1620 0%, #0f0c14 100%); border: 2px solid var(--gilt-soft); padding: 18px; max-width: 500px; margin-top: 16px; display: none; box-shadow: var(--shadow-deep);">
+
           <!-- Name and Mana Cost (top bar) -->
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 8px 12px; background: rgba(0,0,0,0.3); border-radius: 6px;">
-            <div style="font-size: 18px; font-weight: 700; color: #fff;" id="cmd-name-card">Commander</div>
-            <div id="cmd-cost" style="display: flex; gap: 3px;"></div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 10px 14px; background: rgba(0,0,0,0.5); border: 1px solid var(--gilt-line);">
+            <div style="font-family: var(--f-display); font-size: 16px; letter-spacing: 0.08em; color: var(--ink);" id="cmd-name-card">Commander</div>
+            <div id="cmd-cost" style="display: flex; gap: 4px;"></div>
           </div>
-          
-          <!-- Art crop (Scryfall) -->
-          <img id="cmd-art" src="" alt="" class="commander-art-img" style="display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 6px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.15);">
+
+          <!-- Art crop (Scryfall). Transparent 1x1 GIF as default src so an empty src doesn't re-fetch the page itself. -->
+          <img id="cmd-art" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="" class="commander-art-img" style="display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; margin-bottom: 10px; border: 1px solid var(--gilt-line);">
 
           <!-- Type Line -->
-          <div style="padding: 6px 12px; background: rgba(0,0,0,0.2); border-radius: 4px; margin-bottom: 12px;">
-            <div style="font-size: 13px; color: #d0d0d0; font-weight: 600;">Legendary Creature</div>
+          <div style="padding: 8px 14px; background: rgba(0,0,0,0.4); border: 1px solid var(--gilt-line); margin-bottom: 12px;">
+            <div style="font-family: var(--f-display); font-size: 12px; letter-spacing: 0.16em; color: var(--ink-muted);">LEGENDARY CREATURE</div>
           </div>
-          
+
           <!-- Card Text Box -->
-          <div style="background: rgba(0,0,0,0.25); padding: 16px; padding-bottom: 48px; border-radius: 6px; min-height: 180px; position: relative;">
+          <div style="background: rgba(0,0,0,0.35); padding: 16px 18px; padding-bottom: 52px; border: 1px solid var(--gilt-line); min-height: 180px; position: relative;">
             <!-- Flavor text (our description) -->
-            <p style="color: #b0b0c0; font-size: 13px; font-style: italic; line-height: 1.5; margin-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px;" id="cmd-desc-card">Description</p>
-            
+            <p style="font-family: var(--f-flavor); color: var(--ink-muted); font-size: 14px; font-style: italic; line-height: 1.55; margin-bottom: 12px; border-bottom: 1px solid var(--gilt-line); padding-bottom: 10px;" id="cmd-desc-card">Description</p>
+
             <!-- Oracle text (abilities) -->
-            <div id="cmd-oracle-text" style="font-size: 13px; color: #e0e0e0; line-height: 1.7; margin-bottom: 8px;"></div>
-            
+            <div id="cmd-oracle-text" style="font-family: var(--f-body); font-size: 14px; color: var(--ink); line-height: 1.7;"></div>
+
             <!-- P/T in bottom right corner -->
-            <div id="cmd-pt" style="position: absolute; bottom: 12px; right: 12px; font-size: 20px; font-weight: 800; color: #fff; background: rgba(0,0,0,0.6); padding: 6px 14px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2);"></div>
+            <div id="cmd-pt" style="position: absolute; bottom: 12px; right: 12px; font-family: var(--f-display); font-size: 18px; color: var(--gilt-bright); background: rgba(0,0,0,0.7); padding: 6px 14px; border: 1px solid var(--gilt-soft); letter-spacing: 0.06em;"></div>
           </div>
         </div>
-        
+
         <!-- Simple Reference (if no oracle data) -->
-        <div id="cmd-simple" class="hidden">
-          <div style="font-weight: 700; font-size: 20px; margin-bottom: 8px; color: #fff;" id="cmd-name-simple">Commander</div>
-          <p style="font-size: 14px; color: #b0b0c0; font-style: italic; line-height: 1.6;" id="cmd-desc-simple">Description</p>
-          <p style="font-size: 12px; color: #808090; margin-top: 12px; font-style: italic;">Full card details coming soon...</p>
+        <div id="cmd-simple" class="hidden" style="padding: 18px; background: var(--inset); border: 1px solid var(--gilt-line); margin-top: 12px;">
+          <div style="font-family: var(--f-display); font-size: 18px; letter-spacing: 0.08em; color: var(--ink); margin-bottom: 8px;" id="cmd-name-simple">Commander</div>
+          <p class="mc-flavor" style="font-size: 15px; color: var(--ink-muted); margin-bottom: 8px;" id="cmd-desc-simple">Description</p>
+          <p style="font-family: var(--f-flavor); font-style: italic; font-size: 13px; color: var(--ink-faded);">Full card details coming soon…</p>
         </div>
       </div>
-      
+
       <!-- PRIMARY Color Indicator (only for multi-color with dominant) -->
-      <div id="primary-color-indicator" style="display: none; margin: 32px 0; padding: 20px; background: rgba(139, 92, 246, 0.15); border: 1px solid rgba(139, 92, 246, 0.4); border-radius: 12px; border-left: 4px solid #a78bfa;">
-        <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #a78bfa; margin-bottom: 8px; font-weight: 600;">⭐ PRIMARY COLOR WITHIN THIS COMBINATION</div>
-        <p style="font-size: 15px; color: #e0e0e0; font-weight: 600; line-height: 1.6;"></p>
+      <div id="primary-color-indicator" style="display: none; margin-top: 28px; padding: 18px 22px; background: var(--inset); border: 1px solid var(--gilt-line); border-left: 3px solid var(--gilt);">
+        <div class="mc-eyebrow mc-eyebrow--gilt" style="margin-bottom: 8px;">Primary colour within this combination</div>
+        <p class="mc-body" style="font-size: 15px; color: var(--ink); line-height: 1.65; margin: 0;"></p>
       </div>
     </div>
-    
-      <!-- ENHANCEMENT: Deep Dive Button -->
-      <div style="margin: 40px 0; padding: 32px 0; border-top: 2px solid rgba(255,255,255,0.1);">
-        <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 20px; color: #e0e0e0;">📚 Explore Your Identity</h3>
-        <button class="deep-dive-btn" onclick="showDeepDive('philosophy', state.result.identity)">
-          <span style="font-size: 16px;">→</span> Full Philosophy & Workplace Patterns
-        </button>
+
+    <!-- DEEP DIVE -->
+    <div class="mc-plinth fade-in" style="padding: 28px 36px; margin-top: 24px; text-align: center;">
+      <svg class="mc-corner mc-corner--tl"><use href="#fleuron"/></svg>
+      <svg class="mc-corner mc-corner--tr"><use href="#fleuron"/></svg>
+      <svg class="mc-corner mc-corner--bl"><use href="#fleuron"/></svg>
+      <svg class="mc-corner mc-corner--br"><use href="#fleuron"/></svg>
+      <div class="mc-eyebrow mc-eyebrow--gilt" style="margin-bottom: 10px;">Go Deeper</div>
+      <p class="mc-flavor" style="font-size: 16px; color: var(--ink-muted); margin-bottom: 18px;">Full philosophy and workplace patterns for your type.</p>
+      <button class="mc-btn" onclick="showDeepDive('philosophy', state.result.identity)">Open the dossier</button>
+    </div>
+
+    <!-- METHODOLOGY: How we read you (the round-by-round receipt) -->
+    <div class="mc-plinth fade-in" style="padding: 32px 36px; margin-top: 24px;">
+      <svg class="mc-corner mc-corner--tl"><use href="#fleuron"/></svg>
+      <svg class="mc-corner mc-corner--tr"><use href="#fleuron"/></svg>
+      <svg class="mc-corner mc-corner--bl"><use href="#fleuron"/></svg>
+      <svg class="mc-corner mc-corner--br"><use href="#fleuron"/></svg>
+
+      <div onclick="const breakdown = document.getElementById('unified-breakdown'); const arrow = this.querySelector('.expand-icon'); const wasHidden = breakdown.style.display === 'none'; breakdown.style.display = wasHidden ? 'block' : 'none'; arrow.textContent = wasHidden ? '▼' : '▶';" style="cursor: pointer; display: flex; align-items: baseline; gap: 12px;">
+        <div class="mc-eyebrow mc-eyebrow--gilt">Methodology</div>
+        <h3 class="mc-display" style="font-size: 22px; letter-spacing: 0.08em; margin: 0; color: var(--ink);">How we read you</h3>
+        <span class="expand-icon" style="color: var(--gilt); font-size: 14px; margin-left: auto;">▶</span>
       </div>
-    
-    <!-- UNIFIED TESTING BREAKDOWN -->
-    <div class="card fade-in">
-      <div onclick="const breakdown = document.getElementById('unified-breakdown'); const arrow = this.querySelector('.expand-icon'); const wasHidden = breakdown.style.display === 'none'; breakdown.style.display = wasHidden ? 'block' : 'none'; arrow.textContent = wasHidden ? '▼' : '▶';" style="cursor: pointer; display: flex; align-items: center; gap: 12px;" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
-        <h3 style="font-size: 24px; margin: 0;">Your Mana Pool</h3>
-        <span class="expand-icon" style="color: #a78bfa; font-size: 18px;">▶</span>
-      </div>
-      <p style="font-size: 13px; color: #808090; margin: 8px 0 24px 0; font-style: italic;">Click to see how we identified your colors</p>
-      
-      <!-- Always visible: Quick percentage view -->
-      <div id="mana-pool-bars"></div>
-      
+      <p class="mc-flavor" style="font-size: 14px; color: var(--ink-faded); margin: 8px 0 0 0;">The forced choices, round by round.</p>
+
+      <!-- Hidden compat anchor — JS still writes to #mana-pool-bars but we hide it (top plinth's bars already show this). -->
+      <div id="mana-pool-bars" style="display:none"></div>
+
       <!-- Expandable: Full Round 1 + Round 2 + Round 3 breakdown -->
-      <div id="unified-breakdown" style="display: none; margin-top: 32px; padding-top: 32px; border-top: 2px solid rgba(255,255,255,0.1);">
-        
+      <div id="unified-breakdown" style="display: none; margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--gilt-line);">
+
         <!-- ROUND 1: ENEMY PAIR TESTING -->
-        <div style="margin-bottom: 40px;">
-          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
-            <div style="background: rgba(99, 102, 241, 0.3); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #6366f1; font-size: 20px;">1</div>
+        <div style="margin-bottom: 36px;">
+          <div style="display: flex; align-items: baseline; gap: 14px; margin-bottom: 14px;">
+            <div style="font-family: var(--f-display); font-weight: 900; font-size: 28px; color: var(--gilt); line-height: 1; min-width: 32px;">I</div>
             <div>
-              <h4 style="font-size: 20px; margin: 0; color: #e0e0e0;">Enemy Pair Testing</h4>
-              <p style="font-size: 12px; color: #808090; margin: 0;">30 forced-choice questions</p>
+              <h4 class="mc-display" style="font-size: 18px; letter-spacing: 0.12em; margin: 0; color: var(--ink);">Enemy Pair Testing</h4>
+              <p class="mc-flavor" style="font-size: 13px; color: var(--ink-faded); margin: 2px 0 0 0;">30 forced-choice questions</p>
             </div>
           </div>
-          
-          <div style="background: rgba(99, 102, 241, 0.05); padding: 24px; border-radius: 12px; border: 1px solid rgba(99, 102, 241, 0.2);">
-            <p style="font-size: 14px; color: #d0d0d0; margin-bottom: 20px; line-height: 1.7;">
-              We tested five enemy color pairs — White/Black, Blue/Red, Green/Blue, White/Red, Black/Green.
-              Each question forced you to pick between opposing philosophies. The ones you kept picking are the ones we're calling yours.
+
+          <div style="background: var(--inset); padding: 22px 26px; border: 1px solid var(--gilt-line);">
+            <p class="mc-body" style="font-size: 14px; color: var(--ink); margin-bottom: 18px; line-height: 1.75;">
+              We tested five enemy colour pairs — White/Black, Blue/Red, Green/Blue, White/Red, Black/Green. Each question forced you to choose between competing philosophies, revealing which colours genuinely resonate.
             </p>
             <div id="stage1-explanation-content"></div>
           </div>
         </div>
-        
+
         <!-- ROUND 2: ALLY PAIR CALIBRATION -->
-        <div id="round2-unified-section" class="hidden">
-          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
-            <div style="background: rgba(245, 158, 11, 0.3); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #F59E0B; font-size: 20px;">2</div>
+        <div id="round2-unified-section" class="hidden" style="margin-bottom: 36px;">
+          <div style="display: flex; align-items: baseline; gap: 14px; margin-bottom: 14px;">
+            <div style="font-family: var(--f-display); font-weight: 900; font-size: 28px; color: var(--gilt); line-height: 1; min-width: 32px;">II</div>
             <div>
-              <h4 style="font-size: 20px; margin: 0; color: #e0e0e0;">Ally Pair Refinement</h4>
-              <p style="font-size: 12px; color: #808090; margin: 0;" id="round2-question-count"><!-- filled dynamically --></p>
+              <h4 class="mc-display" style="font-size: 18px; letter-spacing: 0.12em; margin: 0; color: var(--ink);">Ally Pair Refinement</h4>
+              <p class="mc-flavor" style="font-size: 13px; color: var(--ink-faded); margin: 2px 0 0 0;" id="round2-question-count"><!-- filled dynamically --></p>
             </div>
           </div>
-          
-          <div style="background: rgba(245, 158, 11, 0.05); padding: 24px; border-radius: 12px; border: 1px solid rgba(245, 158, 11, 0.2);">
-            <div id="round2-intro-text" style="font-size: 14px; color: #d0d0d0; margin-bottom: 20px; line-height: 1.7;">
-              <!-- Filled dynamically with refinement explanation -->
+
+          <div style="background: var(--inset); padding: 22px 26px; border: 1px solid var(--gilt-line);">
+            <div id="round2-intro-text" class="mc-body" style="font-size: 14px; color: var(--ink); margin-bottom: 18px; line-height: 1.75;">
+              <!-- Filled dynamically -->
             </div>
             <div id="round2-refinement-results"></div>
             <div id="round2-bars"></div>
-            <div id="round2-testing-explanation" style="margin-top: 20px;"></div>
+            <div id="round2-testing-explanation" style="margin-top: 18px;"></div>
           </div>
         </div>
-        
+
         <!-- ROUND 3: FINAL DETERMINATION -->
         <div id="round3-unified-section" class="hidden">
-          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
-            <div style="background: rgba(139, 92, 246, 0.3); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #a78bfa; font-size: 20px;">3</div>
+          <div style="display: flex; align-items: baseline; gap: 14px; margin-bottom: 14px;">
+            <div style="font-family: var(--f-display); font-weight: 900; font-size: 28px; color: var(--gilt); line-height: 1; min-width: 32px;">III</div>
             <div>
-              <h4 style="font-size: 20px; margin: 0; color: #e0e0e0;">Final Determination</h4>
-              <p style="font-size: 12px; color: #808090; margin: 0;" id="round3-question-count"><!-- filled dynamically --></p>
+              <h4 class="mc-display" style="font-size: 18px; letter-spacing: 0.12em; margin: 0; color: var(--ink);">Final Determination</h4>
+              <p class="mc-flavor" style="font-size: 13px; color: var(--ink-faded); margin: 2px 0 0 0;" id="round3-question-count"><!-- filled dynamically --></p>
             </div>
           </div>
-          
-          <div style="background: rgba(139, 92, 246, 0.05); padding: 24px; border-radius: 12px; border: 1px solid rgba(139, 92, 246, 0.2);">
-            <div id="round3-intro-text" style="font-size: 14px; color: #d0d0d0; margin-bottom: 20px; line-height: 1.7;">
-              <!-- Filled dynamically with what was tested and why -->
+
+          <div style="background: var(--inset); padding: 22px 26px; border: 1px solid var(--gilt-line);">
+            <div id="round3-intro-text" class="mc-body" style="font-size: 14px; color: var(--ink); margin-bottom: 18px; line-height: 1.75;">
+              <!-- Filled dynamically -->
             </div>
-            
             <div id="round3-bars"></div>
-            <div id="round3-testing-explanation" style="margin-top: 20px;"></div>
+            <div id="round3-testing-explanation" style="margin-top: 18px;"></div>
           </div>
         </div>
-        
+
       </div>
     </div>
-    
-    <div style="text-align: center; margin-top: 32px;" class="fade-in">
-      <!-- Share Your Result -->
-      <div id="share-section" style="margin-bottom: 32px; padding: 24px; background: rgba(139, 92, 246, 0.1); border: 2px solid rgba(139, 92, 246, 0.3); border-radius: 16px; max-width: 500px; margin-left: auto; margin-right: auto;">
-        <h4 style="font-size: 16px; color: #a78bfa; margin-bottom: 16px; font-weight: 700;">Share Your Result</h4>
-        <p id="share-preview" style="font-size: 13px; color: #d0d0d0; line-height: 1.6; margin-bottom: 16px; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 8px; text-align: left; font-family: monospace; white-space: pre-wrap;"></p>
-        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
-          <button id="copy-result-btn" onclick="copyResult()" style="background: linear-gradient(135deg, #a78bfa, #8b5cf6); border: none; color: white; padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s;" aria-label="Copy your result to clipboard">
-            📋 Copy to Clipboard
-          </button>
-          <button id="save-image-btn" onclick="generateShareImage()" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(167, 139, 250, 0.4); color: #c4b5fd; padding: 12px 24px; border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s;" aria-label="Download share image">
-            ⬇ Save image
-          </button>
-        </div>
-        <p id="copy-feedback" style="font-size: 12px; color: #10B981; margin-top: 8px; opacity: 0; transition: opacity 0.3s;">Copied!</p>
-      </div>
 
-      </div><!-- /share-section wrapper -->
+    <!-- Hidden compat anchors for legacy share JS (Share Studio replaces this UI entirely). -->
+    <div style="display:none" aria-hidden="true">
+      <div id="share-section">
+        <p id="share-preview"></p>
+        <button id="copy-result-btn" onclick="copyResult()"></button>
+        <button id="save-image-btn" onclick="generateShareImage()"></button>
+        <p id="copy-feedback"></p>
+      </div>
+    </div>
+
     </div><!-- /legacy-detail -->
 
       <!-- Legacy compat anchors. The new plinth's action row owns the Retake button now;
@@ -5554,27 +5580,25 @@ function showEarlyTerminationOffer(confidenceData) {
   document.getElementById('early-result-name').textContent = prof.name;
   document.getElementById('early-result-tag').textContent = prof.tag;
   
-  // Update confidence badge to be more informational
-  // No numeric confidence shown — labels are deliberately cautious until pilot data exists.
+  // Confidence — use the gilt mc-confidence badge (matches the rest of the redesign)
+  // rather than the legacy confidence-badge chip. data-level drives styling.
   const confPct = Math.round(confidenceData.confidence * 100);
   const confText = confPct >= 85 ? 'Preliminary read' : confPct >= 70 ? 'Early signal' : 'Tentative';
-  document.getElementById('early-confidence').textContent = confText;
-  document.getElementById('early-confidence').className = `confidence-badge confidence-${confPct >= 85 ? 'HIGH' : confPct >= 70 ? 'MODERATE' : 'LOW'}`;
-  
+  const confLevel = confPct >= 85 ? 'high' : confPct >= 70 ? 'moderate' : 'low';
+  const confEl = document.getElementById('early-confidence');
+  confEl.className = 'mc-confidence';
+  confEl.setAttribute('data-level', confLevel);
+  confEl.style.display = 'inline-flex';
+  confEl.innerHTML = `<span class="mc-confidence__dot"></span><span>${confText}</span>`;
+
   document.getElementById('early-message').textContent = confidenceData.message;
-  
-  // Set mana symbols
+
+  // Mana symbols — use the redesign's .mc-pip mana-symbol artwork, not the
+  // old .mana-symbol letter spans.
   const syms = document.getElementById('early-symbols');
-  syms.innerHTML = '';
-  prof.colors.forEach(c => {
-    const s = document.createElement('span');
-    s.className = `mana-symbol mana-${c}`;
-    s.textContent = c;
-    s.style.width = '36px';
-    s.style.height = '36px';
-    s.style.fontSize = '18px';
-    syms.appendChild(s);
-  });
+  syms.innerHTML = prof.colors.map(c =>
+    `<span class="mc-pip is-lit mc-pip--lg" data-color="${c}" aria-label="${c}"></span>`
+  ).join('');
   
   window.scrollTo({top: 0, behavior: 'smooth'});
 }
