@@ -3685,6 +3685,13 @@ class StarSky {
     }
     return 'W';
   }
+  dominantColor() {
+    let best = 'W', bestW = -Infinity;
+    for (const [c, w] of Object.entries(this.weights)) {
+      if (w > bestW) { bestW = w; best = c; }
+    }
+    return best;
+  }
   layoutConstellation() {
     // Five mana-symbol slots in a pentagon around viewport centre. Each slot
     // holds a full mana-symbol constellation (sunburst / droplet / skull /
@@ -3831,7 +3838,7 @@ class StarSky {
     }
     this.shootingStars.push({
       x, y, vx, vy,
-      color: this.weightedColor(),
+      color: this.dominantColor(),  // subtle hint of the leading colour
       life: 0
     });
   }
@@ -4000,19 +4007,20 @@ class StarSky {
       const tailX = ss.x - (ss.vx / speed) * tailLen;
       const tailY = ss.y - (ss.vy / speed) * tailLen;
       const [r, g, b] = STAR_COLORS[ss.color];
-      // Coloured tail with gradient — invisible at tail end, bright at head
+      // Subtle coloured tail — the head reads as white-hot, the colour is just
+      // a faint tint. Tail invisible at the tail end, soft mid, gentle peak.
       const grad = this.ctx.createLinearGradient(tailX, tailY, ss.x, ss.y);
       grad.addColorStop(0, `rgba(${r},${g},${b},0)`);
-      grad.addColorStop(0.6, `rgba(${r},${g},${b},${0.35 * fadeIn})`);
-      grad.addColorStop(1, `rgba(${r},${g},${b},${0.7 * fadeIn})`);
+      grad.addColorStop(0.6, `rgba(${r},${g},${b},${0.18 * fadeIn})`);
+      grad.addColorStop(1, `rgba(${r},${g},${b},${0.4 * fadeIn})`);
       this.ctx.strokeStyle = grad;
       this.ctx.lineWidth = 1.6;
       this.ctx.beginPath();
       this.ctx.moveTo(tailX, tailY);
       this.ctx.lineTo(ss.x, ss.y);
       this.ctx.stroke();
-      // Bright white head with coloured halo
-      this.ctx.fillStyle = `rgba(${r},${g},${b},${0.45 * fadeIn})`;
+      // Faint coloured halo + bright white head
+      this.ctx.fillStyle = `rgba(${r},${g},${b},${0.22 * fadeIn})`;
       this.ctx.beginPath();
       this.ctx.arc(ss.x, ss.y, 5, 0, Math.PI * 2);
       this.ctx.fill();
