@@ -2945,7 +2945,6 @@ button:focus-visible { outline: 2px solid #a78bfa; outline-offset: 2px; }
 // ║   14. TEST HARNESS       - 31 canonical verification cases            ║
 // ╚══════════════════════════════════════════════════════════════════════╝
 
-console.log('=== SCRIPT START ===');
 
 // ============================================================================
 // CONTEXT HINTS - Non-work alternatives for corporate scenarios
@@ -4707,19 +4706,16 @@ function initArchetypeOfMonth() {
 
 // Initialize on load
 window.addEventListener('DOMContentLoaded', function() {
-  console.log('DOMContentLoaded fired');
   
   // Check for debug URL parameter
   const showDebug = window.location.search.includes('debug=1');
   if (showDebug) {
     const debugBtn = document.getElementById('debug-toggle-btn');
     if (debugBtn) debugBtn.style.display = 'inline-block';
-    console.log('Debug mode enabled via URL parameter');
   }
   
   try {
     initArchetypeOfMonth();
-    console.log('initArchetypeOfMonth completed successfully');
   } catch(e) {
     console.error('Error in initArchetypeOfMonth:', e);
   }
@@ -4743,7 +4739,6 @@ window.addEventListener('DOMContentLoaded', function() {
   offerSessionRestore();
 });
 
-console.log('Script file loaded successfully');
 
 // ============================================================================
 // GAMING FAMILIARITY GATE
@@ -4813,8 +4808,6 @@ function selectMode(mode) {
 }
 
 function startAssessment() {
-  console.log('startAssessment called');
-  console.log('POOL_A length:', POOL_A.length);
   
   // Select exactly 6 questions per enemy pair to ensure balanced scoring
   const enemyPairs = ['W-B', 'U-R', 'G-U', 'W-R', 'B-G'];
@@ -4832,7 +4825,6 @@ function startAssessment() {
   
   // Shuffle the final selection
   state.poolA = shuffleArray(selectedQuestions);
-  console.log('state.poolA selected and shuffled, length:', state.poolA.length);
   
   document.getElementById('screen-welcome').classList.add('hidden');
   document.getElementById('screen-preflight').classList.add('hidden');
@@ -4845,7 +4837,6 @@ function startAssessment() {
   }
   
   updateHeaderRoundIndicator(1);
-  console.log('Screens toggled, calling showQ');
   showQ();
 }
 
@@ -5207,9 +5198,7 @@ function updateDebug() {
 }
 
 function showQ() {
-  console.log('showQ called, stage:', state.stage, 'qNum:', state.qNum);
   const q = state.stage === 1 ? state.poolA[state.qNum] : state.poolS2[state.qNum];
-  console.log('Question:', q);
   
   if (!q) {
     console.error('No question available at index', state.qNum);
@@ -5461,7 +5450,6 @@ function answerQ(resp, optionIdx) {
         state.s2Track.patternPref = {MONO: 0, GUILD: 0, THREE: 0};
       }
       state.s2Track.patternPref[pattern]++;
-      console.log(`Pattern selected: ${pattern} (total: ${state.s2Track.patternPref[pattern]})`);
     }
     
     // CRITICAL: Track color frequency in selections
@@ -5474,7 +5462,6 @@ function answerQ(resp, optionIdx) {
         state.s2Track.colorFreq[color]++;
       });
       
-      console.log(`Colors in selection: [${colors.join(',')}] - Updated freq:`, state.s2Track.colorFreq);
     }
     
     // Track color appearances in all options (for rate calculation)
@@ -5557,7 +5544,6 @@ function answerNeither(q) {
   // Store a placeholder response
   state.responses.push({ c: 'NEITHER', pair: pair, text: 'Neither selected (skipped)' });
   
-  console.log(`Neither selected for ${pair} (no points awarded). Total neithers: ${state.neitherCount}`);
   
   // Advance to next question
   state.qNum++;
@@ -5810,10 +5796,6 @@ function analyseGapBasedPatterns() {
   }
   clusters.push(currentCluster);
   
-  console.log('=== GAP-BASED ANALYSIS ===');
-  console.log('Sorted:', sorted.map(c => `${c.color}:${c.total}`).join(', '));
-  console.log('Gaps:', gaps.map(g => `${g.gap} after ${g.before}`).join(', '));
-  console.log('Clusters:', clusters.map(cl => cl.map(c => c.color).join('-')).join(' | '));
   
   return {sorted, gaps, clusters, colorData};
 }
@@ -5834,8 +5816,6 @@ function generateCandidatesGapBased(analysis) {
   const MIN_CANDIDATES = 4;
   const MAX_CANDIDATES = 6;
   
-  console.log('=== CLUSTER-MATCH CANDIDATE GENERATION ===');
-  console.log('Sorted:', sorted.map(c => `${c.color}:${Math.round(c.winRate*100)}%`).join(', '));
   
   // Step 1: Analyze gap structure to find natural cluster size
   const gapAnalysis = [];
@@ -5873,9 +5853,6 @@ function generateCandidatesGapBased(analysis) {
   // The colors IN the natural cluster
   const clusterColors = sorted.slice(0, naturalClusterSize).map(c => c.color);
   
-  console.log('Gap analysis:', gapAnalysis.map(g => `${g.from}→${g.to}: ${Math.round(g.gap*100)}%`).join(', '));
-  console.log(`Largest gap: ${Math.round(largestGap.gap*100)}% after position ${largestGap.position}`);
-  console.log(`Natural cluster: [${clusterColors.join(', ')}] (size ${naturalClusterSize})`);
   
   // ========================================
   // CLUSTER-MATCH SCORING
@@ -5927,7 +5904,6 @@ function generateCandidatesGapBased(analysis) {
     const rawScore = sizeBonus + clusterCoverage + purityPenalty + strengthScore;
     const finalScore = Math.max(0.10, rawScore * gapConfidence);
     
-    console.log(`  ${candidateColors.join('-')}: size=${sizeBonus.toFixed(2)}, coverage=${clusterCoverage.toFixed(2)}, purity=${purityPenalty.toFixed(2)}, strength=${strengthScore.toFixed(2)}, gap=${gapConfidence.toFixed(2)} → ${Math.round(finalScore*100)}%`);
     
     return finalScore;
   }
@@ -5972,8 +5948,6 @@ function generateCandidatesGapBased(analysis) {
   // Eligible colors for multi-color identities
   const eligibleColors = sorted.filter(c => c.winRate >= relativeThreshold).map(c => c.color);
   
-  console.log(`Threshold calculation: top=${Math.round(topWinRate*100)}%, spread=${Math.round(totalSpread*100)}%, threshold=${Math.round(relativeThreshold*100)}%`);
-  console.log(`Guild-eligible colors (≥${Math.round(relativeThreshold*100)}%): [${eligibleColors.join(', ')}]`);
   
   // ========================================
   // FIVE-COLOR DETECTION
@@ -5983,7 +5957,6 @@ function generateCandidatesGapBased(analysis) {
   const allGapsSmall = largestGap.gap < 0.12;
   
   if (isFlatProfile || allGapsSmall) {
-    console.log(`Flat profile detected: spread=${Math.round(totalSpread*100)}%, largestGap=${Math.round(largestGap.gap*100)}%`);
     addCandidate('WUBRG', ['W','U','B','R','G'], 'All colors balanced', 'FIVE');
   }
   
@@ -5996,7 +5969,6 @@ function generateCandidatesGapBased(analysis) {
     if (c.winRate >= MONO_MIN_VIABILITY) {
       addCandidate('MONO-' + c.color, [c.color], `#${idx + 1} color`, 'MONO');
     } else {
-      console.log(`Skipping MONO-${c.color}: ${Math.round(c.winRate*100)}% below ${Math.round(MONO_MIN_VIABILITY*100)}% viability threshold`);
     }
   });
   
@@ -6050,7 +6022,6 @@ function generateCandidatesGapBased(analysis) {
   // If we don't have enough, add more but with viability checks
   // ========================================
   if (allCandidates.length < MIN_CANDIDATES) {
-    console.log(`Only ${allCandidates.length} candidates, adding more`);
     
     // Add remaining MONOs (with lower threshold for backup)
     const BACKUP_MONO_THRESHOLD = 0.15;
@@ -6099,8 +6070,6 @@ function generateCandidatesGapBased(analysis) {
     final.sort((a, b) => b.s1 - a.s1);
   }
   
-  console.log(`=== FINAL ${final.length} CANDIDATES ===`);
-  console.log(final.map(c => `${c.id}: ${Math.round(c.s1*100)}%`).join(' | '));
   
   return final;
 }
@@ -6122,9 +6091,6 @@ function finishS1() {
   const sorted = Object.entries(activation).sort((a,b) => b[1] - a[1]);
   state.activationSorted = sorted;
   
-  console.log('=== ROUND 1 COMPLETE ===');
-  console.log('Activation:', sorted.map(([c,v]) => `${c}:${Math.round(v*100)}%`).join(', '));
-  console.log('Candidates:', candidates.map(c => c.id).join(', '));
   
   // Determine confidence
   const topCandidate = candidates[0];
@@ -6137,7 +6103,6 @@ function finishS1() {
     confidence = 'LOW';
   }
   
-  console.log('Confidence:', confidence);
   
   // Store analysis for refinement
   state.round1Analysis = analysis;
@@ -6173,7 +6138,6 @@ function generateRefinementQuestions(analysis) {
   const questions = [];
   const pairwise = state.pairwise;
   
-  console.log('=== GENERATING CALIBRATION QUESTIONS ===');
   
   // ALLY PAIRS (pairs Round 1 never tested)
   const ALLY_PAIRS = [
@@ -6207,7 +6171,6 @@ function generateRefinementQuestions(analysis) {
         pairId: topAllyPair.pair,
         reason: `Critical: Determine ordering between top 2 colors (${top2[0]} vs ${top2[1]}) for MONO vs GUILD distinction`
       });
-      console.log(`PRIORITY: Top 2 colors (${top2.join(', ')}) are allies - must test ${topAllyPair.pair}`);
     }
   }
   
@@ -6226,7 +6189,6 @@ function generateRefinementQuestions(analysis) {
           pairId: pair.pair,
           reason: `Important: Test ${top3[i]} vs ${top3[j]} for 3-color detection`
         });
-        console.log(`SECONDARY: Top 3 ally pair ${pair.pair} added`);
       }
     }
   });
@@ -6260,7 +6222,6 @@ function generateRefinementQuestions(analysis) {
         margin: margin,
         reason: 'suppression_check'
       });
-      console.log(`Close matchup: ${ep.pair} (${winner} beat ${loser} by ${margin}) - need suppression check`);
     }
   });
   
@@ -6283,7 +6244,6 @@ function generateRefinementQuestions(analysis) {
           wins: c.total,
           reason: 'noise_check'
         });
-        console.log(`Potential noise: ${c.color} (${c.total} wins but not in top cluster)`);
       }
     }
   });
@@ -6408,22 +6368,18 @@ function generateRefinementQuestions(analysis) {
     }
   }
   
-  console.log(`Generated ${finalQuestions.length} refinement questions`);
   finalQuestions.forEach((q, i) => {
-    console.log(`  ${i+1}. ${q.pair}: ${q.refinementType} - ${q.refinementReason}`);
   });
   
   return finalQuestions;
 }
 
 function startRefinement(analysis) {
-  console.log('=== ROUND 2: ALLY PAIR CALIBRATION ===');
   
   const questions = generateRefinementQuestions(analysis);
   
   if (questions.length === 0) {
     // No refinement needed, skip to interstitial
-    console.log('No refinement questions needed, skipping to interstitial');
     showInterstitial(state.round1Candidates);
     return;
   }
@@ -6538,7 +6494,6 @@ function showRefinementQuestion() {
 }
 
 function selectRefinementChoice(color, pair) {
-  console.log(`Refinement Q${state.qNum + 1}: Selected ${color} for pair ${pair}`);
   
   // Record the choice
   state.refinementAnswers.push({
@@ -6563,7 +6518,6 @@ function selectRefinementChoice(color, pair) {
 }
 
 function selectRefinementNeither(pair) {
-  console.log(`Refinement Q${state.qNum + 1}: Selected NEITHER for pair ${pair} (no points awarded)`);
   
   // Track neither count
   if (!state.refinementNeitherCount) state.refinementNeitherCount = 0;
@@ -6589,8 +6543,6 @@ function selectRefinementNeither(pair) {
 }
 
 function finishRefinement() {
-  console.log('=== CALIBRATION COMPLETE ===');
-  console.log('Ally pair results:', state.refinementPairwise);
   
   // Analyze refinement results and adjust activation estimates
   const adjustedActivation = calculateRefinedActivation();
@@ -6607,7 +6559,6 @@ function finishRefinement() {
 }
 
 function calculateRefinedActivation() {
-  console.log('=== CALCULATING REFINED ACTIVATION (split enemy/ally posteriors) ===');
 
   // Round 1 (enemy pairs) and Round 2 (ally pairs) ask DIFFERENT questions about a colour.
   // R1 asks "do you pick White when it's pitted against Black?" — a contrast between
@@ -6670,10 +6621,6 @@ function calculateRefinedActivation() {
   };
 
   const sorted = Object.entries(activation).sort((a, b) => b[1] - a[1]);
-  console.log('Enemy posterior:', Object.entries(enemyPost).map(([c,v])=>`${c}:${Math.round(v*100)}%`).join(', '));
-  console.log('Ally posterior: ', Object.entries(allyPost).map(([c,v])=>`${c}:${v===null?'—':Math.round(v*100)+'%'}`).join(', '));
-  console.log('Combined activation:', sorted.map(c => `${c[0]}:${Math.round(c[1]*100)}%`).join(', '));
-  console.log('Context agreement (1=perfect, 0=total contradiction): overall=' + state.contextAgreement.overall.toFixed(2));
 
   state.activationSorted = sorted;
   return {activation, sorted};
@@ -6682,8 +6629,6 @@ function calculateRefinedActivation() {
 function recalculateCandidates(refinedData) {
   const {sorted} = refinedData;
   
-  console.log('=== RECALCULATING CANDIDATES WITH CALIBRATED DATA ===');
-  console.log('Refined activation:', sorted.map(([c, v]) => `${c}:${Math.round(v*100)}%`).join(', '));
   
   // Build analysis object for generateCandidatesGapBased
   // Only need sorted with color and winRate - the function calculates its own gaps
@@ -6935,9 +6880,6 @@ function recordTournamentResult(tournament, winnerId) {
   
   tournament.questionCount++;
   
-  console.log(`RESULT: ${winner.id} defeats ${loser.id} (${matchup.type})`);
-  console.log(`  ${winnerCandidate.id}: ${winnerCandidate.wins}W-${winnerCandidate.losses}L`);
-  console.log(`  ${loserCandidate.id}: ${loserCandidate.wins}W-${loserCandidate.losses}L`);
   
   return tournament;
 }
@@ -6982,7 +6924,6 @@ function getTournamentWinner(tournament) {
     runnerUp = ranked.find(c => c.id !== leader.id);
     confidence = 'LOW';
     gap = leader.wins - (runnerUp?.wins || 0);
-    console.log(`CYCLE DETECTED among ${cycle.join(' > ')} > ${cycle[0]} — falling back to Copeland.`);
   } else {
     leader = findTournamentLeader(tournament);
     const contenders = tournament.candidates
@@ -7026,8 +6967,6 @@ function getTournamentWinner(tournament) {
 }
 
 function startRound3(candidates) {
-  console.log('=== ROUND 3: ADAPTIVE TOURNAMENT ===');
-  console.log('Incoming candidates:', candidates.map(c => `${c.id} (${Math.round(c.s1*100)}%)`).join(', '));
   
   // Candidates come pre-scored from R1/R2 - use them directly
   // Add combinedScore field for tournament compatibility (same as s1 since refinement already applied)
@@ -7054,7 +6993,6 @@ function startRound3(candidates) {
   const firstMatchup = selectNextMatchup(state.tournament);
   if (!firstMatchup) {
     // No matchups needed - use R1/R2 result directly
-    console.log('No matchups needed, using R1/R2 result');
     finishRound3Tournament();
     return;
   }
@@ -7176,7 +7114,6 @@ function selectTournamentChoice(winnerId) {
   if (answerLocked) return; // Debounce guard
   lockAnswers();
   
-  console.log(`Tournament Q${state.tournament.questionCount + 1}: Selected ${winnerId}`);
 
   // Record result
   recordTournamentResult(state.tournament, winnerId);
@@ -7185,7 +7122,6 @@ function selectTournamentChoice(winnerId) {
   // Check for early termination
   const termCheck = shouldTerminateEarly(state.tournament);
   if (termCheck.terminate) {
-    console.log(`EARLY TERMINATION: ${termCheck.reason} - ${termCheck.message}`);
     state.tournament.terminated = true;
     state.tournament.termReason = termCheck;
     finishRound3Tournament();
@@ -7194,7 +7130,6 @@ function selectTournamentChoice(winnerId) {
   
   // Check max questions
   if (state.tournament.questionCount >= state.tournament.maxQuestions) {
-    console.log('MAX QUESTIONS reached');
     finishRound3Tournament();
     return;
   }
@@ -7202,7 +7137,6 @@ function selectTournamentChoice(winnerId) {
   // Get next matchup
   const nextMatchup = selectNextMatchup(state.tournament);
   if (!nextMatchup) {
-    console.log('No more matchups available');
     finishRound3Tournament();
     return;
   }
@@ -7212,15 +7146,9 @@ function selectTournamentChoice(winnerId) {
 }
 
 function finishRound3Tournament() {
-  console.log('=== ROUND 3 TOURNAMENT COMPLETE ===');
   
   const result = getTournamentWinner(state.tournament);
   
-  console.log('Winner:', result.winner.id);
-  console.log('Runner-up:', result.runnerUp?.id);
-  console.log('Confidence:', result.confidence);
-  console.log('Questions asked:', result.totalQuestions);
-  console.log('Match history:', result.matchHistory.map(m => `${m.winner.id} > ${m.loser.id}`).join(', '));
   
   // Build allResults from tournament candidates, sorted by performance
   const sortedCandidates = [...state.tournament.candidates].sort((a, b) => {
@@ -7245,7 +7173,6 @@ function finishRound3Tournament() {
     isTournament: true
   }]);
   
-  console.log('allResults for display:', allResults.map(a => `${a[0]}(${a[1].wins}W-${a[1].losses}L)`).join(', '));
   
   // Store result in format compatible with existing results display
   state.result = {
@@ -7446,7 +7373,6 @@ function submitRanking() {
     }
   });
   
-  console.log('Round 3 Q' + (state.qNum + 1) + ' rankings:', rankings);
   
   state.qNum++;
   if (state.qNum < state.qTot) {
@@ -7457,7 +7383,6 @@ function submitRanking() {
 }
 
 function finishRound3() {
-  console.log('=== ROUND 3 COMPLETE ===');
   
   // Use round3Rankings if available, fall back to round2Rankings
   const rankingsStore = state.round3Rankings || state.round2Rankings;
@@ -7465,7 +7390,6 @@ function finishRound3() {
   // Track what was EXPECTED going into Round 3 (top candidate by combinedScore)
   const expectedWinner = state.candidates?.[0];
   const expectedType = expectedWinner ? getCandidateType(expectedWinner.id) : null;
-  console.log('Expected winner going into R3:', expectedWinner?.id, '(type:', expectedType, ')');
   
   // Calculate average rank per candidate (lower = better)
   const candidateScores = Object.entries(rankingsStore).map(([id, ranks]) => {
@@ -7486,7 +7410,6 @@ function finishRound3() {
     };
   }).sort((a,b) => a.avgRank - b.avgRank); // Sort by average rank (ascending)
   
-  console.log('Average ranks:', candidateScores.map(c => `${c.id}:${c.avgRank.toFixed(2)}`).join(', '));
   
   const winner = candidateScores[0];
   const runnerUp = candidateScores[1];
@@ -7505,7 +7428,6 @@ function finishRound3() {
     if (expectedWidth !== actualWidth) {
       widthShift = true;
       shiftDirection = actualWidth > expectedWidth ? 'wider' : 'narrower';
-      console.log(`WIDTH SHIFT DETECTED: Expected ${expectedType} (${expectedWidth}), got ${actualType} (${actualWidth}) - shifted ${shiftDirection}`);
     }
   }
   
@@ -7559,14 +7481,9 @@ function finishRound3() {
   // This indicates the scoring predicted one thing but the user's preferences showed another
   if (widthShift && confidence === 'HIGH') {
     confidence = 'MODERATE';
-    console.log('Confidence capped at MODERATE due to width shift');
   }
   
-  console.log('Winner consistency:', winnerConsistency, 'variance:', winnerVariance.toFixed(2));
   
-  console.log('Winner:', winner.id, 'avg rank:', winner.avgRank.toFixed(2));
-  console.log('Runner-up:', runnerUp?.id, 'avg rank:', runnerUp?.avgRank.toFixed(2));
-  console.log('Gap:', gap.toFixed(2), 'Confidence:', confidence);
   
   // Build allResults combining all three rounds
   const allResults = candidateScores.map(cand => {
@@ -7870,7 +7787,6 @@ function displayRound2Bars() {
   // Show the Round 2 section
   const round2Section = document.getElementById('round2-unified-section');
   if (!round2Section) {
-    console.log('Round 2 section element not found');
     return;
   }
   
@@ -9502,10 +9418,6 @@ function showResults() {
   // Show alternatives for LOW or MODERATE confidence if borderline
   const allResults = state.result.allResults || [];
   // sorted already defined above
-  console.log('=== DISPLAYING ALTERNATIVES ===');
-  console.log('Confidence:', state.result.confidence);
-  console.log('allResults:', allResults.map(a => a[0]).join(', '));
-  console.log('allResults.length:', allResults.length);
   
   // Check if top colors are borderline (pattern-specific checks)
   let colorsTied = false;
@@ -9531,13 +9443,10 @@ function showResults() {
     colorsTied = true; // Force display if no allResults but confidence not HIGH
   }
   
-  console.log('colorsTied:', colorsTied);
-  console.log('isGuild:', isGuild, 'isThreeColor:', isThreeColor);
   
   // Check for width shift (expected one type but got another)
   const r3Data = state.result.round3Data || {};
   const hasWidthShift = r3Data.widthShift === true;
-  console.log('hasWidthShift:', hasWidthShift, 'shiftDirection:', r3Data.shiftDirection);
   
   // Show if (LOW or MODERATE confidence) AND (colors are tied OR we have actual alternatives OR width shift)
   const shouldShowAlternatives = (state.result.confidence === 'LOW' || state.result.confidence === 'MODERATE') && 
@@ -9589,18 +9498,11 @@ function showResults() {
     const altList = document.getElementById('alternatives-list');
     altList.innerHTML = '';
     
-    console.log('=== ALTERNATIVE SELECTION ===');
-    console.log('allResults.length:', allResults.length);
     if (allResults.length > 0) {
-      console.log('allResults[0] (winner):', allResults[0][0], Math.round((allResults[0][1].combined || allResults[0][1].s1)*100) + '%');
-      console.log('state.result.identity (displayed):', state.result.identity);
-      console.log('Match?', allResults[0][0] === state.result.identity);
     }
-    console.log('Full allResults:', allResults.map(a => `${a[0]}(${Math.round((a[1].combined || a[1].s1)*100)}%)`).join(', '));
     
     // Get alternatives from allResults (ranked Stage 2 results), excluding winner
     let alternatives = allResults.slice(1, 4);
-    console.log('Alternatives after slice(1,4):', alternatives.map(a => a[0]).join(', '));
     
     // If there was a width shift, ensure the expected winner is in alternatives
     if (hasWidthShift && r3Data.expectedWinner && r3Data.expectedWinner !== state.result.identity) {
@@ -9613,12 +9515,9 @@ function showResults() {
           alternatives.unshift(expectedEntry);
           // Keep max 4 alternatives
           if (alternatives.length > 4) alternatives = alternatives.slice(0, 4);
-          console.log('Added expected winner to alternatives:', r3Data.expectedWinner);
         }
       }
     }
-    console.log('Final alternatives:', alternatives.map(a => a[0]).join(', '));
-    console.log('==============================');
     
     // If we have no alternatives but LOW/MODERATE confidence, show guidance
     if (alternatives.length === 0) {
@@ -9651,7 +9550,6 @@ function showResults() {
     } else {
       // Render actual alternatives
       alternatives.forEach(alt => {
-      console.log('Processing alternative:', alt[0]);
       
       // Handle GUIDANCE type
       if (alt[0] === 'GUIDANCE') {
@@ -9666,7 +9564,6 @@ function showResults() {
       }
       
       const altProfile = PROFILES[alt[0]];
-      console.log('Profile found for', alt[0], ':', !!altProfile);
       if (!altProfile) {
         console.warn('No profile found for:', alt[0]);
         return;
@@ -10636,263 +10533,11 @@ function findGuildsWithColor(color) {
   return all.filter(g => getGuildColors(g).includes(color));
 }
 
-// ============================================================================
-// TEST HARNESS - 31 canonical test cases
-// Access via: runTestHarness() in console or ?test=1 URL param
-// ============================================================================
+// === SCRIPT END — all functions defined ===
+// (Marker for scripts/_followup/_results_render_check.js. The test harness
+//  that used to live here now runs standalone: `node scripts/test_harness.js`.)
 
-const TEST_CASES = [
-  // MONO colors (5)
-  { name: 'MONO-W', scores: {W:0.85, U:0.55, B:0.45, R:0.40, G:0.60}, desc: 'White dominant' },
-  { name: 'MONO-U', scores: {W:0.40, U:0.88, B:0.52, R:0.35, G:0.48}, desc: 'Blue dominant' },
-  { name: 'MONO-B', scores: {W:0.35, U:0.45, B:0.90, R:0.55, G:0.42}, desc: 'Black dominant' },
-  { name: 'MONO-R', scores: {W:0.42, U:0.38, B:0.48, R:0.92, G:0.55}, desc: 'Red dominant' },
-  { name: 'MONO-G', scores: {W:0.50, U:0.35, B:0.40, R:0.52, G:0.88}, desc: 'Green dominant' },
-  
-  // Allied guilds (5)
-  { name: 'AZORIUS', scores: {W:0.78, U:0.75, B:0.35, R:0.30, G:0.45}, desc: 'W-U allies' },
-  { name: 'DIMIR', scores: {W:0.30, U:0.80, B:0.77, R:0.42, G:0.35}, desc: 'U-B allies' },
-  { name: 'RAKDOS', scores: {W:0.25, U:0.38, B:0.76, R:0.79, G:0.40}, desc: 'B-R allies' },
-  { name: 'GRUUL', scores: {W:0.40, U:0.30, B:0.35, R:0.77, G:0.80}, desc: 'R-G allies' },
-  { name: 'SELESNYA', scores: {W:0.78, U:0.35, B:0.28, R:0.42, G:0.76}, desc: 'G-W allies' },
-  
-  // Enemy guilds (5)
-  { name: 'ORZHOV', scores: {W:0.75, U:0.40, B:0.78, R:0.35, G:0.38}, desc: 'W-B enemies' },
-  { name: 'IZZET', scores: {W:0.35, U:0.80, B:0.42, R:0.77, G:0.30}, desc: 'U-R enemies' },
-  { name: 'GOLGARI', scores: {W:0.38, U:0.32, B:0.76, R:0.40, G:0.79}, desc: 'B-G enemies' },
-  { name: 'BOROS', scores: {W:0.77, U:0.30, B:0.35, R:0.80, G:0.42}, desc: 'R-W enemies' },
-  { name: 'SIMIC', scores: {W:0.40, U:0.78, B:0.32, R:0.35, G:0.75}, desc: 'G-U enemies' },
-  
-  // Shards (5)
-  { name: 'ESPER', scores: {W:0.72, U:0.75, B:0.70, R:0.30, G:0.28}, desc: 'W-U-B shard' },
-  { name: 'GRIXIS', scores: {W:0.25, U:0.73, B:0.75, R:0.71, G:0.30}, desc: 'U-B-R shard' },
-  { name: 'JUND', scores: {W:0.28, U:0.30, B:0.70, R:0.74, G:0.72}, desc: 'B-R-G shard' },
-  { name: 'NAYA', scores: {W:0.71, U:0.28, B:0.25, R:0.73, G:0.75}, desc: 'R-G-W shard' },
-  { name: 'BANT', scores: {W:0.74, U:0.72, B:0.25, R:0.30, G:0.70}, desc: 'G-W-U shard' },
-  
-  // Wedges (5)
-  { name: 'ABZAN', scores: {W:0.73, U:0.28, B:0.70, R:0.30, G:0.72}, desc: 'W-B-G wedge' },
-  { name: 'JESKAI', scores: {W:0.70, U:0.75, B:0.28, R:0.72, G:0.30}, desc: 'U-R-W wedge' },
-  { name: 'SULTAI', scores: {W:0.25, U:0.71, B:0.74, R:0.30, G:0.70}, desc: 'B-G-U wedge' },
-  { name: 'MARDU', scores: {W:0.72, U:0.30, B:0.70, R:0.73, G:0.28}, desc: 'R-W-B wedge' },
-  { name: 'TEMUR', scores: {W:0.28, U:0.70, B:0.30, R:0.72, G:0.74}, desc: 'G-U-R wedge' },
-  
-  // Four-color (5)
-  { name: 'YORE', scores: {W:0.68, U:0.70, B:0.67, R:0.65, G:0.25}, desc: 'No Green' },
-  { name: 'GLINT', scores: {W:0.22, U:0.68, B:0.70, R:0.66, G:0.67}, desc: 'No White' },
-  { name: 'DUNE', scores: {W:0.67, U:0.20, B:0.68, R:0.70, G:0.66}, desc: 'No Blue' },
-  { name: 'INK', scores: {W:0.68, U:0.66, B:0.22, R:0.70, G:0.67}, desc: 'No Black' },
-  { name: 'WITCH', scores: {W:0.67, U:0.70, B:0.68, R:0.20, G:0.66}, desc: 'No Red' },
-  
-  // Five-color (1)
-  { name: 'WUBRG', scores: {W:0.52, U:0.50, B:0.48, R:0.51, G:0.49}, desc: 'All balanced' }
-];
 
-function scoresToAnalysis(scores) {
-  const sorted = Object.entries(scores)
-    .map(([color, winRate]) => ({ color, winRate, total: Math.round(winRate * 12) }))
-    .sort((a, b) => b.winRate - a.winRate);
-  
-  const gaps = [];
-  for (let i = 0; i < sorted.length - 1; i++) {
-    gaps.push(sorted[i].winRate - sorted[i + 1].winRate);
-  }
-  
-  // Simple clustering
-  const clusters = [[]];
-  sorted.forEach((colorData, idx) => {
-    clusters[clusters.length - 1].push(colorData);
-    if (gaps[idx] && gaps[idx] > 0.10) clusters.push([]);
-  });
-  if (clusters[clusters.length - 1].length === 0) clusters.pop();
-  
-  return { sorted, gaps, clusters };
-}
-
-function runSingleTest(testCase) {
-  const analysis = scoresToAnalysis(testCase.scores);
-  const candidates = generateCandidatesGapBased(analysis);
-  
-  const winner = candidates[0];
-  const inTop3 = candidates.slice(0, 3).some(c => c.id === testCase.name);
-  const position = candidates.findIndex(c => c.id === testCase.name);
-  
-  return {
-    expected: testCase.name,
-    actual: winner?.id,
-    pass: winner?.id === testCase.name,
-    inTop3,
-    position: position >= 0 ? position + 1 : null,
-    candidates: candidates.map(c => c.id)
-  };
-}
-
-function runTestHarness() {
-  console.log('=== MANA COLORS TEST HARNESS ===');
-  console.log('Running 31 canonical test cases...\n');
-  
-  let passed = 0;
-  let inTop3 = 0;
-  const failures = [];
-  
-  TEST_CASES.forEach(tc => {
-    const result = runSingleTest(tc);
-    
-    if (result.pass) {
-      passed++;
-      console.log(`✓ ${tc.name}: PASS`);
-    } else {
-      if (result.inTop3) inTop3++;
-      failures.push({ ...tc, result });
-      console.log(`✗ ${tc.name}: FAIL - got ${result.actual} (expected at #${result.position || 'N/A'})`);
-      console.log(`  Candidates: ${result.candidates.join(', ')}`);
-    }
-  });
-  
-  console.log('\n=== SUMMARY ===');
-  console.log(`Passed: ${passed}/${TEST_CASES.length} (${Math.round(passed/TEST_CASES.length*100)}%)`);
-  console.log(`In Top 3: ${passed + inTop3}/${TEST_CASES.length}`);
-  
-  if (failures.length > 0) {
-    console.log('\n=== FAILURES ===');
-    failures.forEach(f => {
-      console.log(`${f.name} (${f.desc}): got ${f.result.actual}`);
-    });
-  }
-  
-  return { passed, total: TEST_CASES.length, failures };
-}
-
-// ============================================================================
-// Extended harness — exercises Phase B additions that the canonical TEST_CASES
-// (which target scoresToAnalysis → generateCandidatesGapBased) doesn't cover.
-// Each entry returns { name, pass, detail } so a future caller can roll them up.
-// ============================================================================
-function runExtendedHarness() {
-  const results = [];
-  const ok = (name, cond, detail) => results.push({ name, pass: !!cond, detail: detail || '' });
-
-  // 1. Cycle detection: Condorcet triangle
-  const cyc = {
-    candidates: [{id:'AZORIUS'},{id:'IZZET'},{id:'GOLGARI'}],
-    matchHistory: [
-      { winner: {id:'AZORIUS'}, loser: {id:'IZZET'} },
-      { winner: {id:'IZZET'},   loser: {id:'GOLGARI'} },
-      { winner: {id:'GOLGARI'}, loser: {id:'AZORIUS'} },
-    ]
-  };
-  const cycle = detectTournamentCycle(cyc);
-  ok('cycle: detector finds 3-cycle', Array.isArray(cycle) && cycle.length === 3);
-
-  // 2. getTournamentWinner with cycle → LOW + Copeland
-  const t2 = {
-    questionCount: 6,
-    candidates: [
-      {id:'AZORIUS', wins:2, losses:1, opponents:[]},
-      {id:'IZZET',   wins:2, losses:1, opponents:[]},
-      {id:'GOLGARI', wins:2, losses:1, opponents:[]},
-    ],
-    matchHistory: cyc.matchHistory
-  };
-  const r2 = getTournamentWinner(t2);
-  ok('cycle: confidence is LOW', r2.confidence === 'LOW');
-  ok('cycle: result.cycle populated', Array.isArray(r2.cycle));
-
-  // 3. Round-robin: pending pairs remaining → does NOT terminate (no clinching yet)
-  const t4 = {
-    questionCount: 2,
-    candidates: [
-      {id:'AZORIUS', wins:1, losses:1, opponents:[], combinedScore: 0.7},
-      {id:'IZZET',   wins:1, losses:1, opponents:[], combinedScore: 0.5},
-      {id:'GOLGARI', wins:1, losses:1, opponents:[], combinedScore: 0.3},
-    ],
-    pendingPairs: [{ a:{id:'AZORIUS'}, b:{id:'IZZET'} }, { a:{id:'AZORIUS'}, b:{id:'GOLGARI'} }, { a:{id:'IZZET'}, b:{id:'GOLGARI'} }],
-    matchHistory: []
-  };
-  ok('Round-robin: pending pairs → continue', shouldTerminateEarly(t4).terminate === false);
-
-  // 4. Round-robin: leader has CLINCHED — can't be caught
-  const t5 = {
-    questionCount: 3,
-    candidates: [
-      {id:'AZORIUS', wins:3, losses:0, opponents:[], combinedScore: 0.7},
-      {id:'IZZET',   wins:0, losses:2, opponents:[], combinedScore: 0.5},
-      {id:'GOLGARI', wins:0, losses:1, opponents:[], combinedScore: 0.3},
-    ],
-    pendingPairs: [{ a:{id:'IZZET'}, b:{id:'GOLGARI'} }],
-    matchHistory: []
-  };
-  const t5Result = shouldTerminateEarly(t5);
-  ok('Round-robin: clinched leader terminates', t5Result.terminate === true && t5Result.reason === 'CLINCHED');
-
-  // 5. Bayes re-seeding: U > W after R2 reverses an ally-pair preference
-  const savedPairwise = state.pairwise;
-  const savedPNeither = state.pairwiseNeither;
-  const savedRefPair  = state.refinementPairwise;
-  const savedActSort  = state.activationSorted;
-  state.pairwise = {
-    'W-B': {W: 5, B: 1}, 'U-R': {U: 4, R: 2}, 'G-U': {G: 1, U: 5},
-    'W-R': {W: 4, R: 2}, 'B-G': {B: 3, G: 3}
-  };
-  state.pairwiseNeither = {'W-B':0,'U-R':0,'G-U':0,'W-R':0,'B-G':0};
-  state.refinementPairwise = { 'W-U': {W: 2, U: 4} };
-  const refined = calculateRefinedActivation();
-  const wPost = refined.sorted.find(e => e[0] === 'W')[1];
-  const uPost = refined.sorted.find(e => e[0] === 'U')[1];
-  // Expected math (post-split Bayes): enemy W posterior = 10/14 ≈ 0.71; ally W posterior = 3/8 ≈ 0.38; avg ≈ 0.545.
-  // Enemy U posterior = 10/14 ≈ 0.71; ally U posterior = 5/8 ≈ 0.625; avg ≈ 0.67.
-  ok('Bayes split: W combined ~0.54', Math.abs(wPost - 0.545) < 0.05, `got ${wPost.toFixed(3)}`);
-  ok('Bayes split: U combined ~0.67', Math.abs(uPost - 0.67) < 0.05, `got ${uPost.toFixed(3)}`);
-  ok('Bayes split: U overtakes W after R2', uPost > wPost);
-  ok('Bayes split: contextAgreement is populated', typeof state.contextAgreement?.overall === 'number');
-  ok('Bayes split: W shows disagreement (enemy ≠ ally for W)', state.contextAgreement.perColor.W < 0.80);
-  // restore
-  state.pairwise = savedPairwise; state.pairwiseNeither = savedPNeither;
-  state.refinementPairwise = savedRefPair; state.activationSorted = savedActSort;
-
-  // 6. Heteropolar items are present
-  const hets = POOL_A.filter(q => q.id && q.id.endsWith('-HET'));
-  ok('HET items: A-UR-HET, A-GU-HET, A-WR-HET present', hets.length === 3);
-
-  // 7. Phase A: rename and gating
-  ok('rename: startCalibration is gone', typeof startCalibration === 'undefined');
-  ok('rename: startRefinement is defined', typeof startRefinement === 'function');
-  ok('disclaimer gate: state has disclaimerAcknowledged', 'disclaimerAcknowledged' in state);
-
-  // 8. Phase D: TRANSITION_BANTER + getTransitionBanter
-  ok('banter: TRANSITION_BANTER has all colours', ['W','U','B','R','G','?'].every(k => Array.isArray(TRANSITION_BANTER[k])));
-  ok('banter: getTransitionBanter is callable', typeof getTransitionBanter === 'function');
-
-  // 9. Phase E: audience field
-  ok('audience: state.audience defaults to consumer', state.audience === 'consumer' || state.audience === 'workplace');
-
-  // Print summary
-  console.log('=== EXTENDED HARNESS ===');
-  let pass = 0;
-  results.forEach(r => {
-    console.log((r.pass ? '✓ ' : '✗ ') + r.name + (r.detail ? '  [' + r.detail + ']' : ''));
-    if (r.pass) pass++;
-  });
-  console.log(`Passed: ${pass}/${results.length}`);
-  return { passed: pass, total: results.length, results };
-}
-window.runExtendedHarness = runExtendedHarness;
-
-// Check for ?test=1 URL param
-if (window.location.search.includes('test=1')) {
-  setTimeout(() => {
-    const results = runTestHarness();
-    alert(`Test Results: ${results.passed}/${results.total} passed`);
-  }, 500);
-}
-
-// Export to window for console access
-window.runTestHarness = runTestHarness;
-window.TEST_CASES = TEST_CASES;
-window.runSingleTest = runSingleTest;
-
-console.log('=== SCRIPT END - All functions defined ===');
-console.log('Test harness available: runTestHarness() or add ?test=1 to URL');
 
 /* ============================================================================
    REDESIGN CHROME AUTO-SYNC (lifted from v5)

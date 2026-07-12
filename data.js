@@ -1,10 +1,10 @@
-// data.js — bulk data constants extracted from mana_v4.html in Phase F.
-// Loaded via <script src="data.js"></script> before the main inline script in
-// mana_v4.html. Non-module script scope means these constants are visible to
-// the inline script that follows.
+// data.js — bulk data constants extracted from the main page in Phase F.
+// Loaded via a script tag before the main inline script in index.html.
+// Non-module script scope means these constants are visible to the inline
+// script that follows.
 //
 // To re-inline these for any reason, paste each block back into the original
-// location in mana_v4.html (look for the "moved to data.js" marker comments).
+// location in index.html (look for the "moved to data.js" marker comments).
 
 // ROUND2_SCENARIOS
 const ROUND2_SCENARIOS = {
