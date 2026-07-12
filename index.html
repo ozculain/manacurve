@@ -3592,10 +3592,13 @@ function shuffleArray(arr) {
   return a;
 }
 
-// Helper: Get actual number of answered questions per pair (excluding Neither)
+// Helper: Get actual number of answered questions per pair (excluding Neither).
+// Round 2 can re-test a close enemy pair with extra POOL_A items; those widen
+// the denominator via pairwiseBoostCount so win rates stay honest fractions.
 function pairDenom(pair) {
   const neithers = (state.pairwiseNeither && state.pairwiseNeither[pair]) || 0;
-  return Math.max(1, 6 - neithers); // Minimum 1 to prevent division by zero
+  const boost = (state.pairwiseBoostCount && state.pairwiseBoostCount[pair]) || 0;
+  return Math.max(1, 6 - neithers + boost); // Minimum 1 to prevent division by zero
 }
 // Reusable rendering utilities to replace string concatenation
 // ============================================================================
@@ -3666,6 +3669,7 @@ function saveSession() {
       neitherCount: state.neitherCount || 0,
       gamingFamiliar: state.gamingFamiliar || false,
       pairwiseNeither: state.pairwiseNeither,
+      pairwiseBoostCount: state.pairwiseBoostCount || {},
       refinementAnswers: state.refinementAnswers,
       refinementPairwise: state.refinementPairwise,
       round1Analysis: state.round1Analysis,
@@ -5594,14 +5598,25 @@ function determineClassificationType(candidates) {
   return primaryType;
 }
 
+// Guard for early termination: the offer must not rest on thin evidence. If any
+// enemy pair involving a decisive colour was answered fewer than 5 times
+// ("Neither" answers shrink the count), the margin it produced is too noisy to
+// skip Round 2 on — fall through to UNCLEAR instead.
+function decisivePairsWellAnswered(colors) {
+  const ENEMY_PAIRS_BY_COLOR = { W:['W-B','W-R'], U:['U-R','G-U'], B:['W-B','B-G'], R:['U-R','W-R'], G:['G-U','B-G'] };
+  const pairs = new Set();
+  colors.forEach(c => (ENEMY_PAIRS_BY_COLOR[c] || []).forEach(p => pairs.add(p)));
+  return [...pairs].every(p => (6 - ((state.pairwiseNeither && state.pairwiseNeither[p]) || 0)) >= 5);
+}
+
 function calculateRound1Confidence(activationSorted) {
   const colorNames = {W:'White', U:'Blue', B:'Black', R:'Red', G:'Green'};
   const pct = v => Math.round(v * 100);
-  
+
   const [top, second, third, fourth] = activationSorted.slice(0, 4);
-  
+
   // MONO confidence check: One color clearly dominant
-  if (top[1] >= 0.75 && (top[1] - second[1]) >= 0.30) {
+  if (top[1] >= 0.75 && (top[1] - second[1]) >= 0.30 && decisivePairsWellAnswered([top[0]])) {
     const monoId = 'MONO-' + top[0].toUpperCase();
     return {
       type: 'MONO',
@@ -5613,7 +5628,7 @@ function calculateRound1Confidence(activationSorted) {
   }
   
   // GUILD confidence check: Two colors clearly ahead
-  if (top[1] >= 0.70 && second[1] >= 0.65 && (second[1] - third[1]) >= 0.25) {
+  if (top[1] >= 0.70 && second[1] >= 0.65 && (second[1] - third[1]) >= 0.25 && decisivePairsWellAnswered([top[0], second[0]])) {
     const guildId = getGuild([top[0], second[0]].sort().join(''));
     const guildProf = PROFILES[guildId];
     return {
@@ -5626,8 +5641,9 @@ function calculateRound1Confidence(activationSorted) {
   }
   
   // THREE-COLOR confidence check: Top 3 clustered with clear gap to 4th
-  if (top[1] >= 0.65 && second[1] >= 0.60 && third[1] >= 0.55 && 
-      (top[1] - third[1]) < 0.15 && (third[1] - fourth[1]) >= 0.20) {
+  if (top[1] >= 0.65 && second[1] >= 0.60 && third[1] >= 0.55 &&
+      (top[1] - third[1]) < 0.15 && (third[1] - fourth[1]) >= 0.20 &&
+      decisivePairsWellAnswered([top[0], second[0], third[0]])) {
     const threeId = getThree([top[0], second[0], third[0]].sort().join(''));
     const threeProf = PROFILES[threeId];
     return {
@@ -6371,9 +6387,29 @@ function generateRefinementQuestions(analysis) {
     }
   }
   
-  finalQuestions.forEach((q, i) => {
-  });
-  
+  // DIRECT RE-TEST of close enemy pairs. A pair decided by margin <= 2 rests on
+  // ~5 answers — under the 7-item floor the psychometric literature (and our own
+  // research notes) give for a stable read. Spend up to 3 extra POOL_A items,
+  // unused in Round 1, on the closest margins so the pairs that actually decide
+  // the result carry more evidence. Answers route back into the Round 1 tally
+  // (see selectRefinementChoice) with the pair's denominator widened to match.
+  const askedIds = new Set((state.poolA || []).map(q => q.id));
+  closeMatchups
+    .slice()
+    .sort((a, b) => a.margin - b.margin)
+    .slice(0, 2)
+    .forEach((cm, idx) => {
+      let unused = POOL_A.filter(q => q.pair === cm.pair && !askedIds.has(q.id));
+      if (!state.gamingFamiliar) unused = unused.filter(q => !q.id.startsWith('MTG-'));
+      shuffleArray(unused).slice(0, idx === 0 ? 2 : 1).forEach(sq => {
+        finalQuestions.push({
+          ...sq,
+          refinementType: 'ENEMY_RETEST',
+          refinementReason: `Close margin (${cm.margin}) on ${cm.pair} — adding direct evidence`
+        });
+      });
+    });
+
   return finalQuestions;
 }
 
@@ -6506,13 +6542,21 @@ function selectRefinementChoice(color, pair) {
     type: state.refinementQuestions[state.qNum].refinementType
   });
   
-  // Update ally pairwise counts
+  // Update tallies. Ally-pair questions feed refinementPairwise; ENEMY_RETEST
+  // questions feed the Round 1 enemy tally (weighted like Round 1 answers),
+  // widening that pair's denominator via pairwiseBoostCount so the win rate
+  // stays a fraction of questions actually asked.
+  const answeredQ = state.refinementQuestions[state.qNum];
   if (state.refinementPairwise[pair]) {
     state.refinementPairwise[pair][color]++;
+  } else if (state.pairwise[pair]) {
+    state.pairwise[pair][color] += (answeredQ.w || 1.0);
+    state.pairwiseBoostCount = state.pairwiseBoostCount || {};
+    state.pairwiseBoostCount[pair] = (state.pairwiseBoostCount[pair] || 0) + 1;
   }
-  
+
   state.qNum++;
-  
+
   if (state.qNum < state.refinementQuestions.length) {
     showRefinementQuestion();
   } else {
@@ -6579,7 +6623,8 @@ function calculateRefinedActivation() {
   Object.entries(state.pairwise).forEach(([pair, scores]) => {
     const [c1, c2] = pair.split('-');
     const neithers = (state.pairwiseNeither && state.pairwiseNeither[pair]) || 0;
-    const denom = 6 - neithers;
+    const boost = (state.pairwiseBoostCount && state.pairwiseBoostCount[pair]) || 0;
+    const denom = 6 - neithers + boost;
     if (denom <= 0) return;
     enemyWins[c1]  += scores[c1]; enemyTotal[c1] += denom;
     enemyWins[c2]  += scores[c2]; enemyTotal[c2] += denom;
@@ -9468,12 +9513,37 @@ function showResults() {
   badge.dataset.level = level;
   badge.innerHTML = '<span class="mc-confidence__dot"></span><span>' + labelText + '</span>';
 
-  const expl = {
-    HIGH: 'Clear, consistent pattern across stages.',
-    MODERATE: 'Strong pattern with some variation.',
-    LOW: 'Less clear—balanced or context-dependent.'
-  };
-  document.getElementById('conf-exp').textContent = expl[state.result.confidence];
+  // Plain-language basis for the confidence call. The engine already knows why
+  // it believes what it believes; the reader should get the same courtesy —
+  // including the borderline warning, since near-ties genuinely can tip on a
+  // different day. Snapshot, not verdict.
+  const r3ForConf = state.result.round3Data || {};
+  const confComparisons = (r3ForConf.matchHistory || []).length;
+  const confRunnerUpId = r3ForConf.runnerUp ? r3ForConf.runnerUp.id : null;
+  const confRunnerUpName = confRunnerUpId ? (PROFILES[confRunnerUpId]?.name || confRunnerUpId) : null;
+  let confBasis;
+  if (state.result.confidence === 'HIGH') {
+    confBasis = confComparisons
+      ? `Decided by a clear margin across ${confComparisons} head-to-head comparisons.`
+      : 'Your early answers pointed one way and kept pointing there.';
+  } else if (state.result.confidence === 'LOW' && r3ForConf.cycle) {
+    confBasis = `Your final-round preferences formed a loop (${r3ForConf.cycle.join(' beat ')}, who beat ${r3ForConf.cycle[0]}), so we broke the tie on total wins. Treat this as a soft read.`;
+  } else if (state.result.confidence === 'LOW') {
+    confBasis = 'The margins stayed thin throughout. Treat this as a soft read.';
+  } else {
+    confBasis = confComparisons
+      ? `Decided by a clear but not overwhelming margin across ${confComparisons} head-to-head comparisons.`
+      : 'A clear pattern, with some genuine variation inside it.';
+  }
+  const isBorderline = confRunnerUpName && typeof r3ForConf.gap === 'number' && r3ForConf.gap <= 1;
+  if (isBorderline) {
+    confBasis += ` You're near the border with ${confRunnerUpName} — take this again next month and it could tip. That's normal: this is a snapshot of your preferences, not a verdict on your character.`;
+  } else if (confRunnerUpName) {
+    confBasis += ` Your secondary lean: ${confRunnerUpName}.`;
+  }
+  const confExpEl = document.getElementById('conf-exp');
+  confExpEl.textContent = confBasis;
+  confExpEl.classList.remove('hidden');
   
   // Generate identity explanation
   const sorted = state.activationSorted || [];
