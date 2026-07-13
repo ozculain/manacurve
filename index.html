@@ -1000,6 +1000,8 @@ main { position: relative; z-index: 2; }
 /* Disable animation entirely for users with reduced-motion preference */
 @media (prefers-reduced-motion: reduce) {
   #wisp-bg { display: none; }
+  *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+  .mc-choice:hover, .mc-btn--primary:hover { transform: none; }
 }
 
 .result-card {
@@ -1259,10 +1261,14 @@ main { position: relative; z-index: 2; }
 .pill { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
 .divider { border-top: 2px solid rgba(255, 255, 255, 0.1); padding-top: 24px; margin-top: 24px; }
 
-/* Focus visible for accessibility */
-:focus-visible { outline: 2px solid #a78bfa; outline-offset: 2px; }
-button:focus-visible { outline: 2px solid #a78bfa; outline-offset: 2px; }
-.choice-button:focus-visible { border-color: #a78bfa; box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3); }
+/* Focus visible for accessibility — gilt, matching the redesign tokens */
+:focus-visible { outline: 2px solid var(--gilt); outline-offset: 3px; }
+button:focus-visible { outline: 2px solid var(--gilt); outline-offset: 3px; }
+.choice-button:focus-visible { border-color: var(--gilt); box-shadow: 0 0 0 3px var(--gilt-glow); }
+
+/* Links pick up the ornament metal */
+a { color: var(--gilt); text-decoration-color: var(--gilt-line); text-underline-offset: 3px; }
+a:hover { color: var(--gilt-bright); }
 
 /* ==================================================================== */
 /* ENHANCEMENTS: Shimmer, Glow, Modal, Round Display */
