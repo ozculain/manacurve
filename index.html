@@ -6216,6 +6216,17 @@ function generateCandidatesGapBased(analysis) {
         addCandidate(guildId, [bridgeTop, c.color], `Bridge: ${bridgeTop} with next-viable ${c.color}`, 'GUILD');
       }
     });
+    // And the three-colour bridge: when the 2nd and 3rd colours are both
+    // viable and near-tied with each other, the top colour plus that pair is
+    // one identity, not a choice between two guilds (R 76 / U 47 / B 43 is
+    // GRIXIS before it is IZZET-or-RAKDOS).
+    const b2 = sorted[1], b3 = sorted[2];
+    if (b2 && b3 && b3.winRate >= MONO_MIN_VIABILITY && (b2.winRate - b3.winRate) <= 0.10) {
+      const threeId = getThree([bridgeTop, b2.color, b3.color].sort().join(''));
+      if (threeId && !seen.has(threeId)) {
+        addCandidate(threeId, [bridgeTop, b2.color, b3.color], `Bridge: ${bridgeTop} with near-tied ${b2.color}/${b3.color}`, 'THREE');
+      }
+    }
   }
 
   // ========================================
