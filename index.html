@@ -6197,7 +6197,27 @@ function generateCandidatesGapBased(analysis) {
       }
     }
   }
-  
+
+  // ========================================
+  // BRIDGE CANDIDATES
+  // When eligibility collapses to a single colour the guild loop above adds
+  // nothing, so the tournament becomes an all-mono bracket. A user whose item
+  // answers say R but whose scenario answers say U then has no identity that
+  // can hold both: MONO-U can beat MONO-R without IZZET ever being considered.
+  // Seed guilds pairing the top colour with the next two viable colours so the
+  // contradiction can resolve INTO an identity instead of past one.
+  // ========================================
+  if (eligibleColors.length === 1) {
+    const bridgeTop = sorted[0].color;
+    sorted.slice(1, 3).forEach(c => {
+      if (c.winRate < MONO_MIN_VIABILITY) return;
+      const guildId = getGuild([bridgeTop, c.color].sort().join(''));
+      if (guildId && !seen.has(guildId)) {
+        addCandidate(guildId, [bridgeTop, c.color], `Bridge: ${bridgeTop} with next-viable ${c.color}`, 'GUILD');
+      }
+    });
+  }
+
   // ========================================
   // ADD THREE-COLOR CANDIDATES
   // ========================================
@@ -7234,6 +7254,27 @@ function getTournamentWinner(tournament) {
   };
 }
 
+// SCENARIO-CONTRADICTION GUARD. The tournament is decided entirely by scenario
+// answers, so it can crown an identity whose colours the item rounds voted
+// against. That can be honest — people genuinely differ between quick-fire
+// preferences and considered scenarios — but it cannot be HIGH confidence.
+// When the winner shares no colour with the item rounds' leading colour AND
+// that leader sits ≥20pp above the winner's own best colour, cap confidence
+// one notch below HIGH and record the contradiction so the results screen can
+// say so plainly. Caps only ever tighten confidence, never loosen it.
+function applyScenarioContradictionGuard(result, activationSorted) {
+  const topAct = activationSorted && activationSorted[0];
+  if (!topAct || !result.winner) return null;
+  const winnerCols = (PROFILES[result.winner.id] && PROFILES[result.winner.id].colors) || [];
+  if (!winnerCols.length || winnerCols.includes(topAct[0])) return null;
+  const actMap = Object.fromEntries(activationSorted);
+  const winnerBest = Math.max(...winnerCols.map(c => actMap[c] || 0));
+  const gap = topAct[1] - winnerBest;
+  if (gap < 0.20) return null;
+  if (result.confidence === 'HIGH') result.confidence = 'MODERATE';
+  return { color: topAct[0], gap: gap };
+}
+
 function startRound3(candidates) {
   
   // Candidates come pre-scored from R1/R2 - use them directly
@@ -7477,8 +7518,10 @@ function finishRound3Tournament() {
   }
 
   const result = getTournamentWinner(state.tournament);
-  
-  
+
+  // Cap confidence when the scenario winner contradicts the item-round leader.
+  const scenarioContradiction = applyScenarioContradictionGuard(result, state.activationSorted);
+
   // Build allResults from tournament candidates, sorted by performance
   const sortedCandidates = [...state.tournament.candidates].sort((a, b) => {
     // Primary: win-loss differential
@@ -7525,6 +7568,7 @@ function finishRound3Tournament() {
       terminated: state.tournament.terminated,
       termReason: state.tournament.termReason,
       cycle: result.cycle,
+      scenarioContradiction: scenarioContradiction,
       isTournament: true
     }
   };
@@ -9746,6 +9790,13 @@ function showResults() {
     confBasis += ` You're near the border with ${confRunnerUpName} — take this again next month and it could tip. That's normal: this is a snapshot of your preferences, not a verdict on your character.`;
   } else if (confRunnerUpName) {
     confBasis += ` Your secondary lean: ${confRunnerUpName}.`;
+  }
+  // Scenario-vs-item contradiction: the winner's colours are not where the
+  // quick answers pointed. Say so — the mana pool below will show it anyway.
+  if (r3ForConf.scenarioContradiction) {
+    const contraNames = { W: 'White', U: 'Blue', B: 'Black', R: 'Red', G: 'Green' };
+    const contraName = contraNames[r3ForConf.scenarioContradiction.color] || r3ForConf.scenarioContradiction.color;
+    confBasis += ` One caveat: your quick answers kept choosing ${contraName}, and your scenario answers went somewhere else entirely. The scenarios decided it. The mana pool below remembers the other story.`;
   }
   const confExpEl = document.getElementById('conf-exp');
   confExpEl.textContent = confBasis;
