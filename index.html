@@ -1661,7 +1661,7 @@ body[data-theme="borderless"] .mc-debug { box-shadow: none; }
 
 </style>
 </head>
-<body data-mode="draft" data-audience="consumer" data-flavor="9" data-theme="frames">
+<body data-mode="draft" data-audience="consumer" data-flavor="9" data-theme="gilded">
 <canvas id="wisp-bg" aria-hidden="true"></canvas>
 
 <!-- Reusable corner-fleuron SVG, referenced by <use> (Phase 0 lift). -->
@@ -1878,13 +1878,13 @@ body[data-theme="borderless"] .mc-debug { box-shadow: none; }
         <!-- Theme selection -->
         <div class="mc-eyebrow" style="margin: 8px 0 12px;">Choose Your Table</div>
         <div class="mc-mode-grid" style="grid-template-columns: 1fr 1fr 1fr;">
-          <div id="theme-frames" onclick="selectTheme('frames')" class="mc-mode is-selected">
-            <div class="mc-mode__title" style="white-space: normal;">Card Frames</div>
-            <div class="mc-mode__desc">Face-down until the end. Your colours earn the frame. <em>Recommended.</em></div>
-          </div>
-          <div id="theme-gilded" onclick="selectTheme('gilded')" class="mc-mode">
+          <div id="theme-gilded" onclick="selectTheme('gilded')" class="mc-mode is-selected">
             <div class="mc-mode__title" style="white-space: normal;">Gilded Hall</div>
             <div class="mc-mode__desc">Brass, parchment and ornament from the first screen.</div>
+          </div>
+          <div id="theme-frames" onclick="selectTheme('frames')" class="mc-mode">
+            <div class="mc-mode__title" style="white-space: normal;">Card Frames</div>
+            <div class="mc-mode__desc">Face-down until the end. Your colours reveal with the result.</div>
           </div>
           <div id="theme-borderless" onclick="selectTheme('borderless')" class="mc-mode">
             <div class="mc-mode__title" style="white-space: normal;">Borderless</div>
@@ -4887,8 +4887,8 @@ function initArchetypeOfMonth() {
 // Initialize on load
 window.addEventListener('DOMContentLoaded', function() {
 
-  // Restore the theme preference (default: frames)
-  try { selectTheme(localStorage.getItem('mc_theme') || 'frames'); } catch(e) {}
+  // Restore the theme preference (default: gilded)
+  try { selectTheme(localStorage.getItem('mc_theme') || 'gilded'); } catch(e) {}
 
   // Check for debug URL parameter
   const showDebug = window.location.search.includes('debug=1');
