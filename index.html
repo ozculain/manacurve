@@ -1504,14 +1504,164 @@ a:hover { color: var(--gilt-bright); }
 
 /* High DPI displays */
 @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-  .mana-symbol { 
+  .mana-symbol {
     box-shadow: 0 1px 4px rgba(0,0,0,0.3);
   }
 }
 
+/* ============================================================================
+   THEMES — body[data-theme]: "frames" (default), "gilded", "borderless".
+   Chosen on the pre-flight screen, persisted in localStorage (mc_theme).
+
+   FRAMES follows the game's own frame logic: while your identity is face-down
+   the chrome wears the card back — neutral browns, no gold, no colour. The
+   reveal earns the frame: body[data-revealed] (set by showResults) restores
+   the gold tokens and draws the result banner in the identity's own colours
+   (--id1/--id2; four or five colours collapse to gold, as gold means
+   multicolour). Confidence renders as a rarity gem. The progress runes tint
+   toward the current leaders via --rune-done/--rune-done2 (set by the chrome
+   auto-sync from live pairwise evidence — the chrome learns as you answer).
+
+   GILDED is the original design, untouched. BORDERLESS strips the ornament:
+   no frames, no fleurons, colour and type carry everything.
+
+   Workplace audience wins over frames' card-back remap: steel is the
+   contract there, so the :not([data-audience="workplace"]) guard keeps it.
+   ============================================================================ */
+
+/* ─── FRAMES: face-down card-back tokens (until the reveal) ─── */
+body[data-theme="frames"]:not([data-revealed]):not([data-audience="workplace"]) {
+  --gilt:        #c9b393;
+  --gilt-bright: #e0cdab;
+  --gilt-soft:   #8a7355;
+  --gilt-deep:   #463625;
+  --gilt-line:   rgba(201, 179, 147, 0.30);
+  --gilt-glow:   rgba(201, 179, 147, 0.13);
+  --plinth:      #231b13;
+  --plinth-hi:   #2f2519;
+  --inset:       #191309;
+  --canvas:      #12100c;
+  --void:        #0a0805;
+  --rule:        rgba(201, 179, 147, 0.22);
+  --rule-strong: rgba(201, 179, 147, 0.45);
+}
+/* The welcome orbs sit unlit before the reveal — the promise, not the answer. */
+body[data-theme="frames"]:not([data-revealed]) .mc-welcome__pips .mc-pip {
+  filter: grayscale(1) brightness(0.5) sepia(0.4);
+  opacity: 0.55;
+}
+
+/* ─── FRAMES: rounded card chrome ─── */
+body[data-theme="frames"] .mc-plinth,
+body[data-theme="frames"] .mc-mode,
+body[data-theme="frames"] .mc-debug { border-radius: 12px; }
+body[data-theme="frames"] .mc-btn { border-radius: 6px; }
+body[data-theme="frames"] .mc-plinth {
+  /* single frame, no double-ruled inset — the card border does the work */
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), var(--shadow-deep);
+}
+body[data-theme="frames"] .mc-choice {
+  border-radius: 12px;
+  border-width: 2px;
+  box-shadow: 0 10px 26px -10px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.06);
+}
+body[data-theme="frames"] .mc-choice::before { border-radius: 12px 12px 0 0; height: 3px; }
+body[data-theme="frames"] .mc-choice:hover { transform: translateY(-4px) rotate(-0.4deg); }
+body[data-theme="frames"] .mc-choice:active { transform: translateY(-1px) scale(0.995); transition-duration: 70ms; }
+/* Constructed mode: the frame shows its colour — border and a breath of tint */
+body[data-theme="frames"][data-mode="constructed"] .mc-choice[data-c] {
+  border-color: color-mix(in srgb, var(--choice-color, var(--gilt)) 55%, #16131c);
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--choice-color, var(--gilt)) 10%, var(--plinth-hi)),
+    var(--plinth));
+}
+
+/* ─── FRAMES: the learning chrome (progress runes tint toward the leaders) ─── */
+body[data-theme="frames"] .mc-progress__notch.is-done {
+  background: var(--rune-done, var(--gilt));
+  box-shadow: 0 0 8px var(--rune-glow, var(--gilt-glow));
+}
+body[data-theme="frames"] .mc-progress__notch.is-current {
+  background: linear-gradient(90deg, var(--rune-done, var(--gilt)) 50%, var(--gilt-deep) 50%);
+}
+body[data-theme="frames"] .mc-progress__milestone.is-passed {
+  background: var(--rune-done2, var(--gilt));
+  box-shadow: 0 0 12px var(--rune-glow, var(--gilt-glow));
+}
+
+/* ─── FRAMES: confidence as a rarity gem (mythic / rare / uncommon) ─── */
+body[data-theme="frames"] .mc-confidence__dot {
+  width: 13px; height: 13px;
+  border-radius: 3px;
+  transform: rotate(45deg);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,0.5), 0 1px 4px rgba(0,0,0,0.6);
+}
+body[data-theme="frames"] .mc-confidence[data-level="high"] .mc-confidence__dot {
+  background: radial-gradient(circle at 30% 30%, #ffd9a0, #e8641f 60%, #7a2a08);
+}
+body[data-theme="frames"] .mc-confidence[data-level="moderate"] .mc-confidence__dot {
+  background: radial-gradient(circle at 30% 30%, #f4e3b2, #c9a94f 60%, #6b5722);
+}
+body[data-theme="frames"] .mc-confidence[data-level="low"] .mc-confidence__dot {
+  background: radial-gradient(circle at 30% 30%, #e8eef2, #94a6b4 60%, #3f4c58);
+}
+
+/* ─── FRAMES: the reveal earns the frame ─── */
+body[data-theme="frames"][data-revealed] .mc-result__banner {
+  border: 3px solid transparent;
+  border-image: linear-gradient(115deg, var(--id1, var(--gilt)), var(--id2, var(--gilt))) 1;
+}
+body[data-theme="frames"][data-revealed] .mc-result__banter {
+  border-radius: 12px;
+  border-color: color-mix(in srgb, var(--id1, var(--gilt)) 35%, transparent);
+}
+body[data-theme="frames"][data-revealed] .mc-result__philosophy {
+  border-image: linear-gradient(180deg, var(--id1, var(--gilt)), var(--id2, var(--gilt))) 1;
+}
+
+/* ─── BORDERLESS: no furniture — colour and type carry everything ─── */
+body[data-theme="borderless"] {
+  --ornament-opacity: 0;
+  --corner-display: none;
+  --paper-grain: 0.12;
+  --canvas: #0a090f;
+}
+body[data-theme="borderless"] .mc-plinth {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  padding-left: 0;
+  padding-right: 0;
+}
+body[data-theme="borderless"] .mc-choice {
+  background: transparent;
+  border: 0;
+  border-top: 2px solid var(--choice-color, var(--gilt));
+  border-radius: 0;
+  min-height: 150px;
+  box-shadow: none;
+  padding: 20px 8px 12px;
+}
+body[data-theme="borderless"] .mc-choice::before { display: none; }
+body[data-theme="borderless"] .mc-choice::after { display: none; }
+body[data-theme="borderless"] .mc-choice:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: var(--choice-color, var(--gilt-bright));
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), transparent);
+}
+body[data-theme="borderless"] .mc-q__chrome-mana,
+body[data-theme="borderless"] .mc-welcome__pips { border: 0; background: transparent; }
+body[data-theme="borderless"] .mc-mode { border-radius: 8px; }
+body[data-theme="borderless"] .mc-btn { border-radius: 6px; }
+body[data-theme="borderless"] .mc-result__banner { border: 0; }
+body[data-theme="borderless"] .mc-result__banter { border: 0; border-radius: 10px; background: rgba(255,255,255,0.03); }
+body[data-theme="borderless"] .mc-loyalty { filter: none; }
+body[data-theme="borderless"] .mc-debug { box-shadow: none; }
+
 </style>
 </head>
-<body data-mode="draft" data-audience="consumer" data-flavor="9">
+<body data-mode="draft" data-audience="consumer" data-flavor="9" data-theme="frames">
 <canvas id="wisp-bg" aria-hidden="true"></canvas>
 
 <!-- Reusable corner-fleuron SVG, referenced by <use> (Phase 0 lift). -->
@@ -1722,6 +1872,23 @@ a:hover { color: var(--gilt-bright); }
             <div class="mc-mode__title">Team / Workplace</div>
             <div class="mc-mode__desc">Banter and roast hidden. Defensible if it lands in Slack.</div>
             <div id="aud-workplace-check" class="hidden"></div>
+          </div>
+        </div>
+
+        <!-- Theme selection -->
+        <div class="mc-eyebrow" style="margin: 8px 0 12px;">Choose Your Table</div>
+        <div class="mc-mode-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+          <div id="theme-frames" onclick="selectTheme('frames')" class="mc-mode is-selected">
+            <div class="mc-mode__title" style="white-space: normal;">Card Frames</div>
+            <div class="mc-mode__desc">Face-down until the end. Your colours earn the frame. <em>Recommended.</em></div>
+          </div>
+          <div id="theme-gilded" onclick="selectTheme('gilded')" class="mc-mode">
+            <div class="mc-mode__title" style="white-space: normal;">Gilded Hall</div>
+            <div class="mc-mode__desc">Brass, parchment and ornament from the first screen.</div>
+          </div>
+          <div id="theme-borderless" onclick="selectTheme('borderless')" class="mc-mode">
+            <div class="mc-mode__title" style="white-space: normal;">Borderless</div>
+            <div class="mc-mode__desc">No furniture. Just the questions and the colours.</div>
           </div>
         </div>
 
@@ -4719,7 +4886,10 @@ function initArchetypeOfMonth() {
 
 // Initialize on load
 window.addEventListener('DOMContentLoaded', function() {
-  
+
+  // Restore the theme preference (default: frames)
+  try { selectTheme(localStorage.getItem('mc_theme') || 'frames'); } catch(e) {}
+
   // Check for debug URL parameter
   const showDebug = window.location.search.includes('debug=1');
   if (showDebug) {
@@ -4820,8 +4990,21 @@ function selectMode(mode) {
   }
 }
 
+function selectTheme(theme) {
+  // body[data-theme] drives the THEMES CSS: frames (card-back until the
+  // reveal), gilded (the original), borderless. Device preference, so it
+  // persists in localStorage rather than the session snapshot.
+  if (!['frames', 'gilded', 'borderless'].includes(theme)) theme = 'frames';
+  document.body.dataset.theme = theme;
+  try { localStorage.setItem('mc_theme', theme); } catch(e) {}
+  ['frames', 'gilded', 'borderless'].forEach(t => {
+    const el = document.getElementById('theme-' + t);
+    if (el) el.classList.toggle('is-selected', t === theme);
+  });
+}
+
 function startAssessment() {
-  
+
   // Select exactly 6 questions per enemy pair to ensure balanced scoring
   const enemyPairs = ['W-B', 'U-R', 'G-U', 'W-R', 'B-G'];
   const selectedQuestions = [];
@@ -9427,7 +9610,24 @@ function showResults() {
   updateWispWeights();
 
   const p = PROFILES[state.result.identity];
-  
+
+  // FRAMES theme — the reveal earns the frame. Restore the gold tokens
+  // (data-revealed lifts the card-back remap) and hand the banner the
+  // identity's own colours. Four or five colours collapse to gold: in the
+  // game, gold means multicolour.
+  document.body.dataset.revealed = '1';
+  if (typeof document.body.style.setProperty === 'function') {
+    const REVEAL_HEX = { W: '#f1e7c4', U: '#5a93d4', B: '#8a6dab', R: '#d05a3c', G: '#6ba24c' };
+    const idCols = p.colors || [];
+    if (idCols.length >= 4 || idCols.length === 0) {
+      document.body.style.setProperty('--id1', '#efd28e');
+      document.body.style.setProperty('--id2', '#d4af6a');
+    } else {
+      document.body.style.setProperty('--id1', REVEAL_HEX[idCols[0]]);
+      document.body.style.setProperty('--id2', REVEAL_HEX[idCols[idCols.length - 1]]);
+    }
+  }
+
   document.getElementById('res-id').textContent = p.name;
   document.getElementById('res-tag').textContent = p.tag;
 
@@ -10273,6 +10473,12 @@ function copyShareLink() {
 
 function restart() {
   clearSession(); // Clear saved progress
+  // FRAMES theme: back to face-down — drop the earned frame and rune tints.
+  delete document.body.dataset.revealed;
+  if (typeof document.body.style.removeProperty === 'function') {
+    ['--id1', '--id2', '--rune-done', '--rune-done2', '--rune-glow'].forEach(v =>
+      document.body.style.removeProperty(v));
+  }
   // Reset state completely
   state = {
     stage: 1,
@@ -10761,7 +10967,43 @@ function findGuildsWithColor(color) {
     runeTrack.setAttribute('aria-valuenow', String(Math.round(((cur + 1) / tot) * 100)));
   }
 
-  function bumpAll() { syncLoyalty(); renderRunes(); }
+  // FRAMES theme — the chrome learns. Tint the progress runes toward the two
+  // leading colours, in proportion to how much evidence has accumulated. The
+  // variables are only consumed by the frames-theme CSS; computing them is
+  // harmless under the other themes.
+  const RUNE_HEX = { W: '#f1e7c4', U: '#5a93d4', B: '#8a6dab', R: '#d05a3c', G: '#6ba24c' };
+  const RUNE_BASE = '#8a6f4d'; // face-down bronze
+  function lerpHex(a, b, t) {
+    const pa = [1, 3, 5].map(i => parseInt(a.slice(i, i + 2), 16));
+    const pb = [1, 3, 5].map(i => parseInt(b.slice(i, i + 2), 16));
+    return '#' + pa.map((v, i) => Math.round(v + (pb[i] - v) * t).toString(16).padStart(2, '0')).join('');
+  }
+  function updateLearningChrome() {
+    if (typeof state === 'undefined' || !state || !state.pairwise) return;
+    // Stubbed DOM environments (test harness) don't implement CSSStyleDeclaration.
+    if (!document.body || typeof document.body.style.setProperty !== 'function'
+      || typeof document.body.style.removeProperty !== 'function') return;
+    const wins = { W: 0, U: 0, B: 0, R: 0, G: 0 };
+    let total = 0;
+    Object.values(state.pairwise).forEach(pair => {
+      Object.entries(pair).forEach(([c, n]) => {
+        if (wins[c] !== undefined) { wins[c] += n; total += n; }
+      });
+    });
+    const ranked = Object.entries(wins).sort((a, b) => b[1] - a[1]);
+    // Evidence dial: silent for the first few answers, full lean by ~25.
+    const mix = Math.max(0, Math.min(1, (total - 4) / 21)) * 0.75;
+    const bs = document.body.style;
+    if (total < 1 || ranked[0][1] === 0) {
+      bs.removeProperty('--rune-done'); bs.removeProperty('--rune-done2'); bs.removeProperty('--rune-glow');
+      return;
+    }
+    bs.setProperty('--rune-done', lerpHex(RUNE_BASE, RUNE_HEX[ranked[0][0]], mix));
+    bs.setProperty('--rune-done2', lerpHex(RUNE_BASE, RUNE_HEX[ranked[1][0]], mix));
+    bs.setProperty('--rune-glow', lerpHex('#2a2118', RUNE_HEX[ranked[0][0]], mix * 0.6) + '55');
+  }
+
+  function bumpAll() { syncLoyalty(); renderRunes(); updateLearningChrome(); }
 
   // MutationObserver fires whenever the legacy elements get textContent updates
   // — which happens on every showQ() and every stage transition. Also watch
