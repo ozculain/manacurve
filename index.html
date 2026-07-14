@@ -6220,6 +6220,13 @@ function generateCandidatesGapBased(analysis) {
     // viable and near-tied with each other, the top colour plus that pair is
     // one identity, not a choice between two guilds (R 76 / U 47 / B 43 is
     // GRIXIS before it is IZZET-or-RAKDOS).
+    // Deliberately NOT extended to four/five colours: a collapse means a
+    // 25pp+ cliff below the leader, and an absence-defined four-colour
+    // identity (or WUBRG) would erase that cliff — the profile's defining
+    // feature. The genuine four-colour shape (modest leader, four comparable
+    // colours) never collapses, so the normal four-colour path above already
+    // serves it. A scenario-round contradiction points in a direction; the
+    // pair and triple bridges are those directions.
     const b2 = sorted[1], b3 = sorted[2];
     if (b2 && b3 && b3.winRate >= MONO_MIN_VIABILITY && (b2.winRate - b3.winRate) <= 0.10) {
       const threeId = getThree([bridgeTop, b2.color, b3.color].sort().join(''));
