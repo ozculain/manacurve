@@ -40,6 +40,14 @@ Newest first. Dates are when the work was committed.
   `engines.node` is `>=20.19` (jsdom 29's floor on Node 20).
 - `docs/SCORING_CONTRACT.md`: the `state.result` shape, seed-link parameters and
   file regions the scoring and presentation work have agreed to honour.
+- `.github/workflows/test.yml` runs `npm ci` and `npm test` on Node 20 for
+  every push and pull request.
+- `.github/workflows/deploy.yml.proposed` is a Pages deployment that would
+  publish only `index.html`, `data.js`, `favicon.svg` and `images/`, and only
+  after the tests pass. It is inactive (GitHub runs only `.yml`/`.yaml` files),
+  and the current Pages deployment is unchanged: Pages still publishes every
+  tracked file on `main`. Enabling it is a separate, manual step: rename it to
+  `deploy.yml`, then set Settings > Pages > Source to "GitHub Actions".
 
 ### Respondent simulation harness (5e079fb)
 
