@@ -30,6 +30,7 @@ const CASES = [
     id: 'MONO-R', type: 'mono', confidence: 'HIGH',
     activation: { R: 0.86, B: 0.52, G: 0.44, W: 0.21, U: 0.12 },
     typeline: 'Legendary Creature — Human Berserker (Mono-Red)',
+    rules: 'Trample, haste. At the beginning of the end step, sacrifice this creature. Back Thursday.',
     rolesForFun: 'Startups, Sales, Crisis Response, Creative Industries, Frontline Operations, Live Events',
     share: { consumer: "I'm Mono-Red. Rakdos lives next door. What are you?", workplace: "I'm Mono-Red. Rakdos lives next door. What are you?" },
     manaBase: '37 lands: 36 Mountain and a Hanweir Battlements, so nothing has to wait its turn.',
@@ -43,6 +44,7 @@ const CASES = [
     id: 'DIMIR', type: 'guild', confidence: 'MODERATE',
     activation: { U: 0.78, B: 0.64, G: 0.31, W: 0.22, R: 0.11 },
     typeline: 'Legendary Creature — Human Advisor (Dimir)',
+    rules: "Whenever a player says something, surveil 1. You have shroud. (You can't be the target of spells, abilities or friends.)",
     rolesForFun: 'Strategic Planning, Competitive Intelligence, Investigative Journalism',
     share: { consumer: "Turns out I'm Dimir. Sultai lives next door and keeps looking over the fence. You?", workplace: "I'm Dimir. Sultai lives next door. What are you?" },
     manaBase: '37 lands: Watery Grave, Polluted Delta, Drowned Catacomb, 19 Island, 15 Swamp.',
@@ -69,6 +71,7 @@ const CASES = [
     id: 'JUND', type: 'three', confidence: 'LOW',
     activation: { R: 0.71, G: 0.69, B: 0.66, W: 0.24, U: 0.18 },
     typeline: 'Legendary Creature — Human Mercenary (Jund)',
+    rules: 'Trample. Sacrifice another creature: This creature gets +1/+0 until end of turn. It knew what the job was.',
     rolesForFun: 'Aggressive Sales, Competitive Industries, Startups, Sports, Private Equity',
     share: { consumer: "I'm Jund. Four-colour (no blue) lives next door. What are you?", workplace: "I'm Jund. Four-colour (no blue) lives next door. What are you?" },
     manaBase: "37 lands: Ziatora's Proving Ground, Blood Crypt, Stomping Ground, Overgrown Tomb, 11 Mountain, 11 Forest, 11 Swamp.",
@@ -91,6 +94,7 @@ const CASES = [
     id: 'GLINT', type: 'four', confidence: 'MODERATE',
     activation: { U: 0.66, B: 0.63, R: 0.6, G: 0.58, W: 0.2 },
     typeline: 'Legendary Creature — Human Wizard (Four-colour, no white)',
+    rules: "Trample, cascade. Phasing (When the bill arrives, treat this creature as though it doesn't exist.)",
     rolesForFun: 'Disruption, High-Risk Ventures, Competitive Industries, Activist Investing',
     share: { consumer: "I'm Four-colour (no white). Five-colour lives next door. What are you?", workplace: "I'm Four-colour (no white). Five-colour lives next door. What are you?" },
     manaBase: '37 lands: Command Tower, Mana Confluence, City of Brass, Exotic Orchard, 9 Island, 8 Swamp, 8 Mountain, 8 Forest.',
@@ -111,6 +115,7 @@ const CASES = [
     id: 'WUBRG', type: 'five', confidence: 'LOW',
     activation: { W: 0.55, U: 0.53, B: 0.52, R: 0.5, G: 0.49 },
     typeline: 'Legendary Creature — Human Cleric Wizard Rogue Warrior Druid (Five-colour)',
+    rules: 'Changeling. You have every ability. Each works at a fifth of its strength.',
     rolesForFun: 'Consulting, General Tazri, Generalist Leadership, Facilitation',
     share: { consumer: "I'm Five-colour. Four-colour (no green) lives next door. What are you?", workplace: "I'm Five-colour. Four-colour (no green) lives next door. What are you?" },
     manaBase: '37 lands: Command Tower, Mana Confluence, City of Brass, Exotic Orchard, 7 Plains, 7 Island, 7 Swamp, 6 Mountain, 6 Forest.',
@@ -137,25 +142,15 @@ function landCount(line) {
   }, last ? 1 : 0);
 }
 
-// Label words and base-rate sentences (scoring version 1, measured 17 October 2026).
+// [4] Label words and base-rate sentences: the same in both modes, joke-free,
+// and with no number until Phase 5 measures real results.
 const LABELS = {
-  HIGH: {
-    word: 'Locked in',
-    player: 'About 54% of results like this held up when tested, so sleeve it up.',
-    plain: 'About 54% of results like this held up when tested.',
-  },
-  MODERATE: {
-    word: 'Leaning',
-    player: 'About 53% of results like this held up when tested, so maybe proxy it first.',
-    plain: 'About 53% of results like this held up when tested; most of the rest were a neighbour.',
-  },
-  LOW: {
-    word: 'Still shuffling',
-    player: 'Only about 31% of results like this held up when tested, so look next door before you sleeve anything.',
-    plain: 'About 31% of results like this held up when tested, so read the neighbours too.',
-  },
+  HIGH: { word: 'Locked in', line: 'The colours are usually right. One more or one fewer is where it wobbles.' },
+  MODERATE: { word: 'Leaning', line: "Mostly one way, with a pull next door. If it's off, it's usually by one colour." },
+  LOW: { word: 'Still shuffling', line: 'Your answers pulled several ways. Read next door before you settle on this one.' },
 };
-const SMALL_PRINT = '(Tested on simulated players, 17 October 2026.)';
+// [4] The bars' title by mode; the caption is the same in both.
+const BARS_TITLE = { player: 'Your Mana Pool', plain: 'Your colours' };
 
 function checkRender(win, h, c, audience, player, threw, errors) {
   const d = win.document, p = h.PROFILES[c.id], problems = [];
@@ -236,23 +231,25 @@ function checkRender(win, h, c, audience, player, threw, errors) {
   const wantChips = c.nextDoor[playerCopy ? 'player' : 'plain'];
   need(JSON.stringify(chips) === JSON.stringify(wantChips), `next door ${JSON.stringify(chips)} != ${JSON.stringify(wantChips)}`);
 
-  // 3. Label words in both modes, one base-rate sentence per label, no rarity mark.
+  // 3. Label words in both modes, one base-rate sentence per label (the same
+  //    in both modes, no number, no small print before Phase 5), no rarity mark.
   const label = LABELS[c.confidence];
   need(text('conf-badge') === label.word, `label "${text('conf-badge')}" != "${label.word}"`);
-  need(text('conf-base-rate') === label[playerCopy ? 'player' : 'plain'], `base rate "${text('conf-base-rate')}"`);
-  need(text('conf-small-print') === SMALL_PRINT, `small print "${text('conf-small-print')}"`);
+  need(text('conf-base-rate') === label.line, `base rate "${text('conf-base-rate')}" != "${label.line}"`);
+  need(!/\d|%/.test(text('conf-base-rate')) && !el('conf-small-print'), 'a number or small print in the base rate before Phase 5');
   need(before(win, el('identity-exp'), el('conf-base-rate')), 'base rate should follow the philosophy');
-  need(!/confidence|mythic|rare|uncommon/i.test(text('conf-badge') + ' ' + text('conf-base-rate')), 'old confidence wording or a rarity word in the label');
+  need(!/confidence|mythic|rare|uncommon|sleeve|proxy/i.test(text('conf-badge') + ' ' + text('conf-base-rate')), 'old confidence wording, a rarity word or a cut tail in the label');
 
-  // 4. The bars keep their title and gain a caption, in every mode.
-  const barsTitle = el('res-bars-caption') && el('res-bars-caption').previousElementSibling;
-  need(barsTitle && barsTitle.textContent.trim() === 'Your Mana Pool', 'bars title');
+  // 4. The bars: "Your Mana Pool" in player mode, "Your colours" otherwise,
+  //    and the same caption in every mode.
+  need(text('res-bars-title') === BARS_TITLE[playerCopy ? 'player' : 'plain'] && el('res-bars-title') === el('res-bars-caption').previousElementSibling,
+    `bars title "${text('res-bars-title')}"`);
   need(text('res-bars-caption') === "The name's the summary. The bars are what you said.", `bars caption "${text('res-bars-caption')}"`);
   need(before(win, el('res-bars-caption'), el('res-profile-bars')), 'caption should sit above the bars');
 
   // 5. Rules-text strip above strengths and shadows, player mode only.
   if (playerCopy) {
-    need(shown('res-rules') && text('res-rules') === h.RESULT_COPY.rules[c.id] && text('res-rules').length > 20, `rules strip "${text('res-rules')}"`);
+    need(shown('res-rules') && text('res-rules') === c.rules, `rules strip "${text('res-rules')}" != "${c.rules}"`);
     need(before(win, el('res-rules'), el('strengths')) && before(win, el('res-profile-bars'), el('res-rules')), 'rules strip should sit between the bars and strengths');
     need(!text('res-rules').includes('(') || (el('res-rules').querySelector('i') || {}).textContent === text('res-rules').match(/\([^)]*\)/)[0],
       'bracketed reminder text should be in italics');
@@ -319,12 +316,15 @@ run('render', async (t) => {
   const DIMIR = CASES.find((c) => c.id === 'DIMIR');
   const text = (win, id) => (win.document.getElementById(id).textContent || '').trim();
 
-  // Base rates are keyed by scoring version; version 2 is a placeholder that
-  // falls back to version 1's numbers until it is measured.
+  // [4] Every scoring version prints the same sentence and no number; the
+  // Phase 5 lines ({pct}, {date}) wait in RESULT_COPY and print nowhere.
   {
-    const { win, errors, threw } = await renderCase(DIMIR, 'consumer', false, seed++, { scoringVersion: 2 });
-    t.ok('scoring version 2 base rate falls back to version 1 until filled',
-      !threw && errors.length === 0 && text(win, 'conf-base-rate') === LABELS.MODERATE.plain && text(win, 'conf-small-print') === SMALL_PRINT,
+    const { win, h, errors, threw } = await renderCase(DIMIR, 'consumer', true, seed++, { scoringVersion: 2 });
+    const L = h.RESULT_COPY.labels;
+    const waiting = ['HIGH', 'MODERATE', 'LOW'].every((k) => /\{pct\}%/.test(L[k].phase5)) && /\{date\}/.test(h.RESULT_COPY.phase5SmallPrint);
+    const page = win.document.getElementById('screen-results').textContent;
+    t.ok('base rate: scoring version 2 in player mode prints the sentence with no number; the Phase 5 lines wait unused',
+      !threw && errors.length === 0 && text(win, 'conf-base-rate') === LABELS.MODERATE.line && waiting && !/held up when tested|\{pct\}/.test(page),
       `${threw || ''} ${text(win, 'conf-base-rate')}`);
     win.close();
   }
