@@ -1706,6 +1706,9 @@ body[data-theme="frames"] .mc-confidence[data-level="low"] .mc-confidence__dot {
 .mc-nextdoor__why { font-family: var(--f-body); font-size: 14px; line-height: 1.5; color: var(--ink-muted); }
 body[data-theme="frames"] .mc-nextdoor__chip { border-radius: 10px; }
 
+/* Bars caption: the name is the summary, the bars are the evidence */
+.mc-profile__caption { font-family: var(--f-flavor); font-style: italic; font-size: 15px; color: var(--ink-faded); margin: 0 0 14px; }
+
 </style>
 </head>
 <body data-mode="draft" data-audience="consumer" data-flavor="9" data-theme="gilded">
@@ -2254,7 +2257,8 @@ body[data-theme="frames"] .mc-nextdoor__chip { border-radius: 10px; }
 
         <!-- Profile bars — the psychometric receipt. 5 rows, populated from state.activationSorted. -->
         <div style="margin: 32px 0;">
-          <div class="mc-result__col-title" style="margin-bottom: 16px;">Your Mana Pool</div>
+          <div class="mc-result__col-title" style="margin-bottom: 6px;">Your Mana Pool</div>
+          <p class="mc-profile__caption" id="res-bars-caption"></p>
           <div class="mc-profile" id="res-profile-bars"></div>
         </div>
 
@@ -9880,6 +9884,9 @@ const RESULT_COPY = {
     retest: '(Tested on second visits, {date}.)'
   },
 
+  // Caption under "Your Mana Pool". [plan, Phase 2]
+  barsCaption: "The name's the summary. The bars are what you said.",
+
   // [3] Slot words for the next-door lines: {colour} / {Colour} and {lands}.
   colourWords: { W: 'white', U: 'blue', B: 'black', R: 'red', G: 'green' },
   landWords: { W: 'Plains', U: 'Islands', B: 'Swamps', R: 'Mountains', G: 'Forests' },
@@ -10173,6 +10180,8 @@ function showResults() {
   // 5-color profile bars (the "psychometric receipt"). Pulls from state.activationSorted —
   // an [ [color, 0..1], ... ] array already ordered top-down. Render in WUBRG order so the
   // bars are visually stable across users, with the user's own activation widths.
+  const barsCaption = document.getElementById('res-bars-caption');
+  if (barsCaption) barsCaption.textContent = RESULT_COPY.barsCaption;
   const profileBars = document.getElementById('res-profile-bars');
   if (profileBars && state.activationSorted) {
     const colorNames = { W: 'WHITE', U: 'BLUE', B: 'BLACK', R: 'RED', G: 'GREEN' };

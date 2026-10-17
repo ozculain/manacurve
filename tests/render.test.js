@@ -214,6 +214,12 @@ function checkRender(win, h, c, audience, player, threw, errors) {
   need(text('conf-small-print') === SMALL_PRINT, `small print "${text('conf-small-print')}"`);
   need(before(win, el('identity-exp'), el('conf-base-rate')), 'base rate should follow the philosophy');
   need(!/confidence|mythic|rare|uncommon/i.test(text('conf-badge') + ' ' + text('conf-base-rate')), 'old confidence wording or a rarity word in the label');
+
+  // 4. The bars keep their title and gain a caption, in every mode.
+  const barsTitle = el('res-bars-caption') && el('res-bars-caption').previousElementSibling;
+  need(barsTitle && barsTitle.textContent.trim() === 'Your Mana Pool', 'bars title');
+  need(text('res-bars-caption') === "The name's the summary. The bars are what you said.", `bars caption "${text('res-bars-caption')}"`);
+  need(before(win, el('res-bars-caption'), el('res-profile-bars')), 'caption should sit above the bars');
   return problems;
 }
 
