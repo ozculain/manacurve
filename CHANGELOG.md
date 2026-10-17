@@ -6,6 +6,21 @@ Newest first. Dates are when the work was committed.
 
 - Commander descriptions: corrected 16 entries against Scryfall oracle text.
 
+### Phase 3: Round 3 copy
+
+- Round 3 stems and options reworded from the reviewed copy drafts (revision 2): 48
+  stems and 328 of the 378 options rewritten, 50 options kept (7 of those had curly
+  apostrophes, now straight to match the rest). `ROUND2_SCENARIOS` in `data.js`: 8 stems
+  and 211 of 248 options; `POOL_B` and `POOL_C` in `index.html`: 40 stems and 117 of 130
+  options. Stems are plain situations, not questions; every option is 15 words or fewer
+  (150 ran over before; the longest is now 15), and none outside MTG_STALL names a colour,
+  a basic land or an identity. Identity keys are untouched, so scoring and the golden
+  fixture are as they were. `tools/apply-round3-copy.js --draft <file>` applies a drafts
+  file by scenario id and key; it refuses on a key mismatch, a 15-word breach or a
+  forbidden name, and a second run changes nothing. `tests/round3-copy.test.js`, in
+  `npm test`, holds the three rules on the live files against
+  `tests/fixtures/round3-keys.json`.
+
 ### Link previews
 
 - `r/<ID>.html`: 31 static pages, one per identity, written by
