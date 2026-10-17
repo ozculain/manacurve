@@ -6,6 +6,86 @@ Newest first. Dates are when the work was committed.
 
 - Commander descriptions: corrected 16 entries against Scryfall oracle text.
 
+### Phase 3: quiz copy
+
+The reviewed quiz-screen copy (revision 2) replaces the provisional strings in
+`PLAY_COPY` in `index.html`. Player variants show when "Played Magic?" was
+answered Yes and plain ones otherwise; the workplace audience always reads plain.
+Scoring is unchanged: the golden fixture and the simulator's numbers are as they
+were. Nothing shown during Rounds 1 to 3 names a colour, a basic land or an
+identity, and `tests/play.test.js` checks every quiz-screen string for that.
+
+- Welcome and preflight: Rule 0 with its second sentence; "One question first /
+  Played Magic?" with what each answer does ("Adds the Magic jokes and a few Magic
+  questions." / "Keeps it plain. Same 31 results."); the Constructed and Work mode
+  links say what changed once switched on and end with the way back ("Back to Blind
+  Draft", "Undo"); the results banner says "Work mode" too.
+- Length lines: the welcome, the fold and the preflight say "Up to 45 questions,
+  about 8 minutes" (the fold: "over three rounds"; the welcome adds "Less if you're
+  decisive"). 45 is the one counter's computed total (`quizLengths`), not a number
+  written into the copy, and a clinch in Round 3 can end the quiz before the counter
+  gets there. The fold's per-round counts are gone; the counter is as it was.
+- Between rounds: Round 1 to 2 reads "Round II / Closer calls" with a "Next round ›"
+  button and no trait line; Round 2 to 3 reads "Round III / Head to head" with a
+  trait line. The line-up before Round 3 reads "Suspects", "Four suspects remain."
+  (the real count), "They stay face down. You'll meet them two at a time.", a line
+  for the leading trait (or one line for players), "Bring them in ›" and "About 6
+  questions, two suspects at a time.". Trait lines are keyed by the trait leading
+  (group, homework, door, now, leave), or "balanced" when no colour is 0.1 ahead of
+  the second, and never name its colour. The line-up's banter still takes exactly
+  one random draw, even from a pool of one line, so the seeded Round 3 shuffles and
+  the golden fixture do not move.
+- Every-ten beats: after answers 10, 20 and 40 only (not 30, which ends Round 1, and
+  not when a round ends on the answer, since a transition follows). Plain and Work
+  mode get a line for the leading trait, its second line if it comes up again, and
+  nothing once both are used. Players get a line for the pattern (the first with a
+  clear lead, the same as last time, moved, none yet) instead, because players read
+  a trait line as a colour. What each beat showed is kept in the session
+  (`state.beats`), so a refresh or an undo shows the same line.
+- Early offer: no identity, tagline, pips or "Preliminary read" chip, and no
+  sentence about ally pairs: "The rest is optional.", what is left of the counter
+  and the minutes, "Keep going" and "Show me now".
+- Free mulligan: the button asks first ("Mulligan your last answer? It's free, once
+  a round." with Mulligan / Keep; plain: "Undo your last answer? You get one per
+  round." with Undo / Keep it); the question that comes back says "Mulligan taken.
+  Same question, new answer." (plain: "Undone. Answer that one again."), and the
+  rest of the round says the undo is used. The line under the button ("Just the one,
+  like Commander." / "One per round.") is dropped below 600px.
+- Phones, measured in a browser at 375x667 over every Round 1 and Round 2 item: the
+  longest question with both answers and "Neither" ends 650px down (as before),
+  666px with a beat line, 667px with the used-undo line; with both at once, only the
+  longest Magic item runs over, to 684px.
+- Round 3 shows its stem once. The stem line carries it alone; the line above holds
+  the short context hint when the scenario has one (15 of the 48 stems: CONFLICT, 8
+  in POOL_B, 6 in POOL_C) and is hidden otherwise. Rounds 1 and 2 label their items
+  there, and no item's label is its own stem.
+- Colour cues: `NEUTRAL_SKY_DURING_QUIZ = true`. Until the result is revealed the
+  night sky no longer tints its stars and shooting stars toward the colours answered
+  so far, nor builds the leading identity's constellation in Round 3, and the Card
+  Frames theme's progress marks stay untinted. The motion is unchanged (twinkle,
+  drift, a shimmer on each answer, shooting stars, the marks filling in). At the
+  reveal most stars take their colours at once, and go back to neutral when the quiz
+  starts over. Set the constant to false for the old behaviour.
+- Instrument version 2: the items and screens changed, so `INSTRUMENT_VERSION` is 2
+  and a result built now writes `i=2` into its link. A link without `i`, and a result
+  saved before this build, still mean 1. The contract's line about
+  `instrumentVersion` and the simulator's check say 2.
+- Two Round 3 options that read as slips are fixed in `data.js` and `index.html`:
+  Dune on ethics ("Notice goes in tomorrow. No philosophy degree needed.") and
+  Orzhov in the Esper redesign scenario ("Whoever keeps the place running gets the
+  final say. Everyone else gets informed."). Both are 15 words or fewer and the keys
+  are untouched; a drafts file for `tools/apply-round3-copy.js` needs the same two
+  lines, or the tool will call it stale.
+- Still provisional, for want of reviewed text: the round names ("First
+  Impressions", "Refinement", "Final Determination"; the transitions now say "Closer
+  calls" and "Head to head"), the line-up screen's title ("Refinement Complete"), the
+  line into the result ("Every card played. Time to turn them over."), and the
+  results page's share button and table switcher.
+- Tests: `tests/play.test.js` holds all of the above: a sample of the final strings
+  word for word, the beat rules on made-up tallies, the single random draw, the single
+  stem across all 48 Round 3 stems, the sky constant's effect and its revert, and
+  `i=2` in a built link. `tests/README.md` lists it and `tests/round3-copy.test.js`.
+
 ### Phase 3: Round 3 copy
 
 - Round 3 stems and options reworded from the reviewed copy drafts (revision 2): 48
