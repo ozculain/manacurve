@@ -5,7 +5,7 @@
     "node": ">=20.19"
   },
   "scripts": {
-    "test": "node tests/structure.test.js && node tests/render.test.js && node tests/journey.test.js && node tests/seed.test.js && node tests/golden.test.js && node tests/simulate.js --n 30 && node tests/previews.test.js && node tests/round3-copy.test.js",
+    "test": "node tests/structure.test.js && node tests/render.test.js && node tests/journey.test.js && node tests/seed.test.js && node tests/golden.test.js && node tests/simulate.js --n 30 && node tests/previews.test.js && node tests/round3-copy.test.js && node tests/play.test.js",
     "simulate": "node tests/simulate.js",
     "previews": "node tools/build-previews.js"
   },

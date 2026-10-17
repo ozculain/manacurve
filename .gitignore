@@ -29,3 +29,6 @@ scripts/_followup/_processed.html
 
 # Simulation output
 tests/out/
+
+# Local agent worktrees and tool state (never publish)
+.claude/
