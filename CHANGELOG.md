@@ -56,6 +56,14 @@ the seeded draws and the golden fixture do not move.
   and a hash of its words before the rewrite), checks which items show which
   hint, renders all 111 items in Round 1's and Round 2's renderers, and plays a
   real Round 1 and 2 with Magic items off and on.
+- Second cold read (two first-time readers, blind): 101 of the 111 items change
+  again. Answers that dodged the stem, one-sided choices, unclear words and
+  near-duplicate situations are fixed; the eight unhinted work items now happen
+  at home or in town (8 ordinary items stay at work, 6 of them hinted); the
+  "organise it or let it be" items get other situations; repeated phrases and
+  "actually" are gone; 47 of 222 answers keep the "Action. Reason." shape (was
+  134); A-UR-REV is rewritten, so nothing is kept after review. The longest stem
+  is 24 words, the longest answer 16.
 
 ### Phase 3: quiz copy
 
