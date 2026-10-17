@@ -17,7 +17,8 @@
 //
 // The rules (itemProblems; hintProblems holds every hint in CONTEXT_HINTS to the same ones):
 //   - a stem is 25 words or fewer, an answer 20 or fewer and a label 4 or fewer (words are counted
-//     as tools/apply-round3-copy.js counts them)
+//     as tools/apply-round3-copy.js counts them); no label is its own stem, and no two items share
+//     a stem
 //   - no stem, answer, label or hint names a colour, a basic land or an identity in PROFILES (its
 //     key or name, guilds included; nameRules in tools/apply-round3-copy.js), a profile tagline,
 //     or mana, colour or guild
@@ -169,11 +170,18 @@ function itemProblems(model) {
         if (m) add(item, where, kind, `"${m[0]}" in: ${text}`);
       }
     }
-    const norm = (s) => String(s).replace(/\s+/g, ' ').trim().toLowerCase();
     if (typeof item.ctx === 'string' && norm(item.ctx) === norm(item.sc)) add(item, 'label', 'label', 'the label is the stem');
+  }
+  // No two items ask the same question: Round 2 can draw items from both pools.
+  const byStem = new Map();
+  for (const item of model.items) byStem.set(norm(item.sc), [...(byStem.get(norm(item.sc)) || []), item.id]);
+  for (const item of model.items) {
+    const ids = byStem.get(norm(item.sc));
+    if (ids.length > 1) add(item, 'stem', 'repeat', 'the same stem as ' + ids.filter((id) => id !== item.id).join(', '));
   }
   return problems;
 }
+const norm = (s) => r3.straighten(String(s)).replace(/\s+/g, ' ').trim().toLowerCase();
 
 // The same rules on every hint in CONTEXT_HINTS, whichever round shows it.
 function hintProblems(model) {

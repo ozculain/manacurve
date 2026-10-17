@@ -160,8 +160,8 @@ run('round12-copy', async (t) => {
     const problems = tool.itemProblems(live);
     const of = (...rules) => problems.filter((p) => rules.includes(p.rule)).map((p) => `${p.id} ${p.where} [${p.rule}] ${p.detail}`);
     ok(`C2a every stem is ${tool.STEM_CAP} words or fewer, every answer ${tool.ANSWER_CAP} or fewer, every label ${tool.LABEL_CAP} or fewer`, of('words').length === 0, list(of('words')));
-    ok('C2b every item has a label, a stem and two answers of two colours, and no label is its own stem',
-      of('text', 'answers', 'label').length === 0, list(of('text', 'answers', 'label')));
+    ok('C2b every item has a label, a stem and two answers of two colours, no label is its own stem, and no two items share a stem',
+      of('text', 'answers', 'label', 'repeat').length === 0, list(of('text', 'answers', 'label', 'repeat')));
     ok('C3a no stem, answer, label or hint names a colour, a basic land, an identity or guild, or a profile tagline',
       of('colour', 'basic land', 'identity', 'tagline').length === 0, list(of('colour', 'basic land', 'identity', 'tagline')));
     ok('C3b nor says mana, colour or guild', of('magic term').length === 0, list(of('magic term')));
@@ -311,6 +311,7 @@ run('round12-copy', async (t) => {
     flags('a word the brief rules out', { a: 'Enjoy the journey.' }, 'brief word');
     flags('office jargon', { a: 'Ask the stakeholders.' }, 'jargon');
     flags('a label that is the stem', { ctx: 'Same words.', sc: 'Same words.' }, 'label');
+    flags('a stem another item already asks', { sc: 'Your team is at the table.' }, 'repeat');
     flags('two answers of one colour', { cb: 'W' }, 'answers');
     passes('whole words only: "think", "tired", "brown", "Inkblot", "sized", "realise", "OK"', { a: "I think the brown one's tired, OK.", b: 'An Inkblot test, sized up. I realise.' });
     const dashHint = trial({ hint: 'No team? Think — a club.' }).problems;

@@ -51,7 +51,7 @@ the seeded draws and the golden fixture do not move.
   ones are shorter, so they should fit at least as well, but they have not been
   measured again in a browser.
 - Tests: `tools/check-round12-copy.js` holds the rules and lists every item
-  (`--list`). `tests/round12-copy.test.js` (52 checks, in `npm test`) holds them
+  (`--list`). `tests/round12-copy.test.js` (53 checks, in `npm test`) holds them
   on the live files against `tests/fixtures/round12-keys.json` (each item's keys
   and a hash of its words before the rewrite), checks which items show which
   hint, renders all 111 items in Round 1's and Round 2's renderers, and plays a
