@@ -1159,7 +1159,6 @@ main { position: relative; z-index: 2; }
   .strengths-grid { grid-template-columns: 1fr !important; }
   #archetype-of-month > div[style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
   .mode-card { padding: 16px !important; }
-  #mode-constructed, #mode-draft { grid-column: span 1; }
   #explorer-mono, #explorer-guilds, #explorer-three, #explorer-four, #explorer-five {
     grid-template-columns: 1fr !important;
   }
@@ -1557,9 +1556,50 @@ a:hover { color: var(--gilt-bright); }
   .mc-transition { margin: 32px auto; }
 }
 
+/* The preflight: one question, two big cards, two quiet links */
+.mc-preflight__plinth { padding: 36px 40px; text-align: center; }
+.mc-preflight__question {
+  font-family: var(--f-display); font-weight: 800; font-size: clamp(30px, 5vw, 44px);
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink); margin: 14px 0 26px;
+}
+.mc-preflight__answers { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.mc-preflight__answer {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+  min-height: 150px; padding: 24px 18px; font: inherit; color: var(--ink); text-align: center;
+}
+.mc-preflight__answer .mc-mode__title { font-size: 24px; letter-spacing: 0.14em; white-space: normal; margin: 0; }
+.mc-preflight__answer:focus-visible { outline: 2px solid var(--gilt-bright); outline-offset: 3px; }
+.mc-preflight__links { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-top: 24px; }
+.mc-textlink {
+  background: none; border: 0; padding: 6px 4px; cursor: pointer;
+  font-family: var(--f-flavor); font-style: italic; font-size: 16px; color: var(--ink-muted);
+  text-decoration: underline dotted; text-decoration-color: var(--gilt-line); text-underline-offset: 4px;
+}
+.mc-textlink:hover { color: var(--ink); }
+.mc-textlink[data-on="true"] { color: var(--gilt-bright); text-decoration-style: solid; }
+
+/* The results page: the table (theme) switcher, moved from the preflight */
+.mc-theme-switch { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 10px; margin: 28px auto 0; }
+.mc-theme-switch__label { font-family: var(--f-ui); font-weight: 600; font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--ink-faded); }
+.mc-theme-switch__opt {
+  background: none; border: 1px solid var(--gilt-line); border-radius: 999px; padding: 6px 14px; cursor: pointer;
+  font-family: var(--f-ui); font-size: 12px; color: var(--ink-muted); transition: color 180ms, border-color 180ms, background 180ms;
+}
+.mc-theme-switch__opt:hover { color: var(--ink); border-color: var(--gilt); }
+.mc-theme-switch__opt.is-selected { color: var(--gilt-bright); border-color: var(--gilt); background: var(--gilt-glow); }
+.mc-theme-switch__note { flex-basis: 100%; text-align: center; margin: 2px 0 0; font-family: var(--f-flavor); font-style: italic; font-size: 14px; color: var(--ink-faded); }
+
+@media (max-width: 599px) {
+  .mc-preflight__question { margin: 8px 0 18px; }
+  .mc-preflight__answers { gap: 10px; }
+  .mc-preflight__answer { min-height: 116px; padding: 16px 8px; }
+  .mc-preflight__answer .mc-mode__title { font-size: 17px; letter-spacing: 0.04em; }
+  .mc-preflight__answer .mc-mode__desc { font-size: 13px; }
+}
+
 /* ============================================================================
    THEMES — body[data-theme]: "frames" (default), "gilded", "borderless".
-   Chosen on the pre-flight screen, persisted in localStorage (mc_theme).
+   Chosen on the results page (#theme-switch), persisted in localStorage (mc_theme).
 
    FRAMES follows the game's own frame logic: while your identity is face-down
    the chrome wears the card back — neutral browns, no gold, no colour. The
@@ -2008,79 +2048,38 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
     </div>
   </div>
 
-  <!-- PRE-FLIGHT: Mode selection + gaming gate before assessment starts -->
+  <!-- PRE-FLIGHT: one question. Either answer starts the quiz in Blind Draft
+       for fun; the two links underneath switch to Constructed or to the
+       workplace audience first. The table (theme) is chosen on the results
+       page. Copy comes from PLAY_COPY.preflight. -->
   <div id="screen-preflight" class="hidden">
     <div class="mc-welcome" style="max-width: 720px;">
 
       <div class="mc-typeline"><span class="mc-typeline__diamond"></span>Before We Begin<span class="mc-typeline__diamond"></span></div>
-      <div class="mc-plinth" style="padding: 36px 40px; text-align: left;">
+      <div class="mc-plinth mc-preflight__plinth">
         <svg class="mc-corner mc-corner--tl"><use href="#fleuron"/></svg>
         <svg class="mc-corner mc-corner--tr"><use href="#fleuron"/></svg>
         <svg class="mc-corner mc-corner--bl"><use href="#fleuron"/></svg>
         <svg class="mc-corner mc-corner--br"><use href="#fleuron"/></svg>
 
-        <div class="mc-eyebrow mc-eyebrow--gilt" style="margin-bottom: 18px;" id="preflight-length" data-copy="preflight.length"></div>
+        <div class="mc-eyebrow mc-eyebrow--gilt" id="preflight-length" data-copy="preflight.length"></div>
+        <h2 class="mc-preflight__question" id="preflight-question" data-copy="preflight.question"></h2>
 
-        <!-- Mode selection -->
-        <div class="mc-eyebrow mb-12">Choose Your Mode</div>
-        <div class="mc-mode-grid">
-          <div id="mode-draft" onclick="selectMode('draft')" class="mc-mode is-selected">
-            <div class="mc-mode__title">Blind Draft</div>
-            <div class="mc-mode__desc">No mana symbols on choices. Pure instinct. <em>Recommended.</em></div>
-            <div id="draft-check" class="hidden"></div>
-          </div>
-          <div id="mode-constructed" onclick="selectMode('constructed')" class="mc-mode">
-            <div class="mc-mode__title">Constructed</div>
-            <div class="mc-mode__desc">See the mana on each choice. Know what you're picking.</div>
-            <div id="constructed-check" class="hidden"></div>
-          </div>
+        <div class="mc-preflight__answers" role="group" aria-labelledby="preflight-question">
+          <button type="button" class="mc-mode mc-preflight__answer" id="preflight-yes" onclick="answerPreflight(true)">
+            <span class="mc-mode__title" data-copy="preflight.yes"></span>
+            <span class="mc-mode__desc" data-copy="preflight.yesNote"></span>
+          </button>
+          <button type="button" class="mc-mode mc-preflight__answer" id="preflight-no" onclick="answerPreflight(false)">
+            <span class="mc-mode__title" data-copy="preflight.no"></span>
+            <span class="mc-mode__desc" data-copy="preflight.noNote"></span>
+          </button>
         </div>
 
-        <!-- Audience selection -->
-        <div class="mc-eyebrow" style="margin: 8px 0 12px;">Who's This For?</div>
-        <div class="mc-mode-grid">
-          <div id="aud-consumer" onclick="selectAudience('consumer')" class="mc-mode is-selected">
-            <div class="mc-mode__title">For Fun</div>
-            <div class="mc-mode__desc">Full banter. Roast included. Share with the group chat.</div>
-            <div id="aud-consumer-check" class="hidden"></div>
-          </div>
-          <div id="aud-workplace" onclick="selectAudience('workplace')" class="mc-mode">
-            <div class="mc-mode__title">Team / Workplace</div>
-            <div class="mc-mode__desc">Banter and roast hidden. Defensible if it lands in Slack.</div>
-            <div id="aud-workplace-check" class="hidden"></div>
-          </div>
+        <div class="mc-preflight__links">
+          <button type="button" class="mc-textlink" id="preflight-mode-link" onclick="togglePreflightMode()" data-on="false"></button>
+          <button type="button" class="mc-textlink" id="preflight-work-link" onclick="togglePreflightAudience()" data-on="false"></button>
         </div>
-
-        <!-- Theme selection -->
-        <div class="mc-eyebrow" style="margin: 8px 0 12px;">Choose Your Table</div>
-        <div class="mc-mode-grid" style="grid-template-columns: 1fr 1fr 1fr;">
-          <div id="theme-gilded" onclick="selectTheme('gilded')" class="mc-mode is-selected">
-            <div class="mc-mode__title" style="white-space: normal;">Gilded Hall</div>
-            <div class="mc-mode__desc">Brass, parchment and ornament from the first screen.</div>
-          </div>
-          <div id="theme-frames" onclick="selectTheme('frames')" class="mc-mode">
-            <div class="mc-mode__title" style="white-space: normal;">Card Frames</div>
-            <div class="mc-mode__desc">Face-down until the end. Your colours reveal with the result.</div>
-          </div>
-          <div id="theme-borderless" onclick="selectTheme('borderless')" class="mc-mode">
-            <div class="mc-mode__title" style="white-space: normal;">Borderless</div>
-            <div class="mc-mode__desc">No furniture. Just the questions and the colours.</div>
-          </div>
-        </div>
-
-        <!-- Gaming gate -->
-        <div onclick="toggleGaming()" id="gaming-toggle" style="margin-top: 8px; padding: 14px 18px; background: var(--inset); border: 1px solid var(--gilt-line); display: flex; align-items: center; gap: 14px; cursor: pointer; transition: border-color 220ms;">
-          <div id="gaming-check-box" style="width: 22px; height: 22px; border: 1px solid var(--gilt-line); display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: var(--canvas);">
-            <span id="gaming-check" style="display: none; color: var(--gilt); font-weight: 700;">✦</span>
-          </div>
-          <div>
-            <div style="font-family: var(--f-display); letter-spacing: 0.16em; font-size: 12px; color: var(--ink);">I play card games, board games, or strategy games</div>
-            <div style="font-family: var(--f-flavor); font-style: italic; font-size: 13px; color: var(--ink-muted); margin-top: 2px;">Unlocks the questions where the answer involves a counterspell.</div>
-          </div>
-        </div>
-
-        <button class="mc-btn mc-btn--primary" onclick="startAssessment()" style="width: 100%; justify-content: center; padding: 20px 32px; margin-top: 28px;">Enter the Arena</button>
-        <p style="margin-top: 12px; color: var(--ink-faded); font-family: var(--f-flavor); font-style: italic; font-size: 13px; text-align: center;">31 possible results. Limiting yourself to 16 is for cowards.</p>
       </div>
     </div>
   </div>
@@ -2695,6 +2694,17 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
         <button onclick="showInteractions()" class="mc-btn mc-btn--ghost">How Colours Interact</button>
       </div>
       <p style="margin-top: 12px; font-size: 12px; color: var(--ink-faded); font-family: var(--f-flavor); font-style: italic; text-align: center;" id="explorer-hint"></p>
+
+      <!-- The table: the theme switcher, moved here from the preflight. The
+           choice persists (localStorage); Card Frames plays the next quiz
+           face-down and earns its frame with the result. -->
+      <div class="mc-theme-switch" id="theme-switch" role="group" aria-labelledby="theme-switch-label">
+        <span class="mc-theme-switch__label" id="theme-switch-label" data-copy="results.themeLabel"></span>
+        <button type="button" class="mc-theme-switch__opt is-selected" id="theme-gilded" onclick="selectTheme('gilded')" aria-pressed="true" data-copy="results.themes.gilded"></button>
+        <button type="button" class="mc-theme-switch__opt" id="theme-frames" onclick="selectTheme('frames')" aria-pressed="false" data-copy="results.themes.frames"></button>
+        <button type="button" class="mc-theme-switch__opt" id="theme-borderless" onclick="selectTheme('borderless')" aria-pressed="false" data-copy="results.themes.borderless"></button>
+        <p class="mc-theme-switch__note" data-copy="results.themeNote"></p>
+      </div>
 
       <div class="mc-warning" style="margin-top: 32px;">
         <div class="mc-warning__label">⚠ Not For Official Use</div>
@@ -5479,6 +5489,15 @@ const PLAY_COPY = {
 
   preflight: {
     length: 'About {minutes} minutes · 31 possible results',
+    question: 'Played Magic?',
+    yes: 'Yes',
+    yesNote: 'Unlocks the questions where the answer involves a counterspell.',
+    no: 'Not really',
+    noNote: 'Every question works without the game.',
+    constructedOff: 'Prefer to see the mana? Constructed mode',
+    constructedOn: 'Constructed mode is on. Back to Blind Draft',
+    workOff: 'Taking this at work?',
+    workOn: 'Workplace mode is on. Back to just for fun',
   },
 
   // The instruction line under each question, by round (HTML).
@@ -5493,6 +5512,12 @@ const PLAY_COPY = {
   earlyOffer: {
     // {n}: the questions the one counter still has to go
     length: 'Refining is about {n} more questions · about {minutes} minutes',
+  },
+
+  results: {
+    themeLabel: 'Table',
+    themes: { gilded: 'Gilded Hall', frames: 'Card Frames', borderless: 'Borderless' },
+    themeNote: 'Card Frames deals your next quiz face-down and turns your colours over with the result.',
   },
 };
 
@@ -5518,6 +5543,11 @@ function roundLabel(n) {
   return name ? `Round ${n}: ${name}` : `Round ${n}`;
 }
 
+function prefersReducedMotion() {
+  try { return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); }
+  catch (e) { return false; }
+}
+
 // Fills the markup's data-copy elements, and How This Works' round names and
 // counts, from PLAY_COPY and QUIZ_LENGTH: the numbers the one counter starts
 // from. Runs once, on load.
@@ -5536,6 +5566,7 @@ function applyPlayCopy() {
         { n: QUIZ_LENGTH['round' + n] });
     }
   });
+  renderPreflightLinks();
 }
 
 // ─── The one counter ────────────────────────────────────────────────────────
@@ -5577,19 +5608,14 @@ function renderQuizCounter() {
 // ============================================================================
 // GAMING FAMILIARITY GATE
 // ============================================================================
+// The preflight asks "Played Magic?" now (answerPreflight). toggleGaming stays
+// for any caller: it flips the flag and marks the matching answer card.
 function toggleGaming() {
   state.gamingFamiliar = !state.gamingFamiliar;
-  const check = document.getElementById('gaming-check');
-  const box = document.getElementById('gaming-check-box');
-  if (state.gamingFamiliar) {
-    check.style.display = 'block';
-    box.style.borderColor = 'rgba(139, 92, 246, 0.8)';
-    box.style.background = 'rgba(139, 92, 246, 0.2)';
-  } else {
-    check.style.display = 'none';
-    box.style.borderColor = 'rgba(139, 92, 246, 0.4)';
-    box.style.background = 'transparent';
-  }
+  const yes = document.getElementById('preflight-yes');
+  const no = document.getElementById('preflight-no');
+  if (yes) yes.classList.toggle('is-selected', state.gamingFamiliar);
+  if (no) no.classList.toggle('is-selected', !state.gamingFamiliar);
 }
 
 // ============================================================================
@@ -5598,7 +5624,39 @@ function toggleGaming() {
 function showPreflight() {
   document.getElementById('screen-welcome').classList.add('hidden');
   document.getElementById('screen-preflight').classList.remove('hidden');
-  window.scrollTo({top: 0, behavior: 'smooth'});
+  renderPreflightLinks();
+  window.scrollTo({top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth'});
+}
+
+// The one question. "Yes" lets the Magic-flavoured items in and turns on
+// player mode (state.gamingFamiliar); either answer starts the quiz.
+function answerPreflight(played) {
+  state.gamingFamiliar = played === true;
+  startAssessment();
+}
+
+// The two links under the answers: Constructed mode, and the workplace audience.
+function togglePreflightMode() {
+  selectMode(state.mode === 'constructed' ? 'draft' : 'constructed');
+}
+
+function togglePreflightAudience() {
+  selectAudience(state.audience === 'workplace' ? 'consumer' : 'workplace');
+}
+
+function renderPreflightLinks() {
+  const mode = document.getElementById('preflight-mode-link');
+  if (mode) {
+    const on = state.mode === 'constructed';
+    mode.textContent = on ? PLAY_COPY.preflight.constructedOn : PLAY_COPY.preflight.constructedOff;
+    mode.dataset.on = String(on);
+  }
+  const work = document.getElementById('preflight-work-link');
+  if (work) {
+    const on = state.audience === 'workplace';
+    work.textContent = on ? PLAY_COPY.preflight.workOn : PLAY_COPY.preflight.workOff;
+    work.dataset.on = String(on);
+  }
 }
 
 // ============================================================================
@@ -5609,26 +5667,16 @@ function selectAudience(audience) {
   // Redesign: body[data-audience] swaps gilt→steel tokens and audience-aware visibility classes.
   // The HTML uses 'consumer' / 'workplace' internally; the redesign CSS reads 'forfun' / 'workplace'.
   document.body.dataset.audience = audience === 'workplace' ? 'workplace' : 'forfun';
-  const consumerCard = document.getElementById('aud-consumer');
-  const workplaceCard = document.getElementById('aud-workplace');
-  if (!consumerCard || !workplaceCard) return;
-  // Redesign mc-mode toggles via .is-selected. The ::after ✦ on .is-selected handles the visible marker.
-  consumerCard.classList.toggle('is-selected', audience !== 'workplace');
-  workplaceCard.classList.toggle('is-selected', audience === 'workplace');
+  renderPreflightLinks();
 }
 
 function selectMode(mode) {
   state.mode = mode;
   // Redesign: body[data-mode="constructed"] reveals .mc-choice__seal mana pips inside choice cards.
   document.body.dataset.mode = mode;
+  renderPreflightLinks();
 
-  // Update mc-mode visual selection (.is-selected drives the gilt ::after marker).
-  const constructedCard = document.getElementById('mode-constructed');
-  const draftCard = document.getElementById('mode-draft');
   const debugBtn = document.getElementById('debug-toggle-btn');
-  if (draftCard) draftCard.classList.toggle('is-selected', mode !== 'constructed');
-  if (constructedCard) constructedCard.classList.toggle('is-selected', mode === 'constructed');
-
   if (mode === 'constructed') {
     if (debugBtn) debugBtn.style.display = 'inline-block';
   } else {
@@ -5645,12 +5693,16 @@ function selectTheme(theme) {
   // body[data-theme] drives the THEMES CSS: frames (card-back until the
   // reveal), gilded (the original), borderless. Device preference, so it
   // persists in localStorage rather than the session snapshot.
+  // The switcher lives on the results page (#theme-switch).
   if (!['frames', 'gilded', 'borderless'].includes(theme)) theme = 'frames';
   document.body.dataset.theme = theme;
   try { localStorage.setItem('mc_theme', theme); } catch(e) {}
   ['frames', 'gilded', 'borderless'].forEach(t => {
     const el = document.getElementById('theme-' + t);
-    if (el) el.classList.toggle('is-selected', t === theme);
+    if (el) {
+      el.classList.toggle('is-selected', t === theme);
+      el.setAttribute('aria-pressed', String(t === theme));
+    }
   });
 }
 
@@ -12066,16 +12118,10 @@ function restart() {
   // Reset the night-sky constellation (state.result is null, weights reset)
   updateWispWeights();
 
-  // Reset gaming toggle UI
-  const gamingCheck = document.getElementById('gaming-check');
-  const gamingBox = document.getElementById('gaming-check-box');
-  if (gamingCheck) gamingCheck.style.display = 'none';
-  if (gamingBox) { gamingBox.style.borderColor = 'rgba(139, 92, 246, 0.4)'; gamingBox.style.background = 'transparent'; }
-  
   // Reinitialize front page
   initArchetypeOfMonth();
   
-  // Reset mode selection to draft + audience to consumer
+  // Reset mode selection to draft + audience to consumer (the preflight links follow)
   selectMode('draft');
   selectAudience('consumer');
 }

@@ -7,6 +7,8 @@
 //   2. one counter across the whole quiz ("x of 45"), recomputed as each
 //      round's length becomes known, never reset; no "Enemy Pairs" in the
 //      round labels; How This Works, the preflight and the early offer agree
+//   3. the one-question preflight ("Played Magic?"), its two links, and the
+//      theme switcher on the results page
 // Usage: node tests/play.test.js [path/to/index.html]
 const fs = require('fs');
 const { bootPage, pageArgs, whenReady, isVisible, INDEX_HTML } = require('./_lib/load');
@@ -169,6 +171,84 @@ run('play', async (t) => {
     const early = textOf(win, 'early-length');
     ok('P2h the early offer counts what is left of the one counter (45 - 30 = about 15, about 3 minutes)',
       isVisible(win, 'screen-early-offer') && early === 'Refining is about 15 more questions · about 3 minutes', early);
+    win.close();
+  }
+
+  // ---------- 3: the preflight is one question ----------
+  {
+    const { win, h } = await page();
+    const d = win.document;
+    const P = copy(win);
+    win.showPreflight();
+    const pf = d.getElementById('screen-preflight');
+    const answers = [...pf.querySelectorAll('.mc-preflight__answer')];
+    ok('P3a the preflight asks one question, "Played Magic?", with two big cards',
+      isVisible(win, 'screen-preflight') && pf.querySelectorAll('.mc-preflight__question').length === 1
+        && textOf(win, 'preflight-question') === P.preflight.question && answers.length === 2
+        && answers[0].querySelector('.mc-mode__title').textContent === 'Yes' && answers[1].querySelector('.mc-mode__title').textContent === 'Not really',
+      textOf(win, 'preflight-question') + ' / ' + answers.map((a) => a.textContent.trim()).join(' | '));
+    ok('P3b the old four-grid is gone from the preflight (no mode, audience or theme cards, no gaming toggle)',
+      pf.querySelectorAll('.mc-mode-grid, #mode-draft, #mode-constructed, #aud-consumer, #aud-workplace, #gaming-toggle, [id^="theme-"]').length === 0, '');
+    const modeLink = d.getElementById('preflight-mode-link');
+    const workLink = d.getElementById('preflight-work-link');
+    const modeOff = modeLink.textContent;
+    modeLink.click();
+    const constructedOn = h.state.mode === 'constructed' && d.body.dataset.mode === 'constructed' && modeLink.dataset.on === 'true';
+    modeLink.click();
+    ok('P3c Blind Draft is the default; "Prefer to see the mana? Constructed mode" switches to Constructed and back',
+      modeOff === P.preflight.constructedOff && constructedOn && h.state.mode === 'draft' && modeLink.textContent === modeOff, modeOff);
+    workLink.click();
+    const workOn = h.state.audience === 'workplace' && d.body.dataset.audience === 'workplace' && workLink.dataset.on === 'true';
+    workLink.click();
+    ok('P3d "Taking this at work?" sets the workplace audience (and back)',
+      workOn && h.state.audience === 'consumer' && workLink.textContent === P.preflight.workOff, workLink.textContent);
+    // The old setters still work for any caller.
+    let threw = null;
+    try {
+      h.selectMode('constructed'); h.selectMode('draft');
+      h.selectAudience('workplace'); h.selectAudience('consumer');
+      win.selectTheme('borderless'); win.selectTheme('gilded');
+      const before = h.state.gamingFamiliar; win.toggleGaming(); if (h.state.gamingFamiliar === before) throw new Error('toggleGaming did not flip'); win.toggleGaming();
+    } catch (e) { threw = e.message; }
+    ok('P3e selectMode, selectAudience, selectTheme and toggleGaming still work', !threw, threw);
+    // "Yes" starts the quiz in player mode, Blind Draft, for fun.
+    d.getElementById('preflight-yes').click();
+    ok('P3f "Yes" sets gamingFamiliar and starts the quiz in Blind Draft',
+      h.state.gamingFamiliar === true && h.state.mode === 'draft' && h.state.stage === 1 && isVisible(win, 'screen-assessment') && !isVisible(win, 'screen-preflight'),
+      `gaming=${h.state.gamingFamiliar}`);
+    win.close();
+  }
+  {
+    const { win, h } = await page();
+    win.showPreflight();
+    win.document.getElementById('preflight-no').click();
+    const mtg = (h.state.poolA || []).filter((q) => q.id.startsWith('MTG-')).length;
+    ok('P3g "Not really" leaves gamingFamiliar off (no Magic items) and starts the quiz',
+      h.state.gamingFamiliar === false && h.state.stage === 1 && h.state.poolA.length === 30 && mtg === 0, `mtg=${mtg}`);
+    win.close();
+  }
+
+  // ---------- 3: the theme switcher lives on the results page ----------
+  {
+    const { win, h } = await page();
+    const d = win.document;
+    const sw = d.getElementById('theme-switch');
+    ok('P3h the theme switcher sits on the results page with all three tables',
+      !!sw && d.getElementById('screen-results').contains(sw) && ['gilded', 'frames', 'borderless'].every((t) => sw.contains(d.getElementById('theme-' + t))), '');
+    const s = h.state;
+    s.result = { identity: 'DIMIR', confidence: 'MODERATE', allResults: [], round3Data: {} };
+    s.activationSorted = [['U', 0.78], ['B', 0.64], ['G', 0.31], ['W', 0.22], ['R', 0.11]];
+    s.responses = new Array(30).fill({ c: 'U' });
+    s.disclaimerAcknowledged = true;
+    h.showResults();
+    d.getElementById('theme-frames').click();
+    const earned = d.body.dataset.theme === 'frames' && d.body.dataset.revealed === '1'
+      && d.getElementById('theme-frames').getAttribute('aria-pressed') === 'true' && win.localStorage.getItem('mc_theme') === 'frames';
+    h.restart();
+    const faceDown = d.body.dataset.theme === 'frames' && d.body.dataset.revealed === undefined;
+    d.getElementById('theme-gilded').click();
+    ok('P3i Card Frames is reachable from the results page (earned frame now, face-down next quiz) and persists in localStorage',
+      earned && faceDown && win.localStorage.getItem('mc_theme') === 'gilded', `earned=${earned} faceDown=${faceDown}`);
     win.close();
   }
 });
