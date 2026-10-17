@@ -1615,6 +1615,56 @@ a:hover { color: var(--gilt-bright); }
   .mc-welcome__actions .mc-btn--ghost { margin: 0 auto; }
 }
 
+/* Between rounds: a beat, a trait line, then the player's own Continue; the
+   remaining suspects face down (no names, no colours); and the line above
+   the next question after every tenth answer */
+.mc-transition__trait { color: var(--gilt); font-family: var(--f-flavor); font-style: italic; font-size: 16px; margin: 0 0 28px; min-height: 1.4em; }
+.mc-transition__continue { justify-content: center; min-width: 200px; margin: 0 auto 36px; }
+.mc-suspects { display: flex; justify-content: center; flex-wrap: wrap; gap: 16px; margin: 18px 0 10px; }
+.mc-cardback {
+  position: relative; width: 72px; aspect-ratio: 63 / 88; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(160deg, var(--plinth-hi), var(--inset));
+  border: 2px solid var(--gilt-soft);
+  box-shadow: inset 0 0 0 3px var(--void), inset 0 0 0 4px var(--gilt-line), 0 10px 22px -8px rgba(0,0,0,0.7);
+}
+.mc-cardback__oval {
+  width: 66%; height: 60%; border-radius: 50%; border: 1px solid var(--gilt-line);
+  background: radial-gradient(ellipse at 50% 38%, var(--plinth-hi) 0%, var(--plinth) 72%);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--f-display); font-size: 15px; color: var(--gilt-soft);
+}
+.mc-suspects__caption {
+  text-align: center; margin: 6px 0 4px;
+  font-family: var(--f-display); font-weight: 600; font-size: 12px; letter-spacing: 0.22em;
+  text-transform: uppercase; color: var(--ink-muted);
+}
+body[data-theme="frames"] .mc-cardback { border-radius: 9px; }
+.mc-q__beat { margin: 0 0 14px; text-align: center; font-family: var(--f-flavor); font-style: italic; font-size: 18px; color: var(--gilt-bright); }
+
+/* Motion only for those who have not asked for less */
+@media (prefers-reduced-motion: no-preference) {
+  .mc-q__beat:not(.hidden) { animation: mcBeatIn 600ms ease-out both; }
+  .mc-transition__continue:not(:disabled) { animation: mcNudge 2.6s ease-in-out 1.2s infinite; }
+  .mc-cardback { animation: mcDeal 520ms cubic-bezier(.2,.7,.3,1) both; }
+  .mc-cardback:nth-child(2) { animation-delay: 90ms; }
+  .mc-cardback:nth-child(3) { animation-delay: 180ms; }
+  .mc-cardback:nth-child(4) { animation-delay: 270ms; }
+}
+@keyframes mcBeatIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+@keyframes mcNudge { 0%, 100% { box-shadow: 0 4px 16px var(--gilt-glow); } 50% { box-shadow: 0 4px 26px var(--gilt), 0 0 0 1px var(--gilt-bright); } }
+@keyframes mcDeal { from { opacity: 0; transform: translateY(14px) rotate(-6deg); } to { opacity: 1; transform: none; } }
+
+@media (max-width: 599px) {
+  .mc-transition__roman { font-size: 96px; }
+  .mc-transition__flavor { font-size: 19px; margin-bottom: 18px; }
+  .mc-inter__crest { font-size: 48px; margin-bottom: 8px; }
+  .mc-inter__title { margin-bottom: 18px; }
+  .mc-suspects { gap: 10px; }
+  .mc-cardback { width: 58px; }
+  .mc-q__beat { font-size: 16px; margin-bottom: 8px; }
+}
+
 /* ============================================================================
    THEMES — body[data-theme]: "frames" (default), "gilded", "borderless".
    Chosen on the results page (#theme-switch), persisted in localStorage (mc_theme).
@@ -2136,6 +2186,9 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
       <!-- Progress: rune track (notches + milestones), auto-synced by MutationObserver below -->
       <div class="mc-progress" id="mc-rune-track" role="progressbar" aria-label="Assessment progress" aria-valuemin="0" aria-valuemax="100"></div>
 
+      <!-- After every tenth answer, one line above the next question (renderQuizBeat) -->
+      <p class="mc-q__beat hidden" id="q-beat" role="status"></p>
+
       <!-- Hidden compat anchors for legacy JS (round dots / prog bars). The new chrome above replaces them visually. -->
       <div style="display:none" aria-hidden="true">
         <span id="round-dot-1" class="round-dot active"></span>
@@ -2194,11 +2247,14 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
         <svg class="mc-corner mc-corner--bl"><use href="#fleuron"/></svg>
         <svg class="mc-corner mc-corner--br"><use href="#fleuron"/></svg>
 
-        <!-- Inner Compass: type-line, 5-row profile (JS fills rows + percentages), banter, caveat. -->
-        <div class="mc-typeline"><span class="mc-typeline__diamond"></span>Inner Compass<span class="mc-typeline__diamond"></span></div>
-        <div class="mc-profile" id="inter-profile" style="margin: 8px 0 20px;"></div>
+        <!-- The line-up: one face-down card per Round 3 candidate, a caption, a
+             trait line (never a colour) and a note. showInterstitial fills them
+             from PLAY_COPY.interstitial; no colour is named or shown here. -->
+        <div class="mc-typeline"><span class="mc-typeline__diamond"></span><span id="inter-lineup-title" data-copy="interstitial.lineup"></span><span class="mc-typeline__diamond"></span></div>
+        <div class="mc-suspects" id="inter-suspects" role="img"></div>
+        <p class="mc-suspects__caption" id="inter-suspects-caption"></p>
         <p class="mc-flavor" id="inter-banter" style="font-size: 17px; color: var(--gilt-bright); text-align: center; margin: 14px 0;"></p>
-        <p class="mc-body" style="font-size: 13px; color: var(--ink-faded); font-style: italic; text-align: center; margin-top: 14px;">A preview — the final round may still move the needle.</p>
+        <p class="mc-body" id="inter-note" data-copy="interstitial.note" style="font-size: 13px; color: var(--ink-faded); font-style: italic; text-align: center; margin-top: 14px;"></p>
         <div class="mc-typeline" style="margin-top: 22px;"><span class="mc-typeline__diamond"></span></div>
 
         <!-- Hidden compat anchors — older JS paths write to these IDs; we keep them so the writes don't throw. -->
@@ -2207,8 +2263,8 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
         <p id="inter-next" style="display:none"></p>
 
         <div class="mc-inter__cta">
-          <button class="mc-btn mc-btn--primary" onclick="continueToStage2()">Continue to Final Round</button>
-          <p class="mc-inter__caption">A few forced-choice questions to confirm your identity</p>
+          <button class="mc-btn mc-btn--primary" id="inter-continue" onclick="continueToStage2()" data-copy="interstitial.continue"></button>
+          <p class="mc-inter__caption" id="inter-caption" data-copy="interstitial.caption"></p>
         </div>
       </div>
     </div>
@@ -2283,15 +2339,17 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
     </div>
   </div>
 
-  <!-- Round Transition Interstitial -->
+  <!-- Round Transition: the round badge and name, a one-line beat, a trait
+       line (never a colour), and a Continue the player taps when ready
+       (showRoundTransition; copy from PLAY_COPY.transition). -->
   <div id="screen-round-transition" class="hidden">
     <div class="mc-transition fade-in">
-      <div id="transition-round-indicator" style="display:none"></div>
       <div class="mc-typeline" style="margin-bottom: 20px;"><span class="mc-typeline__diamond"></span><span style="font-family:var(--f-display); letter-spacing:0.32em; color:var(--ink-muted); font-size:12px;">Round</span><span class="mc-typeline__diamond"></span></div>
       <div class="mc-transition__roman" id="transition-roman">II</div>
       <div class="mc-transition__name" id="transition-title">Refinement</div>
-      <div class="mc-transition__flavor" id="transition-subtitle">Tests ally pairs Round 1 never saw, to sharpen the estimate.</div>
-      <p id="transition-banter" style="color: var(--gilt); font-family: var(--f-flavor); font-style: italic; font-size: 16px; margin-bottom: 36px; min-height: 1.4em;"></p>
+      <div class="mc-transition__flavor" id="transition-subtitle"></div>
+      <p class="mc-transition__trait" id="transition-banter"></p>
+      <button type="button" class="mc-btn mc-btn--primary mc-transition__continue" id="transition-continue">Continue</button>
       <div class="mc-typeline" style="max-width: 320px; margin: 0 auto;"><span class="mc-typeline__diamond"></span><span class="mc-typeline__diamond"></span><span class="mc-typeline__diamond"></span></div>
     </div>
   </div>
@@ -3754,20 +3812,13 @@ const POOL_C = {
 
   // ROUND2_SCENARIOS moved to data.js (Phase F file split)
 
-// Banter lines surfaced on round transitions and the candidate interstitial. Keyed to
-// the user's emerging top colour so the line lands as recognition, not noise.
-// '?' is the fallback when no clear leader has emerged yet.
-const TRANSITION_BANTER = {
-  W: ["Your White is showing.", "Order is winning so far.", "Someone here likes a clean handbook."],
-  U: ["Your Blue is showing.", "The analyst lobe is lit up.", "Lots of careful 'on the other hand' energy."],
-  B: ["Your Black is showing.", "Pragmatism is winning so far.", "Self-interest, declared honestly. Respect."],
-  R: ["Your Red is showing.", "The impulse engine is hot.", "Patience is losing. Loudly."],
-  G: ["Your Green is showing.", "You're trending patient.", "Roots before branches, every time."],
-  '?': ["Hard to read so far.", "You're keeping us honest.", "Mixed signals — committed to nuance, are we?"]
-};
+// The trait line on the round transitions and the interstitial: keyed to the
+// colour leading so far, so it lands as recognition, but it never names a
+// colour (PLAY_COPY.traits; '?' when no leader has emerged). Exactly one
+// random draw, as before, so the seeded tests' later shuffles do not move.
 function getTransitionBanter() {
   const top = state.activationSorted?.[0]?.[0];
-  const pool = TRANSITION_BANTER[top] || TRANSITION_BANTER['?'];
+  const pool = PLAY_COPY.traits[top] || PLAY_COPY.traits['?'];
   return pool[Math.floor(Math.random() * pool.length)];
 }
 
@@ -5493,7 +5544,8 @@ function updateLikelihood(stage) {
 // the author can edit them in one place. ALL OF IT IS PROVISIONAL: drafted on
 // 17 October 2026 as stand-ins for the final copy.
 // Rule for anything shown during Rounds 1 to 3: never name a colour or a
-// basic land, and never tint by colour.
+// basic land, and never tint by colour (tests/play.test.js checks the beats,
+// trait lines, transitions and interstitial).
 // Markup elements with data-copy="path.to.key" are filled from here on load
 // (applyPlayCopy). Placeholders in braces are filled by fillCopy().
 // ════════════════════════════════════════════════════════════════════════════
@@ -5540,6 +5592,49 @@ const PLAY_COPY = {
   },
   // Round 3's eyebrow over the scenario (it used to repeat the scenario).
   round3: { eyebrow: 'Head to head', tiebreak: 'Tiebreaker' },
+
+  // One line above the next question after every tenth answer, in order.
+  beats: [
+    'Ten down. No wrong answers so far.',
+    'Twenty in. Still no wrong answers. Suspicious.',
+    'Thirty. The wizards are conferring.',
+    'Forty. The cards are nearly settled.',
+    'Fifty. Thorough. We respect it.',
+  ],
+
+  transition: {
+    continue: 'Continue',
+    results: 'Results',
+    // The one-line beat, keyed by the round about to start (4: the result).
+    beats: {
+      2: 'Round 1 in the bag. Now the close calls.',
+      3: 'The field is narrowing. Pick your side.',
+      4: 'Every card played. Time to turn them over.',
+    },
+  },
+
+  // Trait lines for the transitions and the interstitial, keyed by the colour
+  // leading so far but never naming it; '?' before any leader emerges.
+  traits: {
+    W: ['Order is winning so far.', 'Someone here likes a clean handbook.', 'Fairness keeps turning up in your answers.'],
+    U: ['The analyst lobe is lit up.', "Lots of careful 'on the other hand' energy.", 'You keep asking what the question really means.'],
+    B: ['Pragmatism is winning so far.', 'Self-interest, declared honestly. Respect.', 'You like to know what something costs.'],
+    R: ['The impulse engine is hot.', 'Patience is losing. Loudly.', 'Gut first, paperwork later.'],
+    G: ["You're trending patient.", 'Roots before branches, every time.', 'You trust what has already grown.'],
+    '?': ['Hard to read so far.', "You're keeping us honest.", 'Mixed signals. Committed to nuance, are we?'],
+  },
+
+  interstitial: {
+    titleRefined: 'Refinement Complete',
+    titleRound1: 'Round 1 Complete',
+    lineup: 'The Line-up',
+    // Under the face-down cards, by how many candidates Round 3 plays (four
+    // under the likelihood engine; the old engine can bring fewer).
+    suspects: { 1: 'One suspect remains', 2: 'Two suspects remain', 3: 'Three suspects remain', 4: 'Four suspects remain' },
+    note: 'One of them is you. The final round decides which.',
+    continue: 'Continue to Round 3',
+    caption: 'A few head-to-heads to settle it',
+  },
 
   earlyOffer: {
     // {n}: the questions the one counter still has to go
@@ -5635,6 +5730,23 @@ function renderQuizCounter() {
   const qTot = document.getElementById('q-tot');
   if (qNum) qNum.textContent = String(Math.min(quizAnswered() + 1, total));
   if (qTot) qTot.textContent = String(total);
+}
+
+// After every tenth answer, one line above the next question (never a colour).
+function renderQuizBeat() {
+  const el = document.getElementById('q-beat');
+  if (!el) return;
+  const answered = quizAnswered();
+  const beats = PLAY_COPY.beats || [];
+  const line = answered > 0 && answered % 10 === 0 && beats.length ? beats[(answered / 10 - 1) % beats.length] : '';
+  el.textContent = line;
+  el.classList.toggle('hidden', !line);
+}
+
+// The chrome every question render refreshes: counter and beat.
+function renderQuestionChrome() {
+  renderQuizCounter();
+  renderQuizBeat();
 }
 
 // ============================================================================
@@ -6140,8 +6252,8 @@ function showQ() {
     return;
   }
   
-  // The one counter: question x of the whole quiz.
-  renderQuizCounter();
+  // The one counter (question x of the whole quiz) and the every-ten beat.
+  renderQuestionChrome();
 
   // Refresh the redesign chrome (loyalty roman numeral + rune progress).
   updateMcChrome();
@@ -7610,6 +7722,7 @@ function showRefinementQuestion() {
   neitherBtn.onclick = () => selectRefinementNeither(q.pair);
   choicesDiv.appendChild(neitherBtn);
 
+  renderQuizBeat();
   updateDebug();
   window.scrollTo({top: 0, behavior: 'smooth'});
 }
@@ -7854,29 +7967,27 @@ function showInterstitial(candidates) {
   // Update interstitial title based on what was completed
   const titleEl = document.querySelector('#screen-interstitial h2');
   if (titleEl) {
-    titleEl.textContent = wasRefined ? 'Refinement Complete' : 'Round 1 Complete';
+    titleEl.textContent = wasRefined ? PLAY_COPY.interstitial.titleRefined : PLAY_COPY.interstitial.titleRound1;
   }
   
-  // Inner Compass — populate the 5-row profile and the italic banter line.
-  // The typeline dividers + caveat copy live in the HTML markup directly now.
-  const colorNames = { W: 'WHITE', U: 'BLUE', B: 'BLACK', R: 'RED', G: 'GREEN' };
-  const wubrg = ['W', 'U', 'B', 'R', 'G'];
-  const activationMap = Object.fromEntries(sorted || []);
-  const profileEl = document.getElementById('inter-profile');
-  if (profileEl) {
-    profileEl.innerHTML = wubrg.map(c => {
-      const v = activationMap[c] || 0;
-      const pct = Math.round(v * 100);
-      return `<div class="mc-profile__row">
-        <span class="mc-profile__label">${colorNames[c]}</span>
-        <span class="mc-pip mc-pip--sm is-lit" data-color="${c}"></span>
-        <div class="mc-profile__bar"><div class="mc-profile__fill" data-color="${c}" style="width: ${pct}%;"></div></div>
-        <span class="mc-profile__pct">${pct}%</span>
-      </div>`;
-    }).join('');
+  // The line-up: one face-down card per identity Round 3 will play (startRound3
+  // takes the top ROUND3_CANDIDATE_COUNT), captioned by the count. It replaced
+  // the five percentage bars: nothing here names or tints a colour.
+  const suspects = Math.max(1, Math.min(ROUND3_CANDIDATE_COUNT, (candidates || []).length));
+  const caption = PLAY_COPY.interstitial.suspects[suspects] || '';
+  const suspectsEl = document.getElementById('inter-suspects');
+  if (suspectsEl) {
+    suspectsEl.innerHTML = Array.from({ length: suspects }, () =>
+      '<div class="mc-cardback" aria-hidden="true"><span class="mc-cardback__oval">✦</span></div>').join('');
+    suspectsEl.setAttribute('aria-label', caption);
   }
+  const captionEl = document.getElementById('inter-suspects-caption');
+  if (captionEl) captionEl.textContent = caption;
+  // A trait line, never a colour (one random draw, as the banter had)
   const banterEl = document.getElementById('inter-banter');
   if (banterEl) banterEl.textContent = getTransitionBanter();
+  const continueBtn = document.getElementById('inter-continue');
+  if (continueBtn) continueBtn.textContent = PLAY_COPY.interstitial.continue;
   
   const refinementNote = wasRefined 
     ? 'We\'ve cross-checked your responses across allied values to refine the signal. '
@@ -8396,6 +8507,7 @@ function showTournamentQuestion() {
 
   choicesDiv.className = options.length > 2 ? 'mc-choices mc-choices--stacked' : 'mc-choices';
   
+  renderQuizBeat();
   updateDebug();
   // Scroll to question card for better mobile experience
   const scenarioEl = document.getElementById('scenario');
@@ -8916,81 +9028,54 @@ function showCalculating() {
   }, 2000);
 }
 
+// Between rounds: the round badge and name, a one-line beat, a trait line
+// (never a colour), and a Continue the player taps when ready. Nothing moves
+// on by itself. Continue stays disabled for the answer debounce, so a
+// double-tap on the last answer cannot skip the beat, and then takes focus.
+// Motion is CSS only and stops under prefers-reduced-motion.
 function showRoundTransition(fromRound, toRound, callback) {
   const transitionScreen = document.getElementById('screen-round-transition');
-  const indicator = document.getElementById('transition-round-indicator');
   const title = document.getElementById('transition-title');
   const subtitle = document.getElementById('transition-subtitle');
+  const continueBtn = document.getElementById('transition-continue');
   
   // Hide all other screens
   document.getElementById('screen-assessment').classList.add('hidden');
   document.getElementById('screen-interstitial').classList.add('hidden');
   
-  // Build round indicator with progressively saturating colors
-  const roundColors = [
-    { bg: 'rgba(139, 92, 246, 0.25)', border: 'rgba(139, 92, 246, 0.4)', text: '#a78bfa' },
-    { bg: 'rgba(168, 85, 247, 0.35)', border: 'rgba(168, 85, 247, 0.5)', text: '#c084fc' },
-    { bg: 'rgba(192, 132, 252, 0.45)', border: 'rgba(192, 132, 252, 0.6)', text: '#d8b4fe' },
-    { bg: 'linear-gradient(135deg, rgba(232, 121, 249, 0.6), rgba(244, 114, 182, 0.6))', border: 'rgba(232, 121, 249, 0.8)', text: '#fdf4ff' }
-  ];
-  
-  let indicatorHTML = '';
-  for (let i = 1; i <= 4; i++) {
-    const color = roundColors[i - 1];
-    const isComplete = i <= fromRound;
-    const isCurrent = i === toRound;
-    const isFuture = i > toRound;
-    
-    // Connecting line (except after last)
-    if (i > 1) {
-      const lineColor = isComplete || isCurrent ? 'rgba(192, 132, 252, 0.5)' : 'rgba(255, 255, 255, 0.1)';
-      indicatorHTML += `<div style="width: 24px; height: 2px; background: ${lineColor}; margin: 0 -4px;"></div>`;
-    }
-    
-    // Round circle
-    if (i === 4) {
-      // Results - star symbol
-      indicatorHTML += `<div class="round-number-complete" style="background: ${isComplete ? color.bg : 'rgba(255,255,255,0.05)'}; border: 2px solid ${isComplete ? color.border : 'rgba(255,255,255,0.2)'}; color: ${isComplete ? color.text : '#606070'}; ${isCurrent ? 'box-shadow: 0 0 16px rgba(232, 121, 249, 0.5);' : ''}">✦</div>`;
-    } else {
-      indicatorHTML += `<div class="round-number-complete" style="background: ${isComplete ? color.bg : 'rgba(255,255,255,0.05)'}; border: 2px solid ${isComplete ? color.border : 'rgba(255,255,255,0.2)'}; color: ${isComplete ? color.text : '#606070'}; ${isCurrent ? 'box-shadow: 0 0 16px rgba(168, 85, 247, 0.5);' : ''}">${i}</div>`;
-    }
-  }
-  
-  indicator.innerHTML = indicatorHTML;
-  
-  // Set text
-  const roundNames = {
-    1: 'Enemy Pairs',
-    2: 'Refinement',
-    3: 'Final Determination',
-    4: 'Results'
-  };
-  
-  // Redesign: roman numeral carries the round, name is the stage label, subtitle is flavor.
+  // The roman numeral carries the round, the name is the round's name, and the
+  // subtitle is the beat.
   const romanMap = {1: 'I', 2: 'II', 3: 'III', 4: '✦'};
-  const flavorMap = {
-    2: 'Tests ally pairs Round 1 never saw, to sharpen the estimate.',
-    3: 'Head-to-head between the candidate identities, until one of them admits it.',
-    4: 'The system has filed its findings.'
-  };
   const romanEl = document.getElementById('transition-roman');
   if (romanEl) romanEl.textContent = romanMap[toRound] || String(toRound);
-  title.textContent = roundNames[toRound] || `Round ${toRound}`;
-  subtitle.textContent = flavorMap[toRound] || '';
+  title.textContent = toRound === 4 ? PLAY_COPY.transition.results : (roundName(toRound) || `Round ${toRound}`);
+  subtitle.textContent = PLAY_COPY.transition.beats[toRound] || '';
 
-  // Banter line keyed to emerging top colour — fires from R1→R2 onward, when signal exists.
+  // Trait line keyed to the emerging top colour, from R1→R2 onward, when signal exists.
   const banterEl = document.getElementById('transition-banter');
   if (banterEl) {
     banterEl.textContent = (fromRound >= 1 && state.activationSorted?.length) ? getTransitionBanter() : '';
   }
 
-  transitionScreen.classList.remove('hidden');
-  
-  // Wait then proceed
-  setTimeout(() => {
+  let done = false;
+  const proceed = () => {
+    if (done) return;
+    done = true;
+    continueBtn.onclick = null;
     transitionScreen.classList.add('hidden');
     if (callback) callback();
-  }, 1500);
+  };
+  continueBtn.textContent = PLAY_COPY.transition.continue;
+  continueBtn.onclick = proceed;
+  continueBtn.disabled = true;
+
+  transitionScreen.classList.remove('hidden');
+  window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+  setTimeout(() => {
+    if (done) return;
+    continueBtn.disabled = false;
+    try { continueBtn.focus({ preventScroll: true }); } catch (e) {}
+  }, DEBOUNCE_MS);
 }
 
 // updateMcChrome was the explicit-call version (showQ → updateMcChrome). Replaced by
@@ -9035,7 +9120,7 @@ function updateHeaderRoundIndicator(currentRound) {
     1: roundLabel(1),
     2: roundLabel(2),
     3: roundLabel(3),
-    4: 'Results'
+    4: PLAY_COPY.transition.results
   };
   
   if (leftLabel) {
@@ -12150,6 +12235,10 @@ function restart() {
   // Reset the night-sky constellation (state.result is null, weights reset)
   updateWispWeights();
 
+  // The every-ten beat belongs to the old quiz
+  const beat = document.getElementById('q-beat');
+  if (beat) beat.classList.add('hidden');
+  
   // Reinitialize front page
   initArchetypeOfMonth();
   

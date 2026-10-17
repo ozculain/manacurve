@@ -12,14 +12,20 @@
 //   4. the welcome: Rule 0 under the title, the start under the lead line with
 //      the explorer beside it, the long paragraph in the fold, the resume
 //      offer's anchor, about 8 minutes
+//   5. transitions that wait for a tap (the real showRoundTransition, not the
+//      stub), the face-down suspects, the renamed interstitial button, and
+//      trait lines and every-ten beats that never name a colour
 // Usage: node tests/play.test.js [path/to/index.html]
 const fs = require('fs');
-const { bootPage, pageArgs, whenReady, isVisible, INDEX_HTML } = require('./_lib/load');
+const { bootPage, pageArgs, whenReady, isVisible, waitForResults, INDEX_HTML } = require('./_lib/load');
 const { run } = require('./_lib/report');
 
 const SESSION_KEY = 'mana_assessment_state';
+// Nothing shown during the scored rounds may name a colour or a basic land.
+const COLOUR_WORDS = /\b(white|blue|black|red|green|plains|islands?|swamps?|mountains?|forests?)\b/i;
 const PREF = { W: 5, U: 4, B: 3, R: 2, G: 1 };
 const pick = (opts) => opts.reduce((best, o) => (PREF[o.c] || 0) > (PREF[best.c] || 0) ? o : best, opts[0]);
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const tick = () => new Promise((r) => setImmediate(r));
 
 let nextSeed = 301;
@@ -58,6 +64,11 @@ function advance(h, win) {
   if (isVisible(win, 'screen-early-offer')) { h.continueToRound2(); return true; }
   if (isVisible(win, 'screen-interstitial')) { h.continueToStage2(); return true; }
   return false;
+}
+function finishRound(h, round) {
+  let g = 0;
+  const inRound = () => (round === 1 ? h.state.stage === 1 : round === 2 ? h.state.stage === 'refinement' : h.state.stage === 3 && !h.state.result);
+  while (inRound() && g++ < 60 && answerOne(h)) { /* answer on */ }
 }
 // A whole journey with the transitions stubbed, calling look() on every question.
 function playThrough(h, win, look) {
@@ -291,5 +302,107 @@ run('play', async (t) => {
       offered && bar && bar.parentElement.classList.contains('mc-welcome') && bar.nextElementSibling === w2.document.getElementById('resume-anchor')
         && bar.previousElementSibling.classList.contains('mc-welcome__crest'), bar ? bar.textContent.trim().slice(0, 60) : 'no bar');
     w2.close();
+  }
+
+  // ---------- 5: beats, trait lines and transitions; no colour named ----------
+  {
+    const { win, h, errors } = await page();
+    const P = copy(win);
+    begin(h);
+    const seen = [];
+    playThrough(h, win, () => seen.push({
+      num: +textOf(win, 'q-num'), label: textOf(win, 'stage-label'),
+      beat: isVisible(win, 'q-beat') ? textOf(win, 'q-beat') : '',
+    }));
+    const beatsWrong = seen.filter((x) => {
+      const answered = x.num - 1;
+      const want = answered > 0 && answered % 10 === 0 ? P.beats[answered / 10 - 1] : '';
+      return x.beat !== want;
+    }).map((x) => `${x.num}:"${x.beat}"`);
+    ok('P5a after every tenth answer one beat line shows above the next question, and only then',
+      beatsWrong.length === 0 && seen.filter((x) => x.beat).length === Math.floor((seen.length - 1) / 10) && seen.length > 40, beatsWrong.slice(0, 4).join('; '));
+    const leaks = seen.filter((x) => COLOUR_WORDS.test(x.label + ' ' + x.beat)).map((x) => x.num);
+    ok('P5b the stage label and the beats never name a colour during the rounds', leaks.length === 0 && errors.length === 0, leaks.join(',') + errors.slice(0, 2).join(' | '));
+    const strings = [];
+    const walk = (v) => { if (typeof v === 'string') strings.push(v); else if (v && typeof v === 'object') Object.values(v).forEach(walk); };
+    [P.rounds, P.stems, P.round3, P.beats, P.transition, P.traits, P.interstitial].forEach(walk);
+    const named = strings.filter((x) => COLOUR_WORDS.test(x));
+    ok('P5c round names, stems, beats, trait lines, transitions and interstitial copy name no colour or basic land',
+      strings.length > 40 && named.length === 0, named.join(' | '));
+    win.close();
+  }
+  {
+    const { win, h, errors } = await page({ stubs: { transitions: false } });
+    const d = win.document;
+    const P = copy(win);
+    h.state.activationSorted = [['W', 0.8], ['U', 0.6], ['B', 0.4], ['R', 0.3], ['G', 0.2]];
+    let calls = 0;
+    win.showRoundTransition(1, 2, () => { calls++; });
+    const screen = d.getElementById('screen-round-transition');
+    const btn = d.getElementById('transition-continue');
+    const shown = isVisible(win, 'screen-round-transition') && textOf(win, 'transition-roman') === 'II' && textOf(win, 'transition-title') === 'Refinement'
+      && textOf(win, 'transition-subtitle') === P.transition.beats[2] && P.traits.W.includes(textOf(win, 'transition-banter')) && btn.textContent === 'Continue';
+    ok('P5d the transition shows the round, a one-line beat, a trait line and a Continue control', shown,
+      `${textOf(win, 'transition-title')} / ${textOf(win, 'transition-subtitle')} / ${textOf(win, 'transition-banter')}`);
+    ok('P5e the transition names no colour', !COLOUR_WORDS.test(screen.textContent), screen.textContent.replace(/\s+/g, ' ').trim());
+    await sleep(1700); // longer than the old 1.5 s auto-advance
+    ok('P5f it does not advance on its own', calls === 0 && isVisible(win, 'screen-round-transition') && !btn.disabled, `calls=${calls}`);
+    btn.click();
+    btn.click();
+    ok('P5g Continue advances exactly once', calls === 1 && !isVisible(win, 'screen-round-transition'), `calls=${calls}`);
+    // Motion only under prefers-reduced-motion: no-preference.
+    const motion = mediaBlocks(win, /prefers-reduced-motion:\s*no-preference/).flatMap((m) => [...m.cssRules]);
+    const animated = (sel) => { const r = ruleFor(motion, sel); return !!r && /mc\w+/.test(r.style.getPropertyValue('animation')); };
+    const topLevel = sheetRules(win).filter((r) => r.selectorText && /mc-transition__continue|mc-cardback|mc-q__beat/.test(r.selectorText));
+    ok('P5h reduced motion is respected: the nudge, the deal and the beat animate only under no-preference',
+      animated('.mc-transition__continue:not(:disabled)') && animated('.mc-cardback') && animated('.mc-q__beat:not(.hidden)')
+        && topLevel.every((r) => !r.style.getPropertyValue('animation')), topLevel.filter((r) => r.style.getPropertyValue('animation')).map((r) => r.selectorText).join(', '));
+    ok('P5i no errors in the transition', errors.length === 0, errors.slice(0, 2).join(' | '));
+    win.close();
+  }
+  {
+    // The real flow, untimed: each round waits for its Continue.
+    const { win, h, errors } = await page({ stubs: { transitions: false } });
+    const d = win.document;
+    const P = copy(win);
+    begin(h);
+    // Alternate the shown sides so Round 1 stays undecided (no early offer).
+    const alternate = (opts, i) => opts[i % 2];
+    let g = 0;
+    while (h.state.stage === 1 && h.state.qNum < 30 && g++ < 40) answerOne(h, alternate);
+    const offer = isVisible(win, 'screen-early-offer');
+    if (offer) h.continueToRound2();
+    const waiting12 = offer || (isVisible(win, 'screen-round-transition') && h.state.stage === 1 && h.state.refinementQuestions === undefined);
+    await sleep(1700);
+    const stillWaiting = offer || (h.state.stage === 1 && isVisible(win, 'screen-round-transition'));
+    if (!offer) d.getElementById('transition-continue').click();
+    ok('P5j after Round 1 the transition holds Round 2 back until Continue is tapped',
+      waiting12 && stillWaiting && h.state.stage === 'refinement' && isVisible(win, 'screen-assessment'), `offer=${offer} stage=${h.state.stage}`);
+    finishRound(h, 2);
+    const waiting23 = isVisible(win, 'screen-round-transition') && !isVisible(win, 'screen-interstitial') && textOf(win, 'transition-roman') === 'III';
+    await sleep(400);
+    d.getElementById('transition-continue').click();
+    const inter = d.getElementById('screen-interstitial');
+    const cards = inter.querySelectorAll('#inter-suspects .mc-cardback').length;
+    const want = Math.min(4, (h.state.pendingCandidates || []).length);
+    ok('P5k after Round 2 the transition waits, then the interstitial shows one face-down card per remaining suspect',
+      waiting23 && isVisible(win, 'screen-interstitial') && cards === want && cards === 4
+        && textOf(win, 'inter-suspects-caption') === P.interstitial.suspects[cards], `cards=${cards} want=${want} caption=${textOf(win, 'inter-suspects-caption')}`);
+    const allTraits = Object.values(P.traits).flat();
+    ok('P5l the interstitial has no bars, percentages or colour names, and its banter is a trait line',
+      inter.querySelectorAll('.mc-profile__row, .mc-pip, [data-color]').length === 0 && !/%/.test(inter.textContent)
+        && !COLOUR_WORDS.test(inter.textContent) && allTraits.includes(textOf(win, 'inter-banter')),
+      inter.textContent.replace(/\s+/g, ' ').trim().slice(0, 200));
+    ok('P5m the interstitial button names the round it leads to, not "Continue to Final Round"',
+      textOf(win, 'inter-continue') === P.interstitial.continue && textOf(win, 'inter-continue') === 'Continue to Round 3', textOf(win, 'inter-continue'));
+    h.continueToStage2();
+    finishRound(h, 3);
+    const waiting34 = isVisible(win, 'screen-round-transition') && textOf(win, 'transition-title') === P.transition.results && !isVisible(win, 'screen-calculating');
+    await sleep(400);
+    d.getElementById('transition-continue').click();
+    const reached = await waitForResults(win);
+    ok('P5n after Round 3 the transition waits, then the result follows', waiting34 && reached && !!h.state.result, `waiting=${waiting34} reached=${reached}`);
+    ok('P5o no errors over the tapped-through journey', errors.length === 0, errors.slice(0, 3).join(' | '));
+    win.close();
   }
 });
