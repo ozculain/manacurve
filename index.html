@@ -3630,7 +3630,7 @@ const POOL_A = [
   {id:'A-WB-W05',pair:'W-B',ctx:'Shortcut',sc:'A colleague saved a week by skipping a step the team agreed on. It worked, and nobody else has noticed.',r:[{t:'Raise it with the team. If the step is pointless, we should all drop it together.',c:'W'},{t:'Leave them to it. They took the risk, and it\'s their business if it pays off.',c:'B'}]},
   {id:'A-WB-L01',pair:'W-B',ctx:'Lost Phone',sc:'You find a phone on a park bench and get it back to its owner. They try to give you £20.',r:[{t:'Say no thanks. Anyone should do that much, and I wouldn\'t want paying for it.',c:'W'},{t:'Take it. I went out of my way, and I\'m not too proud for £20.',c:'B'}]},
   {id:'A-WB-L02',pair:'W-B',ctx:'Game Night',sc:'You\'re well ahead in a board game with friends, and one of them has clearly stopped enjoying it.',r:[{t:'Ease off and help them back into it. It\'s meant to be a good night for everyone.',c:'W'},{t:'Keep playing to win. They\'d hate being pitied, and I want a win I actually earned.',c:'B'}]},
-  {id:'A-WB-L05',pair:'W-B',ctx:'Queue',sc:'In a busy café queue, the person ahead of you steps out to grab a napkin. The gap closes behind them.',r:[{t:'Let them back in ahead of me. They were here first, and that should still count.',c:'W'},{t:'Keep my place. They chose to step out, so the place was theirs to lose.',c:'B'}]},
+  {id:'A-WB-L05',pair:'W-B',ctx:'Queue',sc:'In a busy café queue, the person ahead of you steps outside for a long phone call. Ten minutes later they come back.',r:[{t:'Let them back in ahead of me. They were here first, and that should still count.',c:'W'},{t:'Keep my place. They chose to leave, so the place was theirs to lose.',c:'B'}]},
   // PSYCHOLOGY JOKE: W-B
   {w:0.8,id:'A-WB-PSY',pair:'W-B',ctx:'Experiment',sc:'In a study, you\'re given £100 to share with a stranger. If they turn down your offer, neither of you gets anything.',r:[{t:'Offer £50. Neither of us earned it, so half each is fair.',c:'W'},{t:'Offer £30. That\'s plenty to say yes to, and I\'m the one holding it.',c:'B'}]},
   // REVERSE-KEY: W-B (tests individual accountability vs group blame - should correlate with W-B pattern)
@@ -3654,7 +3654,7 @@ const POOL_A = [
   {id:'A-GU-W08',pair:'G-U',ctx:'New Software',sc:'Your workplace is thinking about switching to new software. The current system is old but does the job.',r:[{t:'Keep it. Everyone knows how it works, and switching always costs more than promised.',c:'G'},{t:'Try the new one on a real job first. If it\'s clearly better, switch.',c:'U'}]},
   {id:'A-GU-W10',pair:'G-U',ctx:'Same Route',sc:'You\'ve taken the same way into town for years. A friend says they know a quicker one.',r:[{t:'Keep to mine. I know every bit of it, and I like it.',c:'G'},{t:'Try theirs for a week and time both. Then use the faster one.',c:'U'}]},
   {id:'A-GU-W12',pair:'G-U',ctx:'Family Recipes',sc:'Your grandmother\'s best recipes have never been written down. She cooks them from memory.',r:[{t:'Cook alongside her until I can make them by feel, the way she does.',c:'G'},{t:'Write them down with exact amounts and timings, so nothing gets lost.',c:'U'}]},
-  {id:'A-GU-L02',pair:'G-U',ctx:'School',sc:'A friend\'s son is behind at maths but brilliant at drawing. They ask what you\'d do.',r:[{t:'Let him put his time into drawing. People do best at what comes naturally.',c:'G'},{t:'Get him help with the maths now. Gaps like that only get harder to close.',c:'U'}]},
+  {id:'A-GU-L02',pair:'G-U',ctx:'School',sc:'A friend\'s son is behind at maths but brilliant at drawing. They ask what you\'d do.',r:[{t:'Let him draw. He\'s brilliant at it, and the maths will come when he needs it.',c:'G'},{t:'Get him help with the maths now. Gaps like that only get harder to close.',c:'U'}]},
   {id:'A-GU-L04',pair:'G-U',ctx:'New Garden',sc:'You\'ve moved into a house with an overgrown garden.',r:[{t:'Leave it for a year and see what comes up before changing anything.',c:'G'},{t:'Clear it and plan it out, choosing plants that suit the soil and light.',c:'U'}]},
   {id:'A-GU-L05',pair:'G-U',ctx:'Getting Older',sc:'A friend has started taking supplements and having regular tests to slow down ageing.',r:[{t:'Good luck to them. I\'d rather just get older and make the most of it.',c:'G'},{t:'I\'d want to know which parts actually work, then probably do the same.',c:'U'}]},
   // PSYCHOLOGY JOKE: G-U
@@ -3693,7 +3693,7 @@ const POOL_A = [
   {w:0.8,id:'A-WB-PSY2',pair:'W-B',ctx:'Shared House',sc:'In your shared house, the milk keeps running out and nobody owns up to finishing it.',r:[{t:'Suggest a kitty everyone pays into, so nobody ends up covering for anyone else.',c:'W'},{t:'Buy my own and put my name on it. Then I\'ve always got milk.',c:'B'}]},
   {w:0.8,id:'A-WB-PSY3',pair:'W-B',ctx:'Story Ending',sc:'You\'re writing the last page of an adventure story. The hero has the treasure, and the village they passed through is broke.',r:[{t:'The hero shares it out. The village fed them on the way, and that counts for something.',c:'W'},{t:'The hero keeps it. They took the risks, and the village never left home.',c:'B'}]},
   {w:0.8,id:'A-UR-PSY2',pair:'U-R',ctx:'Group Chat',sc:'Your friends\' group chat is trying to pick somewhere to eat tonight.',r:[{t:'Look up a few places and post the best one, with a link to the menu.',c:'U'},{t:'Name the place I walked past last week that looked good. Let\'s just go.',c:'R'}]},
-  {w:0.8,id:'A-UR-PSY3',pair:'U-R',ctx:'Low Battery',sc:'Your phone is on 5% and you\'re out for the rest of the day.',r:[{t:'Switch to low power and save it for maps and getting home.',c:'U'},{t:'Use it as normal until it dies. People got by without phones for years.',c:'R'}]},
+  {w:0.8,id:'A-UR-PSY3',pair:'U-R',ctx:'Low Battery',sc:'Your phone is on 5% and you\'re out with friends for the rest of the day.',r:[{t:'Switch to low power and save it for maps and getting home.',c:'U'},{t:'Put it away and enjoy the day. Someone else will have a phone.',c:'R'}]},
   {w:0.8,id:'A-GU-PSY2',pair:'G-U',ctx:'Old Favourites',sc:'A friend has listened to the same twenty albums for fifteen years.',r:[{t:'Fair enough. They know what they love, and it clearly still works for them.',c:'G'},{t:'I\'d keep sending them new things. They\'d love half of it if they tried.',c:'U'}]},
   {w:0.8,id:'A-GU-PSY3',pair:'G-U',ctx:'Houseplant',sc:'A houseplant you\'ve had for years has started to droop and drop leaves.',r:[{t:'Move it somewhere brighter and leave it be. Plants mostly sort themselves out.',c:'G'},{t:'Look up what\'s wrong with that kind of plant and fix the actual cause.',c:'U'}]},
   {w:0.8,id:'A-WR-PSY2',pair:'W-R',ctx:'Kickabout',sc:'A game of five-a-side is starting in the park, and they\'re a player short.',r:[{t:'Ask if I can join, and let them sort out the sides so they\'re fair.',c:'W'},{t:'Walk over and say I\'m in. They need one, and I want a game.',c:'R'}]},
@@ -3761,7 +3761,7 @@ const POOL_ALLY = [
   // PSY: U-B — same action (store information), different motivation
   {w:0.8,id:'AL-UB-PSY',pair:'U-B',ctx:'Pub Quiz',sc:'You work out how your local pub quiz picks its questions. Nobody else seems to have noticed.',r:[{t:'Interesting. I\'d want to check I\'m right, just to know.',c:'U'},{t:'Useful. I\'ll read up on the right topics and win next week.',c:'B'}]},
   // HET: U-B — each option attacks the OPPOSING ally's failure mode
-  {w:0.7,id:'AL-UB-HET',pair:'U-B',ctx:'Honest Take',sc:'Which of these do you agree with more?',r:[{t:'Knowing things is worth it, even if you never use them.',c:'U'},{t:'Knowing things is only worth it if you do something with them.',c:'B'}]},
+  {w:0.7,id:'AL-UB-HET',pair:'U-B',ctx:'Honest Take',sc:'Which of these do you believe?',r:[{t:'Knowing things is worth it, even if you never use them.',c:'U'},{t:'Knowing things is only worth it if you do something with them.',c:'B'}]},
 
   // BLACK vs RED (B-R) - Calculated self-interest vs impulsive self-expression
   {id:'AL-BR-01',pair:'B-R',ctx:'Food Van',sc:'A friend asks you to go halves on a food van and run it with them at weekends.',r:[{t:'Run the numbers first. I\'m in if it works out well for me.',c:'B'},{t:'Say yes. It sounds brilliant, and I\'d regret not trying.',c:'R'}]},
@@ -3787,7 +3787,7 @@ const POOL_ALLY = [
   // PSY: R-G — both trust the gut; one acts now, one sleeps on it
   {w:0.8,id:'AL-RG-PSY',pair:'R-G',ctx:'Weekend Away',sc:'A friend suggests a last-minute weekend away. It feels right, though you couldn\'t say why.',r:[{t:'Say yes now. If it feels right, that\'s reason enough.',c:'R'},{t:'Sleep on it. If it still feels right in the morning, I\'ll go.',c:'G'}]},
   // HET: R-G — each option attacks the OPPOSING ally's failure mode
-  {w:0.7,id:'AL-RG-HET',pair:'R-G',ctx:'Honest Take',sc:'Which of these is closer to something you\'d say?',r:[{t:'"Let\'s sleep on it" is how most good ideas die.',c:'R'},{t:'"Let\'s just go for it" is how most good things get broken.',c:'G'}]},
+  {w:0.7,id:'AL-RG-HET',pair:'R-G',ctx:'Honest Take',sc:'Which of these have you seen happen more often?',r:[{t:'"Let\'s sleep on it" is how most good ideas die.',c:'R'},{t:'"Let\'s just go for it" is how most good things get broken.',c:'G'}]},
 
   // GREEN vs WHITE (G-W) - Natural community vs organized community
   {id:'AL-GW-01',pair:'G-W',ctx:'New Club',sc:'You\'re starting a running club in your town.',r:[{t:'Just start running together and let the club find its own feel.',c:'G'},{t:'Agree some ground rules first, so everyone knows what to expect.',c:'W'}]},
@@ -3800,7 +3800,7 @@ const POOL_ALLY = [
   // PSY: G-W — both show up; one because it's who we are, one because it's owed
   {w:0.8,id:'AL-GW-PSY',pair:'G-W',ctx:'Family Gathering',sc:'There\'s a big family get-together every year that you don\'t particularly enjoy.',r:[{t:'I go. It\'s where I come from, and being there matters more than enjoying it.',c:'G'},{t:'I go. People are counting on me to be there, and I keep my side of things.',c:'W'}]},
   // HET: G-W — each option attacks the OPPOSING ally's failure mode
-  {w:0.7,id:'AL-GW-HET',pair:'G-W',ctx:'Honest Take',sc:'Which of these rings truer to you?',r:[{t:'Groups get along best when they\'re left to find their own way.',c:'G'},{t:'Groups get along best when everyone knows the rules and sticks to them.',c:'W'}]},
+  {w:0.7,id:'AL-GW-HET',pair:'G-W',ctx:'Honest Take',sc:'In your experience, which of these is truer?',r:[{t:'Groups get along best when they\'re left to find their own way.',c:'G'},{t:'Groups get along best when everyone knows the rules and sticks to them.',c:'W'}]},
 
   // ============================================================================
   // MTG HUMOR QUESTIONS - ALLY PAIRS
