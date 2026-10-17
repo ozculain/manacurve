@@ -6,6 +6,57 @@ Newest first. Dates are when the work was committed.
 
 - Commander descriptions: corrected 16 entries against Scryfall oracle text.
 
+### Round 1 and 2 copy
+
+The 111 items players answer in Rounds 1 and 2 had never been reviewed, and a
+player found one that made no sense: an inkblot answered with two stories.
+`POOL_A` holds 61 enemy-pair items (Round 1, and Round 2's enemy retests),
+`POOL_ALLY` 50 ally-pair items (Round 2); 20 of them are Magic items, shown only
+to players who said they play. All but one are rewritten in place. Scoring is
+unchanged: every id, pair, weight and answer colour is as it was, so the pools,
+the seeded draws and the golden fixture do not move.
+
+- Each stem is a concrete situation or a plain question, 25 words or fewer (the
+  longest is now 22), and both answers answer it. Each answer is something a
+  person would say or do, 20 words or fewer (the longest is 18, against 40
+  before), with a cost on both sides and nothing in the tone to say which is
+  which. Round 1's contrasts stay wide; Round 2's two answers share ground and
+  differ in what drives them, and where both take the same action (jury service,
+  a family get-together) the reason is the difference.
+- Fixed on the way: the inkblot is now a sharing game from a study. A-UR-HET
+  asked which mistake you make more often but was keyed by what you value, so a
+  careful person who admitted to sitting on things scored the other way; it now
+  asks which habit in other people frustrates you more. Magic items no longer
+  name a colour ("That pile is green"), sort by colour, name a card that points
+  at one (Lightning Bolt), shout in capitals or use asterisks. The em dashes,
+  "leverage", "Embrace the future" and "Analyze" are gone.
+- Most items move from the office to everyday life: friends, home, money,
+  neighbours, clubs, hobbies, travel. 16 of the 91 ordinary items stay at work (7
+  in Round 1's pool, 9 in Round 2's), against about 50 before.
+- The labels above the stems match the new stems (Lost Phone, Queue,
+  Experiment...) and are four words or fewer.
+- Kept after review: A-UR-REV ("Think about a decision you regret. What bothers
+  you more?").
+- Hints under the stems (`CONTEXT_HINTS`): the new stems call for three, TEAM on
+  three items, COLLEAGUE on two and MANAGER on one, so the 17 that nothing in
+  Rounds 1 to 3 shows any more are dropped (five of them had matched no stem
+  before either). COLLEAGUE loses its em dash. Magic items no longer get "Don't
+  play card games? ...", which only people who said they play ever saw. Round 3's
+  15 hints are unchanged.
+- Instrument version 3: `INSTRUMENT_VERSION` is 3 and a result built now writes
+  `i=3`; the contract's line, the simulator's check and `tests/play.test.js` say
+  so. A session saved before this build and resumed after it keeps the words of
+  the items it had already drawn, and finishes as 3.
+- Phones: the Phase 3 measurements below were taken on the old items. The new
+  ones are shorter, so they should fit at least as well, but they have not been
+  measured again in a browser.
+- Tests: `tools/check-round12-copy.js` holds the rules and lists every item
+  (`--list`). `tests/round12-copy.test.js` (52 checks, in `npm test`) holds them
+  on the live files against `tests/fixtures/round12-keys.json` (each item's keys
+  and a hash of its words before the rewrite), checks which items show which
+  hint, renders all 111 items in Round 1's and Round 2's renderers, and plays a
+  real Round 1 and 2 with Magic items off and on.
+
 ### Phase 3: quiz copy
 
 The reviewed quiz-screen copy (revision 2) replaces the provisional strings in
