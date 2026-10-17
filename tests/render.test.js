@@ -110,6 +110,26 @@ const CASES = [
 // a precedes b in document order
 const before = (win, a, b) => !!(a && b && (a.compareDocumentPosition(b) & win.Node.DOCUMENT_POSITION_FOLLOWING));
 
+// Label words and base-rate sentences (scoring version 1, measured 17 October 2026).
+const LABELS = {
+  HIGH: {
+    word: 'Locked in',
+    player: 'About 54% of results like this held up when tested, so sleeve it up.',
+    plain: 'About 54% of results like this held up when tested.',
+  },
+  MODERATE: {
+    word: 'Leaning',
+    player: 'About 53% of results like this held up when tested, so maybe proxy it first.',
+    plain: 'About 53% of results like this held up when tested; most of the rest were a neighbour.',
+  },
+  LOW: {
+    word: 'Still shuffling',
+    player: 'Only about 31% of results like this held up when tested, so look next door before you sleeve anything.',
+    plain: 'About 31% of results like this held up when tested, so read the neighbours too.',
+  },
+};
+const SMALL_PRINT = '(Tested on simulated players, 17 October 2026.)';
+
 function checkRender(win, h, c, audience, player, threw, errors) {
   const d = win.document, p = h.PROFILES[c.id], problems = [];
   const el = (id) => d.getElementById(id);
@@ -186,6 +206,14 @@ function checkRender(win, h, c, audience, player, threw, errors) {
   ]);
   const wantChips = c.nextDoor[playerCopy ? 'player' : 'plain'];
   need(JSON.stringify(chips) === JSON.stringify(wantChips), `next door ${JSON.stringify(chips)} != ${JSON.stringify(wantChips)}`);
+
+  // 3. Label words in both modes, one base-rate sentence per label, no rarity mark.
+  const label = LABELS[c.confidence];
+  need(text('conf-badge') === label.word, `label "${text('conf-badge')}" != "${label.word}"`);
+  need(text('conf-base-rate') === label[playerCopy ? 'player' : 'plain'], `base rate "${text('conf-base-rate')}"`);
+  need(text('conf-small-print') === SMALL_PRINT, `small print "${text('conf-small-print')}"`);
+  need(before(win, el('identity-exp'), el('conf-base-rate')), 'base rate should follow the philosophy');
+  need(!/confidence|mythic|rare|uncommon/i.test(text('conf-badge') + ' ' + text('conf-base-rate')), 'old confidence wording or a rarity word in the label');
   return problems;
 }
 
@@ -217,5 +245,26 @@ run('render', async (t) => {
         win.close();
       }
     }
+  }
+
+  const DIMIR = CASES.find((c) => c.id === 'DIMIR');
+  const text = (win, id) => (win.document.getElementById(id).textContent || '').trim();
+
+  // Base rates are keyed by scoring version; version 2 is a placeholder that
+  // falls back to version 1's numbers until it is measured.
+  {
+    const { win, errors, threw } = await renderCase(DIMIR, 'consumer', false, seed++, { scoringVersion: 2 });
+    t.ok('scoring version 2 base rate falls back to version 1 until filled',
+      !threw && errors.length === 0 && text(win, 'conf-base-rate') === LABELS.MODERATE.plain && text(win, 'conf-small-print') === SMALL_PRINT,
+      `${threw || ''} ${text(win, 'conf-base-rate')}`);
+    win.close();
+  }
+
+  // The Scorecard share image shows the label word, not the old confidence word.
+  {
+    const { win, errors } = await renderCase(DIMIR, 'consumer', false, seed++);
+    win.showShareScreen();
+    t.ok('scorecard shows the label word', text(win, 'sc-conf') === 'Leaning' && errors.length === 0, `"${text(win, 'sc-conf')}"`);
+    win.close();
   }
 });

@@ -1677,9 +1677,20 @@ body[data-theme="borderless"] .mc-debug { box-shadow: none; }
   .mc-result__commander-block { align-items: flex-start; text-align: left; max-width: 100%; }
 }
 
-/* Confidence under the philosophy */
+/* Confidence under the philosophy: label, base rate, small print */
 .mc-verdict-status { display: flex; align-items: flex-start; gap: 14px; flex-wrap: wrap; margin: 4px 0 10px; }
 .mc-verdict-status .mc-confidence { flex-shrink: 0; }
+.mc-verdict-status__rate { flex: 1; min-width: 220px; }
+.mc-verdict-status__line { font-family: var(--f-body); font-size: 14px; line-height: 1.55; color: var(--ink); margin: 2px 0 0; }
+.mc-verdict-status__small { font-family: var(--f-ui); font-size: 11px; letter-spacing: 0.02em; color: var(--ink-faded); margin: 4px 0 0; }
+
+/* No rarity mark: the frames theme drew confidence as a rarity gem (mythic,
+   rare, uncommon). Rarity waits for calibrated accuracy, so frames uses the
+   same round status dot as the other themes. */
+body[data-theme="frames"] .mc-confidence__dot { width: 8px; height: 8px; border-radius: 50%; transform: none; background: var(--gilt); box-shadow: 0 0 8px var(--gilt); }
+body[data-theme="frames"] .mc-confidence[data-level="high"] .mc-confidence__dot { background: var(--G); box-shadow: 0 0 8px var(--G); }
+body[data-theme="frames"] .mc-confidence[data-level="moderate"] .mc-confidence__dot { background: var(--gilt); box-shadow: 0 0 8px var(--gilt); }
+body[data-theme="frames"] .mc-confidence[data-level="low"] .mc-confidence__dot { background: var(--R); box-shadow: 0 0 8px var(--R); }
 
 /* Next door: one colour up, one colour down */
 .mc-nextdoor { margin: 28px 0 8px; padding-top: 22px; border-top: 1px solid var(--gilt-line); }
@@ -2219,9 +2230,13 @@ body[data-theme="frames"] .mc-nextdoor__chip { border-radius: 10px; }
         <!-- Philosophy quote (the type's worldview) -->
         <p class="mc-result__philosophy" id="identity-exp">Explanation</p>
 
-        <!-- Confidence, below the philosophy: the badge, then why. -->
+        <!-- Confidence, below the philosophy: the label, its base rate, then why. -->
         <div class="mc-verdict-status">
-          <span class="mc-confidence" id="conf-badge" data-level="moderate"><span class="mc-confidence__dot"></span><span>Moderate Confidence</span></span>
+          <span class="mc-confidence" id="conf-badge" data-level="moderate"><span class="mc-confidence__dot"></span><span>Leaning</span></span>
+          <div class="mc-verdict-status__rate">
+            <p class="mc-verdict-status__line" id="conf-base-rate"></p>
+            <p class="mc-verdict-status__small" id="conf-small-print"></p>
+          </div>
         </div>
         <span class="mc-flavor text-md hidden" id="conf-exp">Pattern read from your responses.</span>
 
@@ -9840,6 +9855,31 @@ const RESULT_COPY = {
     }
   },
 
+  // [4] Confidence labels, the same in both modes (links keep c=high|moderate|low),
+  // and one base-rate sentence each. {pct} comes from CONFIDENCE_BASE_RATES.
+  labels: {
+    HIGH: {
+      word: 'Locked in',
+      player: 'About {pct}% of results like this held up when tested, so sleeve it up.',
+      plain: 'About {pct}% of results like this held up when tested.'
+    },
+    MODERATE: {
+      word: 'Leaning',
+      player: 'About {pct}% of results like this held up when tested, so maybe proxy it first.',
+      plain: 'About {pct}% of results like this held up when tested; most of the rest were a neighbour.'
+    },
+    LOW: {
+      word: 'Still shuffling',
+      player: 'Only about {pct}% of results like this held up when tested, so look next door before you sleeve anything.',
+      plain: 'About {pct}% of results like this held up when tested, so read the neighbours too.'
+    }
+  },
+  // [4] Small print under the base rate, by how the rate was measured.
+  smallPrint: {
+    simulated: '(Tested on simulated players, {date}.)',
+    retest: '(Tested on second visits, {date}.)'
+  },
+
   // [3] Slot words for the next-door lines: {colour} / {Colour} and {lands}.
   colourWords: { W: 'white', U: 'blue', B: 'black', R: 'red', G: 'green' },
   landWords: { W: 'Plains', U: 'Islands', B: 'Swamps', R: 'Mountains', G: 'Forests' },
@@ -9878,6 +9918,18 @@ const RESULT_COPY = {
       }
     }
   }
+};
+
+// [4] Base rates: the share of results carrying each label that matched the
+// simulated respondent's own identity, keyed by state.result.scoringVersion.
+// One dated constant; RESULT_COPY.labels prints it. Version 1 is the current
+// engine, measured by tests/simulate.js on 17 October 2026.
+const CONFIDENCE_BASE_RATES = {
+  1: { dated: '17 October 2026', tested: 'simulated', HIGH: 54, MODERATE: 53, LOW: 31 },
+  // PLACEHOLDER for scoring version 2 (Phase 1's likelihood engine). Fill in
+  // { dated, tested, HIGH, MODERATE, LOW } once it is measured; until then
+  // version 2 results print version 1's numbers.
+  2: null
 };
 
 // One answer moves a colour's bar by about a twelfth: Round 1 asks twelve
@@ -9930,6 +9982,35 @@ function renderTypeline(id) {
   const show = isPlayerMode() && !!PROFILES[id];
   el.textContent = show ? identityTypeline(id) : '';
   el.classList.toggle('hidden', !show);
+}
+
+// state.result.scoringVersion / instrumentVersion; absent (old engine, old link) means 1.
+function resultVersion(key) {
+  const v = state.result ? state.result[key] : undefined;
+  return Number.isInteger(v) && v >= 1 ? v : 1;
+}
+
+function confidenceLevel() {
+  const c = state.result && state.result.confidence;
+  return ['HIGH', 'MODERATE', 'LOW'].includes(c) ? c : 'MODERATE';
+}
+
+function baseRatesFor(version) {
+  return CONFIDENCE_BASE_RATES[version] || CONFIDENCE_BASE_RATES[1];
+}
+
+// The label words replace "High/Moderate/Low Confidence"; scoring still owns
+// result.confidence and the links keep c=high|moderate|low.
+function renderConfidenceLabel() {
+  const level = confidenceLevel();
+  const label = RESULT_COPY.labels[level];
+  const badge = document.getElementById('conf-badge');
+  badge.dataset.level = level.toLowerCase();
+  badge.innerHTML = '<span class="mc-confidence__dot"></span><span class="mc-confidence__word"></span>';
+  badge.querySelector('.mc-confidence__word').textContent = label.word;
+  const rates = baseRatesFor(resultVersion('scoringVersion'));
+  document.getElementById('conf-base-rate').textContent = fillCopy(copyVariant(label), { pct: rates[level] });
+  document.getElementById('conf-small-print').textContent = fillCopy(RESULT_COPY.smallPrint[rates.tested], { date: rates.dated });
 }
 
 function activationMap() {
@@ -10152,12 +10233,8 @@ function showResults() {
   document.getElementById('restart-text').textContent = 'Retake it to get the result you wanted instead of who you actually are?';
   document.getElementById('explorer-hint').textContent = '';
   
-  // Confidence badge — rebuild children so the dot + label structure of `.mc-confidence` is preserved.
-  const badge = document.getElementById('conf-badge');
-  const level = (state.result.confidence || 'MODERATE').toLowerCase();
-  const labelText = level.charAt(0).toUpperCase() + level.slice(1) + ' Confidence';
-  badge.dataset.level = level;
-  badge.innerHTML = '<span class="mc-confidence__dot"></span><span>' + labelText + '</span>';
+  // Confidence label ("Locked in" / "Leaning" / "Still shuffling") and its base rate.
+  renderConfidenceLabel();
 
   // Plain-language basis for the confidence call. The engine already knows why
   // it believes what it believes; the reader should get the same courtesy —
@@ -10570,7 +10647,7 @@ function showShareScreen() {
   }
 
   const confLevel = (state.result.confidence || 'MODERATE').toLowerCase();
-  document.getElementById('sc-conf').textContent = confLevel.charAt(0).toUpperCase() + confLevel.slice(1);
+  document.getElementById('sc-conf').textContent = RESULT_COPY.labels[confidenceLevel()].word;
 
   // Audience-aware quote: roast for fun, philosophy for workplace.
   const audience = document.body.dataset.audience || 'consumer';
