@@ -1711,7 +1711,7 @@ body[data-theme="frames"] .mc-confidence[data-level="low"] .mc-confidence__dot {
 .mc-nextdoor__why { font-family: var(--f-body); font-size: 14px; line-height: 1.5; color: var(--ink-muted); }
 body[data-theme="frames"] .mc-nextdoor__chip { border-radius: 10px; }
 
-/* Appeal the verdict: peek on the first tap, appeal from the panel */
+/* Appeal the ruling: peek on the first tap, appeal from the row's panel */
 .mc-nextdoor__prompt { font-family: var(--f-flavor); font-style: italic; font-size: 16px; color: var(--ink-muted); margin: 0; }
 button.mc-nextdoor__chip { cursor: pointer; transition: border-color 180ms ease, background 180ms ease, box-shadow 180ms ease; }
 button.mc-nextdoor__chip:hover { border-color: var(--gilt); background: var(--plinth-hi); }
@@ -1732,16 +1732,19 @@ button.mc-nextdoor__chip:focus-visible { outline: 2px solid var(--gilt-bright); 
 .mc-nextdoor__all:hover { color: var(--ink); }
 body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
 
-/* Peeking: the philosophy, rules text and strengths/shadows show a neighbour */
-.is-peeking[data-peek]::before {
-  content: attr(data-peek); display: block; margin-bottom: 8px;
-  font-family: var(--f-ui); font-style: normal; font-weight: 600; font-size: 10px;
-  letter-spacing: 0.24em; text-transform: uppercase; color: var(--gilt);
+/* One peek and appeal per row: each chip is followed by its own panel, which
+   spans both columns under the chips (dense flow keeps the chips side by
+   side) and sits straight under its chip on phones. */
+.mc-nextdoor__chips { grid-auto-flow: row dense; }
+.mc-nextdoor__chips > .mc-nextdoor__panel { grid-column: 1 / -1; margin-top: 0; }
+.mc-nextdoor__peek-philosophy {
+  font-family: var(--f-flavor); font-style: italic; font-size: 17px; line-height: 1.55; color: var(--ink-muted);
+  border-left: 2px solid var(--gilt-soft); padding-left: 16px; margin: 0 0 16px;
 }
-.mc-result__philosophy.is-peeking { border-left-style: dashed; }
-.mc-rules-strip.is-peeking { border-style: dashed; }
-.mc-result__grid.is-peeking { outline: 1px dashed var(--gilt-soft); outline-offset: 10px; }
-.mc-result__grid.is-peeking::before { grid-column: 1 / -1; margin-bottom: -16px; }
+.mc-nextdoor__peek-traits { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 24px; margin-bottom: 14px; }
+.mc-nextdoor__peek-traits .mc-result__col-title { margin-bottom: 4px; }
+.mc-nextdoor__peek-traits .mc-result__list li { font-size: 14px; padding: 7px 0 7px 22px; }
+@media (max-width: 560px) { .mc-nextdoor__peek-traits { grid-template-columns: 1fr; } }
 
 /* "(on appeal)" after the name; tap or hover for where it started */
 .mc-result__name-row { display: flex; align-items: baseline; gap: 6px 14px; flex-wrap: wrap; }
@@ -2303,9 +2306,9 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
       <!-- Single big results plinth (per Claude Design). The reveal lands first:
            in player mode the identity as a card (typeline, rules text,
            collector number) right under the name and tagline; then the
-           philosophy, the confidence label and why, next door, the bars,
-           strengths/shadows, banter, the roles + commander aside (mana base in
-           player mode) and the actions.
+           philosophy, the confidence label and why, the bars,
+           strengths/shadows, banter, the roles + commander block (mana base in
+           player mode), next door with its appeals, and the actions.
            Copy for all of it lives in RESULT_COPY in the script. -->
       <div class="mc-plinth" style="padding: 32px 40px;">
         <svg class="mc-corner mc-corner--tl"><use href="#fleuron"/></svg>
@@ -2339,19 +2342,6 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
         <span class="mc-flavor text-md hidden" id="conf-exp">Pattern read from your responses.</span>
 
         <div id="quality-warning" style="display: none; margin-bottom: 16px; padding: 12px 16px; background: var(--inset); border: 1px dashed var(--gilt-soft); font-family: var(--f-body); font-size: 13px; color: var(--ink-muted);"></div>
-
-        <!-- Next door: one colour up, one colour down, from the five bars alone
-             (so it renders for old links too). Shown at every confidence level.
-             The first tap on a neighbour peeks; the panel's button appeals. -->
-        <section class="mc-nextdoor" id="next-door" aria-labelledby="next-door-title">
-          <div class="mc-nextdoor__top">
-            <div class="mc-eyebrow mc-eyebrow--gilt" id="next-door-title">Next door</div>
-            <p class="mc-nextdoor__prompt" id="next-door-prompt"></p>
-          </div>
-          <div class="mc-nextdoor__chips" id="next-door-chips"></div>
-          <div class="mc-nextdoor__panel hidden" id="next-door-panel" aria-live="polite"></div>
-          <button type="button" class="mc-nextdoor__all" id="next-door-all" onclick="openAppealExplorer()"></button>
-        </section>
 
         <!-- Profile bars — the psychometric receipt. 5 rows, populated from state.activationSorted. -->
         <div style="margin: 32px 0;">
@@ -2400,10 +2390,26 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
               <strong style="color:var(--ink);font-style:normal;font-family:var(--f-display);letter-spacing:.1em;" id="cmd-name-aside">…</strong>
               <span id="cmd-desc-aside" style="display:block;margin-top:6px;"></span>
             </p>
-            <!-- Player mode: a Commander mana base for this identity -->
+            <!-- Player mode: a Commander mana base at the foot of the commander block -->
             <p class="mc-manabase hidden" id="res-mana-base"></p>
           </div>
         </div>
+
+        <!-- Next door, directly below the commander block and its mana base:
+             one colour up, one colour down, from the five bars alone (so it
+             renders for old links too), at every confidence level. Each row is
+             a chip followed by its own panel: the first tap peeks at that
+             neighbour, the panel's button appeals. The panel under the rows
+             holds the receipt of an appeal made from all 31. -->
+        <section class="mc-nextdoor" id="next-door" aria-labelledby="next-door-title">
+          <div class="mc-nextdoor__top">
+            <div class="mc-eyebrow mc-eyebrow--gilt" id="next-door-title">Next door</div>
+            <p class="mc-nextdoor__prompt" id="next-door-prompt"></p>
+          </div>
+          <div class="mc-nextdoor__chips" id="next-door-chips"></div>
+          <div class="mc-nextdoor__panel hidden" id="next-door-panel" aria-live="polite"></div>
+          <button type="button" class="mc-nextdoor__all" id="next-door-all" onclick="openAppealExplorer()"></button>
+        </section>
 
         <!-- Working With Others — pentagon diagram + per-colour callouts -->
         <div class="mc-typeline" style="margin-top: 36px;"><span class="mc-typeline__diamond"></span>Working With Others<span class="mc-typeline__diamond"></span></div>
@@ -10374,7 +10380,8 @@ function revealResults() {
 // ════════════════════════════════════════════════════════════════════════════
 
 // Bump when the next-door or appeal wording changes; every appeal records it.
-const RESULT_COPY_VERSION = 1;
+// 1: the first drafts. 2: revision 2 (17 October 2026).
+const RESULT_COPY_VERSION = 2;
 
 const RESULT_COPY = {
   // One sentence-case name per identity, for use inside sentences. [3]
@@ -10532,60 +10539,28 @@ const RESULT_COPY = {
     }
   },
 
-  // [9] Appeal the verdict. The first tap on a next-door neighbour peeks at its
-  // philosophy, strengths and shadows; the button in the peek panel appeals,
-  // which marks the result and adds &f=<ID> to the link (not in workplace mode).
-  appeal: {
-    prompt: { player: 'The verdict is on the stack. Respond?', plain: 'Not quite you? Look next door.' },
-    peekHeading: 'Next door: {identity}',
-    peekNote: {
-      player: 'Just looking. Nothing changes unless you respond.',
-      plain: 'Just a look. Your result stays put unless you choose this one.'
-    },
-    button: { player: "Respond: I'm {identity}", plain: 'Switch to {identity}' },
-    after: {
-      player: 'Appeal lodged. The original verdict stays on the record.',
-      plain: 'Switched. Your original result is kept too.'
-    },
-    undo: { player: 'Let the original resolve', plain: 'Switch back to {original}' },
-    all31: 'Neither. Show me all 31.',
-    mark: '(on appeal)',
-    markNote: 'Originally {original}. You appealed.',
-    workplaceNote: "Your appeal isn't included when you share.",
-    // Not in the drafts: the way back from a peek, and the all-31 picker's bar.
-    back: 'Back to {identity}',
-    pickPrompt: 'Pick the one that sounds like you.',
-    pickCancel: 'Back to my result'
-  },
-
-  // [11] Share text that dares a friend: the Web Share text, the clipboard
-  // fallback and the first line of #share-preview. {neighbour} is the nearer
-  // next-door row. Workplace mode always uses the first line; otherwise each
-  // identity keeps one line (its place in PROFILES picks it).
-  share: [
-    "I'm {identity}. {neighbour} lives next door. What are you?",
-    "I'm {identity}, with {neighbour} next door. Guess yours before you look.",
-    "Turns out I'm {identity}. {neighbour} lives next door and keeps looking over the fence. You?"
-  ],
-
   // [3] Slot words for the next-door lines: {colour} / {Colour} and {lands}.
   colourWords: { W: 'white', U: 'blue', B: 'black', R: 'red', G: 'green' },
   landWords: { W: 'Plains', U: 'Islands', B: 'Swamps', R: 'Mountains', G: 'Forests' },
 
-  // [3] + [9] Next door: the row under the confidence line. "up" adds the
-  // strongest colour you don't run, "down" drops the weakest one you do. The
-  // margin (one / few / well) says how far that colour sat from the line
-  // between in and out; see NEXT_DOOR_MARGINS for the cut-offs.
+  // [3] Next door, directly below the commander block and its mana base. "up"
+  // adds the strongest colour you don't run, "down" drops the weakest one you
+  // do; mono has no down row, five-colour no up row. The margin (one / few /
+  // well) says how far that colour sat from the line between in and out; see
+  // NEXT_DOOR_MARGINS. A "well" short up row asks its headline as a question
+  // (headWell), so it sits with a mana base that has no maybeboard line.
   nextDoor: {
     up: {
       player: {
         head: 'Splash {colour}: {identity}.',
-        one: 'Your {colour} came in one answer short of moving in.',
+        headWell: 'Splash {colour}? {identity}.',
+        one: 'Your {colour} was one answer short of moving in.',
         few: "Your {colour} was a few answers short. It's been round for a viewing.",
         well: 'Your {colour} was well short. On nodding terms, no more.'
       },
       plain: {
         head: 'Add {colour}: {identity}.',
+        headWell: 'Add {colour}? {identity}.',
         one: '{Colour} came in one answer short.',
         few: '{Colour} was a few answers short.',
         well: '{Colour} was well short.'
@@ -10605,7 +10580,51 @@ const RESULT_COPY = {
         well: '{Colour} made it in comfortably.'
       }
     }
-  }
+  },
+
+  // [9] Appeal the ruling, from the Next door rows. Each row has its own peek
+  // and appeal: the first tap on a row opens a panel under it with that
+  // neighbour's philosophy, strengths and shadows; the panel's own button is
+  // the second, separate tap, which appeals: the page shows the appealed
+  // identity marked "(on appeal)" and the link gains &f=<ID> (not in
+  // workplace mode, where the appeal stays private).
+  appeal: {
+    // The line that leads into the rows (the drafts' "Button" row).
+    prompt: { player: 'Appeal this ruling', plain: 'Not quite you? Look next door.' },
+    peekHeading: 'Next door: {identity}',
+    peekNote: {
+      player: 'Just looking. The ruling stands unless you appeal.',
+      plain: 'Just a look. Your result stays put unless you appeal.'
+    },
+    button: "Appeal: I'm {identity}",
+    after: {
+      player: 'Overturned on appeal. The original ruling stays on the record.',
+      plain: 'Appeal noted. Your original result is kept too.'
+    },
+    undo: 'Withdraw the appeal',
+    all31: 'None of these. Show me all 31.',
+    // After the identity name, in both modes; hover or tap for the note.
+    mark: '(on appeal)',
+    markNote: 'Originally {original}. You appealed.',
+    // Workplace mode, under the appeal button.
+    workplaceNote: "Your appeal isn't included when you share.",
+    // Not in the drafts: the peek's column titles (the page's own), the way
+    // back from a peek, and the all-31 picker's bar.
+    peekColumns: { str: 'Strengths', weak: 'Shadows' },
+    back: 'Back to {identity}',
+    pickPrompt: 'Pick the one that sounds like you.',
+    pickCancel: 'Back to my result'
+  },
+
+  // [11] Share text that dares a friend: the Web Share text, the clipboard
+  // fallback and the first line of #share-preview. {neighbour} is the nearer
+  // next-door row. Workplace mode always uses the first line; otherwise each
+  // identity keeps one line (its place in PROFILES picks it).
+  share: [
+    "I'm {identity}. {neighbour} lives next door. What are you?",
+    "I'm {identity}, with {neighbour} next door. Guess yours before you look.",
+    "Turns out I'm {identity}. {neighbour} lives next door and keeps looking over the fence. You?"
+  ]
 };
 
 // "Natural Roles" entries left out in consumer mode because they read as
@@ -10621,10 +10640,12 @@ const ROLES_HIDDEN_FOR_FUN = [
 
 // One answer moves a colour's bar by about a twelfth: Round 1 asks twelve
 // enemy-pair questions per colour, so a bar gap of 8 points is about one
-// answer. Next-door margins and the mana base's equal counts use this.
-const ONE_ANSWER = 1 / 12;
-// [3] Margin cut-offs, in answers (the author's call): up to one answer is
-// "one", up to three is "few", anything wider is "well".
+// answer. Next-door margins and the mana base's equal counts use this. [3]
+// The conversion is set once per scoring version, so a link renders the
+// reasons it was shared with; both engines so far draw the same Round 1-2 bars.
+const ONE_ANSWER_BY_VERSION = { 1: 1 / 12, 2: 1 / 12 };
+// [3] Margin cut-offs, in answers: up to one answer is "one", up to three
+// (two or three answers) is "few", anything wider is "well".
 const NEXT_DOOR_MARGINS = { one: 1, few: 3 };
 
 // ─── Result-screen helpers ──────────────────────────────────────────────────
@@ -10745,8 +10766,13 @@ function identityForColours(colours) {
   return _identityByColours[colourKey(colours)] || null;
 }
 
+// Bar points to answers, for this result's scoring version.
+function oneAnswer() {
+  return ONE_ANSWER_BY_VERSION[resultVersion('scoringVersion')] || ONE_ANSWER_BY_VERSION[1];
+}
+
 function marginWord(gap) {
-  const answers = Math.max(0, gap) / ONE_ANSWER;
+  const answers = Math.max(0, gap) / oneAnswer();
   if (answers <= NEXT_DOOR_MARGINS.one + 1e-9) return 'one';
   if (answers <= NEXT_DOOR_MARGINS.few + 1e-9) return 'few';
   return 'well';
@@ -10784,13 +10810,16 @@ function nextDoorLine(row, player) {
     colour, Colour: colour.charAt(0).toUpperCase() + colour.slice(1),
     lands: RESULT_COPY.landWords[row.colour], identity: identityName(row.id)
   };
-  return { head: fillCopy(t.head, vars), why: fillCopy(t[row.margin], vars) };
+  const head = row.margin === 'well' && t.headWell ? t.headWell : t.head;
+  return { head: fillCopy(head, vars), why: fillCopy(t[row.margin], vars) };
 }
 
 // Ids of the next-door rows last rendered, in order (an appeal records them).
 let nextDoorShown = [];
 
-// The row always describes the verdict's neighbours, appeal or not.
+// The rows always describe the verdict's neighbours, appeal or not. Each row
+// is its chip (the first tap peeks) followed by its own panel, which holds
+// that neighbour's peek and appeal button, or the receipt of an appeal to it.
 function renderNextDoor() {
   const chips = document.getElementById('next-door-chips');
   if (!chips || !state.result) return;
@@ -10804,15 +10833,16 @@ function renderNextDoor() {
     const pips = PROFILES[row.id].colors
       .map(c => `<span class="mc-pip mc-pip--sm is-lit" data-color="${c}" aria-hidden="true"></span>`).join('');
     return `<button type="button" class="mc-nextdoor__chip" data-id="${row.id}" data-dir="${row.dir}" data-margin="${row.margin}"`
-      + ` aria-pressed="false" onclick="peekNextDoor('${row.id}')">`
+      + ` aria-expanded="false" aria-controls="next-door-row-${row.id}" onclick="peekNextDoor('${row.id}')">`
       + `<span class="mc-nextdoor__pips">${pips}</span>`
       + `<span class="mc-nextdoor__head">${htmlText(line.head)}</span>`
-      + `<span class="mc-nextdoor__why">${htmlText(line.why)}</span></button>`;
+      + `<span class="mc-nextdoor__why">${htmlText(line.why)}</span></button>`
+      + `<div class="mc-nextdoor__panel hidden" id="next-door-row-${row.id}" aria-live="polite"></div>`;
   }).join('');
-  markNextDoorChips();
+  renderNextDoorPanels();
 }
 
-// ─── Appeal the verdict ─────────────────────────────────────────────────────
+// ─── Appeal the ruling ──────────────────────────────────────────────────────
 // The verdict stays in state.result.identity. An appeal adds
 // state.result.appeal = { chosen, shown, copyVersion, labelShown, timeToAppealMs }
 // and the page then shows the chosen identity, marked "(on appeal)".
@@ -10857,80 +10887,92 @@ function fillTraitList(listId, items) {
   });
 }
 
-// The card (player mode), philosophy, strengths and shadows for one
-// identity, marked as a peek when it is not the one on screen.
-function renderIdentitySections(id, peeking) {
+// The card (player mode), philosophy, strengths and shadows of the identity
+// on screen. A peek next door never touches them: it opens under its row.
+function renderIdentitySections(id) {
   const prof = PROFILES[id];
   if (!prof) return;
-  const phil = document.getElementById('identity-exp');
-  phil.textContent = generateIdentityExplanation(id, state.activationSorted || []);
+  document.getElementById('identity-exp').textContent = generateIdentityExplanation(id, state.activationSorted || []);
   renderIdentityCard(id);
   fillTraitList('strengths', prof.str);
   fillTraitList('weaknesses', prof.weak);
-  const flag = peeking ? fillCopy(RESULT_COPY.appeal.peekHeading, { identity: identityName(id) }) : '';
-  ['identity-exp', 'res-idcard', 'res-traits'].forEach(elId => {
-    const el = document.getElementById(elId);
-    if (!el) return;
-    el.classList.toggle('is-peeking', peeking);
-    if (peeking) el.dataset.peek = flag; else delete el.dataset.peek;
-  });
 }
 
-function markNextDoorChips() {
+// A peek: the neighbour's philosophy, strengths and shadows, then its own
+// appeal button (the second, separate tap) and the way back.
+function peekPanelHTML(id) {
+  const A = RESULT_COPY.appeal, prof = PROFILES[id], name = identityName(id);
+  const list = (items) => (items || []).map(t => `<li>${htmlText(t)}</li>`).join('');
+  return `<div class="mc-nextdoor__panel-head">${htmlText(fillCopy(A.peekHeading, { identity: name }))}</div>`
+    + `<p class="mc-nextdoor__panel-note">${htmlText(copyVariant(A.peekNote))}</p>`
+    + `<p class="mc-nextdoor__peek-philosophy">${htmlText(generateIdentityExplanation(id, state.activationSorted || []))}</p>`
+    + `<div class="mc-nextdoor__peek-traits">`
+    + `<div><div class="mc-result__col-title">${htmlText(A.peekColumns.str)}</div><ul class="mc-result__list">${list(prof.str)}</ul></div>`
+    + `<div><div class="mc-result__col-title">${htmlText(A.peekColumns.weak)}</div><ul class="mc-result__list">${list(prof.weak)}</ul></div>`
+    + `</div>`
+    + `<div class="mc-nextdoor__actions">`
+    + `<button type="button" class="mc-btn mc-btn--primary" id="appeal-btn" onclick="appealTo('${id}')">${htmlText(fillCopy(A.button, { identity: name }))}</button>`
+    + `<button type="button" class="mc-btn mc-btn--ghost" id="peek-back-btn" onclick="endPeek()">${htmlText(fillCopy(A.back, { identity: identityName(resultShownId()) }))}</button>`
+    + `</div>`;
+}
+
+// The receipt of an appeal that stands, with the way back.
+function appealReceiptHTML() {
+  const A = RESULT_COPY.appeal;
+  return `<p class="mc-nextdoor__panel-note">${htmlText(copyVariant(A.after))}</p>`
+    + `<div class="mc-nextdoor__actions">`
+    + `<button type="button" class="mc-btn mc-btn--ghost" id="appeal-undo-btn" onclick="withdrawAppeal()">${htmlText(A.undo)}</button>`
+    + `</div>`;
+}
+
+// Each row's panel: the peeked row shows its peek; with no peek open, the
+// row of a standing appeal shows the receipt. An appeal made from all 31 has
+// no row, so its receipt goes in the panel under the rows. In workplace mode
+// the privacy note follows the button.
+function renderNextDoorPanels() {
+  const r = state.result;
+  if (!r) return;
   const shown = resultShownId();
+  const appealed = shown !== r.identity;
+  const privateNote = (state.audience || 'consumer') === 'workplace'
+    ? `<p class="mc-nextdoor__private">${htmlText(RESULT_COPY.appeal.workplaceNote)}</p>` : '';
+  const fill = (panel, html) => {
+    panel.innerHTML = html ? html + privateNote : '';
+    panel.classList.toggle('hidden', !html);
+  };
+  let receiptPlaced = false;
   document.querySelectorAll('#next-door-chips .mc-nextdoor__chip').forEach(chip => {
     const id = chip.dataset.id;
-    chip.classList.toggle('is-peeking', id === resultPeekId);
-    chip.classList.toggle('is-appealed', id === shown && id !== state.result.identity);
-    chip.setAttribute('aria-pressed', String(id === resultPeekId));
+    const panel = chip.nextElementSibling;
+    const peeking = id === resultPeekId;
+    const receipt = !resultPeekId && appealed && id === shown;
+    if (receipt) receiptPlaced = true;
+    if (panel && panel.classList.contains('mc-nextdoor__panel')) fill(panel, peeking ? peekPanelHTML(id) : receipt ? appealReceiptHTML() : '');
+    chip.classList.toggle('is-peeking', peeking);
+    chip.classList.toggle('is-appealed', appealed && id === shown);
+    chip.setAttribute('aria-expanded', String(peeking || receipt));
   });
+  const underRows = document.getElementById('next-door-panel');
+  if (underRows) fill(underRows, !resultPeekId && appealed && !receiptPlaced ? appealReceiptHTML() : '');
 }
 
-// First tap: look next door. Nothing changes until the appeal button.
+// First tap on a row: look next door, in that row's panel. Nothing changes
+// until its appeal button. Tapping the row again closes the peek.
 function peekNextDoor(id) {
   if (!state.result || !PROFILES[id]) return;
-  if (id === resultShownId()) { endPeek(); return; }
+  if (id === resultShownId() || id === resultPeekId) { endPeek(); return; }
   resultPeekId = id;
-  renderIdentitySections(id, true);
-  renderNextDoorPanel();
-  markNextDoorChips();
+  renderNextDoorPanels();
 }
 
 function endPeek() {
+  const chip = resultPeekId && document.querySelector(`#next-door-chips .mc-nextdoor__chip[data-id="${resultPeekId}"]`);
+  const panel = chip && chip.nextElementSibling;
+  const focusInPanel = !!(panel && document.activeElement && panel.contains(document.activeElement));
   resultPeekId = null;
-  renderIdentitySections(resultShownId(), false);
-  renderNextDoorPanel();
-  markNextDoorChips();
-}
-
-// The panel under the chips: the peek (with the appeal button) or, once an
-// appeal stands, its receipt and the way back.
-function renderNextDoorPanel() {
-  const panel = document.getElementById('next-door-panel');
-  if (!panel || !state.result) return;
-  const A = RESULT_COPY.appeal;
-  const r = state.result;
-  const privateNote = (state.audience || 'consumer') === 'workplace'
-    ? `<p class="mc-nextdoor__private">${htmlText(A.workplaceNote)}</p>` : '';
-  if (resultPeekId) {
-    const name = identityName(resultPeekId);
-    panel.innerHTML = `<div class="mc-nextdoor__panel-head">${htmlText(fillCopy(A.peekHeading, { identity: name }))}</div>`
-      + `<p class="mc-nextdoor__panel-note">${htmlText(copyVariant(A.peekNote))}</p>`
-      + `<div class="mc-nextdoor__actions">`
-      + `<button type="button" class="mc-btn mc-btn--primary" id="appeal-btn" onclick="appealTo('${resultPeekId}')">${htmlText(fillCopy(copyVariant(A.button), { identity: name }))}</button>`
-      + `<button type="button" class="mc-btn mc-btn--ghost" id="peek-back-btn" onclick="endPeek()">${htmlText(fillCopy(A.back, { identity: identityName(resultShownId()) }))}</button>`
-      + `</div>${privateNote}`;
-    panel.classList.remove('hidden');
-  } else if (resultShownId() !== r.identity) {
-    panel.innerHTML = `<p class="mc-nextdoor__panel-note">${htmlText(copyVariant(A.after))}</p>`
-      + `<div class="mc-nextdoor__actions">`
-      + `<button type="button" class="mc-btn mc-btn--ghost" id="appeal-undo-btn" onclick="withdrawAppeal()">${htmlText(fillCopy(copyVariant(A.undo), { original: identityName(r.identity) }))}</button>`
-      + `</div>${privateNote}`;
-    panel.classList.remove('hidden');
-  } else {
-    panel.innerHTML = '';
-    panel.classList.add('hidden');
-  }
+  renderNextDoorPanels();
+  // The way-back button goes with its panel: hand focus back to that row.
+  if (chip && (focusInPanel || !document.activeElement || document.activeElement === document.body)) chip.focus();
 }
 
 // Second, deliberate tap: appeal. The verdict stays on the record.
@@ -11041,7 +11083,7 @@ function renderAppealBar() {
     ? `<span class="mc-appeal-bar__name">${htmlText(identityName(pick))}</span>`
     : `<span class="mc-appeal-bar__prompt">${htmlText(A.pickPrompt)}</span>`;
   const go = pick
-    ? `<button type="button" class="mc-btn mc-btn--primary" id="appeal-pick-btn" onclick="appealFromExplorer('${pick}')">${htmlText(fillCopy(copyVariant(A.button), { identity: identityName(pick) }))}</button>`
+    ? `<button type="button" class="mc-btn mc-btn--primary" id="appeal-pick-btn" onclick="appealFromExplorer('${pick}')">${htmlText(fillCopy(A.button, { identity: identityName(pick) }))}</button>`
     : '';
   const privateNote = (state.audience || 'consumer') === 'workplace'
     ? `<span class="mc-appeal-bar__private">${htmlText(A.workplaceNote)}</span>` : '';
@@ -11074,7 +11116,7 @@ function splitBasics(colours, act, n) {
   const groups = [];
   order.forEach(c => {
     const g = groups[groups.length - 1];
-    if (g && bar(g[0]) - bar(c) < ONE_ANSWER) g.push(c); else groups.push([c]);
+    if (g && bar(g[0]) - bar(c) < oneAnswer()) g.push(c); else groups.push([c]);
   });
   const total = order.reduce((s, c) => s + bar(c), 0);
   const count = {};
@@ -11359,9 +11401,9 @@ function showResults() {
   confExpEl.textContent = confBasis;
   confExpEl.classList.remove('hidden');
   
-  // Philosophy, rules text (player mode), strengths and shadows. A peek next
-  // door re-renders these four for the neighbour.
-  renderIdentitySections(shownId, false);
+  // The card (player mode), philosophy, strengths and shadows of the identity
+  // on screen. A peek next door opens under its own row instead.
+  renderIdentitySections(shownId);
   
   // `res-syms` was a legacy mana-symbol row that the new banner replaced. Guard the
   // write so the absence of the element doesn't kill the rest of showResults.
@@ -11393,9 +11435,9 @@ function showResults() {
   if (heading) heading.textContent = audience === 'workplace' ? 'Your Strategic Profile' : 'Your Colour Identity';
   
   // Next door replaces the LOW/MODERATE-only alternatives box: one colour up,
-  // one colour down, at every confidence level. Its panel peeks and appeals.
+  // one colour down, at every confidence level, below the commander block.
+  // Each row peeks and appeals on its own.
   renderNextDoor();
-  renderNextDoorPanel();
   
   // Display commander with conditional formatting
   const oracleData = COMMANDER_ORACLE[p.cmd];

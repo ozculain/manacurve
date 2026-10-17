@@ -36,8 +36,8 @@ const CASES = [
     share: { consumer: "I'm Mono-Red. Rakdos lives next door. What are you?", workplace: "I'm Mono-Red. Rakdos lives next door. What are you?" },
     manaBase: '37 lands: 36 Mountain and a Hanweir Battlements, so nothing has to wait its turn.',
     nextDoor: {
-      player: [['up', 'RAKDOS', 'Splash black: Rakdos.', 'Your black was well short. On nodding terms, no more.']],
-      plain: [['up', 'RAKDOS', 'Add black: Rakdos.', 'Black was well short.']],
+      player: [['up', 'RAKDOS', 'Splash black? Rakdos.', 'Your black was well short. On nodding terms, no more.']],
+      plain: [['up', 'RAKDOS', 'Add black? Rakdos.', 'Black was well short.']],
     },
     result: { allResults: [], round3Data: { matchHistory: [] } },
   },
@@ -50,9 +50,9 @@ const CASES = [
     share: { consumer: "Turns out I'm Dimir. Sultai lives next door and keeps looking over the fence. You?", workplace: "I'm Dimir. Sultai lives next door. What are you?" },
     manaBase: '37 lands: Watery Grave, Polluted Delta, Drowned Catacomb, 19 Island, 15 Swamp.',
     nextDoor: {
-      player: [['up', 'SULTAI', 'Splash green: Sultai.', 'Your green was well short. On nodding terms, no more.'],
+      player: [['up', 'SULTAI', 'Splash green? Sultai.', 'Your green was well short. On nodding terms, no more.'],
         ['down', 'MONO-U', 'Cut the Swamps: Mono-Blue.', "Black made the cut easily. Without it, it's a different deck."]],
-      plain: [['up', 'SULTAI', 'Add green: Sultai.', 'Green was well short.'], ['down', 'MONO-U', 'Drop black: Mono-Blue.', 'Black made it in comfortably.']],
+      plain: [['up', 'SULTAI', 'Add green? Sultai.', 'Green was well short.'], ['down', 'MONO-U', 'Drop black: Mono-Blue.', 'Black made it in comfortably.']],
     },
     result: {
       allResults: [alt('DIMIR', 0.81, 0.75, 2, 1), alt('GRIXIS', 0.74, 0.75, 2, 1), alt('ESPER', 0.66, 0.25, 1, 2), alt('MONO-U', 0.61, 0.25, 1, 2)],
@@ -77,9 +77,9 @@ const CASES = [
     share: { consumer: "I'm Jund. Four-colour (no blue) lives next door. What are you?", workplace: "I'm Jund. Four-colour (no blue) lives next door. What are you?" },
     manaBase: "37 lands: Ziatora's Proving Ground, Blood Crypt, Stomping Ground, Overgrown Tomb, 11 Mountain, 11 Forest, 11 Swamp.",
     nextDoor: {
-      player: [['up', 'DUNE', 'Splash white: Four-colour (no blue).', 'Your white was well short. On nodding terms, no more.'],
+      player: [['up', 'DUNE', 'Splash white? Four-colour (no blue).', 'Your white was well short. On nodding terms, no more.'],
         ['down', 'GRUUL', 'Cut the Swamps: Gruul.', "Black made the cut easily. Without it, it's a different deck."]],
-      plain: [['up', 'DUNE', 'Add white: Four-colour (no blue).', 'White was well short.'], ['down', 'GRUUL', 'Drop black: Gruul.', 'Black made it in comfortably.']],
+      plain: [['up', 'DUNE', 'Add white? Four-colour (no blue).', 'White was well short.'], ['down', 'GRUUL', 'Drop black: Gruul.', 'Black made it in comfortably.']],
     },
     result: {
       allResults: [alt('JUND', 0.7, 0.5, 2, 2), alt('GRUUL', 0.68, 0.5, 2, 2), alt('RAKDOS', 0.65, 0.5, 2, 2)],
@@ -100,9 +100,9 @@ const CASES = [
     share: { consumer: "I'm Four-colour (no white). Five-colour lives next door. What are you?", workplace: "I'm Four-colour (no white). Five-colour lives next door. What are you?" },
     manaBase: '37 lands: Command Tower, Mana Confluence, City of Brass, Exotic Orchard, 9 Island, 8 Swamp, 8 Mountain, 8 Forest.',
     nextDoor: {
-      player: [['up', 'WUBRG', 'Splash white: Five-colour.', 'Your white was well short. On nodding terms, no more.'],
+      player: [['up', 'WUBRG', 'Splash white? Five-colour.', 'Your white was well short. On nodding terms, no more.'],
         ['down', 'GRIXIS', 'Cut the Forests: Grixis.', "Green made the cut easily. Without it, it's a different deck."]],
-      plain: [['up', 'WUBRG', 'Add white: Five-colour.', 'White was well short.'], ['down', 'GRIXIS', 'Drop green: Grixis.', 'Green made it in comfortably.']],
+      plain: [['up', 'WUBRG', 'Add white? Five-colour.', 'White was well short.'], ['down', 'GRIXIS', 'Drop green: Grixis.', 'Green made it in comfortably.']],
     },
     result: {
       allResults: [alt('GLINT', 0.64, 0.75, 3, 0), alt('GRIXIS', 0.6, 0.5, 2, 1)],
@@ -239,15 +239,26 @@ function checkRender(win, h, c, audience, player, threw, errors) {
   // 2. Next door replaces the old LOW/MODERATE-only alternatives box and shows
   //    at every confidence level: up adds the strongest unlit colour, down
   //    drops the weakest lit one; mono has no down row, five-colour no up row.
+  //    It sits directly below the commander block and its mana base (the
+  //    editor's decision), and each row is a chip followed by its own panel.
   need(!el('alternative-results'), 'the old alternatives box is still in the page');
-  need(shown('next-door') && before(win, el('conf-exp'), el('next-door')) && before(win, el('next-door'), el('res-profile-bars')),
-    'next-door row missing or out of place (it sits between the confidence line and the bars)');
+  need(shown('next-door') && before(win, el('res-profile-bars'), el('next-door')) && before(win, el('cmd-desc-aside'), el('next-door'))
+    && before(win, el('res-mana-base'), el('next-door')) && before(win, el('next-door'), el('relations-detail')),
+  'next-door row missing or out of place (it sits directly below the commander block and its mana base)');
   const chips = [...d.querySelectorAll('#next-door-chips .mc-nextdoor__chip')].map((chip) => [
     chip.dataset.dir, chip.dataset.id,
     (chip.querySelector('.mc-nextdoor__head') || {}).textContent, (chip.querySelector('.mc-nextdoor__why') || {}).textContent,
   ]);
   const wantChips = c.nextDoor[playerCopy ? 'player' : 'plain'];
   need(JSON.stringify(chips) === JSON.stringify(wantChips), `next door ${JSON.stringify(chips)} != ${JSON.stringify(wantChips)}`);
+  const ownPanels = [...d.querySelectorAll('#next-door-chips .mc-nextdoor__chip')].every((chip) => {
+    const panel = chip.nextElementSibling;
+    return panel && panel.classList.contains('mc-nextdoor__panel') && panel.id === chip.getAttribute('aria-controls')
+      && panel.classList.contains('hidden') && chip.getAttribute('aria-expanded') === 'false';
+  });
+  need(ownPanels, 'each next-door row should have its own closed panel');
+  need(text('next-door-prompt') === (playerCopy ? 'Appeal this ruling' : 'Not quite you? Look next door.'), `next-door prompt "${text('next-door-prompt')}"`);
+  need(text('next-door-all') === 'None of these. Show me all 31.', `all-31 link "${text('next-door-all')}"`);
 
   // 3. Label words in both modes, one base-rate sentence per label (the same
   //    in both modes, no number, no small print before Phase 5), no rarity mark.
@@ -375,6 +386,47 @@ run('render', async (t) => {
     t.ok('typeline: the five examples render as printed (section 8), and all 31 are type lines', problems.length === 0, problems.join('; '));
   }
 
+  // [3] Next door reasons, from the drafts' worked examples, in player and
+  // plain modes: the colon headline for one or a few answers, the question
+  // for "well", and a four-colour neighbour by its sentence name.
+  {
+    const EXAMPLES = [
+      ['MONO-U', { U: 0.70, B: 0.64, W: 0.30, R: 0.20, G: 0.10 }, {
+        player: [['up', 'DIMIR', 'Splash black: Dimir.', 'Your black was one answer short of moving in.']],
+        plain: [['up', 'DIMIR', 'Add black: Dimir.', 'Black came in one answer short.']],
+      }],
+      ['MONO-R', { R: 0.85, G: 0.45, W: 0.30, U: 0.20, B: 0.10 }, {
+        player: [['up', 'GRUUL', 'Splash green? Gruul.', 'Your green was well short. On nodding terms, no more.']],
+        plain: [['up', 'GRUUL', 'Add green? Gruul.', 'Green was well short.']],
+      }],
+      ['BOROS', { W: 0.70, R: 0.62, U: 0.45, B: 0.20, G: 0.10 }, {
+        player: [['up', 'JESKAI', 'Splash blue: Jeskai.', "Your blue was a few answers short. It's been round for a viewing."],
+          ['down', 'MONO-W', 'Cut the Mountains: Mono-White.', 'Red made the cut by a few answers. It would be missed.']],
+        plain: [['up', 'JESKAI', 'Add blue: Jeskai.', 'Blue was a few answers short.'], ['down', 'MONO-W', 'Drop red: Mono-White.', 'Red made it in by a few answers.']],
+      }],
+      ['ESPER', { W: 0.62, U: 0.70, B: 0.66, G: 0.20, R: 0.10 }, {
+        player: [['up', 'WITCH', 'Splash green? Four-colour (no red).', 'Your green was well short. On nodding terms, no more.'],
+          ['down', 'DIMIR', 'Cut the Plains: Dimir.', "White made the cut easily. Without it, it's a different deck."]],
+        plain: [['up', 'WITCH', 'Add green? Four-colour (no red).', 'Green was well short.'], ['down', 'DIMIR', 'Drop white: Dimir.', 'White made it in comfortably.']],
+      }],
+    ];
+    const problems = [];
+    for (const [id, activation, want] of EXAMPLES) {
+      for (const [audience, player] of [['consumer', true], ['consumer', false], ['workplace', true]]) {
+        const c = { id, confidence: 'MODERATE', activation, result: { allResults: [], round3Data: {} } };
+        const { win, errors, threw } = await renderCase(c, audience, player, seed++);
+        const got = [...win.document.querySelectorAll('#next-door-chips .mc-nextdoor__chip')].map((chip) => [
+          chip.dataset.dir, chip.dataset.id, chip.querySelector('.mc-nextdoor__head').textContent, chip.querySelector('.mc-nextdoor__why').textContent,
+        ]);
+        const mode = player && audience === 'consumer' ? 'player' : 'plain';
+        if (threw || errors.length) problems.push(`${id} ${audience}: ${threw || errors[0]}`);
+        if (JSON.stringify(got) !== JSON.stringify(want[mode])) problems.push(`${id} ${audience} ${mode}: ${JSON.stringify(got)}`);
+        win.close();
+      }
+    }
+    t.ok('next door: the worked examples read as drafted, in player and plain modes', problems.length === 0, problems.join('; '));
+  }
+
   // Mana base splash: one land for the up neighbour, only when its colour is
   // within a few answers (the bars of five recorded links, plus a close
   // four-colour result). The splash land replaces a basic; still 37 lands.
@@ -400,49 +452,77 @@ run('render', async (t) => {
     win.close();
   }
 
-  // 7. Appeal the verdict: the first tap on a neighbour peeks, a second,
-  //    separate tap appeals. The verdict stays in state.result.identity.
+  // 7. [9] Appeal the ruling: each next-door row has its own peek and appeal.
+  //    The first tap on a row opens its own panel with that neighbour's
+  //    philosophy, strengths and shadows; the panel's button is the second,
+  //    separate tap. The page itself does not change until then, and the
+  //    verdict stays in state.result.identity.
   const tick = () => new Promise((r) => setTimeout(r, 0));
+  const APPEAL = {
+    player: { peekNote: 'Just looking. The ruling stands unless you appeal.', after: 'Overturned on appeal. The original ruling stays on the record.' },
+    plain: { peekNote: 'Just a look. Your result stays put unless you appeal.', after: 'Appeal noted. Your original result is kept too.' },
+  };
   for (const [audience, player] of [['consumer', true], ['consumer', false], ['workplace', true]]) {
     const { win, h, errors, threw } = await renderCase(DIMIR, audience, player, seed++);
     const d = win.document, el = (id) => d.getElementById(id);
     const shown = (id) => !!el(id) && !el(id).classList.contains('hidden');
-    const P = h.PROFILES, playerCopy = player && audience === 'consumer';
+    const P = h.PROFILES, playerCopy = player && audience === 'consumer', copy = APPEAL[playerCopy ? 'player' : 'plain'];
     const problems = threw ? ['showResults threw: ' + threw] : [];
     const need = (cond, what) => { if (!cond) problems.push(what); };
     const chip = (id) => d.querySelector(`#next-door-chips .mc-nextdoor__chip[data-id="${id}"]`);
-    const lis = (id) => [...d.querySelectorAll(`#${id} li`)].map((li) => li.textContent);
+    const panelOf = (id) => chip(id).nextElementSibling;
+    const open = (node) => !!node && !node.classList.contains('hidden');
+    const lis = (node) => (node ? [...node.querySelectorAll('li')].map((li) => li.textContent) : []);
+    const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+    const pageIsDimir = () => text(win, 'res-id') === P.DIMIR.name && text(win, 'identity-exp') === P.DIMIR.philosophy.trim()
+      && same(lis(el('strengths')), P.DIMIR.str) && same(lis(el('weaknesses')), P.DIMIR.weak);
 
-    // Peek: the neighbour's philosophy, rules text, strengths and shadows,
-    // flagged as a peek, with nothing about the result changed.
+    // Peek under the Sultai row: its philosophy, strengths and shadows and its
+    // own appeal button, with nothing on the page changed.
     chip('SULTAI').click();
-    need(text(win, 'identity-exp') === P.SULTAI.philosophy.trim(), 'peek did not show the neighbour\'s philosophy');
-    need(JSON.stringify(lis('strengths')) === JSON.stringify(P.SULTAI.str) && JSON.stringify(lis('weaknesses')) === JSON.stringify(P.SULTAI.weak), 'peek did not show the neighbour\'s strengths and shadows');
-    need(['identity-exp', 'res-traits'].every((id) => el(id).classList.contains('is-peeking') && el(id).dataset.peek === 'Next door: Sultai'), 'peeking state not visible');
-    need(!playerCopy || text(win, 'res-rules') === h.RESULT_COPY.rules.SULTAI, 'peek did not show the neighbour\'s rules text');
-    need(chip('SULTAI').getAttribute('aria-pressed') === 'true', 'peeked chip not pressed');
-    need(shown('next-door-panel') && text(win, 'appeal-btn') === (playerCopy ? "Respond: I'm Sultai" : 'Switch to Sultai'), `appeal button "${text(win, 'appeal-btn')}"`);
-    need(text(win, 'next-door-panel').includes(playerCopy ? 'Just looking. Nothing changes unless you respond.' : 'Just a look. Your result stays put unless you choose this one.'), 'peek note');
-    need(text(win, 'peek-back-btn') === 'Back to Dimir', 'way back from the peek');
-    need(text(win, 'next-door-panel').includes("Your appeal isn't included when you share.") === (audience === 'workplace'), 'workplace privacy note');
-    need(text(win, 'res-id') === P.DIMIR.name && !h.state.result.appeal && !shown('res-appeal-mark'), 'a peek changed the result');
+    const sp = panelOf('SULTAI');
+    need(open(sp) && !open(panelOf('MONO-U')) && !shown('next-door-panel'), 'the peek should open under its own row only');
+    need((sp.querySelector('.mc-nextdoor__panel-head') || {}).textContent === 'Next door: Sultai' && sp.textContent.includes(copy.peekNote), 'peek heading and note');
+    need(((sp.querySelector('.mc-nextdoor__peek-philosophy') || {}).textContent || '').trim() === P.SULTAI.philosophy.trim(), 'peek did not show the neighbour\'s philosophy');
+    const columns = sp.querySelectorAll('.mc-nextdoor__peek-traits > div');
+    need(columns.length === 2 && same(lis(columns[0]), P.SULTAI.str) && same(lis(columns[1]), P.SULTAI.weak), 'peek did not show the neighbour\'s strengths and shadows');
+    need(sp.contains(el('appeal-btn')) && text(win, 'appeal-btn') === "Appeal: I'm Sultai", `appeal button "${text(win, 'appeal-btn')}"`);
+    need(sp.contains(el('peek-back-btn')) && text(win, 'peek-back-btn') === 'Back to Dimir', 'way back from the peek');
+    need(sp.textContent.includes("Your appeal isn't included when you share.") === (audience === 'workplace'), 'workplace privacy note under the appeal button');
+    need(!sp.textContent.includes(h.RESULT_COPY.rules.SULTAI), 'the peek should not carry the rules text (one joke next door)');
+    need(chip('SULTAI').getAttribute('aria-expanded') === 'true' && chip('SULTAI').classList.contains('is-peeking'), 'peeked row state');
+    need(pageIsDimir() && !h.state.result.appeal && !shown('res-appeal-mark'), 'a peek changed the result');
+
+    // The other row has its own peek and appeal; opening it closes the first,
+    // and tapping a row again closes its peek.
+    chip('MONO-U').click();
+    need(open(panelOf('MONO-U')) && !open(sp) && panelOf('MONO-U').contains(el('appeal-btn')) && text(win, 'appeal-btn') === "Appeal: I'm Mono-Blue",
+      'the second row should have its own peek and appeal button');
+    need(d.querySelectorAll('[id="appeal-btn"]').length === 1, 'one appeal button open at a time');
+    chip('MONO-U').click();
+    need(!open(panelOf('MONO-U')) && chip('MONO-U').getAttribute('aria-expanded') === 'false', 'tapping the row again should close its peek');
+    chip('SULTAI').click();
+    el('peek-back-btn').focus(); // as a real click would; jsdom's click() leaves focus where it was
     el('peek-back-btn').click();
-    need(text(win, 'identity-exp') === P.DIMIR.philosophy.trim() && !el('identity-exp').classList.contains('is-peeking') && !shown('next-door-panel'), 'way back did not restore the verdict');
+    need(!open(panelOf('SULTAI')) && pageIsDimir() && d.activeElement === chip('SULTAI'), 'the way back should close the peek and hand focus to its row');
 
     // Appeal: peek again, then the separate button.
     chip('SULTAI').click();
     el('appeal-btn').click();
     const a = h.state.result.appeal || {};
     need(h.state.result.identity === 'DIMIR', 'the verdict was overwritten');
-    need(a.chosen === 'SULTAI' && JSON.stringify(a.shown) === '["SULTAI","MONO-U"]' && a.copyVersion === 1
+    need(a.chosen === 'SULTAI' && JSON.stringify(a.shown) === '["SULTAI","MONO-U"]' && a.copyVersion === 2
       && a.labelShown === 'Leaning' && Number.isFinite(a.timeToAppealMs) && a.timeToAppealMs >= 0, 'appeal record ' + JSON.stringify(a));
     need(text(win, 'res-id') === P.SULTAI.name && text(win, 'res-tag') === P.SULTAI.tag && text(win, 'identity-exp') === P.SULTAI.philosophy.trim(), 'appealed identity not on screen');
+    need(!playerCopy || (text(win, 'res-typeline') === 'Legendary Creature — Snake Shaman' && text(win, 'res-rules') === h.RESULT_COPY.rules.SULTAI),
+      'the card should follow the appealed identity');
     need(shown('res-appeal-mark') && text(win, 'res-appeal-mark') === '(on appeal)' && el('res-appeal-mark').title === 'Originally Dimir. You appealed.', 'appeal mark');
     el('res-appeal-mark').click();
     need(shown('res-appeal-note') && text(win, 'res-appeal-note') === 'Originally Dimir. You appealed.', 'tapping the mark should say where it started');
     need(chip('SULTAI').classList.contains('is-appealed') && d.querySelectorAll('#next-door-chips .mc-nextdoor__chip').length === 2, 'next door should still show the verdict\'s neighbours');
-    need(text(win, 'next-door-panel').includes(playerCopy ? 'Appeal lodged. The original verdict stays on the record.' : 'Switched. Your original result is kept too.'), 'after-appeal note');
-    need(text(win, 'appeal-undo-btn') === (playerCopy ? 'Let the original resolve' : 'Switch back to Dimir'), `undo "${text(win, 'appeal-undo-btn')}"`);
+    need(open(panelOf('SULTAI')) && panelOf('SULTAI').textContent.includes(copy.after) && panelOf('SULTAI').contains(el('appeal-undo-btn')) && !shown('next-door-panel'),
+      'the receipt should sit in the appealed row');
+    need(text(win, 'appeal-undo-btn') === 'Withdraw the appeal', `undo "${text(win, 'appeal-undo-btn')}"`);
     const url = h.buildResultURL();
     if (audience === 'workplace') need(!/[?&]f=/.test(url) && !text(win, 'share-preview').includes('f=SULTAI'), 'workplace link carries the appeal: ' + url);
     else need(/&f=SULTAI(&|$)/.test(url), 'link lacks &f=SULTAI: ' + url);
@@ -451,31 +531,34 @@ run('render', async (t) => {
     h.restoreSession(h.loadSession());
     need(text(win, 'res-id') === P.SULTAI.name && shown('res-appeal-mark'), 'appeal lost on resume');
     el('appeal-undo-btn').click();
-    need(!h.state.result.appeal && text(win, 'res-id') === P.DIMIR.name && !shown('res-appeal-mark') && !shown('next-door-panel'), 'undo did not restore the verdict');
+    need(!h.state.result.appeal && pageIsDimir() && !shown('res-appeal-mark') && !open(panelOf('SULTAI')) && !shown('next-door-panel'), 'undo did not restore the verdict');
     need(errors.length === 0, 'errors: ' + errors.slice(0, 2).join(' | '));
-    t.ok(`appeal: peek, way back, appeal, mark, link, resume, undo (${audience}, player mode ${player ? 'on' : 'off'})`, problems.length === 0, problems.join('; '));
+    t.ok(`appeal: each row peeks and appeals, way back, mark, link, resume, undo (${audience}, player mode ${player ? 'on' : 'off'})`, problems.length === 0, problems.join('; '));
     win.close();
   }
 
-  // The other path: "Neither. Show me all 31." opens the explorer with a bar
-  // that appeals to whichever identity is open.
+  // The other path: "None of these. Show me all 31." opens the explorer with
+  // a bar that appeals to whichever identity is open. That appeal has no row,
+  // so its receipt sits under the rows.
   {
     const { win, h, errors } = await renderCase(DIMIR, 'consumer', true, seed++);
     const d = win.document, el = (id) => d.getElementById(id);
     const shown = (id) => !!el(id) && !el(id).classList.contains('hidden');
     const problems = [];
     const need = (cond, what) => { if (!cond) problems.push(what); };
-    need(text(win, 'next-door-all') === 'Neither. Show me all 31.', 'all-31 link text');
+    need(text(win, 'next-door-all') === 'None of these. Show me all 31.', 'all-31 link text');
     el('next-door-all').click();
     need(shown('screen-explorer') && !shown('screen-results') && shown('appeal-pick-bar') && text(win, 'appeal-pick-bar').includes('Pick the one that sounds like you.'), 'explorer with the pick bar');
     el('card-GOLGARI').click();
-    need(text(win, 'detail-name') === h.PROFILES.GOLGARI.name && text(win, 'appeal-pick-btn') === "Respond: I'm Golgari", `pick bar "${text(win, 'appeal-pick-bar')}"`);
+    need(text(win, 'detail-name') === h.PROFILES.GOLGARI.name && text(win, 'appeal-pick-btn') === "Appeal: I'm Golgari", `pick bar "${text(win, 'appeal-pick-bar')}"`);
     need(shown('detail-content'), 'the explorer\'s profile detail stays hidden, so there is nothing to read before appealing');
     el('appeal-pick-btn').click();
     await tick();
     const a = h.state.result.appeal || {};
     need(shown('screen-results') && !shown('screen-explorer') && !shown('appeal-pick-bar'), 'back on the result after appealing');
     need(a.chosen === 'GOLGARI' && JSON.stringify(a.shown) === '["SULTAI","MONO-U"]' && text(win, 'res-id') === h.PROFILES.GOLGARI.name, 'all-31 appeal ' + JSON.stringify(a));
+    need(shown('next-door-panel') && text(win, 'next-door-panel').includes('Overturned on appeal. The original ruling stays on the record.')
+      && el('next-door-panel').contains(el('appeal-undo-btn')), 'the receipt of an all-31 appeal should sit under the rows');
     // Leaving the picker another way ends it; the plain explorer has no bar.
     el('next-door-all').click();
     win.closeExplorer();
