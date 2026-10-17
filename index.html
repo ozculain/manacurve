@@ -1695,7 +1695,8 @@ body[data-theme="frames"] .mc-confidence[data-level="low"] .mc-confidence__dot {
 /* Next door: one colour up, one colour down */
 .mc-nextdoor { margin: 28px 0 8px; padding-top: 22px; border-top: 1px solid var(--gilt-line); }
 .mc-nextdoor__top { display: flex; align-items: baseline; gap: 6px 16px; flex-wrap: wrap; margin-bottom: 14px; }
-.mc-nextdoor__chips { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+.mc-nextdoor__chips { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 560px) { .mc-nextdoor__chips { grid-template-columns: 1fr; } }
 .mc-nextdoor__chip {
   display: flex; flex-direction: column; align-items: flex-start; gap: 6px; text-align: left;
   padding: 14px 16px; background: var(--inset); border: 1px solid var(--gilt-line); border-radius: 4px;
