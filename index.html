@@ -3845,6 +3845,10 @@ function saveSession() {
       pairwiseBoostCount: state.pairwiseBoostCount || {},
       refinementAnswers: state.refinementAnswers,
       refinementPairwise: state.refinementPairwise,
+      refinementQuestions: state.refinementQuestions,
+      refinementNeitherCount: state.refinementNeitherCount || 0,
+      pendingCandidates: state.pendingCandidates,
+      contextAgreement: state.contextAgreement,
       round1Analysis: state.round1Analysis,
       round1Candidates: state.round1Candidates,
       tournament: state.tournament,
@@ -3882,10 +3886,13 @@ function clearSession() {
 
 function restoreSession(snapshot) {
   Object.assign(state, snapshot);
+  document.body.dataset.audience = state.audience === 'workplace' ? 'workplace' : 'forfun';
   
   // Determine which screen to show
   if (state.result) {
-    // Assessment complete - show results
+    // Assessment complete - show results. showResults hides the quiz screens
+    // but not the welcome screen we are resuming from.
+    document.getElementById('screen-welcome').classList.add('hidden');
     showResults();
   } else if (state.stage === 1 && state.qNum < state.qTot) {
     // Mid Round 1
@@ -3897,12 +3904,53 @@ function restoreSession(snapshot) {
     }
     updateHeaderRoundIndicator(1);
     showQ();
+  } else if (state.stage === 1 && state.qNum >= state.qTot && state.pairwise) {
+    // Round 1 finished but Round 2 not started (reload on the early offer or
+    // the transition). finishS1 recomputes everything from the saved tallies.
+    document.getElementById('screen-welcome').classList.add('hidden');
+    document.getElementById('screen-preflight').classList.add('hidden');
+    document.getElementById('screen-assessment').classList.remove('hidden');
+    finishS1();
   } else if (state.stage === 2 && state.poolS2.length > 0) {
     // Mid Round 2
     document.getElementById('screen-welcome').classList.add('hidden');
     document.getElementById('screen-assessment').classList.remove('hidden');
     updateHeaderRoundIndicator(2);
     showQ();
+  } else if (state.stage === 'refinement' && Array.isArray(state.refinementQuestions)
+             && state.qNum < state.refinementQuestions.length) {
+    // Mid Round 2 (ally-pair refinement)
+    document.getElementById('screen-welcome').classList.add('hidden');
+    document.getElementById('screen-preflight').classList.add('hidden');
+    document.getElementById('screen-assessment').classList.remove('hidden');
+    if (state.mode === 'draft') {
+      const headerSymbols = document.getElementById('header-mana-symbols');
+      if (headerSymbols) headerSymbols.style.display = 'none';
+    }
+    document.getElementById('stage-label').textContent = 'Round 2: Refinement';
+    const _lnRs2 = document.getElementById('mc-loyalty-num'); if (_lnRs2) _lnRs2.dataset.round = '2';
+    document.getElementById('q-tot').textContent = state.refinementQuestions.length;
+    updateHeaderRoundIndicator(2);
+    showRefinementQuestion();
+  } else if (state.stage === 'refinement' && Array.isArray(state.refinementQuestions) && state.refinementPairwise) {
+    // Round 2 finished but Round 3 not started: rebuild the interstitial from
+    // the saved ally tallies.
+    document.getElementById('screen-welcome').classList.add('hidden');
+    document.getElementById('screen-preflight').classList.add('hidden');
+    finishRefinement();
+  } else if (state.stage === 3 && state.tournament && state.tournament.currentMatchup) {
+    // Mid Round 3 (tournament). The snapshot is plain JSON; recordTournamentResult
+    // looks candidates up by id, so the copies inside matchups are harmless.
+    document.getElementById('screen-welcome').classList.add('hidden');
+    document.getElementById('screen-preflight').classList.add('hidden');
+    document.getElementById('screen-assessment').classList.remove('hidden');
+    if (state.mode === 'draft') {
+      const headerSymbols = document.getElementById('header-mana-symbols');
+      if (headerSymbols) headerSymbols.style.display = 'none';
+    }
+    const _lnRs3 = document.getElementById('mc-loyalty-num'); if (_lnRs3) _lnRs3.dataset.round = '3';
+    updateHeaderRoundIndicator(3);
+    showTournamentQuestion();
   } else {
     // Edge case - just restart
     clearSession();
@@ -4764,23 +4812,38 @@ async function shareResult(btn) {
 
 function offerSessionRestore() {
   const snapshot = loadSession();
-  if (!snapshot || !snapshot.qNum || snapshot.qNum < 3) return false;
+  if (!snapshot) return false;
+  // Offer a resume for a finished result, any Round 2/3 progress, or at least
+  // three Round 1 answers. Round 3 counts tournament matches, not qNum.
+  const roundNum = snapshot.stage === 'refinement' ? 2 : (snapshot.stage === 3 ? 3 : 1);
+  const answered = roundNum === 3 ? ((snapshot.tournament && snapshot.tournament.questionCount) || 0) : (snapshot.qNum || 0);
+  if (!snapshot.result && roundNum === 1 && answered < 3) return false;
+  const roundTotal = roundNum === 1 ? (snapshot.qTot || 30)
+    : roundNum === 2 ? ((snapshot.refinementQuestions || []).length || Infinity)
+    : Infinity;
+  const progressText = snapshot.result
+    ? 'You have a finished result from this session'
+    : answered >= roundTotal
+      ? `You have an assessment in progress (Round ${roundNum} complete)`
+      : `You have an assessment in progress (Round ${roundNum}, Question ${answered + 1})`;
   
   const resumeBar = document.createElement('div');
   resumeBar.id = 'resume-bar';
   resumeBar.setAttribute('role', 'alert');
-  resumeBar.style.cssText = 'background: rgba(139, 92, 246, 0.15); border: 2px solid rgba(139, 92, 246, 0.4); border-radius: 12px; padding: 20px; margin-bottom: 24px; text-align: center;';
+  resumeBar.style.cssText = 'background: var(--inset); border: 1px solid var(--gilt-line); padding: 20px; margin: 0 auto 24px; max-width: 640px; text-align: center;';
   resumeBar.innerHTML = `
-    <p style="font-size: 15px; color: #c4b5fd; margin-bottom: 12px; font-weight: 600;">You have an assessment in progress (Round ${snapshot.stage}, Question ${snapshot.qNum + 1})</p>
+    <p style="font-size: 15px; color: var(--gilt); margin-bottom: 12px; font-weight: 600;">${progressText}</p>
     <div style="display: flex; gap: 12px; justify-content: center;">
-      <button onclick="restoreSession(loadSession()); document.getElementById('resume-bar').remove();" class="btn-primary" style="padding: 10px 24px; font-size: 14px;" aria-label="Resume your previous assessment">Resume</button>
-      <button onclick="clearSession(); document.getElementById('resume-bar').remove();" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: #a0a0b0; padding: 10px 24px; border-radius: 12px; font-size: 14px; cursor: pointer;" aria-label="Start fresh assessment">Start Fresh</button>
+      <button onclick="restoreSession(loadSession()); document.getElementById('resume-bar').remove();" class="btn-primary" style="padding: 10px 24px; font-size: 14px;" aria-label="Resume your previous assessment">${snapshot.result ? 'See result' : 'Resume'}</button>
+      <button onclick="clearSession(); document.getElementById('resume-bar').remove();" style="background: transparent; border: 1px solid var(--gilt-line); color: var(--gilt); padding: 10px 24px; font-size: 14px; cursor: pointer;" aria-label="Start fresh assessment">Start fresh</button>
     </div>
   `;
   
-  const welcomeCard = document.querySelector('#screen-welcome .card');
+  // The redesigned welcome screen is .mc-welcome (the old .card selector matched
+  // nothing, so the offer silently never appeared). Insert after the crest.
+  const welcomeCard = document.querySelector('#screen-welcome .mc-welcome') || document.querySelector('#screen-welcome .card');
   if (welcomeCard) {
-    welcomeCard.insertBefore(resumeBar, welcomeCard.children[1]);
+    welcomeCard.insertBefore(resumeBar, welcomeCard.children[1] || null);
   }
   return true;
 }
@@ -5974,17 +6037,20 @@ function analyseGapBasedPatterns() {
     const data = colorData[c];
     data.winRate = data.total / Math.max(1, data.denom);
     data.uncertainty = calculateUncertainty(data.wins);
+    // Wins rescaled to a full 12-question denominator, so a colour whose pairs
+    // drew "Neither" answers is not ranked below one that merely answered more.
+    data.expectedWins = data.winRate * 12;
   });
   
   const sorted = Object.entries(colorData)
     .map(([color, data]) => ({color, ...data}))
-    .sort((a, b) => b.total - a.total);
+    .sort((a, b) => b.expectedWins - a.expectedWins);
   
   const gaps = [];
   for (let i = 0; i < 4; i++) {
     gaps.push({
       index: i,
-      gap: sorted[i].total - sorted[i+1].total,
+      gap: sorted[i].expectedWins - sorted[i+1].expectedWins,
       before: sorted[i].color,
       after: sorted[i+1].color
     });
@@ -6354,7 +6420,8 @@ function finishS1() {
   state.round1Analysis = analysis;
   state.round1Candidates = candidates;
   
-  if (confidence === 'HIGH' && candidates.length === 1) {
+  const topColors = topCandidate.colors || getIdentityColors(topCandidate.id) || [];
+  if (confidence === 'HIGH' && candidates.length === 1 && decisivePairsWellAnswered(topColors)) {
     // Clear result - offer early termination
     state.pendingCandidates = candidates;
     const confidenceCheck = {
@@ -6396,7 +6463,11 @@ function generateRefinementQuestions(analysis) {
   
   // Get ally pair questions from POOL_ALLY
   const getQuestionsForPair = (pairId) => {
-    return POOL_ALLY.filter(q => q.pair === pairId);
+    let qs = POOL_ALLY.filter(q => q.pair === pairId);
+    // Same gate as Round 1 and the enemy retests: Magic-flavoured items only
+    // for people who opted in. Each pair keeps 8 ordinary items when gated.
+    if (!state.gamingFamiliar) qs = qs.filter(q => !q.id.startsWith('MTG-'));
+    return qs;
   };
   
   // Generate refinement questions based on what we need to test
@@ -6678,6 +6749,7 @@ function startRefinement(analysis) {
 
 function showRefinementQuestion() {
   const q = state.refinementQuestions[state.qNum];
+  saveSession(); // Persist Round 2 progress so a refresh can resume here
 
   document.getElementById('q-num').textContent = state.qNum + 1;
   document.getElementById('ctx').textContent = q.ctx || 'Ally Pair Test';
@@ -6775,7 +6847,9 @@ function selectRefinementChoice(color, pair) {
   // stays a fraction of questions actually asked.
   const answeredQ = state.refinementQuestions[state.qNum];
   if (state.refinementPairwise[pair]) {
-    state.refinementPairwise[pair][color]++;
+    // Weighted like Round 1: the ally tally is read as a proportion
+    // (wins / (c1 + c2)), so a 0.8 item is simply a lighter observation.
+    state.refinementPairwise[pair][color] += (answeredQ.w || 1.0);
   } else if (state.pairwise[pair]) {
     state.pairwise[pair][color] += (answeredQ.w || 1.0);
     state.pairwiseBoostCount = state.pairwiseBoostCount || {};
@@ -7146,14 +7220,15 @@ function shouldTerminateEarly(tournament) {
 
   const sorted = [...tournament.candidates].sort((a, b) => (b.wins || 0) - (a.wins || 0));
   const leader = sorted[0];
-  const secondPlace = sorted[1];
-  if (leader && secondPlace) {
-    const bestCaseRunnerUp = (secondPlace.wins || 0) + (remaining[secondPlace.id] || 0);
-    if ((leader.wins || 0) > bestCaseRunnerUp) {
+  if (leader && sorted.length > 1) {
+    // Best case for EVERY other candidate, not just the current runner-up: a
+    // candidate on fewer wins but with more matches left can still tie or pass.
+    const bestCaseOther = Math.max(...sorted.slice(1).map(c => (c.wins || 0) + (remaining[c.id] || 0)));
+    if ((leader.wins || 0) > bestCaseOther) {
       return {
         terminate: true,
         reason: 'CLINCHED',
-        message: `${leader.id} can't be caught (${leader.wins} wins; best possible for any other candidate is ${bestCaseRunnerUp})`
+        message: `${leader.id} can't be caught (${leader.wins} wins; best possible for any other candidate is ${bestCaseOther})`
       };
     }
   }
@@ -7313,6 +7388,19 @@ function applyScenarioContradictionGuard(result, activationSorted) {
   return { color: topAct[0], gap: gap };
 }
 
+// Round 1 (enemy pairs) and Round 2 (ally pairs) are tallied separately and
+// averaged. When the two halves disagree sharply on some colour (agreement
+// below 0.65, i.e. a 35-point gap), the person answered differently across
+// contexts and the margins are softer than they look: cap HIGH to MODERATE and
+// record which colour disagreed so the results screen can say so.
+function applyContextAgreementGuard(result) {
+  const ca = state.contextAgreement;
+  if (!ca || typeof ca.overall !== 'number' || ca.overall >= 0.65) return null;
+  if (result.confidence === 'HIGH') result.confidence = 'MODERATE';
+  const worst = Object.entries(ca.perColor || {}).sort((a, b) => a[1] - b[1])[0];
+  return { color: worst ? worst[0] : null, agreement: ca.overall };
+}
+
 function startRound3(candidates) {
   
   // Candidates come pre-scored from R1/R2 - use them directly
@@ -7334,6 +7422,7 @@ function startRound3(candidates) {
   
   // Update UI
   document.getElementById('stage-label').textContent = 'Round 3: Final Determination';
+  const _lnR3s = document.getElementById('mc-loyalty-num'); if (_lnR3s) _lnR3s.dataset.round = '3';
   updateHeaderRoundIndicator(3);
   
   // Get first matchup
@@ -7351,6 +7440,7 @@ function startRound3(candidates) {
 function showTournamentQuestion() {
   const tournament = state.tournament;
   const matchup = tournament.currentMatchup;
+  saveSession(); // Persist Round 3 progress so a refresh can resume here
   
   // Prefer a purpose-built disambiguation scenario (POOL_B/POOL_C) when one covers
   // this exact pair — those were written to separate an identity from its nearest
@@ -7559,6 +7649,7 @@ function finishRound3Tournament() {
 
   // Cap confidence when the scenario winner contradicts the item-round leader.
   const scenarioContradiction = applyScenarioContradictionGuard(result, state.activationSorted);
+  const contextDisagreement = applyContextAgreementGuard(result);
 
   // Build allResults from tournament candidates, sorted by performance
   const sortedCandidates = [...state.tournament.candidates].sort((a, b) => {
@@ -7607,6 +7698,7 @@ function finishRound3Tournament() {
       termReason: state.tournament.termReason,
       cycle: result.cycle,
       scenarioContradiction: scenarioContradiction,
+      contextDisagreement: contextDisagreement,
       isTournament: true
     }
   };
@@ -9659,6 +9751,9 @@ function revealResults() {
 }
 
 function showResults() {
+  // Persist the finished result so a reload offers "See result" instead of a
+  // stale mid-round snapshot. Shared-link views have no answers and are not saved.
+  if (state.result && (state.responses || []).length > 0) saveSession();
   // Gate: first reveal goes through honesty disclaimer.
   // switchToAlternative re-enters with flag already true and re-renders.
   if (!state.disclaimerAcknowledged) {
@@ -9835,6 +9930,15 @@ function showResults() {
     const contraNames = { W: 'White', U: 'Blue', B: 'Black', R: 'Red', G: 'Green' };
     const contraName = contraNames[r3ForConf.scenarioContradiction.color] || r3ForConf.scenarioContradiction.color;
     confBasis += ` One caveat: your quick answers kept choosing ${contraName}, and your scenario answers went somewhere else entirely. The scenarios decided it. The mana pool below remembers the other story.`;
+  }
+  // Enemy-pair vs ally-pair disagreement: the two question rounds told
+  // different stories about a colour, so the margins are softer than they look.
+  if (r3ForConf.contextDisagreement) {
+    const agreeNames = { W: 'White', U: 'Blue', B: 'Black', R: 'Red', G: 'Green' };
+    const agreeName = agreeNames[r3ForConf.contextDisagreement.color];
+    confBasis += agreeName
+      ? ` Another caveat: Round 1 and Round 2 disagreed about ${agreeName} — you chose it against its enemies but not against its allies, or the other way round. Treat the margins as softer than they look.`
+      : ` Another caveat: Round 1 and Round 2 pulled in different directions. Treat the margins as softer than they look.`;
   }
   const confExpEl = document.getElementById('conf-exp');
   confExpEl.textContent = confBasis;
@@ -10163,8 +10267,8 @@ function showResults() {
     // Change K: Four/five-color identity caveats
     if (numColors >= 4) {
       normativeEl.innerHTML += '<div style="margin-top: 12px; padding: 12px; background: rgba(245, 158, 11, 0.08); border-left: 3px solid rgba(245, 158, 11, 0.4); border-radius: 4px; font-size: 13px; color: #c0a060; line-height: 1.5;">' +
-        '⚠️ <strong>Note:</strong> This result is inferred from your colour distribution rather than measured directly. ' +
-        'It means no single colour clearly dominated\u2014which could indicate genuine versatility, context-dependent responding, ' +
+        '⚠️ <strong>Note:</strong> Four- and five-colour results are the hardest to pin down. The scenarios decided it, ' +
+        'but no single colour clearly dominated your quick answers\u2014which could mean genuine versatility, context-dependent responding, ' +
         'or that the enemy-pair format didn\'t fully capture your pattern. Consider retaking to see if it holds.' +
         '</div>';
     }
