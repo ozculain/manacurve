@@ -7,10 +7,10 @@ check and exits non-zero if anything failed. They need jsdom in the repo's
 | File | Checks |
 | --- | --- |
 | `structure.test.js` | `index.html` markup: balanced `<div>`s, no duplicate ids, every `getElementById` target exists, no `#id` display rule beats `.hidden`, screens are siblings; the inline script and `data.js` parse; the SCRIPT END marker the other tests inject at is present |
-| `render.test.js` | `showResults()` on a fake mono, guild, three-, four- and five-colour result, in both audience modes: every key element is populated with that identity's data, the bars match the activation, and the workplace mode hides the banter |
+| `render.test.js` | `showResults()` on a fake mono, guild, three-, four- and five-colour result, in both audience modes with player mode off and on: every key element is populated with that identity's data, the bars match the activation, the workplace mode hides the banter, and the Phase 2 pieces appear or stay away as specified (reveal order, typeline, next door, label words and base rates, bars caption, rules text, mana base); plus the peek and appeal flow, the all-31 path, and the share Card's export in the gilded and frames themes (html-to-image stubbed; the test checks the node it is handed) |
 | `journey.test.js` | 43 checks over full journeys: the Round 2 gaming gate, weighted ally answers, session save and resume at every stage, the Round 3 clinch rule, Neither-neutral Round 1 ranking, the early-offer evidence floor, the context-disagreement caveat |
-| `seed.test.js` | `buildResultURL()` to `parseSeedURL()` round trips, and the ten links in `fixtures/seed-urls.json` (recorded from the live build) still open onto their result |
-| `golden.test.js` | 186 seeded paths through the real Rounds 1-3 (every identity: one respondent at p = 1, five at p = 0.8, the simulator's ideal model) match `fixtures/golden.json`: Round 1 candidates and s1, Round 1 and final activation, early offer, identity, confidence, Round 3 matchups in order, and the result link |
+| `seed.test.js` | `buildResultURL()` to `parseSeedURL()` round trips (with `s`, `i` and `f`), and the ten links in `fixtures/seed-urls.json` (recorded from the live build) still open onto their result and its next-door row |
+| `golden.test.js` | 186 seeded paths through the real Rounds 1-3 (every identity: one respondent at p = 1, five at p = 0.8, the simulator's ideal model) match `fixtures/golden.json`: Round 1 candidates and s1, Round 1 and final activation, early offer, identity, confidence, Round 3 matchups in order, and the result link's `r`, `p`, `c` and `a` |
 
 `fixtures/golden.json` changes only when scoring changes on purpose. Rewrite it
 with `node tests/golden.test.js --update`, in a commit of its own, and say in

@@ -1659,6 +1659,132 @@ body[data-theme="borderless"] .mc-result__banter { border: 0; border-radius: 10p
 body[data-theme="borderless"] .mc-loyalty { filter: none; }
 body[data-theme="borderless"] .mc-debug { box-shadow: none; }
 
+/* ============================================================================
+   PHASE 2 — RESULTS: ONE VERDICT, NEXT DOOR
+   The reveal lands first (commander, name, tagline, typeline, philosophy);
+   confidence sits under the philosophy. Copy lives in RESULT_COPY.
+   ============================================================================ */
+
+/* Banner: commander, then (player mode) the identity as a card typeline */
+.mc-result__commander-block { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; text-align: right; max-width: 46%; }
+.mc-result__cardtype {
+  font-family: var(--f-display); font-weight: 600; font-size: 11px; letter-spacing: 0.1em;
+  color: var(--ink); padding: 5px 12px; background: rgba(0, 0, 0, 0.55);
+  border: 1px solid var(--gilt-line); border-radius: 3px; line-height: 1.4;
+}
+@media (max-width: 640px) {
+  .mc-result__banner-meta { flex-direction: column; align-items: flex-start; gap: 14px; padding: 24px 20px; }
+  .mc-result__commander-block { align-items: flex-start; text-align: left; max-width: 100%; }
+}
+
+/* Confidence under the philosophy: label, base rate, small print */
+.mc-verdict-status { display: flex; align-items: flex-start; gap: 14px; flex-wrap: wrap; margin: 4px 0 10px; }
+.mc-verdict-status .mc-confidence { flex-shrink: 0; }
+.mc-verdict-status__rate { flex: 1; min-width: 220px; }
+.mc-verdict-status__line { font-family: var(--f-body); font-size: 14px; line-height: 1.55; color: var(--ink); margin: 2px 0 0; }
+.mc-verdict-status__small { font-family: var(--f-ui); font-size: 11px; letter-spacing: 0.02em; color: var(--ink-faded); margin: 4px 0 0; }
+
+/* No rarity mark: the frames theme drew confidence as a rarity gem (mythic,
+   rare, uncommon). Rarity waits for calibrated accuracy, so frames uses the
+   same round status dot as the other themes. */
+body[data-theme="frames"] .mc-confidence__dot { width: 8px; height: 8px; border-radius: 50%; transform: none; background: var(--gilt); box-shadow: 0 0 8px var(--gilt); }
+body[data-theme="frames"] .mc-confidence[data-level="high"] .mc-confidence__dot { background: var(--G); box-shadow: 0 0 8px var(--G); }
+body[data-theme="frames"] .mc-confidence[data-level="moderate"] .mc-confidence__dot { background: var(--gilt); box-shadow: 0 0 8px var(--gilt); }
+body[data-theme="frames"] .mc-confidence[data-level="low"] .mc-confidence__dot { background: var(--R); box-shadow: 0 0 8px var(--R); }
+
+/* Next door: one colour up, one colour down */
+.mc-nextdoor { margin: 28px 0 8px; padding-top: 22px; border-top: 1px solid var(--gilt-line); }
+.mc-nextdoor__top { display: flex; align-items: baseline; gap: 6px 16px; flex-wrap: wrap; margin-bottom: 14px; }
+.mc-nextdoor__chips { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 560px) { .mc-nextdoor__chips { grid-template-columns: 1fr; } }
+.mc-nextdoor__chip {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 6px; text-align: left;
+  padding: 14px 16px; background: var(--inset); border: 1px solid var(--gilt-line); border-radius: 4px;
+  color: var(--ink); font: inherit;
+}
+.mc-nextdoor__pips { display: inline-flex; gap: 4px; }
+.mc-nextdoor__head { font-family: var(--f-display); font-weight: 700; font-size: 14px; letter-spacing: 0.05em; color: var(--gilt-bright); }
+.mc-nextdoor__why { font-family: var(--f-body); font-size: 14px; line-height: 1.5; color: var(--ink-muted); }
+body[data-theme="frames"] .mc-nextdoor__chip { border-radius: 10px; }
+
+/* Appeal the verdict: peek on the first tap, appeal from the panel */
+.mc-nextdoor__prompt { font-family: var(--f-flavor); font-style: italic; font-size: 16px; color: var(--ink-muted); margin: 0; }
+button.mc-nextdoor__chip { cursor: pointer; transition: border-color 180ms ease, background 180ms ease, box-shadow 180ms ease; }
+button.mc-nextdoor__chip:hover { border-color: var(--gilt); background: var(--plinth-hi); }
+button.mc-nextdoor__chip:focus-visible { outline: 2px solid var(--gilt-bright); outline-offset: 2px; }
+.mc-nextdoor__chip.is-peeking { border-color: var(--gilt); border-style: dashed; box-shadow: 0 0 0 1px var(--gilt-line), 0 0 18px var(--gilt-glow); }
+.mc-nextdoor__chip.is-appealed { border-color: var(--gilt-bright); box-shadow: inset 3px 0 0 var(--gilt-bright); }
+.mc-nextdoor__panel { margin-top: 14px; padding: 16px 18px; border: 1px dashed var(--gilt-soft); background: rgba(212, 175, 106, 0.04); border-radius: 4px; }
+.mc-nextdoor__panel-head { font-family: var(--f-display); font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; font-size: 12px; color: var(--gilt); }
+.mc-nextdoor__panel-note { font-family: var(--f-flavor); font-style: italic; font-size: 16px; color: var(--ink-muted); margin: 6px 0 12px; }
+.mc-nextdoor__actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.mc-nextdoor__actions .mc-btn { padding: 12px 20px; font-size: 12px; }
+.mc-nextdoor__private { font-family: var(--f-ui); font-size: 12px; color: var(--ink-faded); margin: 10px 0 0; }
+.mc-nextdoor__all {
+  background: none; border: 0; padding: 0; margin-top: 14px; cursor: pointer;
+  font-family: var(--f-flavor); font-style: italic; font-size: 15px; color: var(--ink-faded);
+  text-decoration: underline dotted; text-underline-offset: 3px;
+}
+.mc-nextdoor__all:hover { color: var(--ink); }
+body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
+
+/* Peeking: the philosophy, rules text and strengths/shadows show a neighbour */
+.is-peeking[data-peek]::before {
+  content: attr(data-peek); display: block; margin-bottom: 8px;
+  font-family: var(--f-ui); font-style: normal; font-weight: 600; font-size: 10px;
+  letter-spacing: 0.24em; text-transform: uppercase; color: var(--gilt);
+}
+.mc-result__philosophy.is-peeking { border-left-style: dashed; }
+.mc-rules-strip.is-peeking { border-style: dashed; }
+.mc-result__grid.is-peeking { outline: 1px dashed var(--gilt-soft); outline-offset: 10px; }
+.mc-result__grid.is-peeking::before { grid-column: 1 / -1; margin-bottom: -16px; }
+
+/* "(on appeal)" after the name; tap or hover for where it started */
+.mc-result__name-row { display: flex; align-items: baseline; gap: 6px 14px; flex-wrap: wrap; }
+.mc-appeal-mark {
+  background: none; border: 0; padding: 0; cursor: help;
+  font-family: var(--f-flavor); font-style: italic; font-size: 20px; color: var(--gilt-bright);
+  border-bottom: 1px dashed var(--gilt-soft);
+}
+.mc-appeal-note {
+  display: inline-block; margin-top: 6px; padding: 5px 10px; font-family: var(--f-body); font-size: 13px;
+  color: var(--ink); background: rgba(0, 0, 0, 0.6); border: 1px solid var(--gilt-line); border-radius: 3px;
+}
+
+/* The all-31 picker: a bar over the explorer that appeals to the open identity */
+.mc-appeal-bar {
+  position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 60;
+  width: min(760px, calc(100% - 24px)); display: flex; align-items: center; flex-wrap: wrap; gap: 10px 16px;
+  padding: 14px 18px; background: var(--plinth-hi); border: 1px solid var(--gilt); border-radius: 4px;
+  box-shadow: var(--shadow-deep);
+}
+.mc-appeal-bar__name { font-family: var(--f-display); font-weight: 700; font-size: 16px; letter-spacing: 0.08em; color: var(--gilt-bright); }
+.mc-appeal-bar__prompt { font-family: var(--f-flavor); font-style: italic; font-size: 16px; color: var(--ink-muted); }
+.mc-appeal-bar__actions { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
+.mc-appeal-bar__actions .mc-btn { padding: 12px 18px; font-size: 12px; }
+.mc-appeal-bar__private { flex-basis: 100%; font-family: var(--f-ui); font-size: 12px; color: var(--ink-faded); }
+
+/* Share Card: the set-symbol slot carries a collector number (player mode) */
+.mc-tcg__typeline { gap: 8px; }
+.mc-tcg__set { font-family: var(--f-mono); font-size: 8px; letter-spacing: 0.06em; white-space: nowrap; flex-shrink: 0; }
+
+/* Bars caption: the name is the summary, the bars are the evidence */
+.mc-profile__caption { font-family: var(--f-flavor); font-style: italic; font-size: 15px; color: var(--ink-faded); margin: 0 0 14px; }
+
+/* Rules-text strip (player mode): one line of card rules text */
+.mc-rules-strip {
+  font-family: var(--f-body); font-size: 15px; line-height: 1.6; color: var(--ink);
+  margin: 0 0 4px; padding: 12px 16px; background: rgba(236, 223, 186, 0.035);
+  border: 1px solid var(--gilt-line); border-left: 3px solid var(--gilt); border-radius: 3px;
+}
+.mc-rules-strip i { color: var(--ink-muted); }
+
+/* Mana base (player mode), under the commander */
+.mc-manabase {
+  font-family: var(--f-body); font-size: 13.5px; line-height: 1.6; color: var(--ink-muted);
+  margin: 14px 0 0; padding-top: 12px; border-top: 1px dashed var(--rule);
+}
+
 </style>
 </head>
 <body data-mode="draft" data-audience="consumer" data-flavor="9" data-theme="gilded">
@@ -2138,10 +2264,19 @@ body[data-theme="borderless"] .mc-debug { box-shadow: none; }
         <div class="mc-result__banner-meta">
           <div>
             <div class="mc-manastrip" id="res-banner-pips"></div>
-            <div class="mc-result__name" id="res-id">—</div>
+            <div class="mc-result__name-row">
+              <div class="mc-result__name" id="res-id">—</div>
+              <!-- Shown while an appeal stands; tap or hover says where it started -->
+              <button type="button" class="mc-appeal-mark hidden" id="res-appeal-mark" aria-controls="res-appeal-note" aria-expanded="false" onclick="toggleAppealNote()">(on appeal)</button>
+            </div>
+            <div class="mc-appeal-note hidden" id="res-appeal-note" role="note"></div>
             <div class="mc-result__tag" id="res-tag"></div>
           </div>
-          <div class="mc-result__commander" id="res-banner-commander"></div>
+          <div class="mc-result__commander-block">
+            <div class="mc-result__commander" id="res-banner-commander"></div>
+            <!-- Player mode: the identity as a card typeline (filled by showResults) -->
+            <div class="mc-result__cardtype hidden" id="res-banner-typeline"></div>
+          </div>
         </div>
       </div>
 
@@ -2163,38 +2298,62 @@ body[data-theme="borderless"] .mc-debug { box-shadow: none; }
         <span id="mode-used"></span>
       </div>
 
-      <!-- Single big results plinth (per Claude Design): confidence + philosophy +
-           type-line + strengths/shadows grid + banter + type-line + roles+commander
-           aside + action row. Replaces the half-dozen legacy detail cards. -->
+      <!-- Single big results plinth (per Claude Design). The reveal lands first:
+           philosophy, then the confidence label and why, then next door, the
+           bars, the rules text (player mode), strengths/shadows, banter, the
+           roles + commander aside (mana base in player mode) and the actions.
+           Copy for all of it lives in RESULT_COPY in the script. -->
       <div class="mc-plinth" style="padding: 32px 40px;">
         <svg class="mc-corner mc-corner--tl"><use href="#fleuron"/></svg>
         <svg class="mc-corner mc-corner--tr"><use href="#fleuron"/></svg>
         <svg class="mc-corner mc-corner--bl"><use href="#fleuron"/></svg>
         <svg class="mc-corner mc-corner--br"><use href="#fleuron"/></svg>
 
-        <!-- Header: gilt eyebrow + confidence badge -->
-        <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; flex-wrap: wrap;">
-          <div class="mc-eyebrow mc-eyebrow--gilt">Philosophy</div>
-          <span class="mc-confidence" id="conf-badge" data-level="moderate"><span class="mc-confidence__dot"></span><span>Moderate Confidence</span></span>
+        <div class="mc-eyebrow mc-eyebrow--gilt" style="margin-bottom: 16px;">Philosophy</div>
+
+        <!-- Philosophy quote (the type's worldview) -->
+        <p class="mc-result__philosophy" id="identity-exp">Explanation</p>
+
+        <!-- Confidence, below the philosophy: the label, its base rate, then why. -->
+        <div class="mc-verdict-status">
+          <span class="mc-confidence" id="conf-badge" data-level="moderate"><span class="mc-confidence__dot"></span><span>Leaning</span></span>
+          <div class="mc-verdict-status__rate">
+            <p class="mc-verdict-status__line" id="conf-base-rate"></p>
+            <p class="mc-verdict-status__small" id="conf-small-print"></p>
+          </div>
         </div>
         <span class="mc-flavor text-md hidden" id="conf-exp">Pattern read from your responses.</span>
 
         <div id="quality-warning" style="display: none; margin-bottom: 16px; padding: 12px 16px; background: var(--inset); border: 1px dashed var(--gilt-soft); font-family: var(--f-body); font-size: 13px; color: var(--ink-muted);"></div>
 
-        <!-- Philosophy quote (the type's worldview) -->
-        <p class="mc-result__philosophy" id="identity-exp">Explanation</p>
+        <!-- Next door: one colour up, one colour down, from the five bars alone
+             (so it renders for old links too). Shown at every confidence level.
+             The first tap on a neighbour peeks; the panel's button appeals. -->
+        <section class="mc-nextdoor" id="next-door" aria-labelledby="next-door-title">
+          <div class="mc-nextdoor__top">
+            <div class="mc-eyebrow mc-eyebrow--gilt" id="next-door-title">Next door</div>
+            <p class="mc-nextdoor__prompt" id="next-door-prompt"></p>
+          </div>
+          <div class="mc-nextdoor__chips" id="next-door-chips"></div>
+          <div class="mc-nextdoor__panel hidden" id="next-door-panel" aria-live="polite"></div>
+          <button type="button" class="mc-nextdoor__all" id="next-door-all" onclick="openAppealExplorer()"></button>
+        </section>
 
         <!-- Profile bars — the psychometric receipt. 5 rows, populated from state.activationSorted. -->
         <div style="margin: 32px 0;">
-          <div class="mc-result__col-title" style="margin-bottom: 16px;">Your Mana Pool</div>
+          <div class="mc-result__col-title" style="margin-bottom: 6px;">Your Mana Pool</div>
+          <p class="mc-profile__caption" id="res-bars-caption"></p>
           <div class="mc-profile" id="res-profile-bars"></div>
         </div>
 
         <!-- Type-line divider: "Personality — <NAME>" -->
         <div class="mc-typeline"><span class="mc-typeline__diamond"></span>Personality <span style="opacity:0.6;">—</span> <span id="res-typeline-name">…</span><span class="mc-typeline__diamond"></span></div>
 
+        <!-- Rules-text strip, player mode only -->
+        <p class="mc-rules-strip hidden" id="res-rules"></p>
+
         <!-- Strengths / Shadows grid (Claude Design's mc-result__grid) -->
-        <div class="mc-result__grid">
+        <div class="mc-result__grid" id="res-traits">
           <div>
             <div class="mc-result__col-title">Strengths</div>
             <ul class="mc-result__list" id="strengths"></ul>
@@ -2229,6 +2388,8 @@ body[data-theme="borderless"] .mc-debug { box-shadow: none; }
               <strong style="color:var(--ink);font-style:normal;font-family:var(--f-display);letter-spacing:.1em;" id="cmd-name-aside">…</strong>
               <span id="cmd-desc-aside" style="display:block;margin-top:6px;"></span>
             </p>
+            <!-- Player mode: a Commander mana base for this identity -->
+            <p class="mc-manabase hidden" id="res-mana-base"></p>
           </div>
         </div>
 
@@ -2289,15 +2450,6 @@ body[data-theme="borderless"] .mc-debug { box-shadow: none; }
           <button class="mc-btn" onclick="showShareScreen()">Make an image</button>
           <button class="mc-btn" onclick="document.getElementById('legacy-detail').classList.toggle('hidden'); this.textContent = document.getElementById('legacy-detail').classList.contains('hidden') ? 'View Full Breakdown' : 'Hide Full Breakdown';">View Full Breakdown</button>
           <button class="mc-btn mc-btn--ghost" onclick="restart()">Retake</button>
-        </div>
-      </div>
-
-      <!-- LOW-confidence alternatives (only shows when set by showResults) -->
-      <div id="alternative-results" class="hidden">
-        <div class="mc-plinth" style="padding: 28px 36px;">
-          <div class="mc-eyebrow mc-eyebrow--gilt mb-12">You're Borderline — Also Could Be</div>
-          <p class="mc-flavor" id="why-explanation" style="font-size: 16px; line-height: 1.55; color: var(--ink-muted); margin-bottom: 16px;">Explanation</p>
-          <div id="alternatives-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px;"></div>
         </div>
       </div>
 
@@ -2386,7 +2538,7 @@ body[data-theme="borderless"] .mc-debug { box-shadow: none; }
       <svg class="mc-corner mc-corner--br"><use href="#fleuron"/></svg>
       <div class="mc-eyebrow mc-eyebrow--gilt" style="margin-bottom: 10px;">Go Deeper</div>
       <p class="mc-flavor" style="font-size: 16px; color: var(--ink-muted); margin-bottom: 18px;">Full philosophy and workplace patterns for your type.</p>
-      <button class="mc-btn" onclick="showDeepDive('philosophy', state.result.identity)">Open the dossier</button>
+      <button class="mc-btn" onclick="showDeepDive('philosophy', resultShownId())">Open the dossier</button>
     </div>
 
     <!-- METHODOLOGY: How we read you (the round-by-round receipt) -->
@@ -2543,7 +2695,7 @@ body[data-theme="borderless"] .mc-debug { box-shadow: none; }
             <div class="mc-tcg__art" id="tcg-art"></div>
             <div class="mc-tcg__typeline">
               <span>Personality — <span id="tcg-typeline-name">…</span></span>
-              <span class="mc-tcg__set" id="tcg-conf">Moderate ✦</span>
+              <span class="mc-tcg__set" id="tcg-conf"></span>
             </div>
             <div class="mc-tcg__text">
               <ul class="mc-tcg__rules" id="tcg-rules"></ul>
@@ -4717,10 +4869,20 @@ function updateWispWeights() {
 // ─── SEED URL (deep-link to a specific result) ─────────────────────────────
 // Encodes the result + mana bars into URL params so a shared link lands on
 // the original taker's exact result. URL shape: ?r=DIMIR&p=20,15,40,5,20&c=high&a=consumer
-//   r = identity key (PROFILES key)
+//   r = identity key (PROFILES key): the verdict
 //   p = mana bar percentages in WUBRG order, comma-separated ints 0..100
 //   c = confidence (low/moderate/high)
 //   a = audience (consumer/workplace)
+//   s = scoring version, i = instrument version (absent in old links: 1)
+//   f = appealed identity, when the taker appealed the verdict (optional; never
+//       written in workplace mode, where the appeal stays private)
+// Unknown parameters are ignored.
+
+// A version parameter: a positive integer, or 1 when absent or unusable.
+function seedVersion(raw) {
+  const v = /^\d+$/.test(raw || '') ? parseInt(raw, 10) : NaN;
+  return v >= 1 ? v : 1;
+}
 
 function buildResultURL() {
   if (!state.result || !state.result.identity || !state.activationSorted) {
@@ -4733,7 +4895,14 @@ function buildResultURL() {
   const c = (state.result.confidence || 'MODERATE').toLowerCase();
   const a = state.audience || 'consumer';
   const r = encodeURIComponent(state.result.identity);
-  return `${location.origin}${location.pathname}?r=${r}&p=${p}&c=${c}&a=${a}`;
+  const s = seedVersion(String(state.result.scoringVersion));
+  const i = seedVersion(String(state.result.instrumentVersion));
+  let url = `${location.origin}${location.pathname}?r=${r}&p=${p}&c=${c}&a=${a}&s=${s}&i=${i}`;
+  const appeal = state.result.appeal;
+  if (a !== 'workplace' && appeal && PROFILES[appeal.chosen] && appeal.chosen !== state.result.identity) {
+    url += `&f=${encodeURIComponent(appeal.chosen)}`;
+  }
+  return url;
 }
 
 function parseSeedURL() {
@@ -4751,20 +4920,30 @@ function parseSeedURL() {
     .sort((a, b) => b[1] - a[1]);
   const conf = (params.get('c') || 'moderate').toUpperCase();
   const audience = params.get('a') === 'workplace' ? 'workplace' : 'consumer';
-  return {
+  const seed = {
     identity: r,
     confidence: ['LOW','MODERATE','HIGH'].includes(conf) ? conf : 'MODERATE',
     activationSorted,
-    audience
+    audience,
+    scoringVersion: seedVersion(params.get('s')),
+    instrumentVersion: seedVersion(params.get('i'))
   };
+  // An appeal travels as its choice alone; an unknown id, or the verdict
+  // itself, is ignored.
+  const f = params.get('f');
+  if (f && PROFILES[f] && f !== r) seed.appeal = { chosen: f };
+  return seed;
 }
 
 function loadFromSeed(seed) {
   state.result = {
     identity: seed.identity,
     confidence: seed.confidence,
-    allResults: []
+    allResults: [],
+    scoringVersion: seed.scoringVersion || 1,
+    instrumentVersion: seed.instrumentVersion || 1
   };
+  if (seed.appeal) state.result.appeal = { ...seed.appeal };
   state.activationSorted = seed.activationSorted;
   state.audience = seed.audience;
   state.disclaimerAcknowledged = true;
@@ -4777,14 +4956,15 @@ function loadFromSeed(seed) {
 }
 
 // Primary share action. Uses the Web Share API (system share sheet on mobile,
-// some desktop browsers); falls back to clipboard with button feedback.
+// some desktop browsers); falls back to clipboard with button feedback. The
+// text dares a friend: "I'm Dimir. Sultai lives next door. What are you?"
 async function shareResult(btn) {
   if (!state.result || !state.result.identity) return;
   const p = PROFILES[state.result.identity];
   if (!p) return;
   const url = buildResultURL();
-  const title = `I'm ${p.name} — ${p.tag}`;
-  const text = `${title}\n\nThe Mana Curve — find your MTG colour identity:`;
+  const title = 'The Mana Curve';
+  const text = shareDareText();
 
   if (navigator.share) {
     try {
@@ -4796,10 +4976,10 @@ async function shareResult(btn) {
     }
   }
 
-  // Clipboard fallback — copy the link and flash button feedback.
+  // Clipboard fallback — copy the dare and the link, and flash button feedback.
   const restore = btn ? btn.textContent : null;
   try {
-    await navigator.clipboard.writeText(url);
+    await navigator.clipboard.writeText(text ? `${text} ${url}` : url);
     if (btn) {
       btn.textContent = '✓ Link copied!';
       setTimeout(() => { btn.textContent = restore; }, 2200);
@@ -9750,12 +9930,792 @@ function revealResults() {
   showResults();
 }
 
+// ════════════════════════════════════════════════════════════════════════════
+// RESULT SCREEN COPY (Phase 2: one verdict, next door)
+// Every string the results screen adds in Phase 2 lives in this block, so the
+// author can edit them in one place. ALL OF IT IS PROVISIONAL: drafted on
+// 17 October 2026 for the author's yes, no or rewrite (the section of the copy
+// drafts is in square brackets). Lines marked "not in the drafts" were written
+// while building the screen and need the same review.
+// "player" strings show only in player mode (state.gamingFamiliar on, never in
+// workplace mode); "plain" strings show to everyone else. Placeholders in
+// braces are filled by fillCopy().
+// ════════════════════════════════════════════════════════════════════════════
+
+// Bump when the next-door or appeal wording changes; every appeal records it.
+const RESULT_COPY_VERSION = 1;
+
+const RESULT_COPY = {
+  // One sentence-case name per identity, for use inside sentences. [3]
+  names: {
+    'MONO-W': 'Mono-White', 'MONO-U': 'Mono-Blue', 'MONO-B': 'Mono-Black', 'MONO-R': 'Mono-Red', 'MONO-G': 'Mono-Green',
+    AZORIUS: 'Azorius', SELESNYA: 'Selesnya', ORZHOV: 'Orzhov', DIMIR: 'Dimir', IZZET: 'Izzet',
+    GRUUL: 'Gruul', RAKDOS: 'Rakdos', GOLGARI: 'Golgari', SIMIC: 'Simic', BOROS: 'Boros',
+    BANT: 'Bant', ESPER: 'Esper', GRIXIS: 'Grixis', JUND: 'Jund', NAYA: 'Naya',
+    ABZAN: 'Abzan', JESKAI: 'Jeskai', SULTAI: 'Sultai', MARDU: 'Mardu', TEMUR: 'Temur',
+    WITCH: 'Four-colour (no red)', YORE: 'Four-colour (no green)', GLINT: 'Four-colour (no white)',
+    DUNE: 'Four-colour (no blue)', INK: 'Four-colour (no black)', WUBRG: 'Five-colour'
+  },
+
+  // [8] Typeline under the commander in the banner, player mode only. The class
+  // comes from the commander's own creature type where it fits, otherwise from
+  // the identity's roles. Mono-Blue, Dimir, Esper, Mardu and Five-colour are
+  // the drafts' examples; the other 26 were not in the drafts.
+  typeline: {
+    format: '{cardType} — {subtype} ({identity})',
+    cardType: 'Legendary Creature',
+    artifactCardType: 'Legendary Artifact Creature',
+    artifact: ['ESPER', 'YORE'], // Sharuum and Breya are artifact creatures
+    subtypes: {
+      'MONO-W': 'Human Cleric', 'MONO-U': 'Human Artificer', 'MONO-B': 'Human Warlock',
+      'MONO-R': 'Human Berserker', 'MONO-G': 'Human Druid',
+      AZORIUS: 'Human Advisor', SELESNYA: 'Human Cleric', ORZHOV: 'Human Noble', DIMIR: 'Human Advisor',
+      IZZET: 'Human Wizard', GRUUL: 'Human Warrior', RAKDOS: 'Human Bard', GOLGARI: 'Human Shaman',
+      SIMIC: 'Human Scientist', BOROS: 'Human Soldier',
+      BANT: 'Human Knight', ESPER: 'Human Wizard', GRIXIS: 'Human Rogue', JUND: 'Human Mercenary',
+      NAYA: 'Human Warrior', ABZAN: 'Human Advisor', JESKAI: 'Human Monk', SULTAI: 'Human Shaman',
+      MARDU: 'Human Warrior', TEMUR: 'Human Warrior',
+      WITCH: 'Human Advisor', YORE: 'Human Artificer', GLINT: 'Human Wizard', DUNE: 'Human Warrior',
+      INK: 'Human Soldier', WUBRG: 'Human Cleric Wizard Rogue Warrior Druid'
+    }
+  },
+
+  // [4] Confidence labels, the same in both modes (links keep c=high|moderate|low),
+  // and one base-rate sentence each. {pct} comes from CONFIDENCE_BASE_RATES.
+  labels: {
+    HIGH: {
+      word: 'Locked in',
+      player: 'About {pct}% of results like this held up when tested, so sleeve it up.',
+      plain: 'About {pct}% of results like this held up when tested.'
+    },
+    MODERATE: {
+      word: 'Leaning',
+      player: 'About {pct}% of results like this held up when tested, so maybe proxy it first.',
+      plain: 'About {pct}% of results like this held up when tested; most of the rest were a neighbour.'
+    },
+    LOW: {
+      word: 'Still shuffling',
+      player: 'Only about {pct}% of results like this held up when tested, so look next door before you sleeve anything.',
+      plain: 'About {pct}% of results like this held up when tested, so read the neighbours too.'
+    }
+  },
+  // [4] Small print under the base rate, by how the rate was measured.
+  smallPrint: {
+    simulated: '(Tested on simulated players, {date}.)',
+    retest: '(Tested on second visits, {date}.)'
+  },
+
+  // Caption under "Your Mana Pool". [plan, Phase 2]
+  barsCaption: "The name's the summary. The bars are what you said.",
+
+  // [2] Rules-text strip above strengths and shadows, player mode only.
+  // Bracketed reminder text prints in italics, as on a card.
+  rules: {
+    'MONO-W': "Vigilance. Other creatures you control get +1/+1. Your rules can't leave the battlefield, even after their reason has.",
+    'MONO-U': 'Flash. Hexproof from feedback. At the beginning of your upkeep, you may reconsider. If you do, reconsider again.',
+    'MONO-B': 'Menace, lifelink. You may pay life instead of mana. Any trust you gain lasts until end of turn.',
+    'MONO-R': 'Haste, trample. After your sixth turn, skip your next two turns. (This is called pacing.)',
+    'MONO-G': "Reach. You don't lose unspent mana as phases end. Spells that change things have suspend 7.",
+    AZORIUS: 'Flash. Spells your opponents cast cost one more and need a form. Your decisions resolve two turns late.',
+    DIMIR: 'Ninjutsu. Whenever a player says something, surveil 1. Shroud. (Nobody can target you, including your friends.)',
+    RAKDOS: 'Unleash. Spectacle. At the beginning of your upkeep, if nothing went wrong last turn, something does.',
+    GRUUL: 'Riot. Trample. This creature attacks each combat if able. Meetings count as combat.',
+    SELESNYA: "Convoke. Populate. You can't sacrifice creatures. Not even that one.",
+    ORZHOV: 'Extort. Whenever a player takes a favour from you, they get a debt counter. Nobody with one will sit next to you.',
+    IZZET: 'Prowess. Jump-start. Whenever one of your spells resolves, you lose interest in it.',
+    GOLGARI: 'Undergrowth. Whenever another creature you control dies, get an experience counter. Nothing ever leaves your graveyard.',
+    SIMIC: "Evolve. Adapt 1. This creature can't attack while it could still be improved.",
+    BOROS: 'First strike. Mentor. Whenever an injustice is alleged, attack. Check the facts after combat.',
+    BANT: "Exalted. Vigilance. You can't declare attackers until every player has had their say.",
+    ESPER: "Flying. Your creatures are artifacts in addition to their other types. (They've noticed.)",
+    GRIXIS: 'Haste. Creatures you control get +2/+0. At your end step, one of them leaves for a calmer deck.',
+    JUND: "Trample. At the beginning of your upkeep, sacrifice another creature, then explain it wasn't built for this.",
+    NAYA: 'Battle cry. Other creatures you control have haste. Each combat costs a speech, plus a follow-up speech.',
+    ABZAN: 'Outlast. Vigilance. New permanents you control enter as pilots, and stay pilots.',
+    JESKAI: 'Prowess. Mentor. Mentor can\'t target a creature whose question was obvious.',
+    SULTAI: "Exploit. Whenever another player's idea resolves, you may gain control of it. At the beginning of next year, they notice.",
+    MARDU: "Haste. Raid — At your end step, if you attacked this turn, sacrifice a creature. Don't count them.",
+    TEMUR: "Trample. This spell can't be countered. At the beginning of your upkeep, shuffle your plan into your library.",
+    WITCH: "Vigilance, deathtouch, lifelink. Proliferate. This creature can't have haste, and can't see what it adds.",
+    YORE: 'Flying. Whenever an artifact you control works, sacrifice it and build a better one.',
+    GLINT: "Cascade. Trample. Phasing. (When the consequences arrive, you've phased out.)",
+    DUNE: "Haste. Vigilance. You can't scry, and you've never once wanted to.",
+    INK: 'Vigilance. At the beginning of your end step, each player draws a card. Opponents draw two.',
+    WUBRG: 'Changeling. You have every ability. Each one works at a fifth of its strength.'
+  },
+
+  // [10] Commander mana base under the commander, player mode only. The land
+  // names are in MANA_BASE_LANDS (data.js). {lands} is the comma list:
+  // nonbasics, then basics by count ("17 Island"), then any splash land.
+  manaBase: {
+    line: '{total} lands: {lands}.',
+    monoLine: '{total} lands: {count} {basic} and {utility}{joke}.',
+    splashItem: 'and {land} {tail}',
+    // The splash tail by how far short the up neighbour's colour was.
+    splash: { one: 'you swear is for the splash', few: 'for the {colour} you keep toying with' },
+    // Mono: the utility land's joke (dropped when a splash land follows it).
+    monoJokes: {
+      'MONO-W': ', for staffing the subcommittee',
+      'MONO-U': ', so you can scry 2 and still not decide',
+      'MONO-B': ', which pays out in proportion to what you already own',
+      'MONO-R': ', so nothing has to wait its turn',
+      'MONO-G': " you've had since 1998"
+    }
+  },
+
+  // [9] Appeal the verdict. The first tap on a next-door neighbour peeks at its
+  // philosophy, strengths and shadows; the button in the peek panel appeals,
+  // which marks the result and adds &f=<ID> to the link (not in workplace mode).
+  appeal: {
+    prompt: { player: 'The verdict is on the stack. Respond?', plain: 'Not quite you? Look next door.' },
+    peekHeading: 'Next door: {identity}',
+    peekNote: {
+      player: 'Just looking. Nothing changes unless you respond.',
+      plain: 'Just a look. Your result stays put unless you choose this one.'
+    },
+    button: { player: "Respond: I'm {identity}", plain: 'Switch to {identity}' },
+    after: {
+      player: 'Appeal lodged. The original verdict stays on the record.',
+      plain: 'Switched. Your original result is kept too.'
+    },
+    undo: { player: 'Let the original resolve', plain: 'Switch back to {original}' },
+    all31: 'Neither. Show me all 31.',
+    mark: '(on appeal)',
+    markNote: 'Originally {original}. You appealed.',
+    workplaceNote: "Your appeal isn't included when you share.",
+    // Not in the drafts: the way back from a peek, and the all-31 picker's bar.
+    back: 'Back to {identity}',
+    pickPrompt: 'Pick the one that sounds like you.',
+    pickCancel: 'Back to my result'
+  },
+
+  // [11] Share text that dares a friend: the Web Share text, the clipboard
+  // fallback and the first line of #share-preview. {neighbour} is the nearer
+  // next-door row. Workplace mode always uses the first line; otherwise each
+  // identity keeps one line (its place in PROFILES picks it).
+  share: [
+    "I'm {identity}. {neighbour} lives next door. What are you?",
+    "I'm {identity}, with {neighbour} next door. Guess yours before you look.",
+    "Turns out I'm {identity}. {neighbour} lives next door and keeps looking over the fence. You?"
+  ],
+
+  // The share Card's set-symbol slot, player mode only: the identity's place in
+  // PROFILES order, with the scoring version as the set code. No rarity letter.
+  // [plan, Phases 0 and 2]
+  collector: 'MC{s} • EN • {n}/{total}',
+
+  // [3] Slot words for the next-door lines: {colour} / {Colour} and {lands}.
+  colourWords: { W: 'white', U: 'blue', B: 'black', R: 'red', G: 'green' },
+  landWords: { W: 'Plains', U: 'Islands', B: 'Swamps', R: 'Mountains', G: 'Forests' },
+
+  // [3] + [9] Next door: the row under the confidence line. "up" adds the
+  // strongest colour you don't run, "down" drops the weakest one you do. The
+  // margin (one / few / well) says how far that colour sat from the line
+  // between in and out; see NEXT_DOOR_MARGINS for the cut-offs.
+  nextDoor: {
+    up: {
+      player: {
+        head: 'Splash {colour}: {identity}.',
+        one: 'Your {colour} came in one answer short of moving in.',
+        few: "Your {colour} was a few answers short. It's been round for a viewing.",
+        well: 'Your {colour} was well short. On nodding terms, no more.'
+      },
+      plain: {
+        head: 'Add {colour}: {identity}.',
+        one: '{Colour} came in one answer short.',
+        few: '{Colour} was a few answers short.',
+        well: '{Colour} was well short.'
+      }
+    },
+    down: {
+      player: {
+        head: 'Cut the {lands}: {identity}.',
+        one: '{Colour} only just made the cut.',
+        few: '{Colour} made the cut by a few answers. It would be missed.',
+        well: "{Colour} made the cut easily. Without it, it's a different deck."
+      },
+      plain: {
+        head: 'Drop {colour}: {identity}.',
+        one: '{Colour} only just made it in.',
+        few: '{Colour} made it in by a few answers.',
+        well: '{Colour} made it in comfortably.'
+      }
+    }
+  }
+};
+
+// "Natural Roles" entries left out in consumer mode because they read as
+// corporate jargon. The data keeps them; workplace mode shows the full list.
+// (Not in the drafts.)
+const ROLES_HIDDEN_FOR_FUN = [
+  'COO', 'CFO/Finance', 'Chief Compliance Officer', 'Chief People Officer', 'Turnaround CEO',
+  'General Counsel', 'Senior Management', 'HR Leadership', 'Strategic HR', 'Legal/Compliance',
+  'Corporate Development', 'Corporate Strategy', 'Institutional Investing', 'Sovereign Wealth',
+  'Patient Capital', 'Distressed Asset Acquisition', 'Portfolio Management', 'Insolvency Practice',
+  'Executive Leadership in slow-growth sectors', 'M&A', 'VC/PE'
+];
+
+// [4] Base rates: the share of results carrying each label that matched the
+// simulated respondent's own identity, keyed by state.result.scoringVersion.
+// One dated constant; RESULT_COPY.labels prints it. Version 1 is the current
+// engine, measured by tests/simulate.js on 17 October 2026.
+const CONFIDENCE_BASE_RATES = {
+  1: { dated: '17 October 2026', tested: 'simulated', HIGH: 54, MODERATE: 53, LOW: 31 },
+  // PLACEHOLDER for scoring version 2 (Phase 1's likelihood engine). Fill in
+  // { dated, tested, HIGH, MODERATE, LOW } once it is measured; until then
+  // version 2 results print version 1's numbers.
+  2: null
+};
+
+// One answer moves a colour's bar by about a twelfth: Round 1 asks twelve
+// enemy-pair questions per colour, so a bar gap of 8 points is about one
+// answer. Next-door margins and the mana base's equal counts use this.
+const ONE_ANSWER = 1 / 12;
+// [3] Margin cut-offs, in answers (the author's call): up to one answer is
+// "one", up to three is "few", anything wider is "well".
+const NEXT_DOOR_MARGINS = { one: 1, few: 3 };
+
+// ─── Result-screen helpers ──────────────────────────────────────────────────
+const WUBRG_ORDER = ['W', 'U', 'B', 'R', 'G'];
+
+// Fill {placeholders} in a copy template. Unknown placeholders stay visible.
+function fillCopy(template, vars) {
+  return String(template).replace(/\{(\w+)\}/g, (m, k) => (vars && vars[k] !== undefined ? String(vars[k]) : m));
+}
+
+function htmlText(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// Player mode gets the Magic-flavoured copy. Workplace mode never does.
+function isPlayerMode() {
+  return state.gamingFamiliar === true && (state.audience || 'consumer') !== 'workplace';
+}
+
+function copyVariant(entry) {
+  return isPlayerMode() ? entry.player : entry.plain;
+}
+
+function identityName(id) {
+  return RESULT_COPY.names[id] || (PROFILES[id] ? PROFILES[id].name : id);
+}
+
+// "Legendary Creature — Human Advisor (Dimir)". Four-colour names lose their
+// inner brackets here: "(Four-colour, no red)".
+function identityTypeline(id) {
+  const T = RESULT_COPY.typeline;
+  return fillCopy(T.format, {
+    cardType: T.artifact.includes(id) ? T.artifactCardType : T.cardType,
+    subtype: T.subtypes[id] || 'Human',
+    identity: identityName(id).replace(' (', ', ').replace(')', '')
+  });
+}
+
+function renderTypeline(id) {
+  const el = document.getElementById('res-banner-typeline');
+  if (!el) return;
+  const show = isPlayerMode() && !!PROFILES[id];
+  el.textContent = show ? identityTypeline(id) : '';
+  el.classList.toggle('hidden', !show);
+}
+
+// One line of rules text above strengths and shadows, player mode only.
+function renderRulesStrip(id) {
+  const el = document.getElementById('res-rules');
+  if (!el) return;
+  const line = isPlayerMode() ? RESULT_COPY.rules[id] : '';
+  el.innerHTML = line ? htmlText(line).replace(/\([^)]*\)/g, m => `<i>${m}</i>`) : '';
+  el.classList.toggle('hidden', !line);
+}
+
+// state.result.scoringVersion / instrumentVersion; absent (old engine, old link) means 1.
+function resultVersion(key) {
+  const v = state.result ? state.result[key] : undefined;
+  return Number.isInteger(v) && v >= 1 ? v : 1;
+}
+
+function confidenceLevel() {
+  const c = state.result && state.result.confidence;
+  return ['HIGH', 'MODERATE', 'LOW'].includes(c) ? c : 'MODERATE';
+}
+
+// "I'm Azorius. Esper lives next door. What are you?" Shares carry the
+// verdict, not an appeal. Both next-door rows sit the same gap from the line,
+// so the nearer one is the up row; mono has only up, five-colour only down.
+function shareDareText() {
+  const r = state.result;
+  if (!r || !PROFILES[r.identity]) return '';
+  const near = nextDoorFor(r.identity, activationMap())[0];
+  const lines = RESULT_COPY.share;
+  const pick = (state.audience || 'consumer') === 'workplace' ? 0 : Object.keys(PROFILES).indexOf(r.identity) % lines.length;
+  return fillCopy(lines[pick], { identity: identityName(r.identity), neighbour: near ? identityName(near.id) : '' });
+}
+
+// The identity's roles, less the corporate jargon in consumer mode.
+function rolesFor(id) {
+  const all = ((PROFILES[id] && PROFILES[id].roles) || '').split(',').map(r => r.trim()).filter(Boolean);
+  if ((state.audience || 'consumer') === 'workplace') return all.join(', ');
+  const hidden = new Set(ROLES_HIDDEN_FOR_FUN.map(r => r.toLowerCase()));
+  const kept = all.filter(r => !hidden.has(r.toLowerCase()));
+  return (kept.length ? kept : all).join(', ');
+}
+
+// "MC1 • EN • 009/031"
+function collectorNumber(id) {
+  const ids = Object.keys(PROFILES);
+  const pad = (n) => String(n).padStart(3, '0');
+  return fillCopy(RESULT_COPY.collector, { s: resultVersion('scoringVersion'), n: pad(ids.indexOf(id) + 1), total: pad(ids.length) });
+}
+
+function baseRatesFor(version) {
+  return CONFIDENCE_BASE_RATES[version] || CONFIDENCE_BASE_RATES[1];
+}
+
+// The label words replace "High/Moderate/Low Confidence"; scoring still owns
+// result.confidence and the links keep c=high|moderate|low.
+function renderConfidenceLabel() {
+  const level = confidenceLevel();
+  const label = RESULT_COPY.labels[level];
+  const badge = document.getElementById('conf-badge');
+  badge.dataset.level = level.toLowerCase();
+  badge.innerHTML = '<span class="mc-confidence__dot"></span><span class="mc-confidence__word"></span>';
+  badge.querySelector('.mc-confidence__word').textContent = label.word;
+  const rates = baseRatesFor(resultVersion('scoringVersion'));
+  document.getElementById('conf-base-rate').textContent = fillCopy(copyVariant(label), { pct: rates[level] });
+  document.getElementById('conf-small-print').textContent = fillCopy(RESULT_COPY.smallPrint[rates.tested], { date: rates.dated });
+}
+
+function activationMap() {
+  return Object.fromEntries(state.activationSorted || []);
+}
+
+function colourKey(colours) {
+  return WUBRG_ORDER.filter(c => colours.includes(c)).join('');
+}
+
+// The identity whose colour set is exactly these colours.
+let _identityByColours = null;
+function identityForColours(colours) {
+  if (!_identityByColours) {
+    _identityByColours = {};
+    Object.entries(PROFILES).forEach(([id, prof]) => { _identityByColours[colourKey(prof.colors || [])] = id; });
+  }
+  return _identityByColours[colourKey(colours)] || null;
+}
+
+function marginWord(gap) {
+  const answers = Math.max(0, gap) / ONE_ANSWER;
+  if (answers <= NEXT_DOOR_MARGINS.one + 1e-9) return 'one';
+  if (answers <= NEXT_DOOR_MARGINS.few + 1e-9) return 'few';
+  return 'well';
+}
+
+// Next door, from the five bars alone, so it renders for old links too. "up"
+// adds the strongest colour outside the identity, "down" drops its weakest
+// colour (ties go to WUBRG order). The line between in and out sits between
+// the weakest colour in and the strongest colour out, so both rows measure
+// that one gap; with all five colours in, the line is 50%. A colour on the
+// wrong side of its line (the scenarios overruled the bars) counts as "one".
+// Mono has no down row; five-colour has no up row.
+function nextDoorFor(id, act) {
+  const prof = PROFILES[id];
+  if (!prof || !prof.colors) return [];
+  const lit = prof.colors;
+  const bar = (c) => act[c] || 0;
+  const ranked = [...WUBRG_ORDER].sort((a, b) => (bar(b) - bar(a)) || (WUBRG_ORDER.indexOf(a) - WUBRG_ORDER.indexOf(b)));
+  const inside = ranked.filter(c => lit.includes(c));
+  const outside = ranked.filter(c => !lit.includes(c));
+  const weakestIn = inside[inside.length - 1];
+  const strongestOut = outside[0];
+  const gap = strongestOut ? bar(weakestIn) - bar(strongestOut) : bar(weakestIn) - 0.5;
+  const margin = marginWord(gap);
+  const rows = [];
+  if (strongestOut) rows.push({ dir: 'up', colour: strongestOut, id: identityForColours([...lit, strongestOut]), gap, margin });
+  if (inside.length > 1) rows.push({ dir: 'down', colour: weakestIn, id: identityForColours(lit.filter(c => c !== weakestIn)), gap, margin });
+  return rows.filter(row => row.id);
+}
+
+function nextDoorLine(row, player) {
+  const t = RESULT_COPY.nextDoor[row.dir][player ? 'player' : 'plain'];
+  const colour = RESULT_COPY.colourWords[row.colour];
+  const vars = {
+    colour, Colour: colour.charAt(0).toUpperCase() + colour.slice(1),
+    lands: RESULT_COPY.landWords[row.colour], identity: identityName(row.id)
+  };
+  return { head: fillCopy(t.head, vars), why: fillCopy(t[row.margin], vars) };
+}
+
+// Ids of the next-door rows last rendered, in order (an appeal records them).
+let nextDoorShown = [];
+
+// The row always describes the verdict's neighbours, appeal or not.
+function renderNextDoor() {
+  const chips = document.getElementById('next-door-chips');
+  if (!chips || !state.result) return;
+  const player = isPlayerMode();
+  const rows = nextDoorFor(state.result.identity, activationMap());
+  nextDoorShown = rows.map(row => row.id);
+  document.getElementById('next-door-prompt').textContent = copyVariant(RESULT_COPY.appeal.prompt);
+  document.getElementById('next-door-all').textContent = RESULT_COPY.appeal.all31;
+  chips.innerHTML = rows.map(row => {
+    const line = nextDoorLine(row, player);
+    const pips = PROFILES[row.id].colors
+      .map(c => `<span class="mc-pip mc-pip--sm is-lit" data-color="${c}" aria-hidden="true"></span>`).join('');
+    return `<button type="button" class="mc-nextdoor__chip" data-id="${row.id}" data-dir="${row.dir}" data-margin="${row.margin}"`
+      + ` aria-pressed="false" onclick="peekNextDoor('${row.id}')">`
+      + `<span class="mc-nextdoor__pips">${pips}</span>`
+      + `<span class="mc-nextdoor__head">${htmlText(line.head)}</span>`
+      + `<span class="mc-nextdoor__why">${htmlText(line.why)}</span></button>`;
+  }).join('');
+  markNextDoorChips();
+}
+
+// ─── Appeal the verdict ─────────────────────────────────────────────────────
+// The verdict stays in state.result.identity. An appeal adds
+// state.result.appeal = { chosen, shown, copyVersion, labelShown, timeToAppealMs }
+// and the page then shows the chosen identity, marked "(on appeal)".
+
+let resultPeekId = null;                       // neighbour being peeked at
+const appealTimer = { result: null, at: 0 };  // when this result was first shown
+
+function startAppealTimer() {
+  if (appealTimer.result !== state.result) {
+    appealTimer.result = state.result;
+    appealTimer.at = Date.now();
+  }
+}
+
+// The identity on screen: the appealed one while an appeal stands.
+function resultShownId() {
+  const r = state.result;
+  if (!r) return null;
+  const a = r.appeal;
+  return a && a.chosen && PROFILES[a.chosen] && a.chosen !== r.identity ? a.chosen : r.identity;
+}
+
+// renderRelations and updateWispWeights (outside the results code) read
+// state.result.identity. While an appeal stands they should draw the identity
+// on screen, so they run with it swapped in for the length of the call.
+function withShownIdentity(fn) {
+  const r = state.result;
+  const shown = resultShownId();
+  if (!r || shown === r.identity) return fn();
+  const verdict = r.identity;
+  r.identity = shown;
+  try { return fn(); } finally { r.identity = verdict; }
+}
+
+function fillTraitList(listId, items) {
+  const list = document.getElementById(listId);
+  list.innerHTML = '';
+  (items || []).forEach(t => {
+    const li = document.createElement('li');
+    li.textContent = t;
+    list.appendChild(li);
+  });
+}
+
+// Philosophy, rules text (player mode), strengths and shadows for one
+// identity, marked as a peek when it is not the one on screen.
+function renderIdentitySections(id, peeking) {
+  const prof = PROFILES[id];
+  if (!prof) return;
+  const phil = document.getElementById('identity-exp');
+  phil.textContent = generateIdentityExplanation(id, state.activationSorted || []);
+  renderRulesStrip(id);
+  fillTraitList('strengths', prof.str);
+  fillTraitList('weaknesses', prof.weak);
+  const flag = peeking ? fillCopy(RESULT_COPY.appeal.peekHeading, { identity: identityName(id) }) : '';
+  ['identity-exp', 'res-rules', 'res-traits'].forEach(elId => {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    el.classList.toggle('is-peeking', peeking);
+    if (peeking) el.dataset.peek = flag; else delete el.dataset.peek;
+  });
+}
+
+function markNextDoorChips() {
+  const shown = resultShownId();
+  document.querySelectorAll('#next-door-chips .mc-nextdoor__chip').forEach(chip => {
+    const id = chip.dataset.id;
+    chip.classList.toggle('is-peeking', id === resultPeekId);
+    chip.classList.toggle('is-appealed', id === shown && id !== state.result.identity);
+    chip.setAttribute('aria-pressed', String(id === resultPeekId));
+  });
+}
+
+// First tap: look next door. Nothing changes until the appeal button.
+function peekNextDoor(id) {
+  if (!state.result || !PROFILES[id]) return;
+  if (id === resultShownId()) { endPeek(); return; }
+  resultPeekId = id;
+  renderIdentitySections(id, true);
+  renderNextDoorPanel();
+  markNextDoorChips();
+}
+
+function endPeek() {
+  resultPeekId = null;
+  renderIdentitySections(resultShownId(), false);
+  renderNextDoorPanel();
+  markNextDoorChips();
+}
+
+// The panel under the chips: the peek (with the appeal button) or, once an
+// appeal stands, its receipt and the way back.
+function renderNextDoorPanel() {
+  const panel = document.getElementById('next-door-panel');
+  if (!panel || !state.result) return;
+  const A = RESULT_COPY.appeal;
+  const r = state.result;
+  const privateNote = (state.audience || 'consumer') === 'workplace'
+    ? `<p class="mc-nextdoor__private">${htmlText(A.workplaceNote)}</p>` : '';
+  if (resultPeekId) {
+    const name = identityName(resultPeekId);
+    panel.innerHTML = `<div class="mc-nextdoor__panel-head">${htmlText(fillCopy(A.peekHeading, { identity: name }))}</div>`
+      + `<p class="mc-nextdoor__panel-note">${htmlText(copyVariant(A.peekNote))}</p>`
+      + `<div class="mc-nextdoor__actions">`
+      + `<button type="button" class="mc-btn mc-btn--primary" id="appeal-btn" onclick="appealTo('${resultPeekId}')">${htmlText(fillCopy(copyVariant(A.button), { identity: name }))}</button>`
+      + `<button type="button" class="mc-btn mc-btn--ghost" id="peek-back-btn" onclick="endPeek()">${htmlText(fillCopy(A.back, { identity: identityName(resultShownId()) }))}</button>`
+      + `</div>${privateNote}`;
+    panel.classList.remove('hidden');
+  } else if (resultShownId() !== r.identity) {
+    panel.innerHTML = `<p class="mc-nextdoor__panel-note">${htmlText(copyVariant(A.after))}</p>`
+      + `<div class="mc-nextdoor__actions">`
+      + `<button type="button" class="mc-btn mc-btn--ghost" id="appeal-undo-btn" onclick="withdrawAppeal()">${htmlText(fillCopy(copyVariant(A.undo), { original: identityName(r.identity) }))}</button>`
+      + `</div>${privateNote}`;
+    panel.classList.remove('hidden');
+  } else {
+    panel.innerHTML = '';
+    panel.classList.add('hidden');
+  }
+}
+
+// Second, deliberate tap: appeal. The verdict stays on the record.
+function appealTo(id) {
+  const r = state.result;
+  if (!r || !PROFILES[id]) return;
+  if (id === r.identity) { withdrawAppeal(); return; }
+  r.appeal = {
+    chosen: id,
+    shown: nextDoorShown.slice(),
+    copyVersion: RESULT_COPY_VERSION,
+    labelShown: RESULT_COPY.labels[confidenceLevel()].word,
+    timeToAppealMs: Math.max(0, Date.now() - appealTimer.at)
+  };
+  showResults();
+}
+
+function withdrawAppeal() {
+  if (!state.result) return;
+  delete state.result.appeal;
+  showResults();
+}
+
+// "(on appeal)" after the name; hover or tap says where it started.
+function renderAppealMark() {
+  const mark = document.getElementById('res-appeal-mark');
+  const note = document.getElementById('res-appeal-note');
+  if (!mark || !note || !state.result) return;
+  const appealed = resultShownId() !== state.result.identity;
+  const A = RESULT_COPY.appeal;
+  const why = appealed ? fillCopy(A.markNote, { original: identityName(state.result.identity) }) : '';
+  mark.textContent = A.mark;
+  mark.title = why;
+  mark.setAttribute('aria-expanded', 'false');
+  note.textContent = why;
+  mark.classList.toggle('hidden', !appealed);
+  note.classList.add('hidden');
+}
+
+function toggleAppealNote() {
+  const mark = document.getElementById('res-appeal-mark');
+  const note = document.getElementById('res-appeal-note');
+  if (!mark || !note || mark.classList.contains('hidden')) return;
+  const open = note.classList.toggle('hidden') === false;
+  mark.setAttribute('aria-expanded', String(open));
+}
+
+// "Neither. Show me all 31.": the explorer, with a bar that appeals to
+// whichever identity is open in its detail panel.
+let appealPicking = false;
+let appealPickId = null;
+let appealExplorerWired = false;
+
+function openAppealExplorer() {
+  if (!state.result) return;
+  if (resultPeekId) endPeek();
+  appealPicking = true;
+  appealPickId = null;
+  wireAppealExplorer();
+  showExplorer();
+  renderAppealBar();
+}
+
+function wireAppealExplorer() {
+  if (appealExplorerWired) return;
+  const explorer = document.getElementById('screen-explorer');
+  if (!explorer) return;
+  appealExplorerWired = true;
+  // A card's own onclick (showDetail) runs first; then this picks up its id.
+  explorer.addEventListener('click', (e) => {
+    if (!appealPicking || !e.target.closest('.mc-explorer-card')) return;
+    appealPickId = typeof currentExplorerId !== 'undefined' ? currentExplorerId : null;
+    renderAppealBar();
+  });
+  // Leaving the explorer by any route ends the picking.
+  if (typeof MutationObserver !== 'undefined') {
+    new MutationObserver(() => {
+      if (!explorer.classList.contains('hidden')) return;
+      appealPicking = false;
+      appealPickId = null;
+      renderAppealBar();
+    }).observe(explorer, { attributes: true, attributeFilter: ['class'] });
+  }
+}
+
+function renderAppealBar() {
+  const explorer = document.getElementById('screen-explorer');
+  if (!explorer) return;
+  let bar = document.getElementById('appeal-pick-bar');
+  if (!bar) {
+    bar = document.createElement('div');
+    bar.id = 'appeal-pick-bar';
+    bar.className = 'mc-appeal-bar hidden';
+    bar.setAttribute('role', 'region');
+    bar.setAttribute('aria-live', 'polite');
+    explorer.appendChild(bar);
+  }
+  // Room under the last cards for the fixed bar.
+  explorer.style.paddingBottom = appealPicking && state.result ? '128px' : '';
+  if (!appealPicking || !state.result) {
+    bar.classList.add('hidden');
+    bar.innerHTML = '';
+    return;
+  }
+  const A = RESULT_COPY.appeal;
+  const pick = appealPickId && PROFILES[appealPickId] && appealPickId !== resultShownId() ? appealPickId : null;
+  const lead = pick
+    ? `<span class="mc-appeal-bar__name">${htmlText(identityName(pick))}</span>`
+    : `<span class="mc-appeal-bar__prompt">${htmlText(A.pickPrompt)}</span>`;
+  const go = pick
+    ? `<button type="button" class="mc-btn mc-btn--primary" id="appeal-pick-btn" onclick="appealFromExplorer('${pick}')">${htmlText(fillCopy(copyVariant(A.button), { identity: identityName(pick) }))}</button>`
+    : '';
+  const privateNote = (state.audience || 'consumer') === 'workplace'
+    ? `<span class="mc-appeal-bar__private">${htmlText(A.workplaceNote)}</span>` : '';
+  bar.innerHTML = `${lead}<span class="mc-appeal-bar__actions">${go}`
+    + `<button type="button" class="mc-btn mc-btn--ghost" onclick="closeExplorer()">${htmlText(A.pickCancel)}</button></span>${privateNote}`;
+  bar.classList.remove('hidden');
+}
+
+function appealFromExplorer(id) {
+  appealPicking = false;
+  appealPickId = null;
+  renderAppealBar();
+  closeExplorer();
+  appealTo(id);
+}
+
+// ─── Commander mana base (player mode) ──────────────────────────────────────
+const COMMANDER_LANDS = 37;
+
+function withArticle(name) {
+  return (/^[AEIOU]/i.test(name) ? 'an ' : 'a ') + name;
+}
+
+// Split n basics across the identity's colours by their bars. Bars within
+// about one answer of each other get equal counts; any remainder goes to the
+// strongest bars, one each. Returns [[colour, count], ...], most first.
+function splitBasics(colours, act, n) {
+  const bar = (c) => Math.max(act[c] || 0, 0.01);
+  const order = [...colours].sort((a, b) => (bar(b) - bar(a)) || (WUBRG_ORDER.indexOf(a) - WUBRG_ORDER.indexOf(b)));
+  const groups = [];
+  order.forEach(c => {
+    const g = groups[groups.length - 1];
+    if (g && bar(g[0]) - bar(c) < ONE_ANSWER) g.push(c); else groups.push([c]);
+  });
+  const total = order.reduce((s, c) => s + bar(c), 0);
+  const count = {};
+  groups.forEach(g => {
+    const each = Math.floor(n * g.reduce((s, c) => s + bar(c), 0) / total / g.length);
+    g.forEach(c => { count[c] = each; });
+  });
+  let left = n - order.reduce((s, c) => s + count[c], 0);
+  for (let i = 0; left > 0; i = (i + 1) % order.length, left--) count[order[i]]++;
+  // Never print "0 Island": a colour in the identity gets at least one basic.
+  order.forEach(c => {
+    if (count[c] >= 1) return;
+    const donor = order.find(d => count[d] > 1);
+    if (donor) { count[donor]--; count[c] = 1; }
+  });
+  return order.map(c => [c, count[c]]).sort((a, b) => (b[1] - a[1]) || (order.indexOf(a[0]) - order.indexOf(b[0])));
+}
+
+// "37 lands: Watery Grave, Polluted Delta, Drowned Catacomb, 17 Island,
+// 16 Swamp, and a Zagoth Triome you swear is for the splash."
+// Guild: shock, fetch, check. Three colours: the Triome and three shocks.
+// Four or five: Command Tower, Mana Confluence, City of Brass, Exotic Orchard.
+// Mono: basics and one utility land. The next-door splash is one land in place
+// of a basic, only when the up neighbour's colour is within a few answers:
+// guild, the Triome with the splash colour; mono, the shock for both colours;
+// three colours, the Triome of the splash and the two strongest bars; four
+// colours, the shock for the splash and the strongest bar.
+function manaBaseLine(id, act) {
+  const prof = PROFILES[id];
+  if (!prof || !prof.colors || typeof MANA_BASE_LANDS === 'undefined') return '';
+  const L = MANA_BASE_LANDS, M = RESULT_COPY.manaBase;
+  const colours = WUBRG_ORDER.filter(c => prof.colors.includes(c));
+  const key = colours.join('');
+  const bar = (c) => act[c] || 0;
+  const strongest = [...colours].sort((a, b) => (bar(b) - bar(a)) || (WUBRG_ORDER.indexOf(a) - WUBRG_ORDER.indexOf(b)));
+
+  let nonbasics;
+  if (colours.length === 1) nonbasics = [L.mono[key]];
+  else if (colours.length === 2) nonbasics = [L.pairs[key].shock, L.pairs[key].fetch, L.pairs[key].check];
+  else if (colours.length === 3) nonbasics = [L.triples[key].triome, ...L.triples[key].shocks];
+  else nonbasics = [...L.wide];
+
+  const up = nextDoorFor(id, act).find(row => row.dir === 'up');
+  const splash = up && M.splash[up.margin] ? up : null;
+  let splashLand = null;
+  if (splash) {
+    const s = splash.colour;
+    if (colours.length === 1) splashLand = L.pairs[colourKey([key, s])].shock;
+    else if (colours.length === 2) splashLand = L.triples[colourKey([...colours, s])].triome;
+    else if (colours.length === 3) splashLand = L.triples[colourKey([strongest[0], strongest[1], s])].triome;
+    else splashLand = L.pairs[colourKey([strongest[0], s])].shock;
+  }
+
+  const basics = splitBasics(colours, act, COMMANDER_LANDS - nonbasics.length - (splashLand ? 1 : 0));
+  if (colours.length === 1 && !splashLand) {
+    return fillCopy(M.monoLine, {
+      total: COMMANDER_LANDS, count: basics[0][1], basic: L.basics[key],
+      utility: withArticle(nonbasics[0]), joke: M.monoJokes[id] || ''
+    });
+  }
+  const basicItems = basics.map(([c, n]) => `${n} ${L.basics[c]}`);
+  const items = colours.length === 1 ? [...basicItems, ...nonbasics] : [...nonbasics, ...basicItems];
+  if (splashLand) {
+    const tail = fillCopy(M.splash[splash.margin], { colour: RESULT_COPY.colourWords[splash.colour] });
+    items.push(fillCopy(M.splashItem, { land: withArticle(splashLand), tail }));
+  }
+  return fillCopy(M.line, { total: COMMANDER_LANDS, lands: items.join(', ') });
+}
+
+function renderManaBase(id) {
+  const el = document.getElementById('res-mana-base');
+  if (!el) return;
+  const line = isPlayerMode() ? manaBaseLine(id, activationMap()) : '';
+  el.textContent = line;
+  el.classList.toggle('hidden', !line);
+}
+
 function showResults() {
   // Persist the finished result so a reload offers "See result" instead of a
   // stale mid-round snapshot. Shared-link views have no answers and are not saved.
   if (state.result && (state.responses || []).length > 0) saveSession();
   // Gate: first reveal goes through honesty disclaimer.
-  // switchToAlternative re-enters with flag already true and re-renders.
+  // Re-renders and shared links arrive with the flag already true.
   if (!state.disclaimerAcknowledged) {
     showPreResultDisclaimer();
     return;
@@ -9784,9 +10744,14 @@ function showResults() {
   document.getElementById('screen-preflight').classList.add('hidden');
   document.getElementById('screen-results').classList.remove('hidden');
 
-  updateWispWeights();
+  // A full render ends any peek next door. The appealed identity, if any, is
+  // the one on screen; the verdict stays in state.result.identity.
+  resultPeekId = null;
+  startAppealTimer();
+  const shownId = resultShownId();
+  withShownIdentity(updateWispWeights);
 
-  const p = PROFILES[state.result.identity];
+  const p = PROFILES[shownId];
 
   // FRAMES theme — the reveal earns the frame. Restore the gold tokens
   // (data-revealed lifts the card-back remap) and hand the banner the
@@ -9810,13 +10775,15 @@ function showResults() {
 
   // Redesign: cinematic banner — set art crop, mana strip, commander aside.
   const bannerArt = document.getElementById('res-banner-art');
-  if (bannerArt) bannerArt.style.backgroundImage = `url('images/commanders/${state.result.identity}.jpg')`;
+  if (bannerArt) bannerArt.style.backgroundImage = `url('images/commanders/${shownId}.jpg')`;
   const bannerPips = document.getElementById('res-banner-pips');
   if (bannerPips && p.colors) {
     bannerPips.innerHTML = p.colors.map(c => `<span class="mc-pip is-lit mc-pip--lg" data-color="${c}" aria-label="${c}"></span>`).join('');
   }
   const bannerCmd = document.getElementById('res-banner-commander');
   if (bannerCmd) bannerCmd.textContent = p.cmd ? `Commander · ${p.cmd}` : '';
+  renderTypeline(shownId);
+  renderAppealMark();
 
   // Claude Design plinth: typeline name + commander aside.
   const typelineName = document.getElementById('res-typeline-name');
@@ -9825,10 +10792,13 @@ function showResults() {
   if (cmdNameAside) cmdNameAside.textContent = p.cmd || '';
   const cmdDescAside = document.getElementById('cmd-desc-aside');
   if (cmdDescAside) cmdDescAside.textContent = p.cmdDesc || '';
+  renderManaBase(shownId);
 
   // 5-color profile bars (the "psychometric receipt"). Pulls from state.activationSorted —
   // an [ [color, 0..1], ... ] array already ordered top-down. Render in WUBRG order so the
   // bars are visually stable across users, with the user's own activation widths.
+  const barsCaption = document.getElementById('res-bars-caption');
+  if (barsCaption) barsCaption.textContent = RESULT_COPY.barsCaption;
   const profileBars = document.getElementById('res-profile-bars');
   if (profileBars && state.activationSorted) {
     const colorNames = { W: 'WHITE', U: 'BLUE', B: 'BLACK', R: 'RED', G: 'GREEN' };
@@ -9848,11 +10818,11 @@ function showResults() {
   }
 
   renderQualityWarning();
-  renderRelations();
+  withShownIdentity(renderRelations);
 
   // ENHANCEMENT: Detect PRIMARY color in multi-color combinations
   const primaryIndicator = document.getElementById('primary-color-indicator');
-  const isCombination = !state.result.identity.startsWith('MONO-');
+  const isCombination = !shownId.startsWith('MONO-');
   if (isCombination && state.activationSorted && state.activationSorted.length >= 2) {
     const topColor = state.activationSorted[0];
     const secondColor = state.activationSorted[1];
@@ -9889,12 +10859,8 @@ function showResults() {
   document.getElementById('restart-text').textContent = 'Retake it to get the result you wanted instead of who you actually are?';
   document.getElementById('explorer-hint').textContent = '';
   
-  // Confidence badge — rebuild children so the dot + label structure of `.mc-confidence` is preserved.
-  const badge = document.getElementById('conf-badge');
-  const level = (state.result.confidence || 'MODERATE').toLowerCase();
-  const labelText = level.charAt(0).toUpperCase() + level.slice(1) + ' Confidence';
-  badge.dataset.level = level;
-  badge.innerHTML = '<span class="mc-confidence__dot"></span><span>' + labelText + '</span>';
+  // Confidence label ("Locked in" / "Leaning" / "Still shuffling") and its base rate.
+  renderConfidenceLabel();
 
   // Plain-language basis for the confidence call. The engine already knows why
   // it believes what it believes; the reader should get the same courtesy —
@@ -9940,15 +10906,19 @@ function showResults() {
       ? ` Another caveat: Round 1 and Round 2 disagreed about ${agreeName} — you chose it against its enemies but not against its allies, or the other way round. Treat the margins as softer than they look.`
       : ` Another caveat: Round 1 and Round 2 pulled in different directions. Treat the margins as softer than they look.`;
   }
+  // Width shift (said by the old alternatives box, which next door replaces):
+  // the scenarios settled on more or fewer colours than the early answers did.
+  if (r3ForConf.widthShift && r3ForConf.expectedWinner && PROFILES[r3ForConf.expectedWinner]
+      && r3ForConf.expectedWinner !== state.result.identity) {
+    confBasis += ` Your initial patterns suggested ${PROFILES[r3ForConf.expectedWinner].name}, but your scenario choices revealed a ${r3ForConf.shiftDirection === 'wider' ? 'broader' : 'more focused'} identity.`;
+  }
   const confExpEl = document.getElementById('conf-exp');
   confExpEl.textContent = confBasis;
   confExpEl.classList.remove('hidden');
   
-  // Generate identity explanation
-  const sorted = state.activationSorted || [];
-  const id = state.result.identity;
-  const idExp = generateIdentityExplanation(id, sorted);
-  document.getElementById('identity-exp').textContent = idExp;
+  // Philosophy, rules text (player mode), strengths and shadows. A peek next
+  // door re-renders these four for the neighbour.
+  renderIdentitySections(shownId, false);
   
   // `res-syms` was a legacy mana-symbol row that the new banner replaced. Guard the
   // write so the absence of the element doesn't kill the rest of showResults.
@@ -9979,196 +10949,10 @@ function showResults() {
   const heading = document.getElementById('res-heading');
   if (heading) heading.textContent = audience === 'workplace' ? 'Your Strategic Profile' : 'Your Colour Identity';
   
-  // Show alternatives for LOW or MODERATE confidence if borderline
-  const allResults = state.result.allResults || [];
-  // sorted already defined above
-  
-  // Check if top colors are borderline (pattern-specific checks)
-  let colorsTied = false;
-  const isGuild = state.result.identity && (state.result.identity.length === 2 || 
-    ['AZORIUS','SELESNYA','ORZHOV','DIMIR','IZZET','SIMIC','RAKDOS','GOLGARI','GRUUL','BOROS'].includes(state.result.identity));
-  const isThreeColor = state.result.identity && 
-    ['BANT','ESPER','GRIXIS','JUND','NAYA','ABZAN','JESKAI','SULTAI','MARDU','TEMUR'].includes(state.result.identity);
-  
-  if (isGuild && sorted.length >= 2) {
-    // For guild: check if top 2 colors very close
-    colorsTied = Math.abs(sorted[0][1] - sorted[1][1]) < 0.05;
-  } else if (isThreeColor && sorted.length >= 3) {
-    // For three-color: check if spread across top 3 is small
-    const spread = sorted[0][1] - sorted[2][1];
-    colorsTied = spread < 0.08;
-  } else if (sorted.length >= 3) {
-    // For other patterns: check if 2nd and 3rd are tied
-    colorsTied = Math.abs(sorted[1][1] - sorted[2][1]) < 0.08;
-  }
-  
-  // Always show alternatives for MODERATE or LOW confidence
-  if ((state.result.confidence === 'MODERATE' || state.result.confidence === 'LOW') && allResults.length === 0) {
-    colorsTied = true; // Force display if no allResults but confidence not HIGH
-  }
-  
-  
-  // Check for width shift (expected one type but got another)
-  const r3Data = state.result.round3Data || {};
-  const hasWidthShift = r3Data.widthShift === true;
-  
-  // Show if (LOW or MODERATE confidence) AND (colors are tied OR we have actual alternatives OR width shift)
-  const shouldShowAlternatives = (state.result.confidence === 'LOW' || state.result.confidence === 'MODERATE') && 
-                                  (colorsTied || allResults.length > 1 || hasWidthShift);
-  
-  if (shouldShowAlternatives) {
-    document.getElementById('alternative-results').style.display = 'block';
-    
-    let whyText = '';
-    
-    if (allResults.length > 1) {
-      const winner = allResults[0];
-      const topAlt = allResults[1];
-      const winnerData = winner[1];
-      const altData = topAlt[1];
-      
-      // Special messaging for width shift
-      if (hasWidthShift && r3Data.expectedWinner) {
-        const expectedProfile = PROFILES[r3Data.expectedWinner];
-        const expectedName = expectedProfile ? expectedProfile.name : r3Data.expectedWinner;
-        
-        if (r3Data.shiftDirection === 'wider') {
-          whyText = `Your initial patterns suggested ${expectedName}, but your scenario choices revealed a broader identity. We're calling you ${state.result.identity} because you consistently preferred responses that draw on more colors. `;
-        } else {
-          whyText = `Your initial patterns suggested ${expectedName}, but your scenario choices revealed a more focused identity. We're calling you ${state.result.identity} because you consistently preferred more targeted responses. `;
-        }
-        whyText += `That said, you're between these identities:`;
-      } else {
-        whyText = `We're calling you ${state.result.identity} because `;
-        
-        if (winnerData.s1 > altData.s1 && winnerData.s2 > altData.s2) {
-          whyText += `it scored higher in both phases (Round 1: ${Math.round(winnerData.s1*100)}% vs ${Math.round(altData.s1*100)}%, Round 3: ${Math.round(winnerData.s2*100)}% vs ${Math.round(altData.s2*100)}%).`;
-        } else if (winnerData.s1 > altData.s1) {
-          whyText += `your color pattern in Round 1 pointed more strongly to it (${Math.round(winnerData.s1*100)}% vs ${Math.round(altData.s1*100)}%), and earlier rounds carry more weight.`;
-        } else if (winnerData.s2 > altData.s2) {
-          whyText += `you picked it more consistently in Round 3 (${Math.round(winnerData.s2*100)}% vs ${Math.round(altData.s2*100)}%).`;
-        } else {
-          whyText += `the overall pattern across all rounds pointed to it.`;
-        }
-        
-        whyText += ` That said, you're borderline—you could legitimately be any of these:`;
-      }
-    } else {
-      whyText = 'Your pattern was borderline. You could legitimately be any of these:';
-    }
-    
-    document.getElementById('why-explanation').textContent = whyText;
-    
-    const altList = document.getElementById('alternatives-list');
-    altList.innerHTML = '';
-    
-    if (allResults.length > 0) {
-    }
-    
-    // Get alternatives from allResults (ranked Stage 2 results), excluding winner
-    let alternatives = allResults.slice(1, 4);
-    
-    // If there was a width shift, ensure the expected winner is in alternatives
-    if (hasWidthShift && r3Data.expectedWinner && r3Data.expectedWinner !== state.result.identity) {
-      const expectedInAlts = alternatives.some(a => a[0] === r3Data.expectedWinner);
-      if (!expectedInAlts) {
-        // Find expected winner in allResults
-        const expectedEntry = allResults.find(a => a[0] === r3Data.expectedWinner);
-        if (expectedEntry) {
-          // Insert at the front of alternatives
-          alternatives.unshift(expectedEntry);
-          // Keep max 4 alternatives
-          if (alternatives.length > 4) alternatives = alternatives.slice(0, 4);
-        }
-      }
-    }
-    
-    // If we have no alternatives but LOW/MODERATE confidence, show guidance
-    if (alternatives.length === 0) {
-      const guidanceDiv = document.createElement('div');
-      guidanceDiv.style.cssText = 'background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 10px; padding: 20px;';
-      
-      if (state.result.confidence === 'LOW') {
-        const cycle = state.result.round3Data?.cycle;
-        const cycleNote = cycle
-          ? `<br><br><strong>Heads up:</strong> Round 3 showed a rock-paper-scissors pattern between ${cycle.join(' → ')} → ${cycle[0]}. We picked the candidate with the most wins overall (Copeland scoring), but the result is genuinely ambiguous.`
-          : '';
-        guidanceDiv.innerHTML = `
-          <div style="font-size: 16px; font-weight: 600; color: #F59E0B; margin-bottom: 12px;">⚠️ Pattern Not Clear</div>
-          <div style="font-size: 14px; color: #c0c0d0; line-height: 1.6;">
-            Your colour distribution doesn't show strong clustering. You might be genuinely balanced across approaches,
-            or the assessment questions may not have captured enough nuance.${cycleNote}
-            <br><br>
-            <strong>Your result is still valid</strong> — this identity represents your strongest signal, even if confidence is lower.
-          </div>
-        `;
-      } else {
-        guidanceDiv.innerHTML = `
-          <div style="font-size: 14px; color: #c0c0d0; line-height: 1.6;">
-            Your pattern points most strongly to <strong>${state.result.identity}</strong>, 
-            though confidence is moderate. The balance between your top colours may shift by context.
-          </div>
-        `;
-      }
-      altList.appendChild(guidanceDiv);
-    } else {
-      // Render actual alternatives
-      alternatives.forEach(alt => {
-      
-      // Handle GUIDANCE type
-      if (alt[0] === 'GUIDANCE') {
-        const guidanceDiv = document.createElement('div');
-        guidanceDiv.style.cssText = 'background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 10px; padding: 16px; margin-bottom: 12px;';
-        guidanceDiv.innerHTML = `
-          <div style="font-weight: 600; margin-bottom: 8px; color: #F59E0B;">📋 Recommendation</div>
-          <div style="font-size: 14px; color: #c0c0d0;">${alt[1].note}</div>
-        `;
-        altList.appendChild(guidanceDiv);
-        return;
-      }
-      
-      const altProfile = PROFILES[alt[0]];
-      if (!altProfile) {
-        console.warn('No profile found for:', alt[0]);
-        return;
-      }
-      
-      const altCard = document.createElement('div');
-      altCard.style.cssText = 'background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 10px; padding: 16px; cursor: pointer; transition: all 0.2s;';
-      altCard.onmouseover = () => altCard.style.background = 'rgba(139, 92, 246, 0.15)';
-      altCard.onmouseout = () => altCard.style.background = 'rgba(139, 92, 246, 0.1)';
-      altCard.onclick = () => switchToAlternative(alt[0]);
-      
-      const symbolsDiv = document.createElement('div');
-      symbolsDiv.style.cssText = 'display: flex; gap: 6px; margin-bottom: 12px;';
-      altProfile.colors.forEach(c => {
-        const sym = document.createElement('span');
-        sym.className = `mana-symbol mana-${c}`;
-        sym.textContent = c;
-        sym.style.width = '24px';
-        sym.style.height = '24px';
-        sym.style.fontSize = '12px';
-        symbolsDiv.appendChild(sym);
-      });
-      
-      const nameDiv = document.createElement('div');
-      nameDiv.style.cssText = 'font-weight: 700; font-size: 16px; margin-bottom: 8px;';
-      nameDiv.textContent = altProfile.name;
-      
-      const descDiv = document.createElement('div');
-      descDiv.style.cssText = 'font-size: 13px; color: #c0c0d0; line-height: 1.6;';
-      descDiv.textContent = altProfile.tag;
-      
-      altCard.appendChild(symbolsDiv);
-      altCard.appendChild(nameDiv);
-      altCard.appendChild(descDiv);
-      altList.appendChild(altCard);
-    });
-    } // Close else block for alternatives rendering
-  } else {
-    // Hide alternatives if not genuinely borderline
-    document.getElementById('alternative-results').style.display = 'none';
-  }
+  // Next door replaces the LOW/MODERATE-only alternatives box: one colour up,
+  // one colour down, at every confidence level. Its panel peeks and appeals.
+  renderNextDoor();
+  renderNextDoorPanel();
   
   // Display commander with conditional formatting
   const oracleData = COMMANDER_ORACLE[p.cmd];
@@ -10198,7 +10982,7 @@ function showResults() {
     // Art crop (Scryfall). File path is keyed by archetype id, fetched once via scripts/fetch_commander_art.js.
     const art = document.getElementById('cmd-art');
     if (art) {
-      art.src = `images/commanders/${state.result.identity}.jpg`;
+      art.src = `images/commanders/${shownId}.jpg`;
       art.alt = p.cmd;
     }
   } else {
@@ -10212,24 +10996,7 @@ function showResults() {
     document.getElementById('cmd-desc-simple').textContent = p.cmdDesc;
   }
   
-  // Strengths — let .mc-result__list li::before draw the ✦ bullet; no inline colour overrides.
-  const strList = document.getElementById('strengths');
-  strList.innerHTML = '';
-  p.str.forEach(s => {
-    const li = document.createElement('li');
-    li.textContent = s;
-    strList.appendChild(li);
-  });
-
-  const weakList = document.getElementById('weaknesses');
-  weakList.innerHTML = '';
-  p.weak.forEach(w => {
-    const li = document.createElement('li');
-    li.textContent = w;
-    weakList.appendChild(li);
-  });
-  
-  document.getElementById('roles').textContent = p.roles;
+  document.getElementById('roles').textContent = rolesFor(shownId);
   
   // Populate normative context
   const normativeEl = document.getElementById('normative-text');
@@ -10291,54 +11058,24 @@ function showResults() {
   // Populate share preview. Layout: symbols + name → banter (consumer only) → top
   // strength line → tag-a-friend CTA (consumer only) → URL. Workplace mode drops the
   // banter + CTA so the result stays defensible if it lands in a Slack channel.
+  // Shares carry the verdict; an appeal travels only as &f= in the link.
+  // The dare line leads; the banter follows in consumer mode only.
   const sharePreview = document.getElementById('share-preview');
-  if (sharePreview && p) {
-    const colorEmojis = {W:'☀️', U:'💧', B:'💀', R:'🔥', G:'🌿'};
-    const symbols = p.colors.map(c => colorEmojis[c] || c).join(' ');
+  const verdictP = PROFILES[state.result.identity];
+  if (sharePreview && verdictP) {
+    const p = verdictP;
     const url = buildResultURL();
     const audience = state.audience || 'consumer';
     const topStrength = (p.str && p.str[0]) ? p.str[0] : '';
     const banter = (p.pubBanter || '').replace(/^"|"$/g, '');
 
-    const lines = [`${symbols} I'm ${p.name} — ${p.tag}`];
+    const lines = [shareDareText()];
     if (audience === 'consumer' && banter) lines.push(`"${banter}"`);
     if (topStrength) lines.push(`• ${topStrength}`);
     lines.push('');
-    if (audience === 'consumer') lines.push(`Tag the ${state.result.identity} in your group chat.`);
     lines.push(`Take the test: ${url}`);
     sharePreview.textContent = lines.join('\n');
   }
-  
-  window.scrollTo({top: 0, behavior: 'smooth'});
-}
-
-function switchToAlternative(altIdentity) {
-  // Find current result and selected alternative in allResults
-  if (!state.result.allResults || state.result.allResults.length === 0) {
-    console.error('No allResults available for switching');
-    return;
-  }
-  
-  const currentIdentity = state.result.identity;
-  const allResults = state.result.allResults;
-  
-  // Find indices of current and alternative
-  const currentIdx = allResults.findIndex(r => r[0] === currentIdentity);
-  const altIdx = allResults.findIndex(r => r[0] === altIdentity);
-  
-  if (currentIdx === -1 || altIdx === -1) {
-    console.error('Could not find identities in allResults', {currentIdentity, altIdentity, allResults});
-    return;
-  }
-  
-  // Swap positions in array
-  [allResults[currentIdx], allResults[altIdx]] = [allResults[altIdx], allResults[currentIdx]];
-  
-  // Update state to new identity
-  state.result.identity = altIdentity;
-  
-  // Re-render entire results page with updated allResults
-  showResults();
   
   window.scrollTo({top: 0, behavior: 'smooth'});
 }
@@ -10518,8 +11255,7 @@ function showShareScreen() {
     closestEl.textContent = closestName.charAt(0).toUpperCase() + closestName.slice(1).toLowerCase();
   }
 
-  const confLevel = (state.result.confidence || 'MODERATE').toLowerCase();
-  document.getElementById('sc-conf').textContent = confLevel.charAt(0).toUpperCase() + confLevel.slice(1);
+  document.getElementById('sc-conf').textContent = RESULT_COPY.labels[confidenceLevel()].word;
 
   // Audience-aware quote: roast for fun, philosophy for workplace.
   const audience = document.body.dataset.audience || 'consumer';
@@ -10551,8 +11287,11 @@ function showShareScreen() {
   const tcgMana = document.getElementById('tcg-mana');
   if (tcgMana && p.colors) tcgMana.innerHTML = p.colors.map(c => `<span class="mc-pip is-lit" data-color="${c}"></span>`).join('');
   const tcgTypelineName = document.getElementById('tcg-typeline-name'); if (tcgTypelineName) tcgTypelineName.textContent = p.name;
+  // The Card's set-symbol slot holds no confidence word: a collector number in
+  // player mode ("MC1 • EN • 009/031", the set code carrying the scoring
+  // version), nothing otherwise.
   const tcgConf = document.getElementById('tcg-conf');
-  if (tcgConf) tcgConf.textContent = confLevel.charAt(0).toUpperCase() + confLevel.slice(1) + ' ✦';
+  if (tcgConf) tcgConf.textContent = isPlayerMode() ? collectorNumber(state.result.identity) : '';
   const tcgRules = document.getElementById('tcg-rules');
   if (tcgRules) {
     const headers = ['Vigilance', 'Resilience', 'Strategic Patience']; // placeholder ability headers
@@ -10815,6 +11554,9 @@ function showDetail(id) {
   document.getElementById(`card-${id}`)?.classList.add('selected');
 
   document.getElementById('detail-placeholder').style.display = 'none';
+  // The markup starts it with .hidden (display: none !important), which an
+  // inline display cannot beat, so lift the class as well.
+  document.getElementById('detail-content').classList.remove('hidden');
   document.getElementById('detail-content').style.display = 'block';
 
   // Identity header — use mc-pip artwork (the actual mana symbols)

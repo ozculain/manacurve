@@ -31,6 +31,9 @@ Existing: `r` identity, `p` five integers 0..100 in WUBRG order, `c` confidence,
 Added: `s` scoringVersion, `i` instrumentVersion, `f` appealed identity (optional), later `v` result code (optional).
 Absent `s` or `i` means 1. Unknown parameters are ignored. `buildResultURL` writes `s` and `i`; `parseSeedURL` reads them into `state.result`.
 
+- `r` stays the verdict after an appeal; the appeal is `state.result.appeal = { chosen, shown, copyVersion, labelShown, timeToAppealMs }` (presentation-owned; scoring never writes it). `f` carries `appeal.chosen`, and is not written in workplace mode, where the appeal stays private.
+- The golden test compares the result link on `r`, `p`, `c` and `a` only, so adding `s`, `i`, `f` (or `v`) to links never forces a fixture rewrite; a change of `SCORING_VERSION` shows up there through the identity, confidence and bars it changes, not through `s`.
+
 ## Region ownership in index.html (line numbers at commit 5e079fb; EOL renormalisation does not move them)
 
 - Phase 1 (scoring): roughly 4989 to 7403 (Round 1 scoring, candidate generation, refinement, tournament), plus `saveSession`/`restoreSession` fields, `tests/simulate.js`, `tests/fixtures/`. Adds no CSS. Does not touch `showResults` or the share code.
