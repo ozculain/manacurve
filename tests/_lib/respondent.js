@@ -168,10 +168,12 @@ const MODEL_NAMES = Object.keys(MODELS);
 const round = (x, dp) => { const f = 10 ** dp; return Math.round(x * f) / f; };
 const roundActivation = (sorted) => (sorted || []).map(([c, v]) => [c, round(v, 3)]);
 
-// params: { model = 'ideal', p, neither, seed, audience = 'consumer', calibration }
+// params: { model = 'ideal', p, neither, seed, audience = 'consumer', gaming = false, calibration }
+// gaming sets the page's gaming toggle (state.gamingFamiliar), which lets the
+// Magic-flavoured items into Rounds 1 and 2.
 // With trace, the result also carries what the golden test records.
 function runRespondent(win, trueId, idx, params, { trace = false } = {}) {
-  const { model = 'ideal', p, neither, seed, audience = 'consumer' } = params;
+  const { model = 'ideal', p, neither, seed, audience = 'consumer', gaming = false } = params;
   const h = win.__h;
   win.Math.random = mulberry32(hashSeed(seed, trueId, idx, 'page'));
   const rnd = mulberry32(hashSeed(seed, trueId, idx, 'resp'));
@@ -182,7 +184,7 @@ function runRespondent(win, trueId, idx, params, { trace = false } = {}) {
 
   h.restart(); // the page's own "Start fresh" path: rebuilds state, hides all screens
   const s0 = h.state;
-  s0.mode = 'draft'; s0.audience = audience; s0.gamingFamiliar = false; s0.disclaimerAcknowledged = true;
+  s0.mode = 'draft'; s0.audience = audience; s0.gamingFamiliar = !!gaming; s0.disclaimerAcknowledged = true;
   h.startAssessment();
 
   // Round 1
@@ -201,8 +203,14 @@ function runRespondent(win, trueId, idx, params, { trace = false } = {}) {
     out.r1 = (rc || []).map(c => [c.id, round(c.s1, 6)]);
     out.r1Activation = roundActivation(h.state.activationSorted);
   }
-  let earlyOffer = false;
-  if (isVisible(win, 'screen-early-offer')) { earlyOffer = true; h.continueToRound2(); }
+  // The simulated respondent always declines the early-result offer; the
+  // identity it offered is kept so the offer's precision can be measured.
+  let earlyOffer = false, earlyOfferId = null;
+  if (isVisible(win, 'screen-early-offer')) {
+    earlyOffer = true;
+    earlyOfferId = (win.earlyConfidenceData && win.earlyConfidenceData.identity) || null;
+    h.continueToRound2();
+  }
 
   // Round 2
   guard = 0;
@@ -223,7 +231,19 @@ function runRespondent(win, trueId, idx, params, { trace = false } = {}) {
     h.selectTournamentChoice(resp.round3(m.a.id, m.b.id, colorsOf));
   }
   const r = h.state.result;
-  Object.assign(out, { recovered: r ? r.identity : null, confidence: r ? r.confidence : 'NONE', earlyOffer, round1Pick });
+  Object.assign(out, { recovered: r ? r.identity : null, confidence: r ? r.confidence : 'NONE', earlyOffer, earlyOfferId, round1Pick });
+  // What the simulator checks and reports beyond recovery: the final activation
+  // (the neighbourhood is read from it) and the result's contract fields.
+  out.finalActivation = roundActivation(h.state.activationSorted);
+  if (r) {
+    out.scoringVersion = r.scoringVersion;
+    out.instrumentVersion = r.instrumentVersion;
+    if (r.posterior) {
+      out.posteriorSum = Object.values(r.posterior).reduce((a, b) => a + b, 0);
+      out.posteriorOfResult = r.posterior[r.identity];
+      out.posteriorIds = Object.keys(r.posterior).length;
+    }
+  }
   if (trace) {
     Object.assign(out, {
       activation: roundActivation(h.state.activationSorted),
