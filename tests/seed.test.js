@@ -9,6 +9,8 @@
 //     renders the right identity, bars, confidence, audience and next-door row.
 //  3. Unknown parameters are ignored and an unknown identity falls back to the
 //     welcome screen.
+//  4. An appealed link (&f=) opens on the appealed identity, marked, with the
+//     verdict kept in state.result.identity; an unusable f is ignored.
 // Usage: node tests/seed.test.js [path/to/index.html]
 const path = require('path');
 const { bootPage, pageArgs, whenReady, isVisible } = require('./_lib/load');
@@ -140,6 +142,30 @@ run('seed', async ({ ok }) => {
     ok('unknown parameters are ignored ' + q, problems.length === 0, problems.join('; '));
     win.close();
   }
+  // ---------- 4. An appealed link (&f=) ----------
+  {
+    const q = '?r=DIMIR&p=22,78,64,11,31&c=moderate&a=consumer&f=SULTAI';
+    const { win, h, errors } = await openLink(q);
+    const d = win.document, problems = [];
+    const r = h.state.result || {};
+    if (r.identity !== 'DIMIR' || !r.appeal || r.appeal.chosen !== 'SULTAI') problems.push('state.result ' + JSON.stringify({ identity: r.identity, appeal: r.appeal }));
+    if ((d.getElementById('res-id').textContent || '').trim() !== h.PROFILES.SULTAI.name) problems.push('res-id ' + d.getElementById('res-id').textContent);
+    if (!isVisible(win, 'res-appeal-mark') || d.getElementById('res-appeal-mark').title !== 'Originally Dimir. You appealed.') problems.push('appeal mark');
+    if (JSON.stringify(nextDoorRows(win)) !== JSON.stringify([['up', 'SULTAI', 'well'], ['down', 'MONO-U', 'well']])) problems.push('next door ' + JSON.stringify(nextDoorRows(win)));
+    if (!/&f=SULTAI(&|$)/.test(h.buildResultURL())) problems.push('rebuilt link lost the appeal: ' + h.buildResultURL());
+    if (errors.length) problems.push('errors: ' + errors.slice(0, 2).join(' | '));
+    ok('an appealed link opens on the appeal, marked ' + q, problems.length === 0, problems.join('; '));
+    win.close();
+  }
+  for (const f of ['NOT-AN-IDENTITY', 'DIMIR', '']) {
+    const q = '?r=DIMIR&p=22,78,64,11,31&c=moderate&a=consumer&f=' + f;
+    const { win, h, errors } = await openLink(q);
+    const appeal = h.state.result && h.state.result.appeal;
+    ok('an unusable f is ignored ' + q, !appeal && !isVisible(win, 'res-appeal-mark') && errors.length === 0 && !/[?&]f=/.test(h.buildResultURL()),
+      JSON.stringify(appeal) + ' ' + errors.slice(0, 2).join(' | '));
+    win.close();
+  }
+
   {
     const { win, h, errors } = await openLink('?r=NOT-AN-IDENTITY&p=50,50,50,50,50&c=high&a=consumer');
     ok('unknown identity falls back to the welcome screen', isVisible(win, 'screen-welcome') && !isVisible(win, 'screen-results') && !h.state.result && errors.length === 0,

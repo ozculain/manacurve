@@ -327,6 +327,92 @@ run('render', async (t) => {
     win.close();
   }
 
+  // 7. Appeal the verdict: the first tap on a neighbour peeks, a second,
+  //    separate tap appeals. The verdict stays in state.result.identity.
+  const tick = () => new Promise((r) => setTimeout(r, 0));
+  for (const [audience, player] of [['consumer', true], ['consumer', false], ['workplace', true]]) {
+    const { win, h, errors, threw } = await renderCase(DIMIR, audience, player, seed++);
+    const d = win.document, el = (id) => d.getElementById(id);
+    const shown = (id) => !!el(id) && !el(id).classList.contains('hidden');
+    const P = h.PROFILES, playerCopy = player && audience === 'consumer';
+    const problems = threw ? ['showResults threw: ' + threw] : [];
+    const need = (cond, what) => { if (!cond) problems.push(what); };
+    const chip = (id) => d.querySelector(`#next-door-chips .mc-nextdoor__chip[data-id="${id}"]`);
+    const lis = (id) => [...d.querySelectorAll(`#${id} li`)].map((li) => li.textContent);
+
+    // Peek: the neighbour's philosophy, rules text, strengths and shadows,
+    // flagged as a peek, with nothing about the result changed.
+    chip('SULTAI').click();
+    need(text(win, 'identity-exp') === P.SULTAI.philosophy.trim(), 'peek did not show the neighbour\'s philosophy');
+    need(JSON.stringify(lis('strengths')) === JSON.stringify(P.SULTAI.str) && JSON.stringify(lis('weaknesses')) === JSON.stringify(P.SULTAI.weak), 'peek did not show the neighbour\'s strengths and shadows');
+    need(['identity-exp', 'res-traits'].every((id) => el(id).classList.contains('is-peeking') && el(id).dataset.peek === 'Next door: Sultai'), 'peeking state not visible');
+    need(!playerCopy || text(win, 'res-rules') === h.RESULT_COPY.rules.SULTAI, 'peek did not show the neighbour\'s rules text');
+    need(chip('SULTAI').getAttribute('aria-pressed') === 'true', 'peeked chip not pressed');
+    need(shown('next-door-panel') && text(win, 'appeal-btn') === (playerCopy ? "Respond: I'm Sultai" : 'Switch to Sultai'), `appeal button "${text(win, 'appeal-btn')}"`);
+    need(text(win, 'next-door-panel').includes(playerCopy ? 'Just looking. Nothing changes unless you respond.' : 'Just a look. Your result stays put unless you choose this one.'), 'peek note');
+    need(text(win, 'peek-back-btn') === 'Back to Dimir', 'way back from the peek');
+    need(text(win, 'next-door-panel').includes("Your appeal isn't included when you share.") === (audience === 'workplace'), 'workplace privacy note');
+    need(text(win, 'res-id') === P.DIMIR.name && !h.state.result.appeal && !shown('res-appeal-mark'), 'a peek changed the result');
+    el('peek-back-btn').click();
+    need(text(win, 'identity-exp') === P.DIMIR.philosophy.trim() && !el('identity-exp').classList.contains('is-peeking') && !shown('next-door-panel'), 'way back did not restore the verdict');
+
+    // Appeal: peek again, then the separate button.
+    chip('SULTAI').click();
+    el('appeal-btn').click();
+    const a = h.state.result.appeal || {};
+    need(h.state.result.identity === 'DIMIR', 'the verdict was overwritten');
+    need(a.chosen === 'SULTAI' && JSON.stringify(a.shown) === '["SULTAI","MONO-U"]' && a.copyVersion === 1
+      && a.labelShown === 'Leaning' && Number.isFinite(a.timeToAppealMs) && a.timeToAppealMs >= 0, 'appeal record ' + JSON.stringify(a));
+    need(text(win, 'res-id') === P.SULTAI.name && text(win, 'res-tag') === P.SULTAI.tag && text(win, 'identity-exp') === P.SULTAI.philosophy.trim(), 'appealed identity not on screen');
+    need(shown('res-appeal-mark') && text(win, 'res-appeal-mark') === '(on appeal)' && el('res-appeal-mark').title === 'Originally Dimir. You appealed.', 'appeal mark');
+    el('res-appeal-mark').click();
+    need(shown('res-appeal-note') && text(win, 'res-appeal-note') === 'Originally Dimir. You appealed.', 'tapping the mark should say where it started');
+    need(chip('SULTAI').classList.contains('is-appealed') && d.querySelectorAll('#next-door-chips .mc-nextdoor__chip').length === 2, 'next door should still show the verdict\'s neighbours');
+    need(text(win, 'next-door-panel').includes(playerCopy ? 'Appeal lodged. The original verdict stays on the record.' : 'Switched. Your original result is kept too.'), 'after-appeal note');
+    need(text(win, 'appeal-undo-btn') === (playerCopy ? 'Let the original resolve' : 'Switch back to Dimir'), `undo "${text(win, 'appeal-undo-btn')}"`);
+    const url = h.buildResultURL();
+    if (audience === 'workplace') need(!/[?&]f=/.test(url) && !text(win, 'share-preview').includes('f=SULTAI'), 'workplace link carries the appeal: ' + url);
+    else need(/&f=SULTAI(&|$)/.test(url), 'link lacks &f=SULTAI: ' + url);
+    const saved = h.loadSession();
+    need(saved && saved.result && saved.result.appeal && saved.result.appeal.chosen === 'SULTAI' && saved.result.identity === 'DIMIR', 'appeal not saved with the session');
+    h.restoreSession(h.loadSession());
+    need(text(win, 'res-id') === P.SULTAI.name && shown('res-appeal-mark'), 'appeal lost on resume');
+    el('appeal-undo-btn').click();
+    need(!h.state.result.appeal && text(win, 'res-id') === P.DIMIR.name && !shown('res-appeal-mark') && !shown('next-door-panel'), 'undo did not restore the verdict');
+    need(errors.length === 0, 'errors: ' + errors.slice(0, 2).join(' | '));
+    t.ok(`appeal: peek, way back, appeal, mark, link, resume, undo (${audience}, player mode ${player ? 'on' : 'off'})`, problems.length === 0, problems.join('; '));
+    win.close();
+  }
+
+  // The other path: "Neither. Show me all 31." opens the explorer with a bar
+  // that appeals to whichever identity is open.
+  {
+    const { win, h, errors } = await renderCase(DIMIR, 'consumer', true, seed++);
+    const d = win.document, el = (id) => d.getElementById(id);
+    const shown = (id) => !!el(id) && !el(id).classList.contains('hidden');
+    const problems = [];
+    const need = (cond, what) => { if (!cond) problems.push(what); };
+    need(text(win, 'next-door-all') === 'Neither. Show me all 31.', 'all-31 link text');
+    el('next-door-all').click();
+    need(shown('screen-explorer') && !shown('screen-results') && shown('appeal-pick-bar') && text(win, 'appeal-pick-bar').includes('Pick the one that sounds like you.'), 'explorer with the pick bar');
+    el('card-GOLGARI').click();
+    need(text(win, 'detail-name') === h.PROFILES.GOLGARI.name && text(win, 'appeal-pick-btn') === "Respond: I'm Golgari", `pick bar "${text(win, 'appeal-pick-bar')}"`);
+    el('appeal-pick-btn').click();
+    await tick();
+    const a = h.state.result.appeal || {};
+    need(shown('screen-results') && !shown('screen-explorer') && !shown('appeal-pick-bar'), 'back on the result after appealing');
+    need(a.chosen === 'GOLGARI' && JSON.stringify(a.shown) === '["SULTAI","MONO-U"]' && text(win, 'res-id') === h.PROFILES.GOLGARI.name, 'all-31 appeal ' + JSON.stringify(a));
+    // Leaving the picker another way ends it; the plain explorer has no bar.
+    el('next-door-all').click();
+    win.closeExplorer();
+    await tick();
+    win.showExplorer();
+    need(!shown('appeal-pick-bar'), 'the pick bar stayed on the plain explorer');
+    need(errors.length === 0, 'errors: ' + errors.slice(0, 2).join(' | '));
+    t.ok('appeal: the all-31 path through the explorer', problems.length === 0, problems.join('; '));
+    win.close();
+  }
+
   // The Scorecard share image shows the label word, not the old confidence word.
   {
     const { win, errors } = await renderCase(DIMIR, 'consumer', false, seed++);
