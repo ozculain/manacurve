@@ -86,6 +86,87 @@ identity, and `tests/play.test.js` checks every quiz-screen string for that.
   stem across all 48 Round 3 stems, the sky constant's effect and its revert, and
   `i=2` in a built link. `tests/README.md` lists it and `tests/round3-copy.test.js`.
 
+### Phase 1: Round 3 weight
+
+- The problem: engine 2 reported the Round 3 candidate with the highest
+  posterior even when the person had chosen against it in most of its
+  head-to-heads. In simulation 6 to 11% of results had a losing Round 3 record
+  (fewer wins than losses) and about 2% had won no match (0.3 to 0.8% were
+  0-3; the rest lost the one or two they played before another candidate
+  clinched).
+- The change: a posterior leader with a losing record is reported only when
+  its posterior is at least 3 times the runner-up's
+  (`ROUND3_LOSING_RECORD_MARGIN`), or 16 times when it won no match
+  (`ROUND3_NO_WINS_MARGIN`); otherwise the best candidate by posterior
+  without a losing record is (`round3RecordRanking`). The posterior, the
+  confidence rule and the tiebreak questions are unchanged; `allResults` and
+  `round3Data.allScores` put the reported identity first, then the rest by
+  posterior. `docs/SCORING_CONTRACT.md` says so, in its own commit.
+- The grid (n = 100 per identity, seeds 1 and 2 pooled; overall exact /
+  losing-record share, in percent; two standard errors of the current
+  overall: 1.1 at p = 0.65, 1.2 at p = 0.8):
+
+  | variant             | ideal 0.65  | ideal 0.8  | misspec 0.65 | misspec 0.8 |
+  | ------------------- | ----------- | ---------- | ------------ | ----------- |
+  | current             | 25.1 / 10.7 | 70.2 / 7.5 | 24.9 / 10.3  | 60.6 / 6.2  |
+  | q = 0.65            | 25.2 / 12.9 | 69.3 / 9.4 | 24.4 / 12.5  | 59.8 / 7.9  |
+  | q = 0.75            | 24.9 / 8.3  | 70.4 / 6.0 | 24.9 / 7.5   | 60.5 / 4.7  |
+  | q = 0.85            | 24.6 / 6.4  | 69.5 / 3.8 | 24.5 / 5.3   | 59.6 / 3.0  |
+  | q = 0.95            | 24.1 / 5.3  | 67.8 / 2.8 | 24.1 / 4.7   | 57.1 / 2.2  |
+  | tournament-aware    | 21.9 / 9.0  | 60.1 / 6.3 | 23.2 / 6.7   | 56.5 / 3.7  |
+  | record rule (taken) | 24.5 / 1.3  | 69.2 / 1.6 | 24.7 / 0.9   | 60.6 / 1.1  |
+
+  Current: q averaged over 0.55 to 0.9, the posterior leader reported. A
+  fixed q (the Round 3 discrimination) cuts losing records by at most half
+  within two standard errors (q = 0.85), still reports no-win identities
+  (0.6 to 1.0%), and makes the labels less accurate: at q = 0.85,
+  misspecified, p = 0.8, HIGH is right 77% of the time and MODERATE 71%,
+  against 84% and 75% with q averaged. q = 0.95 and the tournament-aware rule
+  (report the tournament winner when it beat the posterior leader
+  head-to-head) fall outside two standard errors. The simple rule beats every
+  discrimination value. A margin of 4 instead of 3 costs the ideal
+  respondents 1.2 points at p = 0.8, outside the band. Adding q = 0.75 to the
+  rule wins back about 0.3 points there but makes misspecified MODERATE
+  labels about 2.5 points less accurate, so it was not taken.
+- Where the posterior leader and the tournament winner (the page's
+  `getTournamentWinner`) disagree, 28 to 40% of results, the leader is the
+  true identity 62% of the time and the winner 16% (ideal, p = 0.8);
+  misspecified 48% and 20%; at p = 0.65, 22% and 11% (ideal), 21% and 13%.
+- Before and after (n = 200 per identity, fresh seeds 3 and 4, ideal /
+  misspecified; change on the same respondents with two paired standard
+  errors):
+
+  |                           | p = 0.65                | p = 0.8                 |
+  | ------------------------- | ----------------------- | ----------------------- |
+  | exact recovery            | 25.7 / 24.5 to 25.4 / 24.8 | 71.3 / 59.7 to 70.4 / 59.9 |
+  | change (pp)               | -0.4 ±0.3 / +0.3 ±0.3   | -0.9 ±0.4 / +0.3 ±0.3   |
+  | losing record             | 10.5 / 9.8 to 0.9 / 1.0 | 6.8 / 6.2 to 1.5 / 1.0  |
+  | won no match              | 2.0 / 2.0 to 0 / 0      | 1.9 / 2.1 to 0.02 / 0.02 |
+  | best or tied-best record  | 82 / 82 to 91 / 90      | 85 / 85 to 90 / 89      |
+  | next door                 | 43.3 / 41.3 to 43.5 / 41.8 | 85.7 / 77.6 to 86.2 / 78.4 |
+
+  Label accuracy at p = 0.8: HIGH 93.7 / 82.7 to 93.7 / 82.9, MODERATE 84.4 /
+  72.1 to 84.7 / 72.7, LOW 60.6 / 46.7 to 59.2 / 47.2. Of the 49,600
+  respondents, 990 had been given an identity with no wins (29% of them
+  right); after the change 5 were, each with a posterior over 16 times the
+  runner-up's, and all 5 were right. The ideal drop at p = 0.8 is inside two
+  standard errors at the grid's sample size (1.2) but just outside them at
+  this one (0.8); under the misspecified model nothing is lost.
+- Commands (run on 34f2935, before the change; on later builds write `pm`
+  for `page`, and add `+pm` to a `q` variant to leave the rule out):
+  `node tests/simulate.js --n 100 --models both --p 0.65,0.8 --seed 1,2
+  --r3 page,q=0.65,q=0.75,q=0.85,q=0.95,tour,tour:4,lostall,lostall:4,lostall:16,losing,losing:2,losing:4,losing:8,losing:16,losing:4+lostall,q=0.65+losing:4,q=0.75+losing:4,q=0.85+losing:4,q=0.95+losing:4`;
+  then `--r3 page,losing:3,losing:4,losing:5,losing:6,net:2,net:3,net:4,losing:3+lostall:16,losing:4+lostall:16,q=0.75,q=0.75+losing:3,q=0.75+losing:4,q=0.75+losing:6,q=0.75+net:3,q=0.8,q=0.8+losing:3,q=0.8+losing:4`
+  and `--r3 page,losing:3,losing:3:10,losing:3:16,losing:2:16,losing:3+lostall:16,net:3`
+  with the same other flags. The before and after, on this build:
+  `node tests/simulate.js --n 200 --models both --p 0.65,0.8 --seed 3,4 --r3 pm,page`.
+- `tests/simulate.js`: `--r3` (variants above; a `q` runs on the page, a
+  rule is applied to what the page recorded at its decision, and the run
+  fails if a label disagrees with the record), `--seed` lists pooled into
+  one report, and a path to another build. Without them the output is as
+  before.
+- `tests/fixtures/golden.json` rewritten for the rule, in its own commit.
+
 ### Phase 3: Round 3 copy
 
 - Round 3 stems and options reworded from the reviewed copy drafts (revision 2): 48
