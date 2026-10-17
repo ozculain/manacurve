@@ -15,9 +15,9 @@
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
-const vm = require('vm');
 const { spawnSync } = require('child_process');
 const { ROOT, bootPage, pageArgs, whenReady, isVisible } = require('./_lib/load');
+const { forward } = require('./_lib/forward');
 const { run } = require('./_lib/report');
 const gen = require('../tools/build-previews');
 const { JSDOM } = require(path.join(ROOT, 'node_modules', 'jsdom'));
@@ -32,14 +32,6 @@ const parse = (html) => new JSDOM(html).window.document;
 const attr = (doc, selector, name) => { const el = doc.querySelector(selector); return el ? el.getAttribute(name) : null; };
 const content = (doc, selector) => attr(doc, selector, 'content');
 const withoutSite = (url) => (typeof url === 'string' && url.startsWith(SITE) ? url.slice(SITE.length) : null);
-
-// Runs a page's inline script against a fake location; returns every URL it forwarded to.
-function forward(code, search, hash = '') {
-  const calls = [];
-  const location = { search, hash, replace(url) { calls.push(url); } };
-  vm.runInNewContext(code, { location, URLSearchParams }, { timeout: 1000 });
-  return calls;
-}
 
 // A JPEG made of the given marker segments, for the header parser.
 function segment(marker, payload) {
