@@ -37,6 +37,60 @@ Newest first. Dates are when the work was committed.
   preview-page links beside the ten old ones.
 - `.github/workflows/deploy.yml.proposed` now copies `r/` alongside `index.html`,
   `data.js`, `favicon.svg` and `images/`, so enabling it keeps the preview pages.
+
+### Phase 2: final copy
+
+The results screen carries revision 2 of the copy drafts (17 October 2026)
+with the editor's decisions applied. It all still lives in one block,
+`RESULT_COPY`, above `showResults()` in `index.html`.
+
+- Rules text: the 31 revision 2 lines.
+- Typeline: the commander's own printed type line for all 31 identities
+  ("Legendary Creature — Human Ninja"), no parenthetical. In player mode the
+  name, tagline, typeline, rules text and collector number ("MC2 • EN •
+  007/031") read as one card under the banner, and the typeline takes the
+  "Personality" divider's place, so the page has one. Plain mode keeps the
+  divider and prints "Scoring version 2" in the footer.
+- Confidence: the label words stay; each base-rate sentence is the same in
+  both modes, joke-free and without a number ("The colours are usually
+  right. One more or one fewer is where it wobbles."). The simulated
+  figures, their small print and `CONFIDENCE_BASE_RATES` are gone; the
+  Phase 5 lines with `{pct}` and `{date}` wait in `RESULT_COPY.labels`,
+  unused. The bars are "Your Mana Pool" in player mode, "Your colours"
+  otherwise.
+- Next door: a "well" short up row asks its headline ("Splash green?
+  Gruul."), and the bar-points-to-answers conversion is set per scoring
+  version (`ONE_ANSWER_BY_VERSION`). The row moves directly below the
+  commander block and its mana base, and each row has its own panel: the
+  first tap peeks at that neighbour's philosophy, strengths and shadows, the
+  panel's own button appeals, and the rest of the page no longer changes
+  during a peek.
+- Appeal: "Appeal this ruling", "Appeal: I'm Sultai", "Overturned on
+  appeal...", "Withdraw the appeal", "None of these. Show me all 31."; plain
+  mode says "appeal" too. `RESULT_COPY_VERSION` is 2.
+- Mana base: Command Tower opens every two- and three-colour base; four
+  colours count "six shocks, four Triomes" (23 basics), five "all ten
+  shocks, all ten Triomes, and 13 basics, mostly for the Cultivate". The
+  next-door land is a maybeboard line outside the 37, shown only when the up
+  neighbour is one answer short ("just in case") or a few ("It's been there
+  a while"); a mono base then drops its joke. `MANA_BASE_LANDS` gains
+  `commandTower`.
+- Share text: one line in every mode, "I'm Azorius. Esper lives next door.
+  What are you?". After an appeal, consumer shares name the identity on the
+  page with "(on appeal)" and the link carries both; workplace shares name
+  the verdict. Share images keep the verdict, unmarked. The approved
+  player-mode line naming the commander waits in `RESULT_COPY.share`, unused.
+- Engine 2: Round 3 of "How we read you" says the identity won on the weight
+  of all your answers, adding "though not with the best record in this
+  round" when that is so, and the confidence explanation no longer credits
+  the head-to-heads alone. `?engine=1` results keep the old wording.
+- Tests: the render test checks a sample of every section in player and
+  plain modes, the drafts' five typeline examples, the next-door worked
+  examples, the drafts' mana base lines, all 31 mana bases (37 lands, no
+  off-identity land in the deck, a maybeboard only when a neighbour
+  qualifies), the per-row appeal, shares after an appeal, and the Round 3
+  line for a result without the best record.
+
 ### Phase 2: presentation, one verdict and next door
 
 All new result-screen copy is provisional and lives in one block,
