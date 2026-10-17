@@ -5766,9 +5766,10 @@ function updateLikelihood(stage) {
 // soon as they are built and use these estimates before then. Simulated
 // respondents: Round 2 is usually 9 questions (6 to 10); Round 3 plays four
 // candidates, six head-to-heads, which a clinch can cut short and a tiebreak
-// can lengthen by up to two. 30 + 9 + 6 = 45, about 8 minutes. The minutes are
-// 8 until they are measured (Phase 5); the early offer's minutes come from the
-// same figure.
+// can lengthen by up to two. 30 + 9 + 6 = 45, about 8 minutes: the claims on
+// the welcome and preflight say "up to" that, because a clinch can end the
+// quiz early. The minutes are 8 until they are measured (Phase 5); the early
+// offer's minutes come from the same figure.
 const QUIZ_LENGTH = { round1: 30, round2: 9, round3: 6, minutes: 8 };
 
 const PLAY_COPY = {
@@ -5780,15 +5781,15 @@ const PLAY_COPY = {
   welcome: {
     rule0: "Rule 0: it's a bit of fun, not science. We keep having to remind ourselves.",
     explore: 'Explore all 31',
-    length: "About {minutes} minutes. Less if you're decisive.",
+    length: "Up to {questions} questions, about {minutes} minutes. Less if you're decisive.",
     // The fold: one line for the whole quiz, so the fold, the counter and the
     // time agree
-    howLength: 'About {questions} questions over three rounds.',
+    howLength: 'Up to {questions} questions over three rounds.',
   },
 
   preflight: {
     eyebrow: 'One question first',
-    length: 'About {minutes} minutes.',
+    length: 'Up to {questions} questions, about {minutes} minutes.',
     question: 'Played Magic?',
     yes: 'Yes',
     yesNote: 'Adds the Magic jokes and a few Magic questions.',
@@ -5972,10 +5973,11 @@ function prefersReducedMotion() {
 }
 
 // Fills the markup's data-copy elements, and How This Works' round names, from
-// PLAY_COPY and QUIZ_LENGTH: the numbers the one counter starts from. Runs
-// once, on load.
+// PLAY_COPY and the one counter's own total (the lengths the counter starts
+// from: Round 1, and the estimates for Rounds 2 and 3). Runs once, on load.
 function applyPlayCopy() {
-  const vars = { minutes: QUIZ_LENGTH.minutes, questions: quizEstimate() };
+  const total = quizLengths().total;
+  const vars = { minutes: quizMinutes(total), questions: total };
   document.querySelectorAll('[data-copy]').forEach(el => {
     const text = playCopyAt(el.dataset.copy);
     if (typeof text === 'string') el.textContent = fillCopy(text, vars);

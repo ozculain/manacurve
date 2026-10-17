@@ -190,11 +190,11 @@ run('play', async (t) => {
     const howNames = [1, 2, 3].map((n) => textOf(win, 'how-name-' + n));
     const welcomeText = win.document.getElementById('screen-welcome').textContent;
     ok('P2f How This Works gives one length line for the whole quiz, the counter\'s own total (45), with the three rounds under it and no "Enemy Pairs"',
-      textOf(win, 'how-length') === 'About 45 questions over three rounds.' && !win.document.querySelector('.mc-how__count')
+      textOf(win, 'how-length') === 'Up to 45 questions over three rounds.' && !win.document.querySelector('.mc-how__count')
         && !/enemy pairs/i.test(welcomeText) && howNames.join('|') === 'First Impressions|Refinement|Final Determination',
       textOf(win, 'how-length') + ' ' + howNames.join('|'));
-    ok('P2g the preflight says about 8 minutes, and nothing says 15 minutes',
-      textOf(win, 'preflight-length') === 'About 8 minutes.'
+    ok('P2g the preflight says "up to 45 questions, about 8 minutes" (a clinch can end the quiz early), and nothing says 15 minutes',
+      textOf(win, 'preflight-length') === 'Up to 45 questions, about 8 minutes.'
         && !/15\s*min|~\s*15/i.test(welcomeText + win.document.getElementById('screen-preflight').textContent),
       textOf(win, 'preflight-length'));
     // The early offer: what is left of the one counter. It comes at the end
@@ -222,6 +222,14 @@ run('play', async (t) => {
         && offer.querySelectorAll('.mc-pip, .mc-confidence, .mc-manastrip, #early-result-name, #early-result-tag').length === 0
         && textOf(win, 'early-typeline') === 'Round I complete' && offer.querySelector('h2').textContent === 'The rest is optional.'
         && textOf(win, 'early-keep-going') === 'Keep going' && textOf(win, 'early-show-now') === 'Show me now', offerText);
+    // The claims are the counter's computed total, not a number written into the copy:
+    // a longer Round 2 estimate moves the welcome, the fold and the preflight together
+    win.eval('QUIZ_LENGTH.round2 = 12');
+    win.applyPlayCopy();
+    ok('P2j the length lines follow the counter\'s computed total (a Round 2 estimate of 12 makes 48 everywhere)',
+      win.eval('quizLengths().total') === 48 && textOf(win, 'preflight-length') === 'Up to 48 questions, about 8 minutes.'
+        && textOf(win, 'welcome-length') === "Up to 48 questions, about 8 minutes. Less if you're decisive." && textOf(win, 'how-length') === 'Up to 48 questions over three rounds.',
+      `${textOf(win, 'preflight-length')} | ${textOf(win, 'welcome-length')} | ${textOf(win, 'how-length')}`);
     win.close();
   }
 
@@ -335,8 +343,8 @@ run('play', async (t) => {
     ok('P4c the long paragraph moved into the "Learn more" fold',
       d.getElementById('learn-more-content').contains(intro) && /5 colours/.test(intro.textContent)
         && ![...lede.parentElement.children].some((el) => el.tagName === 'P' && /5 colours/.test(el.textContent)), '');
-    ok('P4d the welcome says about 8 minutes, and "less if you\'re decisive"',
-      textOf(win, 'welcome-length') === "About 8 minutes. Less if you're decisive.", textOf(win, 'welcome-length'));
+    ok('P4d the welcome says "up to 45 questions, about 8 minutes", the counter\'s own total, and "less if you\'re decisive"',
+      textOf(win, 'welcome-length') === "Up to 45 questions, about 8 minutes. Less if you're decisive.", textOf(win, 'welcome-length'));
     // The resume offer still lands after the crest, at its anchor.
     begin(h);
     for (let i = 0; i < 4; i++) answerOne(h);
