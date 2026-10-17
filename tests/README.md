@@ -10,6 +10,12 @@ check and exits non-zero if anything failed. They need jsdom in the repo's
 | `render.test.js` | `showResults()` on a fake mono, guild, three-, four- and five-colour result, in both audience modes: every key element is populated with that identity's data, the bars match the activation, and the workplace mode hides the banter |
 | `journey.test.js` | 43 checks over full journeys: the Round 2 gaming gate, weighted ally answers, session save and resume at every stage, the Round 3 clinch rule, Neither-neutral Round 1 ranking, the early-offer evidence floor, the context-disagreement caveat |
 | `seed.test.js` | `buildResultURL()` to `parseSeedURL()` round trips, and the ten links in `fixtures/seed-urls.json` (recorded from the live build) still open onto their result |
+| `golden.test.js` | 186 seeded paths through the real Rounds 1-3 (every identity: one respondent at p = 1, five at p = 0.8, the simulator's ideal model) match `fixtures/golden.json`: Round 1 candidates and s1, Round 1 and final activation, early offer, identity, confidence, Round 3 matchups in order, and the result link |
+
+`fixtures/golden.json` changes only when scoring changes on purpose. Rewrite it
+with `node tests/golden.test.js --update`, in a commit of its own, and say in
+that commit what moved. `fixtures/seed-urls.json` is never regenerated: those
+links stand in for links people have already shared.
 
 The page tests (all but `structure`) boot `index.html` through `_lib/load.js`:
 `data.js` is inlined into the main script tag, the html-to-image CDN script is
@@ -31,7 +37,8 @@ build's `index.html`, with its `data.js` beside it:
 It boots `index.html` with `data.js` in jsdom (one page per worker thread, reset
 between respondents with the page's own `restart()`), seeds the page's
 `Math.random`, and drives synthetic respondents through all three rounds with
-the real handlers and scoring code.
+the real handlers and scoring code. The respondent models live in
+`_lib/respondent.js`, which the golden test shares.
 
 **Respondent model.** For each identity in `PROFILES`, with colour set C:
 
