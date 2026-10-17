@@ -18,9 +18,12 @@
 //   6. the free mulligan: one undo per round, only the final answer scored,
 //      the first answer and both response times on the record
 //   7. share beside the identity in the results banner
+//   8. no colour cues while the scored rounds run (the sky and the Card Frames marks)
 // Usage: node tests/play.test.js [path/to/index.html]
 const fs = require('fs');
-const { bootPage, pageArgs, whenReady, isVisible, waitForResults, INDEX_HTML } = require('./_lib/load');
+const os = require('os');
+const path = require('path');
+const { bootPage, pageArgs, whenReady, isVisible, waitForResults, INDEX_HTML, DATA_JS } = require('./_lib/load');
 const { run } = require('./_lib/report');
 
 const SESSION_KEY = 'mana_assessment_state';
@@ -557,6 +560,83 @@ run('play', async (t) => {
     ok('P7b it reuses the share action: the same dare and link as the main share button',
       copied.length === 2 && copied[0] === copied[1] && copied[0].includes(h.buildResultURL()) && share.textContent === '✓ Link copied!', JSON.stringify(copied));
     ok('P7c no errors on the results page', errors.length === 0, errors.slice(0, 2).join(' | '));
+    win.close();
+  }
+
+  // ---------- 8: no colour cues while the scored rounds run ----------
+  // The night sky and the Card Frames progress marks tint toward the colours
+  // answered so far; with NEUTRAL_SKY_DURING_QUIZ on they stay as they are before
+  // the quiz until the result. jsdom has no canvas, so the sky gets a context
+  // that draws nothing and is built here (the page skips it under reduced motion).
+  const quietContext = () => new Proxy({}, {
+    get: (o, k) => (k === 'createLinearGradient' ? () => ({ addColorStop() {} }) : (k in o ? o[k] : () => {})),
+    set: (o, k, v) => { o[k] = v; return true; },
+  });
+  const addSky = (win) => {
+    win.HTMLCanvasElement.prototype.getContext = quietContext;
+    win.eval('_sky = new StarSky(document.getElementById("wisp-bg"))');
+    return () => win.eval('_sky');
+  };
+  const weightsOf = (sky) => Object.values(sky().weights).map((w) => +w.toFixed(6));
+  const allEqual = (ws) => ws.every((w) => w === ws[0]);
+  const runeTint = (win) => win.document.body.style.getPropertyValue('--rune-done');
+  const html0 = pageArgs().htmlPath || INDEX_HTML;
+  const NEUTRAL_ON = 'const NEUTRAL_SKY_DURING_QUIZ = true;';
+  {
+    const { win, h, errors } = await page();
+    const sky = addSky(win);
+    begin(h);
+    for (let i = 0; i < 14; i++) answerOne(h); // always the first-preference colour
+    await tick(); // the chrome's MutationObserver
+    const w = weightsOf(sky);
+    ok('P8a Round 1, 14 answers all one way: the sky keeps equal weights, lights no constellation, and the Card Frames marks stay untinted',
+      win.eval('NEUTRAL_SKY_DURING_QUIZ') === true && win.eval('colourCuesHidden()') === true && allEqual(w) && sky().identityColors === null && runeTint(win) === '',
+      `weights=${w} rune="${runeTint(win)}"`);
+    win.close();
+  }
+  {
+    // The one-line revert: with the constant false the sky weights and the marks tint again.
+    const src = fs.readFileSync(html0, 'utf-8');
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mc-play-'));
+    try {
+      ok('P8b index.html declares the constant on one line, true', src.split(NEUTRAL_ON).length === 2, 'expected exactly one "' + NEUTRAL_ON + '"');
+      fs.writeFileSync(path.join(dir, 'index.html'), src.replace(NEUTRAL_ON, 'const NEUTRAL_SKY_DURING_QUIZ = false;'));
+      const off = await page({ htmlPath: path.join(dir, 'index.html'), dataPath: pageArgs().dataPath || DATA_JS });
+      const sky = addSky(off.win);
+      begin(off.h);
+      for (let i = 0; i < 14; i++) answerOne(off.h);
+      await tick();
+      const w = weightsOf(sky);
+      ok('P8c set to false, the same answers tint the sky toward the colour answered and the marks again',
+        off.win.eval('colourCuesHidden()') === false && !allEqual(w) && w[0] === Math.max(...w) && runeTint(off.win) !== '',
+        `weights=${w} rune="${runeTint(off.win)}"`);
+      off.win.close();
+    } finally {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  }
+  {
+    const { win, h, errors } = await page();
+    const sky = addSky(win);
+    begin(h);
+    const seen = [];
+    playThrough(h, win, () => seen.push({ round: win.eval('quizRound()'), equal: allEqual(weightsOf(sky)), lit: sky().identityColors }));
+    const sameAtTheLastAnswer = allEqual(weightsOf(sky)) && sky().identityColors === null; // the result exists; the "calculating" screen is up
+    await waitForResults(win);
+    const rounds = [...new Set(seen.map((x) => x.round))].join();
+    const during = seen.filter((x) => !x.equal || x.lit !== null);
+    const result = h.state.result;
+    const colours = result ? h.PROFILES[result.identity].colors : [];
+    const w = weightsOf(sky);
+    ok('P8d through Rounds 1, 2 and 3, and on the "calculating" screen after the last answer, the weights stay equal and no constellation is lit',
+      rounds === '1,2,3' && seen.length > 40 && during.length === 0 && sameAtTheLastAnswer, `rounds=${rounds} questions=${seen.length} off=${during.length} last=${sameAtTheLastAnswer}`);
+    ok('P8e at the result reveal the real weighting resumes: unequal weights, the identity\'s constellation lit',
+      !!result && isVisible(win, 'screen-results') && !allEqual(w) && w[0] === Math.max(...w) && JSON.stringify(sky().identityColors) === JSON.stringify(colours),
+      `weights=${w} lit=${JSON.stringify(sky().identityColors)} want=${JSON.stringify(colours)}`);
+    h.restart();
+    ok('P8f starting over puts the sky back to the neutral palette (no constellation, equal weights)',
+      allEqual(weightsOf(sky)) && sky().identityColors === null && win.eval('_skyNeutral') === true, `weights=${weightsOf(sky)}`);
+    ok('P8g no errors', errors.length === 0, errors.slice(0, 3).join(' | '));
     win.close();
   }
 });

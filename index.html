@@ -5022,10 +5022,34 @@ function initWisps() {
   _sky.start();
 }
 
+// ─── COLOUR CUES DURING THE SCORED ROUNDS ──────────────────────────────────
+// While someone is answering, the page should not show them how the quiz is
+// reading them. The night sky tints toward the colours answered so far and, in
+// Round 3, lights the constellation of the identity in the lead; the Card
+// Frames theme tints its progress marks toward the two leading colours. With
+// this on, Rounds 1 to 3 keep all of that motion (twinkle, drift, the shimmer
+// on every answer, shooting stars, the marks filling in) but draw the colours
+// as they are before the quiz starts: equal weights, no constellation,
+// untinted marks. The real weighting resumes when the result is revealed. To
+// get the old behaviour back, set it to false; nothing else changes.
+const NEUTRAL_SKY_DURING_QUIZ = true;
+
+// True while a scored round is on and the colours should say nothing: the quiz
+// is in Round 1, 2 or 3 (state.stage) and has no result yet.
+function colourCuesHidden() {
+  return NEUTRAL_SKY_DURING_QUIZ && !state.result
+    && (state.stage === 1 || state.stage === 'refinement' || state.stage === 2 || state.stage === 3);
+}
+
+const NEUTRAL_SKY_WEIGHTS = { W: 1, U: 1, B: 1, R: 1, G: 1 };
+let _skyNeutral = null; // whether the last update drew the neutral sky (null before the first)
+
 // Called after every answer + on result render + on restart — derives weights
 // from whatever signal is most current in state, and toggles the constellation
 // when state.result.identity becomes set/unset. Transition speed scales by
 // round so the sky visibly accelerates as the result converges in Round 3.
+// During the scored rounds (colourCuesHidden) the weights are equal and no
+// constellation is lit, whatever has been answered.
 function updateWispWeights() {
   if (!_sky) return;
   // Round-aware transition speed: R3 (tournament) feels rapid, R1 feels slow.
@@ -5036,6 +5060,18 @@ function updateWispWeights() {
     opts = { fraction: 0.12, duration: 1100 };  // Round 2 — quickening
   } else {
     opts = { fraction: 0.07, duration: 1500 };  // Round 1 — gradual
+  }
+  const neutral = colourCuesHidden();
+  // Where the sky crosses between the neutral palette and the real weighting
+  // (the result is revealed, or the quiz starts over) most of the stars change
+  // colour at once, so the change reads as an event and not as a trickle.
+  if (_skyNeutral !== null && neutral !== _skyNeutral) opts = { fraction: 0.85, duration: 2400 };
+  _skyNeutral = neutral;
+  if (neutral) {
+    // Release any lit constellation first, so its stars are recoloured too
+    _sky.clearIdentity();
+    _sky.setWeights(NEUTRAL_SKY_WEIGHTS, opts);
+    return;
   }
   // Weights: prefer activationSorted (post-R1), fall back to raw colorScores (mid-R1)
   if (state.activationSorted && state.activationSorted.length > 0) {
@@ -13004,7 +13040,8 @@ function findGuildsWithColor(color) {
   // FRAMES theme — the chrome learns. Tint the progress runes toward the two
   // leading colours, in proportion to how much evidence has accumulated. The
   // variables are only consumed by the frames-theme CSS; computing them is
-  // harmless under the other themes.
+  // harmless under the other themes. Not while a scored round is on: see
+  // NEUTRAL_SKY_DURING_QUIZ, which keeps the marks untinted until the result.
   const RUNE_HEX = { W: '#f1e7c4', U: '#5a93d4', B: '#8a6dab', R: '#d05a3c', G: '#6ba24c' };
   const RUNE_BASE = '#8a6f4d'; // face-down bronze
   function lerpHex(a, b, t) {
@@ -13028,7 +13065,8 @@ function findGuildsWithColor(color) {
     // Evidence dial: silent for the first few answers, full lean by ~25.
     const mix = Math.max(0, Math.min(1, (total - 4) / 21)) * 0.75;
     const bs = document.body.style;
-    if (total < 1 || ranked[0][1] === 0) {
+    // During the scored rounds the marks stay untinted (NEUTRAL_SKY_DURING_QUIZ)
+    if (colourCuesHidden() || total < 1 || ranked[0][1] === 0) {
       bs.removeProperty('--rune-done'); bs.removeProperty('--rune-done2'); bs.removeProperty('--rune-glow');
       return;
     }
