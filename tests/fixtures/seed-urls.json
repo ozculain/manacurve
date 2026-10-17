@@ -11,5 +11,10 @@
     "?r=GLINT&p=17,56,48,48,64&c=moderate&a=consumer",
     "?r=WITCH&p=47,55,49,19,62&c=high&a=workplace",
     "?r=WUBRG&p=61,38,45,39,52&c=high&a=consumer"
+  ],
+  "previewNote": "Seed links in the preview-page form, written by buildResultURL() at the end of two simulated journeys (Dimir in consumer mode, Sultai in workplace mode) on the build where share links first pointed at r/<ID>.html (commit 11cce78, on main at 7186cbf; captured 2026-10-17). Each is the path from the site root; the preview page forwards it to index.html?r=<ID>&... . They stand in for links people have shared in the new form, so never regenerate them.",
+  "previewUrls": [
+    "r/DIMIR.html?p=53,56,68,32,38&c=moderate&a=consumer&s=1&i=1",
+    "r/SULTAI.html?p=34,57,52,29,61&c=high&a=workplace&s=1&i=1"
   ]
 }
