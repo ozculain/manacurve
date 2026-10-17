@@ -5586,6 +5586,8 @@ function showQ() {
   // Track render time + presented order for quality-flag detection (fast clicks, position bias).
   state.qShownAt = Date.now();
   state.qPresentedOrder = shuffled.map(r => r.t || r.text);
+  // The order the options were shown in (their colours), logged on the response record.
+  state.qShown = { id: q.id, order: shuffled.map(r => r.c || r.g || null) };
 
   // Position labels rotate I/II/III for the .mc-choice__pos header. (No "Path of X" flavor
   // names since the answer text already speaks for itself.)
@@ -5675,7 +5677,10 @@ function answerQ(resp, optionIdx) {
   if (optionIdx === 0) state.qualityFlags.alwaysLeftCount++;
   state.qualityFlags.totalAnswered++;
 
-  state.responses.push(resp);
+  // The response record: the chosen option (a copy, so the item bank is never
+  // mutated) plus the item, its weight and the order the options were shown in.
+  const answeredItem = state.stage === 1 ? state.poolA[state.qNum] : state.poolS2[state.qNum];
+  state.responses.push(responseRecord(resp, answeredItem));
   
   // Stage 1: Track color scores and pairwise (with item quality weighting)
   if (state.stage === 1) {
@@ -5801,7 +5806,7 @@ function answerNeither(q) {
   }
   
   // Store a placeholder response
-  state.responses.push({ c: 'NEITHER', pair: pair, text: 'Neither selected (skipped)' });
+  state.responses.push(responseRecord({ c: 'NEITHER', pair: pair, text: 'Neither selected (skipped)' }, q));
   
   
   // Advance to next question
@@ -5826,6 +5831,26 @@ function answerNeither(q) {
   } else {
     finishS2();
   }
+}
+
+// The order an item's options were shown in (their colours), if this item is
+// the one on screen; null otherwise.
+function shownOrderFor(item) {
+  return item && state.qShown && state.qShown.id === item.id ? [...state.qShown.order] : null;
+}
+
+// A response record for state.responses: a copy of the chosen option with the
+// item's id, pair and authored weight, and the order its options were shown in.
+function responseRecord(option, item) {
+  const rec = { ...option };
+  if (item) {
+    rec.id = item.id;
+    if (item.pair) rec.pair = item.pair;
+    rec.w = item.w || 1;
+    const shown = shownOrderFor(item);
+    if (shown) rec.shown = shown;
+  }
+  return rec;
 }
 
 // ============================================================================
@@ -6778,6 +6803,8 @@ function showRefinementQuestion() {
   choicesDiv.innerHTML = '';
 
   const options = shuffleArray([...q.r]);
+  // The order the options were shown in (their colours), logged on the answer record.
+  state.qShown = { id: q.id, order: options.map(o => o.c || null) };
   const posLabels = ['I', 'II', 'III', 'IV', 'V', 'VI'];
 
   options.forEach((opt, idx) => {
@@ -6833,12 +6860,16 @@ function showRefinementQuestion() {
 
 function selectRefinementChoice(color, pair) {
   
-  // Record the choice
+  // Record the choice, with the item's weight and the order its options were shown in
+  const shownQ = state.refinementQuestions[state.qNum];
+  const shown = shownOrderFor(shownQ);
   state.refinementAnswers.push({
-    questionId: state.refinementQuestions[state.qNum].id,
+    questionId: shownQ.id,
     pair: pair,
     choice: color,
-    type: state.refinementQuestions[state.qNum].refinementType
+    type: shownQ.refinementType,
+    w: shownQ.w || 1,
+    ...(shown ? { shown } : {})
   });
   
   // Update tallies. Ally-pair questions feed refinementPairwise; ENEMY_RETEST
@@ -6872,11 +6903,15 @@ function selectRefinementNeither(pair) {
   state.refinementNeitherCount++;
   
   // Record as neither - no points to either color
+  const shownQ = state.refinementQuestions[state.qNum];
+  const shown = shownOrderFor(shownQ);
   state.refinementAnswers.push({
-    questionId: state.refinementQuestions[state.qNum].id,
+    questionId: shownQ.id,
     pair: pair,
     choice: 'NEITHER',
-    type: state.refinementQuestions[state.qNum].refinementType
+    type: shownQ.refinementType,
+    w: shownQ.w || 1,
+    ...(shown ? { shown } : {})
   });
   
   // Neither color gets points - if neither resonates, we don't inflate both
@@ -7256,7 +7291,8 @@ function recordTournamentResult(tournament, winnerId) {
     loser: loser,
     type: matchup.type,
     scenarioId: matchup.scenarioId || null,
-    questionNum: tournament.questionCount
+    questionNum: tournament.questionCount,
+    shown: matchup.shown || null // identity ids in the order the two options were shown
   });
   
   tournament.questionCount++;
@@ -7499,6 +7535,8 @@ function showTournamentQuestion() {
   choicesDiv.innerHTML = '';
 
   const options = Math.random() > 0.5 ? [matchup.a, matchup.b] : [matchup.b, matchup.a];
+  matchup.shown = options.map(c => c.id); // logged on the match record
+
   const posLabels = ['I', 'II', 'III', 'IV', 'V', 'VI'];
 
   options.forEach((candidate, idx) => {
