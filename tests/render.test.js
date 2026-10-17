@@ -413,6 +413,45 @@ run('render', async (t) => {
     win.close();
   }
 
+  // 9. The share Card exports in both themes. jsdom cannot rasterise, so
+  //    html-to-image is stubbed and the test checks the node it is handed:
+  //    the Card, whose set-symbol slot holds the collector number in player
+  //    mode (scoring version as the set code) and nothing otherwise, and no
+  //    confidence word anywhere on it. Share images show the verdict: an
+  //    appeal never reaches them (in workplace mode, never at all).
+  for (const theme of ['gilded', 'frames']) {
+    for (const [audience, player, extra, want] of [
+      ['consumer', true, {}, 'MC1 • EN • 009/031'],
+      ['consumer', true, { scoringVersion: 2 }, 'MC2 • EN • 009/031'],
+      ['consumer', false, {}, ''],
+      ['workplace', true, {}, ''],
+      ['workplace', false, { appeal: { chosen: 'SULTAI' } }, ''],
+    ]) {
+      const { win, errors, threw } = await renderCase(DIMIR, audience, player, seed++, extra);
+      const d = win.document;
+      let exported = null;
+      win.htmlToImage = { toBlob: async (node) => { exported = node; return new win.Blob(['png'], { type: 'image/png' }); } };
+      win.selectTheme(theme);
+      win.showShareScreen();
+      win.selectShareFormat('card');
+      let blob = null, exportError = null;
+      try { blob = await win._renderActiveShareFrame(); } catch (e) { exportError = e.message; }
+      const card = d.getElementById('share-tcg');
+      const problems = [];
+      if (threw || exportError) problems.push(threw || exportError);
+      if (d.body.dataset.theme !== theme) problems.push('theme ' + d.body.dataset.theme);
+      if (!blob || exported !== card) problems.push('export did not render the Card');
+      if (text(win, 'tcg-conf') !== want) problems.push(`set slot "${text(win, 'tcg-conf')}" != "${want}"`);
+      if (/leaning|moderate|confidence|locked in|shuffling/i.test(card.textContent)) problems.push('a confidence word is on the Card');
+      if (text(win, 'tcg-name') !== 'DIMIR' || text(win, 'sc-name') !== 'DIMIR') problems.push('share images should show the verdict: ' + text(win, 'tcg-name'));
+      if (/on appeal|sultai/i.test(card.textContent + d.getElementById('share-scorecard').textContent + d.getElementById('share-mani').textContent)) problems.push('the appeal reached a share image');
+      if (errors.length) problems.push('errors: ' + errors.slice(0, 2).join(' | '));
+      const label = [extra.scoringVersion && 'scoring v' + extra.scoringVersion, extra.appeal && 'appealed'].filter(Boolean).map((s) => ', ' + s).join('');
+      t.ok(`share Card exports (${theme}, ${audience}, player mode ${player ? 'on' : 'off'}${label})`, problems.length === 0, problems.join('; '));
+      win.close();
+    }
+  }
+
   // The Scorecard share image shows the label word, not the old confidence word.
   {
     const { win, errors } = await renderCase(DIMIR, 'consumer', false, seed++);

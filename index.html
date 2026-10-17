@@ -1763,6 +1763,10 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
 .mc-appeal-bar__actions .mc-btn { padding: 12px 18px; font-size: 12px; }
 .mc-appeal-bar__private { flex-basis: 100%; font-family: var(--f-ui); font-size: 12px; color: var(--ink-faded); }
 
+/* Share Card: the set-symbol slot carries a collector number (player mode) */
+.mc-tcg__typeline { gap: 8px; }
+.mc-tcg__set { font-family: var(--f-mono); font-size: 8px; letter-spacing: 0.06em; white-space: nowrap; flex-shrink: 0; }
+
 /* Bars caption: the name is the summary, the bars are the evidence */
 .mc-profile__caption { font-family: var(--f-flavor); font-style: italic; font-size: 15px; color: var(--ink-faded); margin: 0 0 14px; }
 
@@ -2690,7 +2694,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
             <div class="mc-tcg__art" id="tcg-art"></div>
             <div class="mc-tcg__typeline">
               <span>Personality — <span id="tcg-typeline-name">…</span></span>
-              <span class="mc-tcg__set" id="tcg-conf">Moderate ✦</span>
+              <span class="mc-tcg__set" id="tcg-conf"></span>
             </div>
             <div class="mc-tcg__text">
               <ul class="mc-tcg__rules" id="tcg-rules"></ul>
@@ -10083,6 +10087,11 @@ const RESULT_COPY = {
     pickCancel: 'Back to my result'
   },
 
+  // The share Card's set-symbol slot, player mode only: the identity's place in
+  // PROFILES order, with the scoring version as the set code. No rarity letter.
+  // [plan, Phases 0 and 2]
+  collector: 'MC{s} • EN • {n}/{total}',
+
   // [3] Slot words for the next-door lines: {colour} / {Colour} and {lands}.
   colourWords: { W: 'white', U: 'blue', B: 'black', R: 'red', G: 'green' },
   landWords: { W: 'Plains', U: 'Islands', B: 'Swamps', R: 'Mountains', G: 'Forests' },
@@ -10205,6 +10214,13 @@ function resultVersion(key) {
 function confidenceLevel() {
   const c = state.result && state.result.confidence;
   return ['HIGH', 'MODERATE', 'LOW'].includes(c) ? c : 'MODERATE';
+}
+
+// "MC1 • EN • 009/031"
+function collectorNumber(id) {
+  const ids = Object.keys(PROFILES);
+  const pad = (n) => String(n).padStart(3, '0');
+  return fillCopy(RESULT_COPY.collector, { s: resultVersion('scoringVersion'), n: pad(ids.indexOf(id) + 1), total: pad(ids.length) });
 }
 
 function baseRatesFor(version) {
@@ -11197,7 +11213,6 @@ function showShareScreen() {
     closestEl.textContent = closestName.charAt(0).toUpperCase() + closestName.slice(1).toLowerCase();
   }
 
-  const confLevel = (state.result.confidence || 'MODERATE').toLowerCase();
   document.getElementById('sc-conf').textContent = RESULT_COPY.labels[confidenceLevel()].word;
 
   // Audience-aware quote: roast for fun, philosophy for workplace.
@@ -11230,8 +11245,11 @@ function showShareScreen() {
   const tcgMana = document.getElementById('tcg-mana');
   if (tcgMana && p.colors) tcgMana.innerHTML = p.colors.map(c => `<span class="mc-pip is-lit" data-color="${c}"></span>`).join('');
   const tcgTypelineName = document.getElementById('tcg-typeline-name'); if (tcgTypelineName) tcgTypelineName.textContent = p.name;
+  // The Card's set-symbol slot holds no confidence word: a collector number in
+  // player mode ("MC1 • EN • 009/031", the set code carrying the scoring
+  // version), nothing otherwise.
   const tcgConf = document.getElementById('tcg-conf');
-  if (tcgConf) tcgConf.textContent = confLevel.charAt(0).toUpperCase() + confLevel.slice(1) + ' ✦';
+  if (tcgConf) tcgConf.textContent = isPlayerMode() ? collectorNumber(state.result.identity) : '';
   const tcgRules = document.getElementById('tcg-rules');
   if (tcgRules) {
     const headers = ['Vigilance', 'Resilience', 'Strategic Patience']; // placeholder ability headers
