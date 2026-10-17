@@ -9,11 +9,15 @@
 //      round labels; How This Works, the preflight and the early offer agree
 //   3. the one-question preflight ("Played Magic?"), its two links, and the
 //      theme switcher on the results page
+//   4. the welcome: Rule 0 under the title, the start under the lead line with
+//      the explorer beside it, the long paragraph in the fold, the resume
+//      offer's anchor, about 8 minutes
 // Usage: node tests/play.test.js [path/to/index.html]
 const fs = require('fs');
 const { bootPage, pageArgs, whenReady, isVisible, INDEX_HTML } = require('./_lib/load');
 const { run } = require('./_lib/report');
 
+const SESSION_KEY = 'mana_assessment_state';
 const PREF = { W: 5, U: 4, B: 3, R: 2, G: 1 };
 const pick = (opts) => opts.reduce((best, o) => (PREF[o.c] || 0) > (PREF[best.c] || 0) ? o : best, opts[0]);
 const tick = () => new Promise((r) => setImmediate(r));
@@ -250,5 +254,42 @@ run('play', async (t) => {
     ok('P3i Card Frames is reachable from the results page (earned frame now, face-down next quiz) and persists in localStorage',
       earned && faceDown && win.localStorage.getItem('mc_theme') === 'gilded', `earned=${earned} faceDown=${faceDown}`);
     win.close();
+  }
+
+  // ---------- 4: the welcome ----------
+  {
+    const { win, h } = await page();
+    const d = win.document;
+    const P = copy(win);
+    const title = d.querySelector('#screen-welcome .mc-welcome__title');
+    ok('P4a "Rule 0" sits directly under the title', title.nextElementSibling === d.getElementById('welcome-rule0')
+      && textOf(win, 'welcome-rule0') === P.welcome.rule0 && P.welcome.rule0 === "Rule 0: it's a bit of fun, not science.", textOf(win, 'welcome-rule0'));
+    const lede = d.getElementById('welcome-lede');
+    const actions = lede.nextElementSibling;
+    const start = d.getElementById('welcome-start');
+    const explore = d.getElementById('welcome-explore');
+    ok('P4b the start button comes straight after the bold line, with "Explore all 31" beside it as a ghost button',
+      actions && actions.id === 'welcome-actions' && actions.firstElementChild === start && start.nextElementSibling === explore
+        && /showPreflight/.test(start.getAttribute('onclick')) && /showExplorer/.test(explore.getAttribute('onclick'))
+        && explore.classList.contains('mc-btn--ghost') && explore.textContent === 'Explore all 31', explore.textContent);
+    const intro = d.getElementById('learn-more-intro');
+    ok('P4c the long paragraph moved into the "Learn more" fold',
+      d.getElementById('learn-more-content').contains(intro) && /5 colours/.test(intro.textContent)
+        && ![...lede.parentElement.children].some((el) => el.tagName === 'P' && /5 colours/.test(el.textContent)), '');
+    ok('P4d the welcome says about 8 minutes, for the 45 questions the counter starts from',
+      textOf(win, 'welcome-length').startsWith('About 8 minutes · 45 questions'), textOf(win, 'welcome-length'));
+    // The resume offer still lands after the crest, at its anchor.
+    begin(h);
+    for (let i = 0; i < 4; i++) answerOne(h);
+    const saved = win.sessionStorage.getItem(SESSION_KEY);
+    win.close();
+    const { win: w2 } = await page();
+    w2.sessionStorage.setItem(SESSION_KEY, saved);
+    const offered = w2.__h.offerSessionRestore();
+    const bar = w2.document.getElementById('resume-bar');
+    ok('P4e the resume offer goes in after the crest, just before its anchor',
+      offered && bar && bar.parentElement.classList.contains('mc-welcome') && bar.nextElementSibling === w2.document.getElementById('resume-anchor')
+        && bar.previousElementSibling.classList.contains('mc-welcome__crest'), bar ? bar.textContent.trim().slice(0, 60) : 'no bar');
+    w2.close();
   }
 });
