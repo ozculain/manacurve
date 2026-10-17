@@ -6,6 +6,65 @@ Newest first. Dates are when the work was committed.
 
 - Commander descriptions: corrected 16 entries against Scryfall oracle text.
 
+### Phase 3: play feel
+
+The layout and flow half. Every new string is provisional and lives in one
+block, `PLAY_COPY` (with `QUIZ_LENGTH`), at the top of the quiz-screen code in
+`index.html`; markup takes its copy from `data-copy` attributes filled on load.
+Nothing shown during Rounds 1 to 3 names a colour or a basic land. Scoring is
+unchanged: the golden fixture and the simulator's numbers are as they were.
+
+- Phones: below 600px the two answers stack at full width and lose their
+  220px minimum height, the chrome, stem and instruction line tighten,
+  plinths drop to about 20px of padding, and in Blind Draft the I / II marker
+  moves into the card's corner. With the longest items, both answers and
+  "Neither" fit a 375x667 screen (the lowest ends 650px down). CSS only, in a
+  block after the responsive media queries.
+- One counter across the quiz: "Question x of 45", where 45 is 30 + Round 2 +
+  Round 3, each counted for real once built and estimated before (Round 2 is
+  usually 9 questions; Round 3 six head-to-heads, up to two more on a
+  tiebreak). A clinch in Round 3 ends the quiz before the count reaches its
+  total. The rune track spans the whole quiz. How This Works
+  (30, about 9, about 6), the welcome and the preflight (about 8 minutes) and
+  the early offer (about 15 more questions, about 3 minutes) read the same
+  numbers. Round 1 is "First Impressions"; "Enemy Pairs" is gone from the
+  round labels.
+- The preflight is one question, "Played Magic?": "Yes" sets
+  `state.gamingFamiliar` (the Magic items and player mode), "Not really" does
+  not, and either starts the quiz in Blind Draft. "Prefer to see the mana?
+  Constructed mode" and "Taking this at work?" are links under the cards. The
+  theme switcher moved to the results page ("Table"), still kept in
+  `localStorage`; Card Frames picked there shows its earned frame at once and
+  deals the next quiz face-down. `selectMode`, `selectAudience`, `selectTheme`
+  and `toggleGaming` still work.
+- Welcome: "Rule 0: it's a bit of fun, not science." under the title; the
+  start button straight under the bold line, with "Explore all 31" beside it;
+  the long paragraph moved into "Learn more". The resume offer goes in just
+  before `#resume-anchor`.
+- Between rounds nothing moves on by itself: the transition shows the round, a
+  one-line beat and a trait line, and waits for Continue (disabled for the
+  answer debounce, then focused). The interstitial before Round 3 shows one
+  face-down card per remaining candidate ("Four suspects remain": Round 3
+  plays four) instead of the five percentage bars, and its button says
+  "Continue to Round 3". The banter that named a colour ("Your White is
+  showing.") is gone; trait lines are keyed to the leading colour but never
+  name it. After every tenth answer a line appears above the next question.
+  Animations run only under `prefers-reduced-motion: no-preference`.
+- The free mulligan: one undo per round ("Undo", or "Free mulligan" in player
+  mode). Each answer handler first stores the `saveSession` snapshot
+  (`sessionSnapshot()`); Undo restores it through `restoreSession`, so the
+  taken-back answer leaves no trace and only the replacement is scored. The
+  replacement's record carries `redo: true`, `firstAnswer` and
+  `firstResponseMs`, and every response record now carries `responseMs`. The
+  spent mulligan is saved with the session.
+- Results: a Share button beside the identity in the banner, the same action
+  as the share button below.
+- Round 3's eyebrow reads "Head to head" instead of repeating the scenario.
+- Tests: `tests/play.test.js` (in `npm test`) covers all of the above in
+  jsdom, with the real `showRoundTransition` for the tap-through checks. The
+  fit was checked in a browser over a full journey at 375x812 (with the Magic
+  items), and with the longest items at 375x667.
+
 ### Link previews
 
 - `r/<ID>.html`: 31 static pages, one per identity, written by
