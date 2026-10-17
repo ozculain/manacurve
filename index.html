@@ -1963,22 +1963,24 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
         <svg class="mc-corner mc-corner--bl"><use href="#fleuron"/></svg>
         <svg class="mc-corner mc-corner--br"><use href="#fleuron"/></svg>
 
+        <!-- Round names and counts are filled from PLAY_COPY and QUIZ_LENGTH, the
+             same numbers the one counter starts from. -->
         <div class="mc-how">
           <div class="mc-how__num">I</div>
           <div>
-            <div class="mc-how__title">Enemy Pairs <span class="mc-how__count">· 30 questions</span></div>
+            <div class="mc-how__title"><span id="how-name-1"></span> <span class="mc-how__count" id="how-count-1"></span></div>
             <div class="mc-how__desc">Thirty forced choices between opposing philosophies/colours. Through this process we will, regrettably, learn things about you.</div>
           </div>
 
           <div class="mc-how__num">II</div>
           <div>
-            <div class="mc-how__title">Refinement <span class="mc-how__count">· 6 – 12 questions</span></div>
+            <div class="mc-how__title"><span id="how-name-2"></span> <span class="mc-how__count" id="how-count-2"></span></div>
             <div class="mc-how__desc">The second round is harder, and tests pairs of colours which are closer to each other, to help us discriminate between similar types.</div>
           </div>
 
           <div class="mc-how__num">III</div>
           <div>
-            <div class="mc-how__title">Final Determination <span class="mc-how__count">· 3 – 6 questions</span></div>
+            <div class="mc-how__title"><span id="how-name-3"></span> <span class="mc-how__count" id="how-count-3"></span></div>
             <div class="mc-how__desc">In step III we have a few candidate options, and we put them Head-to-head until all but one wizard admits defeat.</div>
           </div>
 
@@ -2017,7 +2019,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
         <svg class="mc-corner mc-corner--bl"><use href="#fleuron"/></svg>
         <svg class="mc-corner mc-corner--br"><use href="#fleuron"/></svg>
 
-        <div class="mc-eyebrow mc-eyebrow--gilt" style="margin-bottom: 18px;">~15 Minutes · 31 Possible Results</div>
+        <div class="mc-eyebrow mc-eyebrow--gilt" style="margin-bottom: 18px;" id="preflight-length" data-copy="preflight.length"></div>
 
         <!-- Mode selection -->
         <div class="mc-eyebrow mb-12">Choose Your Mode</div>
@@ -2093,8 +2095,9 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
           <div class="mc-loyalty__label">ROUND</div>
         </div>
         <div class="mc-q__chrome-meta">
-          <div class="mc-q__stage" id="stage-label">Enemy Pairs</div>
-          <div class="mc-q__count">Question <span id="q-num">1</span> / <span id="q-tot">30</span></div>
+          <div class="mc-q__stage" id="stage-label">Round 1</div>
+          <!-- One counter for the whole quiz (renderQuizCounter) -->
+          <div class="mc-q__count">Question <span id="q-num">1</span> of <span id="q-tot">45</span></div>
         </div>
         <div class="mc-q__chrome-mana" id="header-mana-symbols">
           <span class="mc-pip is-lit mc-pip--sm" data-color="W" aria-label="White"></span>
@@ -2118,7 +2121,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
         <span id="connector-1-2" class="round-connector"></span>
         <span id="connector-2-3" class="round-connector"></span>
         <span id="connector-3-4" class="round-connector"></span>
-        <span id="round-label-left">Round 1: Enemy Pairs</span>
+        <span id="round-label-left">Round 1</span>
         <span id="round-label-right">→ Refinement → Final → Results</span>
         <div id="progress-container"><div id="prog-s1"></div><div id="prog-s2"></div><div id="prog-s3"></div></div>
       </div>
@@ -2220,7 +2223,8 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
         <div class="mc-inter__cta" style="display:flex; flex-direction:column; align-items:center; gap:12px; margin-top: 24px;">
           <button class="mc-btn mc-btn--primary" onclick="continueToRound2()">Continue to Round 2</button>
           <button class="mc-btn mc-btn--ghost" onclick="showResultsEarly()">Reveal now without refining</button>
-          <p class="mc-inter__caption">Refining is ~12 more questions · 4–5 minutes</p>
+          <!-- Filled by showEarlyTerminationOffer from the one counter -->
+          <p class="mc-inter__caption" id="early-length"></p>
         </div>
       </div>
     </div>
@@ -4139,11 +4143,10 @@ function restoreSession(snapshot) {
       const headerSymbols = document.getElementById('header-mana-symbols');
       if (headerSymbols) headerSymbols.style.display = 'none';
     }
-    document.getElementById('stage-label').textContent = 'Round 2: Refinement';
+    document.getElementById('stage-label').textContent = roundLabel(2);
     const _lnRs2 = document.getElementById('mc-loyalty-num'); if (_lnRs2) _lnRs2.dataset.round = '2';
-    document.getElementById('q-tot').textContent = state.refinementQuestions.length;
     updateHeaderRoundIndicator(2);
-    showRefinementQuestion();
+    showRefinementQuestion(); // renders the one counter
   } else if (state.stage === 'refinement' && Array.isArray(state.refinementQuestions) && state.refinementPairwise) {
     // Round 2 finished but Round 3 not started: rebuild the interstitial from
     // the saved ally tallies.
@@ -5214,6 +5217,9 @@ function initArchetypeOfMonth() {
 // Initialize on load
 window.addEventListener('DOMContentLoaded', function() {
 
+  // Fill the markup's provisional copy (PLAY_COPY) and the quiz-length claims
+  try { applyPlayCopy(); } catch (e) { console.error('applyPlayCopy failed:', e); }
+
   // Restore the theme preference (default: gilded)
   try { selectTheme(localStorage.getItem('mc_theme') || 'gilded'); } catch(e) {}
 
@@ -5441,6 +5447,132 @@ function updateLikelihood(stage) {
   return state.likelihood;
 }
 
+
+// ════════════════════════════════════════════════════════════════════════════
+// PLAY FEEL (Phase 3): QUIZ-SCREEN COPY AND LENGTHS
+// Every string the Phase 3 layout and flow work adds lives in PLAY_COPY, so
+// the author can edit them in one place. ALL OF IT IS PROVISIONAL: drafted on
+// 17 October 2026 as stand-ins for the final copy.
+// Rule for anything shown during Rounds 1 to 3: never name a colour or a
+// basic land, and never tint by colour.
+// Markup elements with data-copy="path.to.key" are filled from here on load
+// (applyPlayCopy). Placeholders in braces are filled by fillCopy().
+// ════════════════════════════════════════════════════════════════════════════
+
+// How long the quiz is. Round 1 is fixed; Rounds 2 and 3 count for real as
+// soon as they are built and use these estimates before then. Simulated
+// respondents: Round 2 is usually 9 questions (6 to 10); Round 3 plays four
+// candidates, six head-to-heads, which a clinch can cut short and a tiebreak
+// can lengthen by up to two. 30 + 9 + 6 = 45, about 8 minutes.
+const QUIZ_LENGTH = { round1: 30, round2: 9, round3: 6, minutes: 8 };
+
+const PLAY_COPY = {
+  // Round names, wherever a round is named. Round 1 no longer says "Enemy
+  // Pairs", which described the mechanism.
+  rounds: { 1: 'First Impressions', 2: 'Refinement', 3: 'Final Determination' },
+
+  welcome: {
+    // How This Works, after each round's name
+    countRound1: '· {n} questions',
+    countLater: '· about {n} questions',
+  },
+
+  preflight: {
+    length: 'About {minutes} minutes · 31 possible results',
+  },
+
+  // The instruction line under each question, by round (HTML).
+  stems: {
+    1: 'Choose the response <strong>more like you</strong>.',
+    2: 'Choose the response <strong>more like you</strong>.',
+    3: 'Choose the response <strong>more like you</strong>.',
+  },
+  // Round 3's eyebrow over the scenario (it used to repeat the scenario).
+  round3: { eyebrow: 'Head to head', tiebreak: 'Tiebreaker' },
+
+  earlyOffer: {
+    // {n}: the questions the one counter still has to go
+    length: 'Refining is about {n} more questions · about {minutes} minutes',
+  },
+};
+
+function playCopyAt(path) {
+  return String(path).split('.').reduce((o, k) => (o == null ? undefined : o[k]), PLAY_COPY);
+}
+
+function quizEstimate() {
+  return QUIZ_LENGTH.round1 + QUIZ_LENGTH.round2 + QUIZ_LENGTH.round3;
+}
+
+// Minutes for n questions, at the pace the whole-quiz claim implies.
+function quizMinutes(n) {
+  return Math.max(1, Math.round(n * QUIZ_LENGTH.minutes / quizEstimate()));
+}
+
+function roundName(n) {
+  return PLAY_COPY.rounds[n] || '';
+}
+
+function roundLabel(n) {
+  const name = roundName(n);
+  return name ? `Round ${n}: ${name}` : `Round ${n}`;
+}
+
+// Fills the markup's data-copy elements, and How This Works' round names and
+// counts, from PLAY_COPY and QUIZ_LENGTH: the numbers the one counter starts
+// from. Runs once, on load.
+function applyPlayCopy() {
+  const vars = { minutes: QUIZ_LENGTH.minutes, questions: quizEstimate() };
+  document.querySelectorAll('[data-copy]').forEach(el => {
+    const text = playCopyAt(el.dataset.copy);
+    if (typeof text === 'string') el.textContent = fillCopy(text, vars);
+  });
+  [1, 2, 3].forEach(n => {
+    const name = document.getElementById('how-name-' + n);
+    if (name) name.textContent = roundName(n);
+    const count = document.getElementById('how-count-' + n);
+    if (count) {
+      count.textContent = fillCopy(n === 1 ? PLAY_COPY.welcome.countRound1 : PLAY_COPY.welcome.countLater,
+        { n: QUIZ_LENGTH['round' + n] });
+    }
+  });
+}
+
+// ─── The one counter ────────────────────────────────────────────────────────
+// Question x of the whole quiz, never reset between rounds. Each round counts
+// its real length once it is built (Round 2's questions, Round 3's matches,
+// tiebreaks included) and its QUIZ_LENGTH estimate before that, so the total
+// can move at a round boundary.
+
+// The round on screen: 1, 2 (stage 'refinement') or 3.
+function quizRound() {
+  return state.stage === 'refinement' ? 2 : state.stage === 3 ? 3 : 1;
+}
+
+function quizLengths() {
+  const r1 = (state.poolA && state.poolA.length) || QUIZ_LENGTH.round1;
+  // Round 3 under way without a Round 2 built: Round 2 had nothing to ask.
+  const r2 = Array.isArray(state.refinementQuestions) ? state.refinementQuestions.length
+    : (state.tournament ? 0 : QUIZ_LENGTH.round2);
+  const r3 = state.tournament ? state.tournament.maxQuestions : QUIZ_LENGTH.round3;
+  return { r1, r2, r3, total: r1 + r2 + r3 };
+}
+
+// Answers given so far, across all three rounds.
+function quizAnswered() {
+  const { r1, r2 } = quizLengths();
+  if (state.stage === 3 && state.tournament) return r1 + r2 + (state.tournament.questionCount || 0);
+  if (state.stage === 'refinement') return r1 + (state.qNum || 0);
+  return Math.min(state.qNum || 0, r1);
+}
+
+function renderQuizCounter() {
+  const { total } = quizLengths();
+  const qNum = document.getElementById('q-num');
+  const qTot = document.getElementById('q-tot');
+  if (qNum) qNum.textContent = String(Math.min(quizAnswered() + 1, total));
+  if (qTot) qTot.textContent = String(total);
+}
 
 // ============================================================================
 // GAMING FAMILIARITY GATE
@@ -5924,14 +6056,14 @@ function showQ() {
     return;
   }
   
-  document.getElementById('q-num').textContent = state.qNum + 1;
-  document.getElementById('q-tot').textContent = state.qTot;
+  // The one counter: question x of the whole quiz.
+  renderQuizCounter();
 
   // Refresh the redesign chrome (loyalty roman numeral + rune progress).
   updateMcChrome();
   
   if (state.stage === 1) {
-    document.getElementById('stage-label').textContent = 'Round 1: Enemy Pairs';
+    document.getElementById('stage-label').textContent = roundLabel(1);
     const _lnR1 = document.getElementById('mc-loyalty-num'); if (_lnR1) _lnR1.dataset.round = '1';
     const pct = Math.round((state.qNum / 30) * 100);
     const progBar = document.getElementById('prog-s1');
@@ -6017,7 +6149,7 @@ function showQ() {
     document.getElementById('scenario').innerHTML = scenarioText + hintHTML;
   }
   
-  document.getElementById('instr').innerHTML = 'Choose the response <strong>more like you</strong>.';
+  document.getElementById('instr').innerHTML = PLAY_COPY.stems[1];
 
   // Track Stage 2 appearances (both guilds and Pool D patterns)
   if (state.stage === 2 && state.s2Track && q.r) {
@@ -6428,6 +6560,14 @@ function showEarlyTerminationOffer(confidenceData) {
   confEl.innerHTML = `<span class="mc-confidence__dot"></span><span>${confText}</span>`;
 
   document.getElementById('early-message').textContent = confidenceData.message;
+
+  // How much refining is left, from the one counter (the same total the
+  // question screen has been showing).
+  const lengthEl = document.getElementById('early-length');
+  if (lengthEl) {
+    const left = Math.max(0, quizLengths().total - quizAnswered());
+    lengthEl.textContent = fillCopy(PLAY_COPY.earlyOffer.length, { n: left, minutes: quizMinutes(left) });
+  }
 
   // Mana symbols — use the redesign's .mc-pip mana-symbol artwork, not the
   // old .mana-symbol letter spans.
@@ -7294,10 +7434,10 @@ function startRefinement(analysis) {
   state.qNum = 0;
   state.qTot = questions.length;
   
-  // Update UI
-  document.getElementById('stage-label').textContent = 'Round 2: Refinement';
+  // Update UI (showRefinementQuestion renders the one counter, which now
+  // counts Round 2's real length)
+  document.getElementById('stage-label').textContent = roundLabel(2);
   const _lnR2 = document.getElementById('mc-loyalty-num'); if (_lnR2) _lnR2.dataset.round = '2';
-  document.getElementById('q-tot').textContent = questions.length;
   updateHeaderRoundIndicator(2);
   
   updateDebug();
@@ -7308,7 +7448,7 @@ function showRefinementQuestion() {
   const q = state.refinementQuestions[state.qNum];
   saveSession(); // Persist Round 2 progress so a refresh can resume here
 
-  document.getElementById('q-num').textContent = state.qNum + 1;
+  renderQuizCounter();
   document.getElementById('ctx').textContent = q.ctx || 'Ally Pair Test';
 
   const scenarioText = q.sc;
@@ -7318,7 +7458,7 @@ function showRefinementQuestion() {
     : '';
   document.getElementById('scenario').innerHTML = scenarioText + hintHTML;
 
-  document.getElementById('instr').innerHTML = 'Choose the response <strong>more like you</strong>.';
+  document.getElementById('instr').innerHTML = PLAY_COPY.stems[2];
 
   const pct = ((state.qNum + 1) / state.refinementQuestions.length) * 100;
   const prog1 = document.getElementById('prog-s1');
@@ -8037,7 +8177,7 @@ function startRound3(candidates) {
   state.qTot = state.tournament.maxQuestions; // exactly the number of round-robin pairs
   
   // Update UI
-  document.getElementById('stage-label').textContent = 'Round 3: Final Determination';
+  document.getElementById('stage-label').textContent = roundLabel(3);
   const _lnR3s = document.getElementById('mc-loyalty-num'); if (_lnR3s) _lnR3s.dataset.round = '3';
   updateHeaderRoundIndicator(3);
   
@@ -8081,12 +8221,12 @@ function showTournamentQuestion() {
     matchup.isPool = false;
   }
 
-  // Update progress display
-  document.getElementById('q-num').textContent = tournament.questionCount + 1;
-  document.getElementById('q-tot').textContent = tournament.maxQuestions;
-  document.getElementById('stage-label').textContent = matchup.type === 'POOL_TIEBREAK'
-    ? 'Round 3: Final Determination — Tiebreaker'
-    : 'Round 3: Final Determination';
+  // Update progress display: the one counter (Round 3's real length, tiebreaks included)
+  renderQuizCounter();
+  const isTiebreak = matchup.type === 'POOL_TIEBREAK';
+  document.getElementById('stage-label').textContent = isTiebreak
+    ? `${roundLabel(3)} — ${PLAY_COPY.round3.tiebreak}`
+    : roundLabel(3);
   
   // Update progress bar
   const pct = ((tournament.questionCount + 1) / tournament.maxQuestions) * 100;
@@ -8106,9 +8246,10 @@ function showTournamentQuestion() {
     ? `<div style="font-size: 13px; color: var(--ink-muted); margin-top: 16px; font-style: italic; text-align: center; padding: 10px 16px; background: rgba(0,0,0,0.04); border-radius: 8px; line-height: 1.5;">💡 ${tournamentHint}</div>`
     : '';
 
-  document.getElementById('ctx').textContent = scenario.context;
+  // The eyebrow is a short label; it used to repeat the scenario word for word.
+  document.getElementById('ctx').textContent = isTiebreak ? PLAY_COPY.round3.tiebreak : PLAY_COPY.round3.eyebrow;
   document.getElementById('scenario').innerHTML = scenario.context + hintHTML;
-  document.getElementById('instr').innerHTML = 'Choose the response <strong>more like you</strong>.';
+  document.getElementById('instr').innerHTML = PLAY_COPY.stems[3];
 
   // Build the two choices using the Round-1 `.mc-choice` markup so all rounds match.
   const choicesDiv = document.getElementById('choices');
@@ -8807,9 +8948,9 @@ function updateHeaderRoundIndicator(currentRound) {
   const rightLabel = document.getElementById('round-label-right');
   
   const roundNames = {
-    1: 'Round 1: Enemy Pairs',
-    2: 'Round 2: Refinement', 
-    3: 'Round 3: Final Determination',
+    1: roundLabel(1),
+    2: roundLabel(2),
+    3: roundLabel(3),
     4: 'Results'
   };
   
