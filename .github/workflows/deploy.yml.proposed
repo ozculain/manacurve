@@ -6,7 +6,8 @@
 # included) whether or not the tests pass.
 #
 # Once enabled, this workflow publishes only what the quiz loads (index.html,
-# data.js, favicon.svg and images/), and only after npm test passes.
+# data.js, favicon.svg, images/ and the r/ link-preview pages), and only after
+# npm test passes.
 #
 # Enabling it is a separate, manual step:
 #   1. git mv .github/workflows/deploy.yml.proposed .github/workflows/deploy.yml
@@ -56,6 +57,7 @@ jobs:
           mkdir _site
           cp index.html data.js favicon.svg _site/
           cp -R images _site/images
+          cp -R r _site/r
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
