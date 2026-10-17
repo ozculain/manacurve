@@ -3855,6 +3855,11 @@ function saveSession() {
       disclaimerAcknowledged: state.disclaimerAcknowledged || false,
       qualityFlags: state.qualityFlags,
       audience: state.audience || 'consumer',
+      // Scoring engine 2: the engine this assessment runs on, and its last
+      // log-likelihood table and posterior. Shown option orders ride on the
+      // response records above (responses, refinementAnswers, tournament).
+      scoringEngine: state.scoringEngine || null,
+      likelihood: state.likelihood || null,
       timestamp: Date.now()
     };
     sessionStorage.setItem(SESSION_KEY, JSON.stringify(snapshot));
@@ -3886,6 +3891,13 @@ function clearSession() {
 
 function restoreSession(snapshot) {
   Object.assign(state, snapshot);
+  // Snapshots saved before scoring engine 2 existed came from engine 1: finish
+  // them there, and label a finished one as engine 1's.
+  if (state.scoringEngine !== 1 && state.scoringEngine !== 2) state.scoringEngine = 1;
+  if (state.result && state.result.scoringVersion === undefined) {
+    state.result.scoringVersion = 1;
+    state.result.instrumentVersion = 1;
+  }
   document.body.dataset.audience = state.audience === 'workplace' ? 'workplace' : 'forfun';
   
   // Determine which screen to show
