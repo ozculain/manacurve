@@ -4,6 +4,8 @@ Newest first. Dates are when the work was committed.
 
 ## 2026-10-17
 
+- Commander descriptions: corrected 16 entries against Scryfall oracle text.
+
 ### Link previews
 
 - `r/<ID>.html`: 31 static pages, one per identity, written by
