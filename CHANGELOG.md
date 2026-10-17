@@ -97,7 +97,6 @@ replaces the toggle; workplace mode always gets the plain copy.
   the seed test covers the next-door rows of the recorded links and the
   `s`, `i` and `f` round trip.
 
-### Phase 0: repository hygiene and tests
 ### Phase 1: likelihood scoring engine
 
 - Scoring engine 2, the likelihood engine, is the default
@@ -178,6 +177,8 @@ replaces the toggle; workplace mode always gets the plain copy.
     respondents per model at p = 0.8, 90% ideal and 91.5% misspecified. At
     p = 0.65 it fired 4 times in 155,000 respondents, and 3 of those offers
     were wrong.
+
+### Phase 0: repository hygiene and tests
 
 - `.gitattributes` keeps text files LF in the repository and the working tree
   (`* text=auto eol=lf`, `*.jpg binary`, `*.svg text`). Renormalising changed
