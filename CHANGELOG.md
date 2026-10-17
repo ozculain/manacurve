@@ -4,6 +4,31 @@ Newest first. Dates are when the work was committed.
 
 ## 2026-10-17
 
+### Link previews
+
+- `r/<ID>.html`: 31 static pages, one per identity, written by
+  `tools/build-previews.js` (`npm run previews`) from `PROFILES` and the
+  commander art. Each carries Open Graph and Twitter card tags (name and
+  tagline, a one-sentence description, the art at its real size), so a pasted
+  link previews as that identity, then forwards to `index.html` with the query
+  string and hash kept exactly. It adds `r=<ID>` when the link has none, since
+  `index.html` opens a result only for `?r=`; a `<noscript>` meta refresh
+  forwards to `?r=<ID>` alone for clients without JavaScript. The pages are
+  committed, so Pages serves them as they are. They credit the card and
+  Scryfall and carry "© Wizards of the Coast"; `COMMANDER_ORACLE` has no artist
+  names yet, and an `artist` field on an entry would be credited.
+- `tests/previews.test.js` (in `npm test`) regenerates into a temporary
+  directory and fails on a stale or hand-edited page. Re-run
+  `npm run previews` after changing a profile's name, tag or philosophy, a
+  commander, or a commander image.
+- Not live yet: the share-link builder in `index.html` (`buildResultURL`) still
+  emits `?r=...`, so nothing links to these pages. It has to emit
+  `r/<ID>.html?p=...&c=...&a=...` instead (a later change, owned by the
+  presentation work).
+- `.github/workflows/deploy.yml.proposed` copies only `index.html`, `data.js`,
+  `favicon.svg` and `images/`. If it is enabled, it must copy `r/` as well, or
+  these pages stop being served.
+
 ### Phase 0: repository hygiene and tests
 
 - `.gitattributes` keeps text files LF in the repository and the working tree
