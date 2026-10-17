@@ -15,6 +15,8 @@
 //   5. transitions that wait for a tap (the real showRoundTransition, not the
 //      stub), the face-down suspects, the renamed interstitial button, and
 //      trait lines and every-ten beats that never name a colour
+//   6. the free mulligan: one undo per round, only the final answer scored,
+//      the first answer and both response times on the record
 // Usage: node tests/play.test.js [path/to/index.html]
 const fs = require('fs');
 const { bootPage, pageArgs, whenReady, isVisible, waitForResults, INDEX_HTML } = require('./_lib/load');
@@ -404,5 +406,130 @@ run('play', async (t) => {
     ok('P5n after Round 3 the transition waits, then the result follows', waiting34 && reached && !!h.state.result, `waiting=${waiting34} reached=${reached}`);
     ok('P5o no errors over the tapped-through journey', errors.length === 0, errors.slice(0, 3).join(' | '));
     win.close();
+  }
+
+  // ---------- 6: the free mulligan ----------
+  {
+    const { win, h, errors } = await page();
+    const d = win.document;
+    const btn = d.getElementById('mulligan-btn');
+    const clone = (x) => JSON.parse(JSON.stringify(x));
+    begin(h);
+    const s = () => h.state;
+    ok('P6a Round 1 starts with nothing to undo', btn.disabled && btn.textContent === 'Undo', btn.dataset.state);
+    answerOne(h);
+    const afterQ1 = { pairwise: clone(s().pairwise), colorScores: clone(s().colorScores), flags: clone(s().qualityFlags), n: s().responses.length };
+    ok('P6b after an answer the undo is ready', !btn.disabled && btn.dataset.state === 'ready', btn.dataset.state);
+    const q2 = s().poolA[1];
+    const first = pick(q2.r), second = q2.r.find((o) => o !== first);
+    h.answerQ(first, q2.r.indexOf(first));
+    btn.click();
+    ok('P6c undo restores the state before the answer: tallies, flags, records, question',
+      s().qNum === 1 && s().responses.length === afterQ1.n && JSON.stringify(s().pairwise) === JSON.stringify(afterQ1.pairwise)
+        && JSON.stringify(s().colorScores) === JSON.stringify(afterQ1.colorScores) && JSON.stringify(s().qualityFlags) === JSON.stringify(afterQ1.flags)
+        && textOf(win, 'q-num') === '2' && textOf(win, 'scenario').startsWith(q2.sc.slice(0, 20)),
+      `qNum=${s().qNum} n=${s().responses.length}`);
+    ok('P6d once used, the undo disables for the rest of the round', btn.disabled && btn.dataset.state === 'used', btn.dataset.state);
+    h.answerQ(second, q2.r.indexOf(second));
+    const rec = s().responses[s().responses.length - 1];
+    ok('P6e the replacement is recorded with the first answer, redo: true and both response times',
+      rec.c === second.c && rec.redo === true && rec.firstAnswer === first.c && typeof rec.responseMs === 'number' && typeof rec.firstResponseMs === 'number'
+        && rec.id === q2.id, JSON.stringify({ c: rec.c, redo: rec.redo, firstAnswer: rec.firstAnswer, ms: rec.responseMs, firstMs: rec.firstResponseMs }));
+    const w = q2.w || 1;
+    ok('P6f only the final answer is scored',
+      s().pairwise[q2.pair][second.c] === afterQ1.pairwise[q2.pair][second.c] + w && s().pairwise[q2.pair][first.c] === afterQ1.pairwise[q2.pair][first.c],
+      JSON.stringify(s().pairwise[q2.pair]));
+    const savedBook = JSON.parse(win.sessionStorage.getItem(SESSION_KEY) || '{}').mulligan || {};
+    answerOne(h);
+    ok('P6g still disabled after the next answer, and the spent mulligan is saved with the session',
+      btn.disabled && (savedBook.usedRounds || []).includes(1) && savedBook.pending === null, JSON.stringify(savedBook));
+    finishRound(h, 1);
+    if (isVisible(win, 'screen-early-offer')) h.continueToRound2();
+    ok('P6h Round 2 brings a fresh mulligan, ready after its first answer',
+      h.state.stage === 'refinement' && btn.disabled && btn.dataset.state === 'idle' && answerOne(h) && !btn.disabled, btn.dataset.state);
+    const r2n = s().refinementAnswers.length;
+    const r2tally = clone(s().refinementPairwise);
+    const q = s().refinementQuestions[s().qNum];
+    const f2 = q.r[0], g2 = q.r[1];
+    h.selectRefinementChoice(f2.c, q.pair);
+    btn.click();
+    h.selectRefinementChoice(g2.c, q.pair);
+    const r2rec = s().refinementAnswers[s().refinementAnswers.length - 1];
+    ok('P6i Round 2: undo, then the record keeps the first choice and only the second is tallied',
+      s().refinementAnswers.length === r2n + 1 && r2rec.redo === true && r2rec.firstAnswer === f2.c && r2rec.choice === g2.c
+        && typeof r2rec.firstResponseMs === 'number' && typeof r2rec.responseMs === 'number' && btn.disabled
+        && (!s().refinementPairwise[q.pair] || s().refinementPairwise[q.pair][f2.c] === r2tally[q.pair][f2.c]),
+      JSON.stringify(r2rec));
+    finishRound(h, 2);
+    h.continueToStage2();
+    ok('P6j Round 3 starts with nothing to undo', h.state.stage === 3 && btn.disabled && btn.dataset.state === 'idle', btn.dataset.state);
+    answerOne(h);
+    const m = s().tournament.currentMatchup;
+    const before = clone(s().tournament.candidates.map((c) => [c.id, c.wins, c.losses]));
+    const hist = s().tournament.matchHistory.length;
+    h.selectTournamentChoice(m.a.id);
+    if (!s().result) {
+      btn.click();
+      const restored = JSON.stringify(s().tournament.candidates.map((c) => [c.id, c.wins, c.losses])) === JSON.stringify(before)
+        && s().tournament.matchHistory.length === hist && s().tournament.currentMatchup.a.id === m.a.id;
+      h.selectTournamentChoice(m.b.id);
+      const r3rec = s().tournament.matchHistory[hist];
+      ok('P6k Round 3: undo, then the match record keeps the first pick and only the second counts',
+        restored && r3rec.redo === true && r3rec.firstAnswer === m.a.id && r3rec.winner.id === m.b.id
+          && typeof r3rec.firstResponseMs === 'number' && typeof r3rec.responseMs === 'number', JSON.stringify({ restored, redo: r3rec.redo, first: r3rec.firstAnswer, winner: r3rec.winner.id }));
+    } else {
+      ok('P6k Round 3: undo, then the match record keeps the first pick and only the second counts', false, 'Round 3 ended before the undo could be tried');
+    }
+    ok('P6l no errors with the mulligan in all three rounds', errors.length === 0, errors.slice(0, 3).join(' | '));
+    win.close();
+  }
+  {
+    // A first-ever "Neither" taken back leaves no Neither behind.
+    const { win, h } = await page();
+    begin(h);
+    answerOne(h);
+    h.answerNeither(h.state.poolA[1]);
+    win.document.getElementById('mulligan-btn').click();
+    const s = h.state;
+    ok('P6m undoing the first Neither of the quiz clears its tallies too',
+      s.qNum === 1 && !s.neitherCount && (!s.pairwiseNeither || Object.values(s.pairwiseNeither).every((v) => v === 0)) && s.qualityFlags.allNeitherCount === 0,
+      JSON.stringify({ n: s.neitherCount, pn: s.pairwiseNeither }));
+    win.close();
+  }
+  {
+    // Same answers, one of them mulliganed on the way: Round 1 scores identically.
+    const runR1 = async (mulligan) => {
+      const { win, h } = await page({ seed: 777 });
+      begin(h);
+      let g = 0;
+      while (h.state.stage === 1 && h.state.qNum < 30 && g++ < 40) {
+        const q = h.state.poolA[h.state.qNum];
+        const o = pick(q.r);
+        if (mulligan && h.state.qNum === 7) {
+          const other = q.r.find((x) => x !== o);
+          h.answerQ(other, q.r.indexOf(other));
+          win.document.getElementById('mulligan-btn').click();
+        }
+        h.answerQ(o, q.r.indexOf(o));
+      }
+      const out = JSON.stringify({ p: h.state.pairwise, c: h.state.colorScores, r1: (h.state.round1Candidates || []).map((x) => x.id) });
+      win.close();
+      return out;
+    };
+    const plain = await runR1(false);
+    const redone = await runR1(true);
+    ok('P6n a mulliganed Round 1 scores exactly like the same final answers given straight', plain === redone, `${plain.slice(0, 80)} vs ${redone.slice(0, 80)}`);
+  }
+  {
+    const player = await page();
+    begin(player.h, { gaming: true });
+    const work = await page();
+    begin(work.h, { gaming: true, audience: 'workplace' });
+    const P = copy(player.win);
+    const labels = Object.values(P.mulligan);
+    ok('P6o player mode says "Free mulligan", workplace mode "Undo" even for players, and no label names a colour',
+      textOf(player.win, 'mulligan-btn') === 'Free mulligan' && textOf(work.win, 'mulligan-btn') === 'Undo' && labels.every((x) => !COLOUR_WORDS.test(x)),
+      `${textOf(player.win, 'mulligan-btn')} / ${textOf(work.win, 'mulligan-btn')}`);
+    player.win.close(); work.win.close();
   }
 });

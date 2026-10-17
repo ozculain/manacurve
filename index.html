@@ -1665,6 +1665,17 @@ body[data-theme="frames"] .mc-cardback { border-radius: 9px; }
   .mc-q__beat { font-size: 16px; margin-bottom: 8px; }
 }
 
+/* The free mulligan, beside the counter */
+.mc-q__count-row { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 16px; }
+.mc-mulligan {
+  background: none; border: 0; padding: 4px 0; cursor: pointer;
+  font-family: var(--f-ui); font-weight: 600; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--gilt); text-decoration: underline dotted; text-decoration-color: var(--gilt-line); text-underline-offset: 4px;
+}
+.mc-mulligan::before { content: "\21B6\00A0"; text-decoration: none; display: inline-block; }
+.mc-mulligan:hover:not(:disabled) { color: var(--gilt-bright); }
+.mc-mulligan:disabled { color: var(--ink-ghost); cursor: default; text-decoration: none; }
+
 /* ============================================================================
    THEMES — body[data-theme]: "frames" (default), "gilded", "borderless".
    Chosen on the results page (#theme-switch), persisted in localStorage (mc_theme).
@@ -2170,8 +2181,12 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
         </div>
         <div class="mc-q__chrome-meta">
           <div class="mc-q__stage" id="stage-label">Round 1</div>
-          <!-- One counter for the whole quiz (renderQuizCounter) -->
-          <div class="mc-q__count">Question <span id="q-num">1</span> of <span id="q-tot">45</span></div>
+          <!-- One counter for the whole quiz (renderQuizCounter), and the free
+               mulligan: one undo per round (useMulligan). -->
+          <div class="mc-q__count-row">
+            <div class="mc-q__count">Question <span id="q-num">1</span> of <span id="q-tot">45</span></div>
+            <button type="button" class="mc-mulligan" id="mulligan-btn" onclick="useMulligan()" disabled>Undo</button>
+          </div>
         </div>
         <div class="mc-q__chrome-mana" id="header-mana-symbols">
           <span class="mc-pip is-lit mc-pip--sm" data-color="W" aria-label="White"></span>
@@ -4113,46 +4128,54 @@ function renderCard(content, extraClasses = '') {
 // ============================================================================
 const SESSION_KEY = 'mana_assessment_state';
 
+// The snapshot saveSession stores. The free mulligan reuses it as its restore
+// point (pushMulliganSnapshot), so a field added here is undone with an answer.
+function sessionSnapshot() {
+  return {
+    stage: state.stage,
+    qNum: state.qNum,
+    qTot: state.qTot,
+    mode: state.mode,
+    responses: state.responses,
+    colorScores: state.colorScores,
+    pairwise: state.pairwise,
+    poolA: state.poolA,
+    poolS2: state.poolS2,
+    s2Track: state.s2Track,
+    activationSorted: state.activationSorted,
+    result: state.result,
+    candidates: state.candidates,
+    neitherCount: state.neitherCount || 0,
+    gamingFamiliar: state.gamingFamiliar || false,
+    pairwiseNeither: state.pairwiseNeither,
+    pairwiseBoostCount: state.pairwiseBoostCount || {},
+    refinementAnswers: state.refinementAnswers,
+    refinementPairwise: state.refinementPairwise,
+    refinementQuestions: state.refinementQuestions,
+    refinementNeitherCount: state.refinementNeitherCount || 0,
+    pendingCandidates: state.pendingCandidates,
+    contextAgreement: state.contextAgreement,
+    round1Analysis: state.round1Analysis,
+    round1Candidates: state.round1Candidates,
+    tournament: state.tournament,
+    disclaimerAcknowledged: state.disclaimerAcknowledged || false,
+    qualityFlags: state.qualityFlags,
+    audience: state.audience || 'consumer',
+    // Scoring engine 2: the engine this assessment runs on, and its last
+    // log-likelihood table and posterior. Shown option orders ride on the
+    // response records above (responses, refinementAnswers, tournament).
+    scoringEngine: state.scoringEngine || null,
+    likelihood: state.likelihood || null,
+    // The free mulligan's bookkeeping: rounds whose undo is spent, and a
+    // taken-back first answer waiting for its replacement's record.
+    mulligan: state.mulligan || null,
+    timestamp: Date.now()
+  };
+}
+
 function saveSession() {
   try {
-    const snapshot = {
-      stage: state.stage,
-      qNum: state.qNum,
-      qTot: state.qTot,
-      mode: state.mode,
-      responses: state.responses,
-      colorScores: state.colorScores,
-      pairwise: state.pairwise,
-      poolA: state.poolA,
-      poolS2: state.poolS2,
-      s2Track: state.s2Track,
-      activationSorted: state.activationSorted,
-      result: state.result,
-      candidates: state.candidates,
-      neitherCount: state.neitherCount || 0,
-      gamingFamiliar: state.gamingFamiliar || false,
-      pairwiseNeither: state.pairwiseNeither,
-      pairwiseBoostCount: state.pairwiseBoostCount || {},
-      refinementAnswers: state.refinementAnswers,
-      refinementPairwise: state.refinementPairwise,
-      refinementQuestions: state.refinementQuestions,
-      refinementNeitherCount: state.refinementNeitherCount || 0,
-      pendingCandidates: state.pendingCandidates,
-      contextAgreement: state.contextAgreement,
-      round1Analysis: state.round1Analysis,
-      round1Candidates: state.round1Candidates,
-      tournament: state.tournament,
-      disclaimerAcknowledged: state.disclaimerAcknowledged || false,
-      qualityFlags: state.qualityFlags,
-      audience: state.audience || 'consumer',
-      // Scoring engine 2: the engine this assessment runs on, and its last
-      // log-likelihood table and posterior. Shown option orders ride on the
-      // response records above (responses, refinementAnswers, tournament).
-      scoringEngine: state.scoringEngine || null,
-      likelihood: state.likelihood || null,
-      timestamp: Date.now()
-    };
-    sessionStorage.setItem(SESSION_KEY, JSON.stringify(snapshot));
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(sessionSnapshot()));
   } catch(e) {
     console.warn('Could not save session:', e);
   }
@@ -5602,6 +5625,14 @@ const PLAY_COPY = {
     'Fifty. Thorough. We respect it.',
   ],
 
+  // The undo: "Free mulligan" in player mode, "Undo" otherwise.
+  mulligan: {
+    player: 'Free mulligan',
+    plain: 'Undo',
+    hint: 'Take back your last answer. One per round.',
+    usedHint: 'Used. One per round.',
+  },
+
   transition: {
     continue: 'Continue',
     results: 'Results',
@@ -5743,10 +5774,119 @@ function renderQuizBeat() {
   el.classList.toggle('hidden', !line);
 }
 
-// The chrome every question render refreshes: counter and beat.
+// The chrome every question render refreshes: counter, beat, mulligan.
 function renderQuestionChrome() {
   renderQuizCounter();
   renderQuizBeat();
+  updateMulliganControl();
+}
+
+// ─── The free mulligan: one undo per round ──────────────────────────────────
+// Each answer handler calls pushMulliganSnapshot() before it records anything:
+// the saveSession snapshot, as JSON, on a one-level stack. useMulligan() puts
+// it back through restoreSession, so the taken-back answer leaves no trace in
+// the tallies and only the replacement is scored. The replacement's record
+// keeps the first answer for the evidence log: redo: true, firstAnswer and
+// firstResponseMs beside its own responseMs. The bookkeeping (state.mulligan:
+// the rounds whose undo is spent, and the first answer waiting for its
+// replacement) is carried across the restore rather than rolled back with it,
+// and is saved with the session.
+let mulliganSnapshot = null; // { round, key, json }
+
+function mulliganBook() {
+  if (!state.mulligan || !Array.isArray(state.mulligan.usedRounds)) state.mulligan = { usedRounds: [], pending: null };
+  return state.mulligan;
+}
+
+// The question on screen, so a kept first answer lands only on the record of
+// the question it was given to.
+function currentQuestionKey() {
+  if (state.stage === 3) {
+    const m = state.tournament && state.tournament.currentMatchup;
+    return m ? `3:${state.tournament.questionCount}:${m.a.id}:${m.b.id}` : null;
+  }
+  if (state.stage === 'refinement') {
+    const q = (state.refinementQuestions || [])[state.qNum];
+    return q ? '2:' + q.id : null;
+  }
+  const q = (state.poolA || [])[state.qNum];
+  return q ? '1:' + q.id : null;
+}
+
+function pushMulliganSnapshot() {
+  mulliganSnapshot = { round: quizRound(), key: currentQuestionKey(), json: JSON.stringify(sessionSnapshot()) };
+}
+
+function mulliganReady() {
+  const round = quizRound();
+  return !!mulliganSnapshot && mulliganSnapshot.round === round && !mulliganBook().usedRounds.includes(round);
+}
+
+// The timing for the answer being recorded now and, when it replaces a
+// mulliganed answer, the first answer. Call before the handler moves on.
+function answerStamp() {
+  const stamp = { responseMs: state.qShownAt ? Math.max(0, Date.now() - state.qShownAt) : null };
+  const book = mulliganBook();
+  const kept = book.pending;
+  if (kept && kept.key === currentQuestionKey()) {
+    stamp.redo = true;
+    stamp.firstAnswer = kept.firstAnswer;
+    stamp.firstResponseMs = kept.firstResponseMs;
+    book.pending = null;
+  }
+  return stamp;
+}
+
+// The answer the mulligan takes back, from its record: Round 1 the chosen
+// colour (or NEITHER), Round 2 the choice, Round 3 the winning identity.
+function lastAnswerOf(round) {
+  let rec = null, answer = null;
+  if (round === 3) {
+    const h = (state.tournament && state.tournament.matchHistory) || [];
+    rec = h[h.length - 1] || null;
+    answer = rec && rec.winner ? rec.winner.id : null;
+  } else if (round === 2) {
+    const a = state.refinementAnswers || [];
+    rec = a[a.length - 1] || null;
+    answer = rec ? rec.choice : null;
+  } else {
+    const r = state.responses || [];
+    rec = r[r.length - 1] || null;
+    answer = rec ? rec.c : null;
+  }
+  return { answer, ms: rec && typeof rec.responseMs === 'number' ? rec.responseMs : null };
+}
+
+function useMulligan() {
+  if (!mulliganReady()) return false;
+  const round = quizRound();
+  const book = mulliganBook();
+  const first = lastAnswerOf(round);
+  const entry = mulliganSnapshot;
+  mulliganSnapshot = null;
+  const snapshot = JSON.parse(entry.json);
+  // The bookkeeping goes forward, not back: this round's mulligan is spent and
+  // the first answer is kept for its replacement's record.
+  snapshot.mulligan = {
+    usedRounds: [...book.usedRounds, round],
+    pending: { round, key: entry.key, firstAnswer: first.answer, firstResponseMs: first.ms },
+  };
+  // A field unset before the first answer (so the JSON left it out) goes back
+  // to unset: restoreSession's Object.assign would otherwise keep its new value.
+  Object.keys(sessionSnapshot()).forEach(k => { if (!(k in snapshot)) delete state[k]; });
+  restoreSession(snapshot);
+  saveSession();
+  return true;
+}
+
+function updateMulliganControl() {
+  const btn = document.getElementById('mulligan-btn');
+  if (!btn) return;
+  const used = mulliganBook().usedRounds.includes(quizRound());
+  btn.textContent = isPlayerMode() ? PLAY_COPY.mulligan.player : PLAY_COPY.mulligan.plain;
+  btn.disabled = !mulliganReady();
+  btn.title = used ? PLAY_COPY.mulligan.usedHint : PLAY_COPY.mulligan.hint;
+  btn.dataset.state = used ? 'used' : (btn.disabled ? 'idle' : 'ready');
 }
 
 // ============================================================================
@@ -5854,6 +5994,9 @@ function startAssessment() {
   // Pin the scoring engine for this assessment (saved with the session).
   state.scoringEngine = SCORING_ENGINE_OVERRIDE || SCORING_VERSION;
   state.likelihood = null;
+  // A fresh free mulligan for each round.
+  state.mulligan = { usedRounds: [], pending: null };
+  mulliganSnapshot = null;
 
   // Select exactly 6 questions per enemy pair to ensure balanced scoring
   const enemyPairs = ['W-B', 'U-R', 'G-U', 'W-R', 'B-G'];
@@ -6252,7 +6395,8 @@ function showQ() {
     return;
   }
   
-  // The one counter (question x of the whole quiz) and the every-ten beat.
+  // The one counter (question x of the whole quiz), the every-ten beat and the
+  // free mulligan.
   renderQuestionChrome();
 
   // Refresh the redesign chrome (loyalty roman numeral + rune progress).
@@ -6451,6 +6595,7 @@ function showQ() {
 
 function answerQ(resp, optionIdx) {
   if (answerLocked) return; // Debounce guard
+  pushMulliganSnapshot(); // the free mulligan's restore point, before anything is recorded
   lockAnswers();
 
   // Quality-flag tracking: fast clicks (<600ms), position bias, total answered.
@@ -6465,9 +6610,10 @@ function answerQ(resp, optionIdx) {
   state.qualityFlags.totalAnswered++;
 
   // The response record: the chosen option (a copy, so the item bank is never
-  // mutated) plus the item, its weight and the order the options were shown in.
+  // mutated) plus the item, its weight and the order the options were shown in,
+  // its response time, and the first answer if a mulligan took that one back.
   const answeredItem = state.stage === 1 ? state.poolA[state.qNum] : state.poolS2[state.qNum];
-  state.responses.push(responseRecord(resp, answeredItem));
+  state.responses.push(Object.assign(responseRecord(resp, answeredItem), answerStamp()));
   
   // Stage 1: Track color scores and pairwise (with item quality weighting)
   if (state.stage === 1) {
@@ -6562,6 +6708,7 @@ function answerQ(resp, optionIdx) {
 
 function answerNeither(q) {
   if (answerLocked) return; // Debounce guard
+  pushMulliganSnapshot(); // the free mulligan's restore point, before anything is recorded
   lockAnswers();
 
   // Quality-flag tracking
@@ -6592,8 +6739,8 @@ function answerNeither(q) {
     // This maintains the pair relationship but doesn't add to either score
   }
   
-  // Store a placeholder response
-  state.responses.push(responseRecord({ c: 'NEITHER', pair: pair, text: 'Neither selected (skipped)' }, q));
+  // Store a placeholder response (with its timing, and any mulliganed first answer)
+  state.responses.push(Object.assign(responseRecord({ c: 'NEITHER', pair: pair, text: 'Neither selected (skipped)' }, q), answerStamp()));
   
   
   // Advance to next question
@@ -7671,8 +7818,10 @@ function showRefinementQuestion() {
   choicesDiv.innerHTML = '';
 
   const options = shuffleArray([...q.r]);
-  // The order the options were shown in (their colours), logged on the answer record.
+  // The order the options were shown in (their colours), logged on the answer record,
+  // and when, for the record's response time.
   state.qShown = { id: q.id, order: options.map(o => o.c || null) };
+  state.qShownAt = Date.now();
   const posLabels = ['I', 'II', 'III', 'IV', 'V', 'VI'];
 
   options.forEach((opt, idx) => {
@@ -7723,13 +7872,16 @@ function showRefinementQuestion() {
   choicesDiv.appendChild(neitherBtn);
 
   renderQuizBeat();
+  updateMulliganControl();
   updateDebug();
   window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
 function selectRefinementChoice(color, pair) {
+  pushMulliganSnapshot(); // the free mulligan's restore point, before anything is recorded
   
-  // Record the choice, with the item's weight and the order its options were shown in
+  // Record the choice, with the item's weight, the order its options were
+  // shown in, its response time and any mulliganed first answer
   const shownQ = state.refinementQuestions[state.qNum];
   const shown = shownOrderFor(shownQ);
   state.refinementAnswers.push({
@@ -7738,7 +7890,8 @@ function selectRefinementChoice(color, pair) {
     choice: color,
     type: shownQ.refinementType,
     w: shownQ.w || 1,
-    ...(shown ? { shown } : {})
+    ...(shown ? { shown } : {}),
+    ...answerStamp()
   });
   
   // Update tallies. Ally-pair questions feed refinementPairwise; ENEMY_RETEST
@@ -7766,6 +7919,7 @@ function selectRefinementChoice(color, pair) {
 }
 
 function selectRefinementNeither(pair) {
+  pushMulliganSnapshot(); // the free mulligan's restore point, before anything is recorded
   
   // Track neither count
   if (!state.refinementNeitherCount) state.refinementNeitherCount = 0;
@@ -7780,7 +7934,8 @@ function selectRefinementNeither(pair) {
     choice: 'NEITHER',
     type: shownQ.refinementType,
     w: shownQ.w || 1,
-    ...(shown ? { shown } : {})
+    ...(shown ? { shown } : {}),
+    ...answerStamp()
   });
   
   // Neither color gets points - if neither resonates, we don't inflate both
@@ -8452,6 +8607,7 @@ function showTournamentQuestion() {
 
   const options = Math.random() > 0.5 ? [matchup.a, matchup.b] : [matchup.b, matchup.a];
   matchup.shown = options.map(c => c.id); // logged on the match record
+  state.qShownAt = Date.now(); // for the match record's response time
 
   const posLabels = ['I', 'II', 'III', 'IV', 'V', 'VI'];
 
@@ -8508,6 +8664,7 @@ function showTournamentQuestion() {
   choicesDiv.className = options.length > 2 ? 'mc-choices mc-choices--stacked' : 'mc-choices';
   
   renderQuizBeat();
+  updateMulliganControl();
   updateDebug();
   // Scroll to question card for better mobile experience
   const scenarioEl = document.getElementById('scenario');
@@ -8520,11 +8677,15 @@ function showTournamentQuestion() {
 
 function selectTournamentChoice(winnerId) {
   if (answerLocked) return; // Debounce guard
+  pushMulliganSnapshot(); // the free mulligan's restore point, before anything is recorded
   lockAnswers();
 
-
-  // Record result
+  // Record result, with its response time and any mulliganed first answer
+  // (stamped before recordTournamentResult moves the question count on)
+  const stamp = answerStamp();
   recordTournamentResult(state.tournament, winnerId);
+  const history = state.tournament.matchHistory;
+  Object.assign(history[history.length - 1], stamp);
   // Pool scenarios are marked used at answer time (not render time) so a
   // restart never burns a scenario that was shown but not answered.
   const answeredMatchup = state.tournament.currentMatchup;
@@ -12235,7 +12396,8 @@ function restart() {
   // Reset the night-sky constellation (state.result is null, weights reset)
   updateWispWeights();
 
-  // The every-ten beat belongs to the old quiz
+  // The free mulligan's restore point and the every-ten beat belong to the old quiz
+  mulliganSnapshot = null;
   const beat = document.getElementById('q-beat');
   if (beat) beat.classList.add('hidden');
   
