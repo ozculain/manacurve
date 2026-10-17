@@ -1510,6 +1510,54 @@ a:hover { color: var(--gilt-bright); }
 }
 
 /* ============================================================================
+   PHASE 3 — PLAY FEEL: LAYOUT AND FLOW
+   Follows the responsive media queries above so its phone rules win them
+   (the Phase 2 block keeps the spot at the end of the stylesheet). One
+   section per piece, each with its own phone rules. Copy for all of it lives
+   in PLAY_COPY in the script.
+   ============================================================================ */
+
+/* Phones: below 600px the two answers stack at full width without their
+   fixed height, the chrome tightens and plinths drop to about 20px of
+   padding, so a question and both answers fit on one phone screen (checked
+   at 375x812 and 375x667 with the longest items). */
+@media (max-width: 599px) {
+  .mc-choices { grid-template-columns: 1fr; gap: 10px; margin: 12px 0 4px; }
+  #choices .mc-choice { min-height: 0; padding: 12px 14px 14px; }
+  #choices .mc-choice__head { margin-bottom: 4px; }
+  #choices .mc-choice__text { font-size: 16px; line-height: 1.45; }
+  /* Blind Draft has no seal to show, so the I / II marker floats in the corner
+     instead of taking a line of its own */
+  body[data-mode="draft"] #choices .mc-choice__head { position: absolute; top: 9px; right: 12px; margin: 0; }
+  body[data-mode="draft"] #choices .mc-choice__seal { display: none; } /* invisible in Blind Draft anyway */
+  body[data-mode="draft"] #choices .mc-choice__text { padding-right: 18px; }
+  .mc-neither { margin-top: 8px; padding: 8px; font-size: 15px; }
+
+  /* The chrome and the stem tighten up */
+  .mc-q { margin: 6px auto; padding: 0; }
+  .mc-q__chrome { gap: 12px; margin-bottom: 4px; }
+  .mc-loyalty { width: 54px; height: 62px; font-size: 22px; }
+  .mc-loyalty__label { font-size: 7px; margin-top: 2px; }
+  .mc-q__stage { font-size: 11px; letter-spacing: 0.14em; }
+  .mc-progress { gap: 2px; margin: 8px 0 10px; }
+  .mc-progress__milestone { width: 7px; height: 7px; }
+  .mc-q__scenario { font-size: 18px; line-height: 1.45; margin: 4px 0 2px; }
+  #screen-assessment .mc-dropcap::first-letter { font-size: 2.5em; padding: 4px 8px 0 0; margin-top: 2px; }
+  /* The context hint under the scenario (inline-styled by the question renderers) */
+  #screen-assessment .mc-q__scenario > div { margin-top: 8px !important; padding: 6px 10px !important; font-size: 12.5px !important; line-height: 1.4 !important; }
+  /* The instruction line fits on one line */
+  #screen-assessment .mc-typeline { margin: 10px 0 0; gap: 8px; font-size: 10px; letter-spacing: 0.12em; }
+
+  /* Plinths drop to about 20px of padding (beats their inline paddings), and
+     the screens' outer margins shrink */
+  .mc-plinth { padding: 20px 18px !important; }
+  .mc-corner { width: 24px; height: 24px; }
+  .mc-welcome { margin: 16px auto; padding: 0; }
+  .mc-inter { margin: 20px auto; padding: 0; }
+  .mc-transition { margin: 32px auto; }
+}
+
+/* ============================================================================
    THEMES — body[data-theme]: "frames" (default), "gilded", "borderless".
    Chosen on the pre-flight screen, persisted in localStorage (mc_theme).
 
