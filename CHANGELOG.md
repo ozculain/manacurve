@@ -25,9 +25,8 @@ Newest first. Dates are when the work was committed.
   emits `?r=...`, so nothing links to these pages. It has to emit
   `r/<ID>.html?p=...&c=...&a=...` instead (a later change, owned by the
   presentation work).
-- `.github/workflows/deploy.yml.proposed` copies only `index.html`, `data.js`,
-  `favicon.svg` and `images/`. If it is enabled, it must copy `r/` as well, or
-  these pages stop being served.
+- `.github/workflows/deploy.yml.proposed` now copies `r/` alongside `index.html`,
+  `data.js`, `favicon.svg` and `images/`, so enabling it keeps the preview pages.
 ### Phase 2: presentation, one verdict and next door
 
 All new result-screen copy is provisional and lives in one block,
