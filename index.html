@@ -3634,7 +3634,7 @@ const POOL_A = [
   // PSYCHOLOGY JOKE: W-B
   {w:0.8,id:'A-WB-PSY',pair:'W-B',ctx:'Experiment',sc:'In a study, you\'re given £100 to share with a stranger. If they turn down your offer, neither of you gets anything.',r:[{t:'Offer £50. Neither of us earned it, so half each is fair.',c:'W'},{t:'Offer £30. That\'s plenty to say yes to, and I\'m the one holding it.',c:'B'}]},
   // REVERSE-KEY: W-B (tests individual accountability vs group blame - should correlate with W-B pattern)
-  {w:0.7,id:'A-WB-REV',pair:'W-B',ctx:'Blame',sc:'A camping trip goes badly. One friend picked the site, and everyone else said yes. Whose fault is it?',r:[{t:'All of ours. We all agreed to it, so we all share it.',c:'W'},{t:'Mostly theirs. I said yes to their plan, but it was still their plan.',c:'B'}]},
+  {w:0.7,id:'A-WB-REV',pair:'W-B',ctx:'Blame',sc:'A camping trip goes badly. One friend picked the site, and everyone else said yes. Whose fault is it?',r:[{t:'All of ours. We all agreed to it, so we all share it.',c:'W'},{t:'Mostly theirs. Whoever picks the site owns how it turns out.',c:'B'}]},
 
   // BLUE vs RED (U-R) - Analysis vs action
   {id:'A-UR-W01',pair:'U-R',ctx:'System Down',sc:'The booking system at work has crashed, and customers are already ringing to complain.',r:[{t:'Find out what actually broke before touching anything, or we\'ll make it worse.',c:'U'},{t:'Start trying fixes straight away. Every minute spent investigating is another angry call.',c:'R'}]},
@@ -3670,13 +3670,13 @@ const POOL_A = [
   {id:'A-WR-L03',pair:'W-R',ctx:'Dress Code',sc:'A wedding invitation asks guests to wear something formal. Your favourite outfit is anything but.',r:[{t:'Wear something formal. It\'s their day, and they asked for a reason.',c:'W'},{t:'Wear the one I love. I\'ll be happy in it, and that\'s what they\'ll see.',c:'R'}]},
   {id:'A-WR-L06',pair:'W-R',ctx:'New Hobby',sc:'You join a martial arts club where beginners spend a month on basics before they\'re allowed to spar.',r:[{t:'Do the month. Everyone else did, and there\'s usually a good reason for it.',c:'W'},{t:'Ask to spar sooner. I learn by doing, and I want to get stuck in.',c:'R'}]},
   // HETEROPOLAR: W-R — each option attacks the opposite pole; R-first to vary position
-  {w:0.7,id:'A-WR-HET',pair:'W-R',ctx:'Honest Take',sc:'Which of these is closer to something you\'d say?',r:[{t:'"Being spontaneous" usually means someone didn\'t wait for the rest of us.',c:'W'},{t:'"Following the process" usually means nobody wanted to make the call.',c:'R'}]},
+  {w:0.7,id:'A-WR-HET',pair:'W-R',ctx:'Honest Take',sc:'Which of these is closer to something you\'d say?',r:[{t:'"Being spontaneous" usually means someone didn\'t wait for the rest of us.',c:'W'},{t:'"Following the process" usually means the moment has already passed.',c:'R'}]},
   // PSYCHOLOGY JOKE: W-R
   {w:0.8,id:'A-WR-PSY',pair:'W-R',ctx:'Dinner Out',sc:'At a restaurant, your food arrives ten minutes before anyone else\'s.',r:[{t:'Wait for the others. Eating together is the point of going out.',c:'W'},{t:'Start while it\'s hot. I\'m hungry now, and cold food helps nobody.',c:'R'}]},
 
   // BLACK vs GREEN (B-G) - Exploitation vs sustainability
-  {id:'A-BG-W08',pair:'B-G',ctx:'Star Player',sc:'The best player in your Sunday league side is rude to everyone else, but you win with him.',r:[{t:'Keep him. Winning is why we play, and people can put up with some rudeness.',c:'B'},{t:'Let him go. A side that gets on lasts longer than one that wins.',c:'G'}]},
-  {id:'A-BG-W10',pair:'B-G',ctx:'New Skills',sc:'Your workplace needs a skill nobody on the staff has, and needs it soon.',r:[{t:'Hire someone who already has it. I\'d rather pay more than wait.',c:'B'},{t:'Train someone we already have. It takes longer, but they\'ll stay.',c:'G'}]},
+  {id:'A-BG-W08',pair:'B-G',ctx:'Spare Room',sc:'You could let your spare room to a lodger for good money, though you\'d lose the space.',r:[{t:'Do it. A room earning nothing is money left on the table.',c:'B'},{t:'Leave it. The house feels right as it is, and that\'s worth more to me.',c:'G'}]},
+  {id:'A-BG-W10',pair:'B-G',ctx:'New Skills',sc:'Your workplace needs a skill nobody on the staff has, and needs it soon.',r:[{t:'Hire someone who already has it. The money buys us a head start.',c:'B'},{t:'Train someone we already have. It takes longer, but they\'ll stay.',c:'G'}]},
   {id:'A-BG-W12',pair:'B-G',ctx:'Hairdresser',sc:'Your hairdresser of ten years has put prices up. A cheaper place with good reviews has opened nearby.',r:[{t:'Switch. Ten years of custom doesn\'t mean I owe them more than they\'re worth.',c:'B'},{t:'Stay. They know me and my hair, and that\'s worth paying a bit for.',c:'G'}]},
   {id:'A-BG-L02',pair:'B-G',ctx:'Windfall',sc:'An aunt leaves you £10,000 in her will.',r:[{t:'Put it into the side business I keep talking about. Chances like this don\'t come twice.',c:'B'},{t:'Clear what I owe and save the rest. I\'ve already got what I need.',c:'G'}]},
   {id:'A-BG-L04',pair:'B-G',ctx:'New Band',sc:'You\'re starting a band and need a drummer. One is brilliant but difficult; the other is good and easy to be around.',r:[{t:'The brilliant one. I want this band to go somewhere, and they\'ll get us there faster.',c:'B'},{t:'The easy one. I\'d rather still be playing with them in ten years.',c:'G'}]},
@@ -3694,7 +3694,7 @@ const POOL_A = [
   {w:0.8,id:'A-WB-PSY3',pair:'W-B',ctx:'Story Ending',sc:'You\'re writing the last page of an adventure story. The hero has the treasure, and the village they passed through is broke.',r:[{t:'The hero shares it out. The village fed them on the way, and that counts for something.',c:'W'},{t:'The hero keeps it. They took the risks, and the village never left home.',c:'B'}]},
   {w:0.8,id:'A-UR-PSY2',pair:'U-R',ctx:'Group Chat',sc:'Your friends\' group chat is trying to pick somewhere to eat tonight.',r:[{t:'Look up a few places and post the best one, with a link to the menu.',c:'U'},{t:'Name the place I walked past last week that looked good. Let\'s just go.',c:'R'}]},
   {w:0.8,id:'A-UR-PSY3',pair:'U-R',ctx:'Low Battery',sc:'Your phone is on 5% and you\'re out with friends for the rest of the day.',r:[{t:'Switch to low power and save it for maps and getting home.',c:'U'},{t:'Put it away and enjoy the day. Someone else will have a phone.',c:'R'}]},
-  {w:0.8,id:'A-GU-PSY2',pair:'G-U',ctx:'Old Favourites',sc:'A friend has listened to the same twenty albums for fifteen years.',r:[{t:'Fair enough. They know what they love, and it clearly still works for them.',c:'G'},{t:'I\'d keep sending them new things. They\'d love half of it if they tried.',c:'U'}]},
+  {w:0.8,id:'A-GU-PSY2',pair:'G-U',ctx:'Old Favourites',sc:'A friend has listened to the same twenty albums for fifteen years.',r:[{t:'Fair enough. They know what they love, and it clearly still works for them.',c:'G'},{t:'I\'d send them a few new things picked to suit their taste. There\'s always something better.',c:'U'}]},
   {w:0.8,id:'A-GU-PSY3',pair:'G-U',ctx:'Houseplant',sc:'A houseplant you\'ve had for years has started to droop and drop leaves.',r:[{t:'Move it somewhere brighter and leave it be. Plants mostly sort themselves out.',c:'G'},{t:'Look up what\'s wrong with that kind of plant and fix the actual cause.',c:'U'}]},
   {w:0.8,id:'A-WR-PSY2',pair:'W-R',ctx:'Kickabout',sc:'A game of five-a-side is starting in the park, and they\'re a player short.',r:[{t:'Ask if I can join, and let them sort out the sides so they\'re fair.',c:'W'},{t:'Walk over and say I\'m in. They need one, and I want a game.',c:'R'}]},
   {w:0.8,id:'A-WR-PSY3',pair:'W-R',ctx:'Flat-Pack',sc:'You and a friend are building flat-pack furniture, and step 9 of the instructions is plainly wrong.',r:[{t:'Stop and agree with them how to do it, so we\'re building the same thing.',c:'W'},{t:'Work out what they meant and keep going. We\'ll fix it if it wobbles.',c:'R'}]},
@@ -3711,7 +3711,7 @@ const POOL_A = [
   {id:'MTG-WB-02',pair:'W-B',ctx:'Kingmaker',sc:'You can\'t win any more, but your last attack decides which of the other two players does.',r:[{t:'Play it as I would have anyway. Handing out the win for favours isn\'t fair.',c:'W'},{t:'Ask them both what it\'s worth to them. It\'s the last thing I\'ve got to bargain with.',c:'B'}]},
   
   // MTG U-R Set 1
-  {id:'MTG-UR-01',pair:'U-R',ctx:'Holding a Response',sc:'Your opponent casts something big, and you\'re holding a card that can stop it.',r:[{t:'Ask to read it first. If it isn\'t a real threat, I\'ll keep my card for later.',c:'U'},{t:'Stop it straight away. Whatever it does, I don\'t want it on the table.',c:'R'}]},
+  {id:'MTG-UR-01',pair:'U-R',ctx:'Holding a Response',sc:'Your opponent casts something big, and you\'re holding a card that can stop it.',r:[{t:'Ask to read it first. If it isn\'t a real threat, I\'ll keep my card for later.',c:'U'},{t:'Stop it straight away. If it feels dangerous, I\'m not waiting to find out.',c:'R'}]},
   // MTG U-R Set 2
   {id:'MTG-UR-02',pair:'U-R',ctx:'Deckbuilding',sc:'A card in your deck wins on the spot about a third of the time and does nothing otherwise.',r:[{t:'Cut it for something that works every game. I want the deck to be reliable.',c:'U'},{t:'Keep it. The games where it goes off are the ones I\'ll remember.',c:'R'}]},
   
@@ -3726,9 +3726,9 @@ const POOL_A = [
   {id:'MTG-WR-02',pair:'W-R',ctx:'Proxies',sc:'Someone at your kitchen-table game wants to use a printed copy of a card they don\'t own.',r:[{t:'Ask the table first. If we agreed on real cards only, that applies to everyone.',c:'W'},{t:'Let them. It\'s a game in someone\'s kitchen, and they want to play their deck.',c:'R'}]},
   
   // MTG B-G Set 1
-  {id:'MTG-BG-01',pair:'B-G',ctx:'Trade',sc:'Someone offers you a trade. They don\'t know that one of their cards has just tripled in price.',r:[{t:'Accept. Keeping up with prices is part of trading, and that\'s on them.',c:'B'},{t:'Tell them. I\'ll be trading with them for years, and it all evens out.',c:'G'}]},
+  {id:'MTG-BG-01',pair:'B-G',ctx:'Trade',sc:'Someone offers you a trade. They don\'t know that one of their cards has just tripled in price.',r:[{t:'Accept. Keeping up with prices is part of trading, and that\'s on them.',c:'B'},{t:'Pass on it. Trades like that have a way of coming back round.',c:'G'}]},
   // MTG B-G Set 2
-  {id:'MTG-BG-02',pair:'B-G',ctx:'Bad Draws',sc:'One player has had terrible draws all game and is clearly having a miserable time.',r:[{t:'Knock them out now. One fewer opponent, and they can start the next game sooner.',c:'B'},{t:'Leave them alone. They\'re no threat, and the game will finish them soon enough.',c:'G'}]}
+  {id:'MTG-BG-02',pair:'B-G',ctx:'Bad Draws',sc:'One player has had terrible draws all game and is clearly having a miserable time.',r:[{t:'Knock them out now. One fewer opponent is one fewer problem.',c:'B'},{t:'Leave them be. The game will finish them in its own time.',c:'G'}]}
 ];
 
 // ============================================================================
@@ -3742,7 +3742,7 @@ const POOL_ALLY = [
   {id:'AL-WU-02',pair:'W-U',ctx:'Group Holiday',sc:'Your group of friends can\'t agree where to go on holiday together.',r:[{t:'Put it to a vote and go with the majority, whatever it picks.',c:'W'},{t:'Compare the options on cost and dates, then pick the one that works best.',c:'U'}]},
   {id:'AL-WU-03',pair:'W-U',ctx:'Good Enough',sc:'Your work meets everything that was asked for, but you can see how it could be better.',r:[{t:'Hand it in on time. That\'s what was agreed, and others are waiting on it.',c:'W'},{t:'Ask for two more days. I\'d rather hand in something that\'s right.',c:'U'}]},
   {id:'AL-WU-04',pair:'W-U',ctx:'Disagreement',sc:'Two people you manage disagree about how to do a job, and both have a point.',r:[{t:'Get them to agree an approach together that they can both live with.',c:'W'},{t:'Have each set out their case, then pick the one that\'s actually better.',c:'U'}]},
-  {id:'AL-WU-05',pair:'W-U',ctx:'Casting',sc:'Your amateur theatre group is casting the lead in this year\'s play.',r:[{t:'Give it to someone who hasn\'t had a big part yet. It\'s their turn.',c:'W'},{t:'Hold auditions and cast whoever is genuinely best for the part.',c:'U'}]},
+  {id:'AL-WU-05',pair:'W-U',ctx:'Casting',sc:'Your amateur theatre group is casting the lead in this year\'s play.',r:[{t:'Give it to someone who hasn\'t had a big part yet. It\'s their turn.',c:'W'},{t:'Cast whoever will make it the best production we can put on.',c:'U'}]},
   {id:'AL-WU-06',pair:'W-U',ctx:'Jury Service',sc:'You\'re called up for jury service in a busy month.',r:[{t:'Do it. Everyone has to take their turn, and this one is mine.',c:'W'},{t:'Do it. I\'d like to see how a trial actually works from the inside.',c:'U'}]},
 
   // PSY: W-U — both ask for the same pause, for different reasons
@@ -3764,11 +3764,11 @@ const POOL_ALLY = [
   {w:0.7,id:'AL-UB-HET',pair:'U-B',ctx:'Honest Take',sc:'Which of these do you believe?',r:[{t:'Knowing things is worth it, even if you never use them.',c:'U'},{t:'Knowing things is only worth it if you do something with them.',c:'B'}]},
 
   // BLACK vs RED (B-R) - Calculated self-interest vs impulsive self-expression
-  {id:'AL-BR-01',pair:'B-R',ctx:'Food Van',sc:'A friend asks you to go halves on a food van and run it with them at weekends.',r:[{t:'Run the numbers first. I\'m in if it works out well for me.',c:'B'},{t:'Say yes. It sounds brilliant, and I\'d regret not trying.',c:'R'}]},
+  {id:'AL-BR-01',pair:'B-R',ctx:'Food Van',sc:'A friend asks you to go halves on a food van and run it with them at weekends.',r:[{t:'Only if I own enough of it to call the shots.',c:'B'},{t:'Say yes. It sounds brilliant, and I\'d regret not trying.',c:'R'}]},
   {id:'AL-BR-02',pair:'B-R',ctx:'Stolen Idea',sc:'A colleague presents your idea in a meeting as if it were their own.',r:[{t:'Say nothing now, and make sure the right people find out whose idea it was.',c:'B'},{t:'Say so, there and then. It was mine, and everyone should hear it.',c:'R'}]},
   {id:'AL-BR-03',pair:'B-R',ctx:'Party',sc:'You\'re at a friend\'s fortieth and know almost nobody there.',r:[{t:'Work out who\'s worth knowing and make sure they remember me.',c:'B'},{t:'Talk to whoever looks the most fun, and forget about the rest.',c:'R'}]},
-  {id:'AL-BR-04',pair:'B-R',ctx:'Crush',sc:'You fancy someone you keep seeing at the gym, and you think they might feel the same.',r:[{t:'Wait until I\'m fairly sure, then pick my moment carefully.',c:'B'},{t:'Ask them out next time I see them. I\'d rather know.',c:'R'}]},
-  {id:'AL-BR-05',pair:'B-R',ctx:'Last Minute',sc:'You\'ve left a big piece of work until the last weekend before it\'s due.',r:[{t:'Work out the least it needs to pass, and do exactly that.',c:'B'},{t:'Put the music on and go at it all night. I work best like this.',c:'R'}]},
+  {id:'AL-BR-04',pair:'B-R',ctx:'Crush',sc:'You fancy someone you keep seeing at the gym, and you think they might feel the same.',r:[{t:'Make sure they\'ve noticed me first, so when I ask, the answer\'s yes.',c:'B'},{t:'Ask them out next time I see them. I\'d rather know.',c:'R'}]},
+  {id:'AL-BR-05',pair:'B-R',ctx:'Last Minute',sc:'You\'ve left a big piece of work until the last weekend before it\'s due.',r:[{t:'Do just enough to pass, and keep the weekend for myself.',c:'B'},{t:'Put the music on and go at it all night. I work best like this.',c:'R'}]},
   {id:'AL-BR-06',pair:'B-R',ctx:'Wrong Call',sc:'Your manager makes a decision you think is wrong.',r:[{t:'Go along with it for now, and raise it when it\'ll do me some good.',c:'B'},{t:'Tell them straight. I can\'t pretend to back something I think is wrong.',c:'R'}]},
 
   // PSY: B-R — both reject the dumb policy; one circumvents, one defies
@@ -3798,7 +3798,7 @@ const POOL_ALLY = [
   {id:'AL-GW-06',pair:'G-W',ctx:'Growing Group',sc:'Your walking group has become popular, and twenty more people want to join.',r:[{t:'Let it grow slowly, by word of mouth. That\'s how we got here.',c:'G'},{t:'Let everyone in and organise it properly, with a sign-up and walk leaders.',c:'W'}]},
 
   // PSY: G-W — both show up; one because it's who we are, one because it's owed
-  {w:0.8,id:'AL-GW-PSY',pair:'G-W',ctx:'Family Gathering',sc:'There\'s a big family get-together every year that you don\'t particularly enjoy.',r:[{t:'I go. It\'s where I come from, and being there matters more than enjoying it.',c:'G'},{t:'I go. People are counting on me to be there, and I keep my side of things.',c:'W'}]},
+  {w:0.8,id:'AL-GW-PSY',pair:'G-W',ctx:'Family Gathering',sc:'There\'s a big family get-together every year that you don\'t particularly enjoy.',r:[{t:'I go. It\'s where I come from, and I\'d miss it if I stopped.',c:'G'},{t:'I go. People are counting on me, and showing up is part of being family.',c:'W'}]},
   // HET: G-W — each option attacks the OPPOSING ally's failure mode
   {w:0.7,id:'AL-GW-HET',pair:'G-W',ctx:'Honest Take',sc:'In your experience, which of these is truer?',r:[{t:'Groups get along best when they\'re left to find their own way.',c:'G'},{t:'Groups get along best when everyone knows the rules and sticks to them.',c:'W'}]},
 
@@ -3809,17 +3809,17 @@ const POOL_ALLY = [
   // MTG W-U Set 1
   {id:'MTG-WU-01',pair:'W-U',ctx:'House Rules',sc:'Your playgroup keeps arguing about which decks are too strong for the table.',r:[{t:'Agree a few house rules everyone signs up to, and stick to them.',c:'W'},{t:'Work out exactly what makes a deck too strong, and write that down.',c:'U'}]},
   // MTG W-U Set 2
-  {id:'MTG-WU-02',pair:'W-U',ctx:'Rules Question',sc:'Two players disagree about how a card works, and the wording could go either way.',r:[{t:'Agree a ruling as a table for tonight, and apply it the same for everyone.',c:'W'},{t:'Look up the official ruling now. There\'s a right answer, so let\'s find it.',c:'U'}]},
+  {id:'MTG-WU-02',pair:'W-U',ctx:'Rules Question',sc:'Two players disagree about how a card works, and the wording could go either way.',r:[{t:'Agree a ruling as a table for tonight, and apply it the same for everyone.',c:'W'},{t:'Read the wording closely and work out what it actually does.',c:'U'}]},
   
   // MTG U-B Set 1
-  {id:'MTG-UB-01',pair:'U-B',ctx:'Missed Trigger',sc:'Your opponent has forgotten a trigger that would have helped them.',r:[{t:'Point it out. I want the game played correctly, even if it costs me.',c:'U'},{t:'Let it go. Keeping track of their own triggers is their job.',c:'B'}]},
+  {id:'MTG-UB-01',pair:'U-B',ctx:'Missed Trigger',sc:'Your opponent has forgotten a trigger that would have helped them.',r:[{t:'Point it out. I\'d rather the game was played exactly right, triggers and all.',c:'U'},{t:'Let it go. Keeping track of their own triggers is their job.',c:'B'}]},
   // MTG U-B Set 2
-  {id:'MTG-UB-02',pair:'U-B',ctx:'Known Opponent',sc:'You recognise your opponent from last week and remember exactly what their deck does.',r:[{t:'Think through how my deck matches up, and plan my early turns around it.',c:'U'},{t:'Keep that to myself, and let them think I\'ve never seen it before.',c:'B'}]},
+  {id:'MTG-UB-02',pair:'U-B',ctx:'Known Opponent',sc:'You recognise your opponent from last week. They ask whether you have played against their deck before.',r:[{t:'Say yes, and ask what they\'ve changed since. I\'d like to know how it works.',c:'U'},{t:'Say I can\'t remember. No point handing them that for free.',c:'B'}]},
   
   // MTG B-R Set 1
   {id:'MTG-BR-01',pair:'B-R',ctx:'Payback',sc:'Someone has just destroyed the card your whole deck is built around.',r:[{t:'Shrug it off and remember it. I\'ll choose the moment to pay them back.',c:'B'},{t:'Go after them now with everything I\'ve got. They started it.',c:'R'}]},
   // MTG B-R Set 2
-  {id:'MTG-BR-02',pair:'B-R',ctx:'Grudge',sc:'The same player has knocked you out first in each of the last three games.',r:[{t:'Quietly add a few cards to my deck that beat theirs.',c:'B'},{t:'Go straight for them from the first turn. They\'ll know exactly why.',c:'R'}]},
+  {id:'MTG-BR-02',pair:'B-R',ctx:'Grudge',sc:'The same player has knocked you out first in each of the last three games.',r:[{t:'Make a quiet deal with the others to take them out first.',c:'B'},{t:'Go straight for them from the first turn. They\'ll know exactly why.',c:'R'}]},
   
   // MTG R-G Set 1
   {id:'MTG-RG-01',pair:'R-G',ctx:'All In',sc:'You could attack with everything now and maybe win, or wait a few turns and build up.',r:[{t:'Attack now. Sitting back and waiting is no way to play.',c:'R'},{t:'Wait. There\'s no rush, and the game usually comes to whoever\'s patient.',c:'G'}]},
