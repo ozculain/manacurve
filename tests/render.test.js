@@ -24,12 +24,13 @@ const alt = (id, s1, s2, wins, losses) => [id, { s1, s2, combined: s1, wins, los
 // Page constants the checks read back (they are top-level consts, not window properties).
 const PAGE_EXPOSE = [...EXPOSE, 'RESULT_COPY', 'ROLES_HIDDEN_FOR_FUN'];
 
-// typeline: what the banner typeline must say in player mode.
+// typeline: what the card's typeline must say in player mode (section 8: the
+// commander's printed type line); rules: its rules text (section 2).
 const CASES = [
   {
     id: 'MONO-R', type: 'mono', confidence: 'HIGH',
     activation: { R: 0.86, B: 0.52, G: 0.44, W: 0.21, U: 0.12 },
-    typeline: 'Legendary Creature — Human Berserker (Mono-Red)',
+    typeline: 'Legendary Creature — Goblin Warrior',
     rules: 'Trample, haste. At the beginning of the end step, sacrifice this creature. Back Thursday.',
     rolesForFun: 'Startups, Sales, Crisis Response, Creative Industries, Frontline Operations, Live Events',
     share: { consumer: "I'm Mono-Red. Rakdos lives next door. What are you?", workplace: "I'm Mono-Red. Rakdos lives next door. What are you?" },
@@ -43,7 +44,7 @@ const CASES = [
   {
     id: 'DIMIR', type: 'guild', confidence: 'MODERATE',
     activation: { U: 0.78, B: 0.64, G: 0.31, W: 0.22, R: 0.11 },
-    typeline: 'Legendary Creature — Human Advisor (Dimir)',
+    typeline: 'Legendary Creature — Human Ninja',
     rules: "Whenever a player says something, surveil 1. You have shroud. (You can't be the target of spells, abilities or friends.)",
     rolesForFun: 'Strategic Planning, Competitive Intelligence, Investigative Journalism',
     share: { consumer: "Turns out I'm Dimir. Sultai lives next door and keeps looking over the fence. You?", workplace: "I'm Dimir. Sultai lives next door. What are you?" },
@@ -70,7 +71,7 @@ const CASES = [
   {
     id: 'JUND', type: 'three', confidence: 'LOW',
     activation: { R: 0.71, G: 0.69, B: 0.66, W: 0.24, U: 0.18 },
-    typeline: 'Legendary Creature — Human Mercenary (Jund)',
+    typeline: 'Legendary Creature — Dragon',
     rules: 'Trample. Sacrifice another creature: This creature gets +1/+0 until end of turn. It knew what the job was.',
     rolesForFun: 'Aggressive Sales, Competitive Industries, Startups, Sports, Private Equity',
     share: { consumer: "I'm Jund. Four-colour (no blue) lives next door. What are you?", workplace: "I'm Jund. Four-colour (no blue) lives next door. What are you?" },
@@ -93,7 +94,7 @@ const CASES = [
   {
     id: 'GLINT', type: 'four', confidence: 'MODERATE',
     activation: { U: 0.66, B: 0.63, R: 0.6, G: 0.58, W: 0.2 },
-    typeline: 'Legendary Creature — Human Wizard (Four-colour, no white)',
+    typeline: 'Legendary Creature — Ogre Wizard',
     rules: "Trample, cascade. Phasing (When the bill arrives, treat this creature as though it doesn't exist.)",
     rolesForFun: 'Disruption, High-Risk Ventures, Competitive Industries, Activist Investing',
     share: { consumer: "I'm Four-colour (no white). Five-colour lives next door. What are you?", workplace: "I'm Four-colour (no white). Five-colour lives next door. What are you?" },
@@ -114,7 +115,7 @@ const CASES = [
   {
     id: 'WUBRG', type: 'five', confidence: 'LOW',
     activation: { W: 0.55, U: 0.53, B: 0.52, R: 0.5, G: 0.49 },
-    typeline: 'Legendary Creature — Human Cleric Wizard Rogue Warrior Druid (Five-colour)',
+    typeline: 'Legendary Creature — Human Noble',
     rules: 'Changeling. You have every ability. Each works at a fifth of its strength.',
     rolesForFun: 'Consulting, General Tazri, Generalist Leadership, Facilitation',
     share: { consumer: "I'm Five-colour. Four-colour (no green) lives next door. What are you?", workplace: "I'm Five-colour. Four-colour (no green) lives next door. What are you?" },
@@ -157,6 +158,11 @@ function checkRender(win, h, c, audience, player, threw, errors) {
   const el = (id) => d.getElementById(id);
   const text = (id) => ((el(id) || {}).textContent || '').trim();
   const shown = (id) => !!el(id) && !el(id).classList.contains('hidden') && el(id).style.display !== 'none';
+  // shown, and so is every element around it
+  const visible = (id) => {
+    for (let n = el(id); n; n = n.parentElement) if (n.classList.contains('hidden') || n.style.display === 'none') return false;
+    return !!el(id);
+  };
   const need = (cond, what) => { if (!cond) problems.push(what); };
   const PLACEHOLDERS = ['', '…', '—', 'Description', 'Roles', 'Banter', 'Explanation', 'Tagline'];
   const real = (id) => need(!PLACEHOLDERS.includes(text(id)) && !text(id).includes('IDENTITY'), `${id} placeholder "${text(id).slice(0, 40)}"`);
@@ -178,19 +184,31 @@ function checkRender(win, h, c, audience, player, threw, errors) {
   need(el('conf-badge').dataset.level === c.confidence.toLowerCase(), 'confidence badge level');
   need(d.querySelectorAll('#res-banner-pips .mc-pip').length === p.colors.length, 'banner pips');
 
-  // 1. The reveal lands first: commander, name, tagline, typeline, then the
-  //    philosophy; the confidence badge and its explanation come after it.
+  // 1. The reveal lands first: commander, name, tagline, then (player mode)
+  //    the identity as a card: the typeline, the rules text directly under
+  //    it, the collector number at its foot. Then the philosophy, with the
+  //    confidence badge and its explanation after it.
   need(text('res-banner-commander') === 'Commander · ' + p.cmd, 'banner commander ' + text('res-banner-commander'));
   need(before(win, el('res-id'), el('res-tag')) && before(win, el('res-tag'), el('identity-exp')), 'name and tagline should precede the philosophy');
-  need(before(win, el('res-banner-commander'), el('res-banner-typeline')), 'typeline should sit under the commander');
   need(before(win, el('identity-exp'), el('conf-badge')), 'confidence badge should follow the philosophy');
   need(before(win, el('conf-badge'), el('conf-exp')), 'confidence explanation should follow the badge');
   need(before(win, el('identity-exp'), el('quality-warning')), 'quality warning should follow the philosophy');
   need(text('identity-exp') === p.philosophy.trim(), 'philosophy text');
+  // 8. One typeline on the page: the card's in player mode, the "Personality"
+  //    divider's in plain mode, which prints the scoring version in the footer.
+  const collector = `MC1 • EN • ${String(Object.keys(h.PROFILES).indexOf(c.id) + 1).padStart(3, '0')}/031`;
   if (playerCopy) {
-    need(shown('res-banner-typeline') && text('res-banner-typeline') === c.typeline, `typeline "${text('res-banner-typeline')}" != "${c.typeline}"`);
+    need(visible('res-idcard') && text('res-typeline') === c.typeline, `typeline "${text('res-typeline')}" != "${c.typeline}"`);
+    need(before(win, el('res-tag'), el('res-typeline')) && before(win, el('res-typeline'), el('res-rules'))
+      && before(win, el('res-rules'), el('res-collector')) && before(win, el('res-collector'), el('identity-exp')),
+      'the card should read name, tagline, typeline, rules text, collector number, then the philosophy');
+    need(!el('res-banner-commander').parentElement.contains(el('res-typeline')), 'typeline under the commander');
+    need(text('res-collector') === collector, `collector number "${text('res-collector')}" != "${collector}"`);
+    need(!visible('res-personality') && !visible('res-version'), 'a second typeline (the Personality divider) or the footer version in player mode');
   } else {
-    need(!shown('res-banner-typeline') && text('res-banner-typeline') === '', 'typeline shown outside player mode');
+    need(!visible('res-idcard') && !visible('res-typeline') && text('res-typeline') === '' && text('res-collector') === '', 'card shown outside player mode');
+    need(visible('res-personality') && text('res-personality').replace(/\s+/g, ' ') === 'Personality — ' + p.name.trim(), `divider "${text('res-personality')}"`);
+    need(visible('res-version') && text('res-version') === 'Scoring version 1', `footer "${text('res-version')}"`);
   }
 
   const rows = [...d.querySelectorAll('#res-profile-bars .mc-profile__row')];
@@ -247,14 +265,14 @@ function checkRender(win, h, c, audience, player, threw, errors) {
   need(text('res-bars-caption') === "The name's the summary. The bars are what you said.", `bars caption "${text('res-bars-caption')}"`);
   need(before(win, el('res-bars-caption'), el('res-profile-bars')), 'caption should sit above the bars');
 
-  // 5. Rules-text strip above strengths and shadows, player mode only.
+  // 5. Rules-text strip, player mode only, on the card (its place is checked
+  //    with the typeline above), with bracketed reminder text in italics.
   if (playerCopy) {
-    need(shown('res-rules') && text('res-rules') === c.rules, `rules strip "${text('res-rules')}" != "${c.rules}"`);
-    need(before(win, el('res-rules'), el('strengths')) && before(win, el('res-profile-bars'), el('res-rules')), 'rules strip should sit between the bars and strengths');
+    need(visible('res-rules') && text('res-rules') === c.rules, `rules strip "${text('res-rules')}" != "${c.rules}"`);
     need(!text('res-rules').includes('(') || (el('res-rules').querySelector('i') || {}).textContent === text('res-rules').match(/\([^)]*\)/)[0],
       'bracketed reminder text should be in italics');
   } else {
-    need(!shown('res-rules') && text('res-rules') === '', 'rules strip shown outside player mode');
+    need(!visible('res-rules') && text('res-rules') === '', 'rules strip shown outside player mode');
   }
 
   // 6. Mana base under the commander, player mode only: 37 lands.
@@ -276,9 +294,9 @@ function checkRender(win, h, c, audience, player, threw, errors) {
 
   // Workplace mode gets the plain copy throughout: no Magic nods, no banter.
   if (audience === 'workplace') {
-    const visible = ['res-banner-typeline', 'next-door', 'conf-base-rate', 'res-rules', 'res-mana-base']
-      .filter(shown).map((id) => text(id)).join(' ');
-    need(!/splash|cut the|sleeve|proxy|on the stack|respond|legendary|37 lands/i.test(visible), 'Magic-flavoured copy in workplace mode');
+    const plainText = ['res-idcard', 'res-bars-title', 'next-door', 'conf-base-rate', 'conf-exp', 'res-mana-base']
+      .filter(visible).map((id) => text(id)).join(' ');
+    need(!/splash|cut the|sleeve|proxy|on the stack|respond|legendary|37 lands|mana pool|maybeboard|ruling/i.test(plainText), 'Magic-flavoured copy in workplace mode');
   }
   return problems;
 }
@@ -327,6 +345,34 @@ run('render', async (t) => {
       !threw && errors.length === 0 && text(win, 'conf-base-rate') === LABELS.MODERATE.line && waiting && !/held up when tested|\{pct\}/.test(page),
       `${threw || ''} ${text(win, 'conf-base-rate')}`);
     win.close();
+  }
+
+  // [8] The typeline is the commander's own printed type line: the drafts'
+  // five examples as rendered in player mode (the collector number carrying
+  // scoring version 2), and a well-formed line for every identity.
+  {
+    const FIVE = [
+      ['MONO-U', 'Legendary Creature — Human Artificer'],
+      ['DIMIR', 'Legendary Creature — Human Ninja'],
+      ['ESPER', 'Legendary Artifact Creature — Sphinx'],
+      ['MARDU', 'Legendary Creature — Human Warrior'],
+      ['WUBRG', 'Legendary Creature — Human Noble'],
+    ];
+    const problems = [];
+    let typelines = {}, ids = [];
+    for (const [id, want] of FIVE) {
+      const c = { id, confidence: 'HIGH', activation: { W: 0.55, U: 0.54, B: 0.53, R: 0.52, G: 0.51 }, result: { allResults: [], round3Data: {} } };
+      const { win, h, errors, threw } = await renderCase(c, 'consumer', true, seed++, { scoringVersion: 2 });
+      if (threw || errors.length) problems.push(`${id}: ${threw || errors[0]}`);
+      if (text(win, 'res-typeline') !== want) problems.push(`${id} "${text(win, 'res-typeline')}" != "${want}"`);
+      if (!/^MC2 • EN • \d{3}\/031$/.test(text(win, 'res-collector'))) problems.push(`${id} collector "${text(win, 'res-collector')}"`);
+      typelines = h.RESULT_COPY.typeline;
+      ids = Object.keys(h.PROFILES);
+      win.close();
+    }
+    const malformed = ids.filter((id) => !/^Legendary (Artifact )?Creature — [A-Z][a-z]+( [A-Z][a-z]+)*$/.test(typelines[id] || ''));
+    if (malformed.length || ids.length !== 31) problems.push('malformed or missing typelines: ' + malformed.join(', '));
+    t.ok('typeline: the five examples render as printed (section 8), and all 31 are type lines', problems.length === 0, problems.join('; '));
   }
 
   // Mana base splash: one land for the up neighbour, only when its colour is

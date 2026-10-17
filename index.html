@@ -1665,17 +1665,22 @@ body[data-theme="borderless"] .mc-debug { box-shadow: none; }
    confidence sits under the philosophy. Copy lives in RESULT_COPY.
    ============================================================================ */
 
-/* Banner: commander, then (player mode) the identity as a card typeline */
+/* Banner: name and tagline, the commander beside them */
 .mc-result__commander-block { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; text-align: right; max-width: 46%; }
-.mc-result__cardtype {
-  font-family: var(--f-display); font-weight: 600; font-size: 11px; letter-spacing: 0.1em;
-  color: var(--ink); padding: 5px 12px; background: rgba(0, 0, 0, 0.55);
-  border: 1px solid var(--gilt-line); border-radius: 3px; line-height: 1.4;
-}
 @media (max-width: 640px) {
   .mc-result__banner-meta { flex-direction: column; align-items: flex-start; gap: 14px; padding: 24px 20px; }
   .mc-result__commander-block { align-items: flex-start; text-align: left; max-width: 100%; }
 }
+
+/* Player mode: the identity as a card under its name and tagline. The
+   typeline is the plinth's divider, carrying real text, so it stays opaque;
+   the "Personality" divider below loses its text (and a diamond) instead. */
+.mc-idcard { margin: 0 0 28px; }
+.mc-idcard__typeline { margin: 0 0 12px; opacity: 1; letter-spacing: 0.16em; text-align: center; }
+.mc-idcard__collector { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.06em; color: var(--ink-faded); text-align: right; margin-top: 6px; }
+.mc-typeline__label.hidden + .mc-typeline__diamond { display: none; }
+/* Footer, plain mode: the scoring version */
+.mc-result__version { font-family: var(--f-ui); font-size: 11px; letter-spacing: 0.06em; color: var(--ink-faded); text-align: center; margin: 14px 0 0; }
 
 /* Confidence under the philosophy: the label and its base-rate sentence */
 .mc-verdict-status { display: flex; align-items: flex-start; gap: 14px; flex-wrap: wrap; margin: 4px 0 10px; }
@@ -2273,8 +2278,6 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
           </div>
           <div class="mc-result__commander-block">
             <div class="mc-result__commander" id="res-banner-commander"></div>
-            <!-- Player mode: the identity as a card typeline (filled by showResults) -->
-            <div class="mc-result__cardtype hidden" id="res-banner-typeline"></div>
           </div>
         </div>
       </div>
@@ -2298,15 +2301,27 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
       </div>
 
       <!-- Single big results plinth (per Claude Design). The reveal lands first:
-           philosophy, then the confidence label and why, then next door, the
-           bars, the rules text (player mode), strengths/shadows, banter, the
-           roles + commander aside (mana base in player mode) and the actions.
+           in player mode the identity as a card (typeline, rules text,
+           collector number) right under the name and tagline; then the
+           philosophy, the confidence label and why, next door, the bars,
+           strengths/shadows, banter, the roles + commander aside (mana base in
+           player mode) and the actions.
            Copy for all of it lives in RESULT_COPY in the script. -->
       <div class="mc-plinth" style="padding: 32px 40px;">
         <svg class="mc-corner mc-corner--tl"><use href="#fleuron"/></svg>
         <svg class="mc-corner mc-corner--tr"><use href="#fleuron"/></svg>
         <svg class="mc-corner mc-corner--bl"><use href="#fleuron"/></svg>
         <svg class="mc-corner mc-corner--br"><use href="#fleuron"/></svg>
+
+        <!-- Player mode: the identity as a card under its name and tagline.
+             The typeline stands in for the "Personality" divider's text below;
+             the rules text sits directly under it, the collector number at its
+             foot. Filled by renderIdentityCard(). -->
+        <div class="mc-idcard hidden" id="res-idcard">
+          <div class="mc-typeline mc-idcard__typeline"><span class="mc-typeline__diamond"></span><span id="res-typeline"></span><span class="mc-typeline__diamond"></span></div>
+          <p class="mc-rules-strip" id="res-rules"></p>
+          <div class="mc-idcard__collector" id="res-collector"></div>
+        </div>
 
         <div class="mc-eyebrow mc-eyebrow--gilt" style="margin-bottom: 16px;">Philosophy</div>
 
@@ -2345,11 +2360,9 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
           <div class="mc-profile" id="res-profile-bars"></div>
         </div>
 
-        <!-- Type-line divider: "Personality — <NAME>" -->
-        <div class="mc-typeline"><span class="mc-typeline__diamond"></span>Personality <span style="opacity:0.6;">—</span> <span id="res-typeline-name">…</span><span class="mc-typeline__diamond"></span></div>
-
-        <!-- Rules-text strip, player mode only -->
-        <p class="mc-rules-strip hidden" id="res-rules"></p>
+        <!-- Type-line divider: "Personality — <NAME>" in plain mode; in player
+             mode the card's typeline above replaces its text. -->
+        <div class="mc-typeline"><span class="mc-typeline__diamond"></span><span class="mc-typeline__label" id="res-personality">Personality <span style="opacity:0.6;">—</span> <span id="res-typeline-name">…</span></span><span class="mc-typeline__diamond"></span></div>
 
         <!-- Strengths / Shadows grid (Claude Design's mc-result__grid) -->
         <div class="mc-result__grid" id="res-traits">
@@ -2649,6 +2662,8 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
         <p style="font-family: var(--f-body); font-size: 13px; line-height: 1.6; color: var(--ink-muted); margin-bottom: 6px;">This is a personality framework based on a trading card game about wizards fighting each other.</p>
         <p style="font-family: var(--f-flavor); font-style: italic; font-size: 13px; line-height: 1.6; color: var(--ink-faded);">Is this a joke? Unclear. We keep updating it, which worries us too.</p>
       </div>
+      <!-- Footer, plain mode: the scoring version (player mode prints it as the card's collector number) -->
+      <p class="mc-result__version hidden" id="res-version"></p>
     </div>
   </div>
 
@@ -10373,28 +10388,53 @@ const RESULT_COPY = {
     DUNE: 'Four-colour (no blue)', INK: 'Four-colour (no black)', WUBRG: 'Five-colour'
   },
 
-  // [8] Typeline under the commander in the banner, player mode only. The class
-  // comes from the commander's own creature type where it fits, otherwise from
-  // the identity's roles. Mono-Blue, Dimir, Esper, Mardu and Five-colour are
-  // the drafts' examples; the other 26 were not in the drafts.
+  // [8] Typeline, player mode only: the commander's own printed type line,
+  // unchanged and with no parenthetical (checked against Scryfall on
+  // 17 October 2026). It describes you, so it sits under the identity name and
+  // tagline, not under the commander, and takes the place of the
+  // "Personality — NAME" divider's text, so the page has one typeline. With
+  // the rules text under it and the collector number at its foot it reads as
+  // one card.
   typeline: {
-    format: '{cardType} — {subtype} ({identity})',
-    cardType: 'Legendary Creature',
-    artifactCardType: 'Legendary Artifact Creature',
-    artifact: ['ESPER', 'YORE'], // Sharuum and Breya are artifact creatures
-    subtypes: {
-      'MONO-W': 'Human Cleric', 'MONO-U': 'Human Artificer', 'MONO-B': 'Human Warlock',
-      'MONO-R': 'Human Berserker', 'MONO-G': 'Human Druid',
-      AZORIUS: 'Human Advisor', SELESNYA: 'Human Cleric', ORZHOV: 'Human Noble', DIMIR: 'Human Advisor',
-      IZZET: 'Human Wizard', GRUUL: 'Human Warrior', RAKDOS: 'Human Bard', GOLGARI: 'Human Shaman',
-      SIMIC: 'Human Scientist', BOROS: 'Human Soldier',
-      BANT: 'Human Knight', ESPER: 'Human Wizard', GRIXIS: 'Human Rogue', JUND: 'Human Mercenary',
-      NAYA: 'Human Warrior', ABZAN: 'Human Advisor', JESKAI: 'Human Monk', SULTAI: 'Human Shaman',
-      MARDU: 'Human Warrior', TEMUR: 'Human Warrior',
-      WITCH: 'Human Advisor', YORE: 'Human Artificer', GLINT: 'Human Wizard', DUNE: 'Human Warrior',
-      INK: 'Human Soldier', WUBRG: 'Human Cleric Wizard Rogue Warrior Druid'
-    }
+    'MONO-W': 'Legendary Creature — Phyrexian Praetor',       // Elesh Norn, Grand Cenobite
+    'MONO-U': 'Legendary Creature — Human Artificer',         // Urza, Lord High Artificer
+    'MONO-B': 'Legendary Creature — Phyrexian Horror Minion', // K'rrik, Son of Yawgmoth
+    'MONO-R': 'Legendary Creature — Goblin Warrior',          // Krenko, Mob Boss
+    'MONO-G': 'Legendary Creature — Elemental',               // Omnath, Locus of Mana
+    AZORIUS: 'Legendary Creature — Human Advisor',            // Grand Arbiter Augustin IV
+    SELESNYA: 'Legendary Creature — Dryad',                   // Trostani, Selesnya's Voice
+    ORZHOV: 'Legendary Creature — Spirit Advisor',            // Obzedat, Ghost Council
+    DIMIR: 'Legendary Creature — Human Ninja',                // Yuriko, the Tiger's Shadow
+    IZZET: 'Legendary Creature — Dragon Wizard',              // Niv-Mizzet, Parun
+    GRUUL: 'Legendary Creature — Cyclops',                    // Borborygmos Enraged
+    RAKDOS: 'Legendary Creature — Demon',                     // Rakdos, Lord of Riots
+    GOLGARI: 'Legendary Creature — Human Shaman',             // Meren of Clan Nel Toth
+    SIMIC: 'Legendary Creature — Elf Ooze Wizard',            // Prime Speaker Vannifar
+    BOROS: 'Legendary Creature — Angel',                      // Aurelia, the Warleader
+    BANT: 'Legendary Creature — Human Knight',                // Rafiq of the Many
+    ESPER: 'Legendary Artifact Creature — Sphinx',            // Sharuum the Hegemon
+    GRIXIS: 'Legendary Creature — Zombie Wizard',             // Nekusar, the Mindrazer
+    JUND: 'Legendary Creature — Dragon',                      // Prossh, Skyraider of Kher
+    NAYA: 'Legendary Creature — Human Warrior',               // Samut, Voice of Dissent
+    ABZAN: 'Legendary Creature — Centaur Spirit',             // Karador, Ghost Chieftain
+    JESKAI: 'Legendary Creature — Human Monk',                // Narset, Enlightened Master
+    SULTAI: 'Legendary Creature — Snake Shaman',              // Sidisi, Brood Tyrant
+    MARDU: 'Legendary Creature — Human Warrior',              // Alesha, Who Smiles at Death
+    TEMUR: 'Legendary Creature — Human Warrior',              // Surrak Dragonclaw
+    WITCH: 'Legendary Creature — Phyrexian Angel Horror',     // Atraxa, Praetors' Voice
+    YORE: 'Legendary Artifact Creature — Human',              // Breya, Etherium Shaper
+    GLINT: 'Legendary Creature — Ogre Wizard',                // Yidris, Maelstrom Wielder
+    DUNE: 'Legendary Creature — Human Soldier',               // Saskia the Unyielding
+    INK: 'Legendary Creature — Human Soldier',                // Kynaios and Tiro of Meletis
+    WUBRG: 'Legendary Creature — Human Noble'                 // Kenrith, the Returned King
   },
+
+  // [8] The collector number at the foot of that card, player mode only (the
+  // share Card's set-symbol slot carries it too): the identity's place in
+  // PROFILES, the set code carrying the scoring version. No rarity letter.
+  // Plain mode prints versionNote in the results footer instead.
+  collector: 'MC{s} • EN • {n}/{total}',
+  versionNote: 'Scoring version {s}',
 
   // [4] Confidence labels and their base-rate sentences, the same in both modes
   // and joke-free (links keep c=high|moderate|low). No numbers until real data
@@ -10528,11 +10568,6 @@ const RESULT_COPY = {
     "Turns out I'm {identity}. {neighbour} lives next door and keeps looking over the fence. You?"
   ],
 
-  // The share Card's set-symbol slot, player mode only: the identity's place in
-  // PROFILES order, with the scoring version as the set code. No rarity letter.
-  // [plan, Phases 0 and 2]
-  collector: 'MC{s} • EN • {n}/{total}',
-
   // [3] Slot words for the next-door lines: {colour} / {Colour} and {lands}.
   colourWords: { W: 'white', U: 'blue', B: 'black', R: 'red', G: 'green' },
   landWords: { W: 'Plains', U: 'Islands', B: 'Swamps', R: 'Mountains', G: 'Forests' },
@@ -10617,32 +10652,27 @@ function identityName(id) {
   return RESULT_COPY.names[id] || (PROFILES[id] ? PROFILES[id].name : id);
 }
 
-// "Legendary Creature — Human Advisor (Dimir)". Four-colour names lose their
-// inner brackets here: "(Four-colour, no red)".
-function identityTypeline(id) {
-  const T = RESULT_COPY.typeline;
-  return fillCopy(T.format, {
-    cardType: T.artifact.includes(id) ? T.artifactCardType : T.cardType,
-    subtype: T.subtypes[id] || 'Human',
-    identity: identityName(id).replace(' (', ', ').replace(')', '')
-  });
-}
-
-function renderTypeline(id) {
-  const el = document.getElementById('res-banner-typeline');
-  if (!el) return;
+// Player mode: the identity as a card under its name and tagline. The
+// typeline ("Legendary Creature — Human Ninja"), the rules text directly
+// under it (bracketed reminder text in italics) and the collector number at
+// its foot. The "Personality — NAME" divider keeps its text only in plain
+// mode, which prints the scoring version in the footer instead of the
+// collector number.
+function renderIdentityCard(id) {
   const show = isPlayerMode() && !!PROFILES[id];
-  el.textContent = show ? identityTypeline(id) : '';
-  el.classList.toggle('hidden', !show);
-}
-
-// One line of rules text above strengths and shadows, player mode only.
-function renderRulesStrip(id) {
-  const el = document.getElementById('res-rules');
-  if (!el) return;
-  const line = isPlayerMode() ? RESULT_COPY.rules[id] : '';
-  el.innerHTML = line ? htmlText(line).replace(/\([^)]*\)/g, m => `<i>${m}</i>`) : '';
-  el.classList.toggle('hidden', !line);
+  const set = (elId, fn) => { const el = document.getElementById(elId); if (el) fn(el); };
+  set('res-idcard', (el) => el.classList.toggle('hidden', !show));
+  set('res-typeline', (el) => { el.textContent = show ? (RESULT_COPY.typeline[id] || '') : ''; });
+  set('res-rules', (el) => {
+    const line = show ? RESULT_COPY.rules[id] : '';
+    el.innerHTML = line ? htmlText(line).replace(/\([^)]*\)/g, m => `<i>${m}</i>`) : '';
+  });
+  set('res-collector', (el) => { el.textContent = show ? collectorNumber(id) : ''; });
+  set('res-personality', (el) => el.classList.toggle('hidden', show));
+  set('res-version', (el) => {
+    el.textContent = show ? '' : fillCopy(RESULT_COPY.versionNote, { s: resultVersion('scoringVersion') });
+    el.classList.toggle('hidden', show);
+  });
 }
 
 // state.result.scoringVersion / instrumentVersion; absent (old engine, old link) means 1.
@@ -10827,18 +10857,18 @@ function fillTraitList(listId, items) {
   });
 }
 
-// Philosophy, rules text (player mode), strengths and shadows for one
+// The card (player mode), philosophy, strengths and shadows for one
 // identity, marked as a peek when it is not the one on screen.
 function renderIdentitySections(id, peeking) {
   const prof = PROFILES[id];
   if (!prof) return;
   const phil = document.getElementById('identity-exp');
   phil.textContent = generateIdentityExplanation(id, state.activationSorted || []);
-  renderRulesStrip(id);
+  renderIdentityCard(id);
   fillTraitList('strengths', prof.str);
   fillTraitList('weaknesses', prof.weak);
   const flag = peeking ? fillCopy(RESULT_COPY.appeal.peekHeading, { identity: identityName(id) }) : '';
-  ['identity-exp', 'res-rules', 'res-traits'].forEach(elId => {
+  ['identity-exp', 'res-idcard', 'res-traits'].forEach(elId => {
     const el = document.getElementById(elId);
     if (!el) return;
     el.classList.toggle('is-peeking', peeking);
@@ -11194,7 +11224,6 @@ function showResults() {
   }
   const bannerCmd = document.getElementById('res-banner-commander');
   if (bannerCmd) bannerCmd.textContent = p.cmd ? `Commander · ${p.cmd}` : '';
-  renderTypeline(shownId);
   renderAppealMark();
 
   // Claude Design plinth: typeline name + commander aside.
