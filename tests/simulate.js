@@ -22,8 +22,8 @@ const { runRespondent, calibrateMisspecified, MODEL_NAMES } = require('./_lib/re
 const ENGINES = [1, 2];
 const DEFAULT_ENGINE = 2;
 // The instrument version the page stamps on a finished result (INSTRUMENT_VERSION in
-// index.html): 2 since the Phase 3 quiz copy changed the items and screens.
-const INSTRUMENT_VERSION = 2;
+// index.html): 3 since the Round 1 and 2 copy rewrite (2 for the Phase 3 quiz copy).
+const INSTRUMENT_VERSION = 3;
 const engineUrl =(engine) => (engine === 1 ? 'http://localhost/?engine=1' : 'http://localhost/');
 
 // ---------- CLI ----------
