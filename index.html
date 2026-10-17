@@ -1681,6 +1681,20 @@ body[data-theme="borderless"] .mc-debug { box-shadow: none; }
 .mc-verdict-status { display: flex; align-items: flex-start; gap: 14px; flex-wrap: wrap; margin: 4px 0 10px; }
 .mc-verdict-status .mc-confidence { flex-shrink: 0; }
 
+/* Next door: one colour up, one colour down */
+.mc-nextdoor { margin: 28px 0 8px; padding-top: 22px; border-top: 1px solid var(--gilt-line); }
+.mc-nextdoor__top { display: flex; align-items: baseline; gap: 6px 16px; flex-wrap: wrap; margin-bottom: 14px; }
+.mc-nextdoor__chips { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+.mc-nextdoor__chip {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 6px; text-align: left;
+  padding: 14px 16px; background: var(--inset); border: 1px solid var(--gilt-line); border-radius: 4px;
+  color: var(--ink); font: inherit;
+}
+.mc-nextdoor__pips { display: inline-flex; gap: 4px; }
+.mc-nextdoor__head { font-family: var(--f-display); font-weight: 700; font-size: 14px; letter-spacing: 0.05em; color: var(--gilt-bright); }
+.mc-nextdoor__why { font-family: var(--f-body); font-size: 14px; line-height: 1.5; color: var(--ink-muted); }
+body[data-theme="frames"] .mc-nextdoor__chip { border-radius: 10px; }
+
 </style>
 </head>
 <body data-mode="draft" data-audience="consumer" data-flavor="9" data-theme="gilded">
@@ -2213,6 +2227,16 @@ body[data-theme="borderless"] .mc-debug { box-shadow: none; }
 
         <div id="quality-warning" style="display: none; margin-bottom: 16px; padding: 12px 16px; background: var(--inset); border: 1px dashed var(--gilt-soft); font-family: var(--f-body); font-size: 13px; color: var(--ink-muted);"></div>
 
+        <!-- Next door: one colour up, one colour down, from the five bars alone
+             (so it renders for old links too). Shown at every confidence level. -->
+        <section class="mc-nextdoor" id="next-door" aria-labelledby="next-door-title">
+          <div class="mc-nextdoor__top">
+            <div class="mc-eyebrow mc-eyebrow--gilt" id="next-door-title">Next door</div>
+            <p class="mc-nextdoor__prompt" id="next-door-prompt"></p>
+          </div>
+          <div class="mc-nextdoor__chips" id="next-door-chips"></div>
+        </section>
+
         <!-- Profile bars — the psychometric receipt. 5 rows, populated from state.activationSorted. -->
         <div style="margin: 32px 0;">
           <div class="mc-result__col-title" style="margin-bottom: 16px;">Your Mana Pool</div>
@@ -2318,15 +2342,6 @@ body[data-theme="borderless"] .mc-debug { box-shadow: none; }
           <button class="mc-btn" onclick="showShareScreen()">Make an image</button>
           <button class="mc-btn" onclick="document.getElementById('legacy-detail').classList.toggle('hidden'); this.textContent = document.getElementById('legacy-detail').classList.contains('hidden') ? 'View Full Breakdown' : 'Hide Full Breakdown';">View Full Breakdown</button>
           <button class="mc-btn mc-btn--ghost" onclick="restart()">Retake</button>
-        </div>
-      </div>
-
-      <!-- LOW-confidence alternatives (only shows when set by showResults) -->
-      <div id="alternative-results" class="hidden">
-        <div class="mc-plinth" style="padding: 28px 36px;">
-          <div class="mc-eyebrow mc-eyebrow--gilt mb-12">You're Borderline — Also Could Be</div>
-          <p class="mc-flavor" id="why-explanation" style="font-size: 16px; line-height: 1.55; color: var(--ink-muted); margin-bottom: 16px;">Explanation</p>
-          <div id="alternatives-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px;"></div>
         </div>
       </div>
 
@@ -9823,8 +9838,55 @@ const RESULT_COPY = {
       WITCH: 'Human Advisor', YORE: 'Human Artificer', GLINT: 'Human Wizard', DUNE: 'Human Warrior',
       INK: 'Human Soldier', WUBRG: 'Human Cleric Wizard Rogue Warrior Druid'
     }
+  },
+
+  // [3] Slot words for the next-door lines: {colour} / {Colour} and {lands}.
+  colourWords: { W: 'white', U: 'blue', B: 'black', R: 'red', G: 'green' },
+  landWords: { W: 'Plains', U: 'Islands', B: 'Swamps', R: 'Mountains', G: 'Forests' },
+
+  // [3] + [9] Next door: the row under the confidence line. "up" adds the
+  // strongest colour you don't run, "down" drops the weakest one you do. The
+  // margin (one / few / well) says how far that colour sat from the line
+  // between in and out; see NEXT_DOOR_MARGINS for the cut-offs.
+  nextDoor: {
+    up: {
+      player: {
+        head: 'Splash {colour}: {identity}.',
+        one: 'Your {colour} came in one answer short of moving in.',
+        few: "Your {colour} was a few answers short. It's been round for a viewing.",
+        well: 'Your {colour} was well short. On nodding terms, no more.'
+      },
+      plain: {
+        head: 'Add {colour}: {identity}.',
+        one: '{Colour} came in one answer short.',
+        few: '{Colour} was a few answers short.',
+        well: '{Colour} was well short.'
+      }
+    },
+    down: {
+      player: {
+        head: 'Cut the {lands}: {identity}.',
+        one: '{Colour} only just made the cut.',
+        few: '{Colour} made the cut by a few answers. It would be missed.',
+        well: "{Colour} made the cut easily. Without it, it's a different deck."
+      },
+      plain: {
+        head: 'Drop {colour}: {identity}.',
+        one: '{Colour} only just made it in.',
+        few: '{Colour} made it in by a few answers.',
+        well: '{Colour} made it in comfortably.'
+      }
+    }
   }
 };
+
+// One answer moves a colour's bar by about a twelfth: Round 1 asks twelve
+// enemy-pair questions per colour, so a bar gap of 8 points is about one
+// answer. Next-door margins and the mana base's equal counts use this.
+const ONE_ANSWER = 1 / 12;
+// [3] Margin cut-offs, in answers (the author's call): up to one answer is
+// "one", up to three is "few", anything wider is "well".
+const NEXT_DOOR_MARGINS = { one: 1, few: 3 };
 
 // ─── Result-screen helpers ──────────────────────────────────────────────────
 const WUBRG_ORDER = ['W', 'U', 'B', 'R', 'G'];
@@ -9870,12 +9932,92 @@ function renderTypeline(id) {
   el.classList.toggle('hidden', !show);
 }
 
+function activationMap() {
+  return Object.fromEntries(state.activationSorted || []);
+}
+
+function colourKey(colours) {
+  return WUBRG_ORDER.filter(c => colours.includes(c)).join('');
+}
+
+// The identity whose colour set is exactly these colours.
+let _identityByColours = null;
+function identityForColours(colours) {
+  if (!_identityByColours) {
+    _identityByColours = {};
+    Object.entries(PROFILES).forEach(([id, prof]) => { _identityByColours[colourKey(prof.colors || [])] = id; });
+  }
+  return _identityByColours[colourKey(colours)] || null;
+}
+
+function marginWord(gap) {
+  const answers = Math.max(0, gap) / ONE_ANSWER;
+  if (answers <= NEXT_DOOR_MARGINS.one + 1e-9) return 'one';
+  if (answers <= NEXT_DOOR_MARGINS.few + 1e-9) return 'few';
+  return 'well';
+}
+
+// Next door, from the five bars alone, so it renders for old links too. "up"
+// adds the strongest colour outside the identity, "down" drops its weakest
+// colour (ties go to WUBRG order). The line between in and out sits between
+// the weakest colour in and the strongest colour out, so both rows measure
+// that one gap; with all five colours in, the line is 50%. A colour on the
+// wrong side of its line (the scenarios overruled the bars) counts as "one".
+// Mono has no down row; five-colour has no up row.
+function nextDoorFor(id, act) {
+  const prof = PROFILES[id];
+  if (!prof || !prof.colors) return [];
+  const lit = prof.colors;
+  const bar = (c) => act[c] || 0;
+  const ranked = [...WUBRG_ORDER].sort((a, b) => (bar(b) - bar(a)) || (WUBRG_ORDER.indexOf(a) - WUBRG_ORDER.indexOf(b)));
+  const inside = ranked.filter(c => lit.includes(c));
+  const outside = ranked.filter(c => !lit.includes(c));
+  const weakestIn = inside[inside.length - 1];
+  const strongestOut = outside[0];
+  const gap = strongestOut ? bar(weakestIn) - bar(strongestOut) : bar(weakestIn) - 0.5;
+  const margin = marginWord(gap);
+  const rows = [];
+  if (strongestOut) rows.push({ dir: 'up', colour: strongestOut, id: identityForColours([...lit, strongestOut]), gap, margin });
+  if (inside.length > 1) rows.push({ dir: 'down', colour: weakestIn, id: identityForColours(lit.filter(c => c !== weakestIn)), gap, margin });
+  return rows.filter(row => row.id);
+}
+
+function nextDoorLine(row, player) {
+  const t = RESULT_COPY.nextDoor[row.dir][player ? 'player' : 'plain'];
+  const colour = RESULT_COPY.colourWords[row.colour];
+  const vars = {
+    colour, Colour: colour.charAt(0).toUpperCase() + colour.slice(1),
+    lands: RESULT_COPY.landWords[row.colour], identity: identityName(row.id)
+  };
+  return { head: fillCopy(t.head, vars), why: fillCopy(t[row.margin], vars) };
+}
+
+// Ids of the next-door rows last rendered, in order.
+let nextDoorShown = [];
+
+function renderNextDoor() {
+  const chips = document.getElementById('next-door-chips');
+  if (!chips || !state.result) return;
+  const player = isPlayerMode();
+  const rows = nextDoorFor(state.result.identity, activationMap());
+  nextDoorShown = rows.map(row => row.id);
+  chips.innerHTML = rows.map(row => {
+    const line = nextDoorLine(row, player);
+    const pips = PROFILES[row.id].colors
+      .map(c => `<span class="mc-pip mc-pip--sm is-lit" data-color="${c}" aria-hidden="true"></span>`).join('');
+    return `<div class="mc-nextdoor__chip" data-id="${row.id}" data-dir="${row.dir}" data-margin="${row.margin}">`
+      + `<span class="mc-nextdoor__pips">${pips}</span>`
+      + `<span class="mc-nextdoor__head">${htmlText(line.head)}</span>`
+      + `<span class="mc-nextdoor__why">${htmlText(line.why)}</span></div>`;
+  }).join('');
+}
+
 function showResults() {
   // Persist the finished result so a reload offers "See result" instead of a
   // stale mid-round snapshot. Shared-link views have no answers and are not saved.
   if (state.result && (state.responses || []).length > 0) saveSession();
   // Gate: first reveal goes through honesty disclaimer.
-  // switchToAlternative re-enters with flag already true and re-renders.
+  // Re-renders and shared links arrive with the flag already true.
   if (!state.disclaimerAcknowledged) {
     showPreResultDisclaimer();
     return;
@@ -10061,6 +10203,12 @@ function showResults() {
       ? ` Another caveat: Round 1 and Round 2 disagreed about ${agreeName} — you chose it against its enemies but not against its allies, or the other way round. Treat the margins as softer than they look.`
       : ` Another caveat: Round 1 and Round 2 pulled in different directions. Treat the margins as softer than they look.`;
   }
+  // Width shift (said by the old alternatives box, which next door replaces):
+  // the scenarios settled on more or fewer colours than the early answers did.
+  if (r3ForConf.widthShift && r3ForConf.expectedWinner && PROFILES[r3ForConf.expectedWinner]
+      && r3ForConf.expectedWinner !== state.result.identity) {
+    confBasis += ` Your initial patterns suggested ${PROFILES[r3ForConf.expectedWinner].name}, but your scenario choices revealed a ${r3ForConf.shiftDirection === 'wider' ? 'broader' : 'more focused'} identity.`;
+  }
   const confExpEl = document.getElementById('conf-exp');
   confExpEl.textContent = confBasis;
   confExpEl.classList.remove('hidden');
@@ -10100,196 +10248,9 @@ function showResults() {
   const heading = document.getElementById('res-heading');
   if (heading) heading.textContent = audience === 'workplace' ? 'Your Strategic Profile' : 'Your Colour Identity';
   
-  // Show alternatives for LOW or MODERATE confidence if borderline
-  const allResults = state.result.allResults || [];
-  // sorted already defined above
-  
-  // Check if top colors are borderline (pattern-specific checks)
-  let colorsTied = false;
-  const isGuild = state.result.identity && (state.result.identity.length === 2 || 
-    ['AZORIUS','SELESNYA','ORZHOV','DIMIR','IZZET','SIMIC','RAKDOS','GOLGARI','GRUUL','BOROS'].includes(state.result.identity));
-  const isThreeColor = state.result.identity && 
-    ['BANT','ESPER','GRIXIS','JUND','NAYA','ABZAN','JESKAI','SULTAI','MARDU','TEMUR'].includes(state.result.identity);
-  
-  if (isGuild && sorted.length >= 2) {
-    // For guild: check if top 2 colors very close
-    colorsTied = Math.abs(sorted[0][1] - sorted[1][1]) < 0.05;
-  } else if (isThreeColor && sorted.length >= 3) {
-    // For three-color: check if spread across top 3 is small
-    const spread = sorted[0][1] - sorted[2][1];
-    colorsTied = spread < 0.08;
-  } else if (sorted.length >= 3) {
-    // For other patterns: check if 2nd and 3rd are tied
-    colorsTied = Math.abs(sorted[1][1] - sorted[2][1]) < 0.08;
-  }
-  
-  // Always show alternatives for MODERATE or LOW confidence
-  if ((state.result.confidence === 'MODERATE' || state.result.confidence === 'LOW') && allResults.length === 0) {
-    colorsTied = true; // Force display if no allResults but confidence not HIGH
-  }
-  
-  
-  // Check for width shift (expected one type but got another)
-  const r3Data = state.result.round3Data || {};
-  const hasWidthShift = r3Data.widthShift === true;
-  
-  // Show if (LOW or MODERATE confidence) AND (colors are tied OR we have actual alternatives OR width shift)
-  const shouldShowAlternatives = (state.result.confidence === 'LOW' || state.result.confidence === 'MODERATE') && 
-                                  (colorsTied || allResults.length > 1 || hasWidthShift);
-  
-  if (shouldShowAlternatives) {
-    document.getElementById('alternative-results').style.display = 'block';
-    
-    let whyText = '';
-    
-    if (allResults.length > 1) {
-      const winner = allResults[0];
-      const topAlt = allResults[1];
-      const winnerData = winner[1];
-      const altData = topAlt[1];
-      
-      // Special messaging for width shift
-      if (hasWidthShift && r3Data.expectedWinner) {
-        const expectedProfile = PROFILES[r3Data.expectedWinner];
-        const expectedName = expectedProfile ? expectedProfile.name : r3Data.expectedWinner;
-        
-        if (r3Data.shiftDirection === 'wider') {
-          whyText = `Your initial patterns suggested ${expectedName}, but your scenario choices revealed a broader identity. We're calling you ${state.result.identity} because you consistently preferred responses that draw on more colors. `;
-        } else {
-          whyText = `Your initial patterns suggested ${expectedName}, but your scenario choices revealed a more focused identity. We're calling you ${state.result.identity} because you consistently preferred more targeted responses. `;
-        }
-        whyText += `That said, you're between these identities:`;
-      } else {
-        whyText = `We're calling you ${state.result.identity} because `;
-        
-        if (winnerData.s1 > altData.s1 && winnerData.s2 > altData.s2) {
-          whyText += `it scored higher in both phases (Round 1: ${Math.round(winnerData.s1*100)}% vs ${Math.round(altData.s1*100)}%, Round 3: ${Math.round(winnerData.s2*100)}% vs ${Math.round(altData.s2*100)}%).`;
-        } else if (winnerData.s1 > altData.s1) {
-          whyText += `your color pattern in Round 1 pointed more strongly to it (${Math.round(winnerData.s1*100)}% vs ${Math.round(altData.s1*100)}%), and earlier rounds carry more weight.`;
-        } else if (winnerData.s2 > altData.s2) {
-          whyText += `you picked it more consistently in Round 3 (${Math.round(winnerData.s2*100)}% vs ${Math.round(altData.s2*100)}%).`;
-        } else {
-          whyText += `the overall pattern across all rounds pointed to it.`;
-        }
-        
-        whyText += ` That said, you're borderline—you could legitimately be any of these:`;
-      }
-    } else {
-      whyText = 'Your pattern was borderline. You could legitimately be any of these:';
-    }
-    
-    document.getElementById('why-explanation').textContent = whyText;
-    
-    const altList = document.getElementById('alternatives-list');
-    altList.innerHTML = '';
-    
-    if (allResults.length > 0) {
-    }
-    
-    // Get alternatives from allResults (ranked Stage 2 results), excluding winner
-    let alternatives = allResults.slice(1, 4);
-    
-    // If there was a width shift, ensure the expected winner is in alternatives
-    if (hasWidthShift && r3Data.expectedWinner && r3Data.expectedWinner !== state.result.identity) {
-      const expectedInAlts = alternatives.some(a => a[0] === r3Data.expectedWinner);
-      if (!expectedInAlts) {
-        // Find expected winner in allResults
-        const expectedEntry = allResults.find(a => a[0] === r3Data.expectedWinner);
-        if (expectedEntry) {
-          // Insert at the front of alternatives
-          alternatives.unshift(expectedEntry);
-          // Keep max 4 alternatives
-          if (alternatives.length > 4) alternatives = alternatives.slice(0, 4);
-        }
-      }
-    }
-    
-    // If we have no alternatives but LOW/MODERATE confidence, show guidance
-    if (alternatives.length === 0) {
-      const guidanceDiv = document.createElement('div');
-      guidanceDiv.style.cssText = 'background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 10px; padding: 20px;';
-      
-      if (state.result.confidence === 'LOW') {
-        const cycle = state.result.round3Data?.cycle;
-        const cycleNote = cycle
-          ? `<br><br><strong>Heads up:</strong> Round 3 showed a rock-paper-scissors pattern between ${cycle.join(' → ')} → ${cycle[0]}. We picked the candidate with the most wins overall (Copeland scoring), but the result is genuinely ambiguous.`
-          : '';
-        guidanceDiv.innerHTML = `
-          <div style="font-size: 16px; font-weight: 600; color: #F59E0B; margin-bottom: 12px;">⚠️ Pattern Not Clear</div>
-          <div style="font-size: 14px; color: #c0c0d0; line-height: 1.6;">
-            Your colour distribution doesn't show strong clustering. You might be genuinely balanced across approaches,
-            or the assessment questions may not have captured enough nuance.${cycleNote}
-            <br><br>
-            <strong>Your result is still valid</strong> — this identity represents your strongest signal, even if confidence is lower.
-          </div>
-        `;
-      } else {
-        guidanceDiv.innerHTML = `
-          <div style="font-size: 14px; color: #c0c0d0; line-height: 1.6;">
-            Your pattern points most strongly to <strong>${state.result.identity}</strong>, 
-            though confidence is moderate. The balance between your top colours may shift by context.
-          </div>
-        `;
-      }
-      altList.appendChild(guidanceDiv);
-    } else {
-      // Render actual alternatives
-      alternatives.forEach(alt => {
-      
-      // Handle GUIDANCE type
-      if (alt[0] === 'GUIDANCE') {
-        const guidanceDiv = document.createElement('div');
-        guidanceDiv.style.cssText = 'background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 10px; padding: 16px; margin-bottom: 12px;';
-        guidanceDiv.innerHTML = `
-          <div style="font-weight: 600; margin-bottom: 8px; color: #F59E0B;">📋 Recommendation</div>
-          <div style="font-size: 14px; color: #c0c0d0;">${alt[1].note}</div>
-        `;
-        altList.appendChild(guidanceDiv);
-        return;
-      }
-      
-      const altProfile = PROFILES[alt[0]];
-      if (!altProfile) {
-        console.warn('No profile found for:', alt[0]);
-        return;
-      }
-      
-      const altCard = document.createElement('div');
-      altCard.style.cssText = 'background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 10px; padding: 16px; cursor: pointer; transition: all 0.2s;';
-      altCard.onmouseover = () => altCard.style.background = 'rgba(139, 92, 246, 0.15)';
-      altCard.onmouseout = () => altCard.style.background = 'rgba(139, 92, 246, 0.1)';
-      altCard.onclick = () => switchToAlternative(alt[0]);
-      
-      const symbolsDiv = document.createElement('div');
-      symbolsDiv.style.cssText = 'display: flex; gap: 6px; margin-bottom: 12px;';
-      altProfile.colors.forEach(c => {
-        const sym = document.createElement('span');
-        sym.className = `mana-symbol mana-${c}`;
-        sym.textContent = c;
-        sym.style.width = '24px';
-        sym.style.height = '24px';
-        sym.style.fontSize = '12px';
-        symbolsDiv.appendChild(sym);
-      });
-      
-      const nameDiv = document.createElement('div');
-      nameDiv.style.cssText = 'font-weight: 700; font-size: 16px; margin-bottom: 8px;';
-      nameDiv.textContent = altProfile.name;
-      
-      const descDiv = document.createElement('div');
-      descDiv.style.cssText = 'font-size: 13px; color: #c0c0d0; line-height: 1.6;';
-      descDiv.textContent = altProfile.tag;
-      
-      altCard.appendChild(symbolsDiv);
-      altCard.appendChild(nameDiv);
-      altCard.appendChild(descDiv);
-      altList.appendChild(altCard);
-    });
-    } // Close else block for alternatives rendering
-  } else {
-    // Hide alternatives if not genuinely borderline
-    document.getElementById('alternative-results').style.display = 'none';
-  }
+  // Next door replaces the LOW/MODERATE-only alternatives box: one colour up,
+  // one colour down, at every confidence level.
+  renderNextDoor();
   
   // Display commander with conditional formatting
   const oracleData = COMMANDER_ORACLE[p.cmd];
@@ -10429,37 +10390,6 @@ function showResults() {
     lines.push(`Take the test: ${url}`);
     sharePreview.textContent = lines.join('\n');
   }
-  
-  window.scrollTo({top: 0, behavior: 'smooth'});
-}
-
-function switchToAlternative(altIdentity) {
-  // Find current result and selected alternative in allResults
-  if (!state.result.allResults || state.result.allResults.length === 0) {
-    console.error('No allResults available for switching');
-    return;
-  }
-  
-  const currentIdentity = state.result.identity;
-  const allResults = state.result.allResults;
-  
-  // Find indices of current and alternative
-  const currentIdx = allResults.findIndex(r => r[0] === currentIdentity);
-  const altIdx = allResults.findIndex(r => r[0] === altIdentity);
-  
-  if (currentIdx === -1 || altIdx === -1) {
-    console.error('Could not find identities in allResults', {currentIdentity, altIdentity, allResults});
-    return;
-  }
-  
-  // Swap positions in array
-  [allResults[currentIdx], allResults[altIdx]] = [allResults[altIdx], allResults[currentIdx]];
-  
-  // Update state to new identity
-  state.result.identity = altIdentity;
-  
-  // Re-render entire results page with updated allResults
-  showResults();
   
   window.scrollTo({top: 0, behavior: 'smooth'});
 }

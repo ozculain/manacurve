@@ -30,12 +30,21 @@ const CASES = [
     id: 'MONO-R', type: 'mono', confidence: 'HIGH',
     activation: { R: 0.86, B: 0.52, G: 0.44, W: 0.21, U: 0.12 },
     typeline: 'Legendary Creature — Human Berserker (Mono-Red)',
+    nextDoor: {
+      player: [['up', 'RAKDOS', 'Splash black: Rakdos.', 'Your black was well short. On nodding terms, no more.']],
+      plain: [['up', 'RAKDOS', 'Add black: Rakdos.', 'Black was well short.']],
+    },
     result: { allResults: [], round3Data: { matchHistory: [] } },
   },
   {
     id: 'DIMIR', type: 'guild', confidence: 'MODERATE',
     activation: { U: 0.78, B: 0.64, G: 0.31, W: 0.22, R: 0.11 },
     typeline: 'Legendary Creature — Human Advisor (Dimir)',
+    nextDoor: {
+      player: [['up', 'SULTAI', 'Splash green: Sultai.', 'Your green was well short. On nodding terms, no more.'],
+        ['down', 'MONO-U', 'Cut the Swamps: Mono-Blue.', "Black made the cut easily. Without it, it's a different deck."]],
+      plain: [['up', 'SULTAI', 'Add green: Sultai.', 'Green was well short.'], ['down', 'MONO-U', 'Drop black: Mono-Blue.', 'Black made it in comfortably.']],
+    },
     result: {
       allResults: [alt('DIMIR', 0.81, 0.75, 2, 1), alt('GRIXIS', 0.74, 0.75, 2, 1), alt('ESPER', 0.66, 0.25, 1, 2), alt('MONO-U', 0.61, 0.25, 1, 2)],
       round3Data: {
@@ -54,6 +63,11 @@ const CASES = [
     id: 'JUND', type: 'three', confidence: 'LOW',
     activation: { R: 0.71, G: 0.69, B: 0.66, W: 0.24, U: 0.18 },
     typeline: 'Legendary Creature — Human Mercenary (Jund)',
+    nextDoor: {
+      player: [['up', 'DUNE', 'Splash white: Four-colour (no blue).', 'Your white was well short. On nodding terms, no more.'],
+        ['down', 'GRUUL', 'Cut the Swamps: Gruul.', "Black made the cut easily. Without it, it's a different deck."]],
+      plain: [['up', 'DUNE', 'Add white: Four-colour (no blue).', 'White was well short.'], ['down', 'GRUUL', 'Drop black: Gruul.', 'Black made it in comfortably.']],
+    },
     result: {
       allResults: [alt('JUND', 0.7, 0.5, 2, 2), alt('GRUUL', 0.68, 0.5, 2, 2), alt('RAKDOS', 0.65, 0.5, 2, 2)],
       round3Data: {
@@ -68,6 +82,11 @@ const CASES = [
     id: 'GLINT', type: 'four', confidence: 'MODERATE',
     activation: { U: 0.66, B: 0.63, R: 0.6, G: 0.58, W: 0.2 },
     typeline: 'Legendary Creature — Human Wizard (Four-colour, no white)',
+    nextDoor: {
+      player: [['up', 'WUBRG', 'Splash white: Five-colour.', 'Your white was well short. On nodding terms, no more.'],
+        ['down', 'GRIXIS', 'Cut the Forests: Grixis.', "Green made the cut easily. Without it, it's a different deck."]],
+      plain: [['up', 'WUBRG', 'Add white: Five-colour.', 'White was well short.'], ['down', 'GRIXIS', 'Drop green: Grixis.', 'Green made it in comfortably.']],
+    },
     result: {
       allResults: [alt('GLINT', 0.64, 0.75, 3, 0), alt('GRIXIS', 0.6, 0.5, 2, 1)],
       round3Data: {
@@ -80,6 +99,10 @@ const CASES = [
     id: 'WUBRG', type: 'five', confidence: 'LOW',
     activation: { W: 0.55, U: 0.53, B: 0.52, R: 0.5, G: 0.49 },
     typeline: 'Legendary Creature — Human Cleric Wizard Rogue Warrior Druid (Five-colour)',
+    nextDoor: {
+      player: [['down', 'YORE', 'Cut the Forests: Four-colour (no green).', 'Green only just made the cut.']],
+      plain: [['down', 'YORE', 'Drop green: Four-colour (no green).', 'Green only just made it in.']],
+    },
     result: { allResults: [], round3Data: {} },
   },
 ];
@@ -151,8 +174,18 @@ function checkRender(win, h, c, audience, player, threw, errors) {
     need(disclaimer && disclaimer.style.display === 'none', 'workplace disclaimer shown in consumer mode');
     real('res-counter');
   }
-  const altBox = el('alternative-results');
-  if (altBox && altBox.style.display === 'block') need(el('alternatives-list').children.length > 0, 'alternatives box shown empty');
+  // 2. Next door replaces the old LOW/MODERATE-only alternatives box and shows
+  //    at every confidence level: up adds the strongest unlit colour, down
+  //    drops the weakest lit one; mono has no down row, five-colour no up row.
+  need(!el('alternative-results'), 'the old alternatives box is still in the page');
+  need(shown('next-door') && before(win, el('conf-exp'), el('next-door')) && before(win, el('next-door'), el('res-profile-bars')),
+    'next-door row missing or out of place (it sits between the confidence line and the bars)');
+  const chips = [...d.querySelectorAll('#next-door-chips .mc-nextdoor__chip')].map((chip) => [
+    chip.dataset.dir, chip.dataset.id,
+    (chip.querySelector('.mc-nextdoor__head') || {}).textContent, (chip.querySelector('.mc-nextdoor__why') || {}).textContent,
+  ]);
+  const wantChips = c.nextDoor[playerCopy ? 'player' : 'plain'];
+  need(JSON.stringify(chips) === JSON.stringify(wantChips), `next door ${JSON.stringify(chips)} != ${JSON.stringify(wantChips)}`);
   return problems;
 }
 

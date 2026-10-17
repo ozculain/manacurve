@@ -6,7 +6,7 @@
 //     parsed seed renders through loadFromSeed().
 //  2. The ten links recorded in tests/fixtures/seed-urls.json still open
 //     straight onto their result: the page's own start-up code parses them and
-//     renders the right identity, bars, confidence and audience.
+//     renders the right identity, bars, confidence, audience and next-door row.
 //  3. Unknown parameters are ignored and an unknown identity falls back to the
 //     welcome screen.
 // Usage: node tests/seed.test.js [path/to/index.html]
@@ -27,6 +27,29 @@ const ROUND_TRIPS = [
   // Edges: 0 and 100, and values that sit on a rounding boundary.
   { id: 'IZZET', confidence: 'LOW', audience: 'workplace', act: { U: 1, R: 0.995, W: 0.005, B: 0.0049, G: 0 } },
 ];
+
+// The next-door row each recorded link must show, worked out by hand from its
+// five bars: [direction, neighbour, margin]. The margin is the gap between the
+// weakest colour in and the strongest colour out (50% when all five are in),
+// in answers of about 8 points: one up to 1, few up to 3, well beyond.
+const RECORDED_NEXT_DOOR = {
+  '?r=MONO-W&p=70,22,34,40,58&c=high&a=consumer': [['up', 'SELESNYA', 'few']],
+  '?r=MONO-B&p=35,33,73,46,58&c=high&a=workplace': [['up', 'GOLGARI', 'few']],
+  '?r=AZORIUS&p=64,65,32,49,26&c=moderate&a=consumer': [['up', 'JESKAI', 'few'], ['down', 'MONO-U', 'few']],
+  '?r=RAKDOS&p=48,28,49,83,24&c=low&a=workplace': [['up', 'MARDU', 'one'], ['down', 'MONO-R', 'one']],
+  '?r=SIMIC&p=43,75,42,35,47&c=high&a=consumer': [['up', 'BANT', 'one'], ['down', 'MONO-U', 'one']],
+  '?r=ESPER&p=68,48,59,33,15&c=moderate&a=consumer': [['up', 'YORE', 'few'], ['down', 'ORZHOV', 'few']],
+  '?r=TEMUR&p=33,62,9,42,68&c=high&a=workplace': [['up', 'INK', 'few'], ['down', 'SIMIC', 'few']],
+  // Black and red tie at 48; ties go to WUBRG order, so red is the weakest in.
+  '?r=GLINT&p=17,56,48,48,64&c=moderate&a=consumer': [['up', 'WUBRG', 'well'], ['down', 'SULTAI', 'well']],
+  '?r=WITCH&p=47,55,49,19,62&c=high&a=workplace': [['up', 'WUBRG', 'well'], ['down', 'SULTAI', 'well']],
+  '?r=WUBRG&p=61,38,45,39,52&c=high&a=consumer': [['down', 'DUNE', 'one']],
+};
+
+function nextDoorRows(win) {
+  return [...win.document.querySelectorAll('#next-door-chips .mc-nextdoor__chip')]
+    .map((chip) => [chip.dataset.dir, chip.dataset.id, chip.dataset.margin]);
+}
 
 // Bars and labels rendered for a seed, compared with what the link says.
 function renderProblems(win, h, want, errors) {
@@ -101,7 +124,11 @@ run('seed', async ({ ok }) => {
     const want = parseQuery(q);
     const problems = renderProblems(win, h, want, errors);
     if (!isVisible(win, 'seed-banner')) problems.push('seed banner hidden');
-    ok('recorded link ' + q, problems.length === 0, problems.join('; '));
+    const rows = nextDoorRows(win), wantRows = RECORDED_NEXT_DOOR[q];
+    if (!isVisible(win, 'next-door') || JSON.stringify(rows) !== JSON.stringify(wantRows)) {
+      problems.push(`next door ${JSON.stringify(rows)} != ${JSON.stringify(wantRows)}`);
+    }
+    ok('recorded link renders with its next-door row ' + q, problems.length === 0, problems.join('; '));
     win.close();
   }
 
