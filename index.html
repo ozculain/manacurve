@@ -1659,6 +1659,28 @@ body[data-theme="borderless"] .mc-result__banter { border: 0; border-radius: 10p
 body[data-theme="borderless"] .mc-loyalty { filter: none; }
 body[data-theme="borderless"] .mc-debug { box-shadow: none; }
 
+/* ============================================================================
+   PHASE 2 — RESULTS: ONE VERDICT, NEXT DOOR
+   The reveal lands first (commander, name, tagline, typeline, philosophy);
+   confidence sits under the philosophy. Copy lives in RESULT_COPY.
+   ============================================================================ */
+
+/* Banner: commander, then (player mode) the identity as a card typeline */
+.mc-result__commander-block { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; text-align: right; max-width: 46%; }
+.mc-result__cardtype {
+  font-family: var(--f-display); font-weight: 600; font-size: 11px; letter-spacing: 0.1em;
+  color: var(--ink); padding: 5px 12px; background: rgba(0, 0, 0, 0.55);
+  border: 1px solid var(--gilt-line); border-radius: 3px; line-height: 1.4;
+}
+@media (max-width: 640px) {
+  .mc-result__banner-meta { flex-direction: column; align-items: flex-start; gap: 14px; padding: 24px 20px; }
+  .mc-result__commander-block { align-items: flex-start; text-align: left; max-width: 100%; }
+}
+
+/* Confidence under the philosophy */
+.mc-verdict-status { display: flex; align-items: flex-start; gap: 14px; flex-wrap: wrap; margin: 4px 0 10px; }
+.mc-verdict-status .mc-confidence { flex-shrink: 0; }
+
 </style>
 </head>
 <body data-mode="draft" data-audience="consumer" data-flavor="9" data-theme="gilded">
@@ -2141,7 +2163,11 @@ body[data-theme="borderless"] .mc-debug { box-shadow: none; }
             <div class="mc-result__name" id="res-id">—</div>
             <div class="mc-result__tag" id="res-tag"></div>
           </div>
-          <div class="mc-result__commander" id="res-banner-commander"></div>
+          <div class="mc-result__commander-block">
+            <div class="mc-result__commander" id="res-banner-commander"></div>
+            <!-- Player mode: the identity as a card typeline (filled by showResults) -->
+            <div class="mc-result__cardtype hidden" id="res-banner-typeline"></div>
+          </div>
         </div>
       </div>
 
@@ -2163,26 +2189,29 @@ body[data-theme="borderless"] .mc-debug { box-shadow: none; }
         <span id="mode-used"></span>
       </div>
 
-      <!-- Single big results plinth (per Claude Design): confidence + philosophy +
-           type-line + strengths/shadows grid + banter + type-line + roles+commander
-           aside + action row. Replaces the half-dozen legacy detail cards. -->
+      <!-- Single big results plinth (per Claude Design). The reveal lands first:
+           philosophy, then the confidence label and why, then next door, the
+           bars, the rules text (player mode), strengths/shadows, banter, the
+           roles + commander aside (mana base in player mode) and the actions.
+           Copy for all of it lives in RESULT_COPY in the script. -->
       <div class="mc-plinth" style="padding: 32px 40px;">
         <svg class="mc-corner mc-corner--tl"><use href="#fleuron"/></svg>
         <svg class="mc-corner mc-corner--tr"><use href="#fleuron"/></svg>
         <svg class="mc-corner mc-corner--bl"><use href="#fleuron"/></svg>
         <svg class="mc-corner mc-corner--br"><use href="#fleuron"/></svg>
 
-        <!-- Header: gilt eyebrow + confidence badge -->
-        <div style="display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 16px; flex-wrap: wrap;">
-          <div class="mc-eyebrow mc-eyebrow--gilt">Philosophy</div>
+        <div class="mc-eyebrow mc-eyebrow--gilt" style="margin-bottom: 16px;">Philosophy</div>
+
+        <!-- Philosophy quote (the type's worldview) -->
+        <p class="mc-result__philosophy" id="identity-exp">Explanation</p>
+
+        <!-- Confidence, below the philosophy: the badge, then why. -->
+        <div class="mc-verdict-status">
           <span class="mc-confidence" id="conf-badge" data-level="moderate"><span class="mc-confidence__dot"></span><span>Moderate Confidence</span></span>
         </div>
         <span class="mc-flavor text-md hidden" id="conf-exp">Pattern read from your responses.</span>
 
         <div id="quality-warning" style="display: none; margin-bottom: 16px; padding: 12px 16px; background: var(--inset); border: 1px dashed var(--gilt-soft); font-family: var(--f-body); font-size: 13px; color: var(--ink-muted);"></div>
-
-        <!-- Philosophy quote (the type's worldview) -->
-        <p class="mc-result__philosophy" id="identity-exp">Explanation</p>
 
         <!-- Profile bars — the psychometric receipt. 5 rows, populated from state.activationSorted. -->
         <div style="margin: 32px 0;">
@@ -9750,6 +9779,97 @@ function revealResults() {
   showResults();
 }
 
+// ════════════════════════════════════════════════════════════════════════════
+// RESULT SCREEN COPY (Phase 2: one verdict, next door)
+// Every string the results screen adds in Phase 2 lives in this block, so the
+// author can edit them in one place. ALL OF IT IS PROVISIONAL: drafted on
+// 17 October 2026 for the author's yes, no or rewrite (the section of the copy
+// drafts is in square brackets). Lines marked "not in the drafts" were written
+// while building the screen and need the same review.
+// "player" strings show only in player mode (state.gamingFamiliar on, never in
+// workplace mode); "plain" strings show to everyone else. Placeholders in
+// braces are filled by fillCopy().
+// ════════════════════════════════════════════════════════════════════════════
+const RESULT_COPY = {
+  // One sentence-case name per identity, for use inside sentences. [3]
+  names: {
+    'MONO-W': 'Mono-White', 'MONO-U': 'Mono-Blue', 'MONO-B': 'Mono-Black', 'MONO-R': 'Mono-Red', 'MONO-G': 'Mono-Green',
+    AZORIUS: 'Azorius', SELESNYA: 'Selesnya', ORZHOV: 'Orzhov', DIMIR: 'Dimir', IZZET: 'Izzet',
+    GRUUL: 'Gruul', RAKDOS: 'Rakdos', GOLGARI: 'Golgari', SIMIC: 'Simic', BOROS: 'Boros',
+    BANT: 'Bant', ESPER: 'Esper', GRIXIS: 'Grixis', JUND: 'Jund', NAYA: 'Naya',
+    ABZAN: 'Abzan', JESKAI: 'Jeskai', SULTAI: 'Sultai', MARDU: 'Mardu', TEMUR: 'Temur',
+    WITCH: 'Four-colour (no red)', YORE: 'Four-colour (no green)', GLINT: 'Four-colour (no white)',
+    DUNE: 'Four-colour (no blue)', INK: 'Four-colour (no black)', WUBRG: 'Five-colour'
+  },
+
+  // [8] Typeline under the commander in the banner, player mode only. The class
+  // comes from the commander's own creature type where it fits, otherwise from
+  // the identity's roles. Mono-Blue, Dimir, Esper, Mardu and Five-colour are
+  // the drafts' examples; the other 26 were not in the drafts.
+  typeline: {
+    format: '{cardType} — {subtype} ({identity})',
+    cardType: 'Legendary Creature',
+    artifactCardType: 'Legendary Artifact Creature',
+    artifact: ['ESPER', 'YORE'], // Sharuum and Breya are artifact creatures
+    subtypes: {
+      'MONO-W': 'Human Cleric', 'MONO-U': 'Human Artificer', 'MONO-B': 'Human Warlock',
+      'MONO-R': 'Human Berserker', 'MONO-G': 'Human Druid',
+      AZORIUS: 'Human Advisor', SELESNYA: 'Human Cleric', ORZHOV: 'Human Noble', DIMIR: 'Human Advisor',
+      IZZET: 'Human Wizard', GRUUL: 'Human Warrior', RAKDOS: 'Human Bard', GOLGARI: 'Human Shaman',
+      SIMIC: 'Human Scientist', BOROS: 'Human Soldier',
+      BANT: 'Human Knight', ESPER: 'Human Wizard', GRIXIS: 'Human Rogue', JUND: 'Human Mercenary',
+      NAYA: 'Human Warrior', ABZAN: 'Human Advisor', JESKAI: 'Human Monk', SULTAI: 'Human Shaman',
+      MARDU: 'Human Warrior', TEMUR: 'Human Warrior',
+      WITCH: 'Human Advisor', YORE: 'Human Artificer', GLINT: 'Human Wizard', DUNE: 'Human Warrior',
+      INK: 'Human Soldier', WUBRG: 'Human Cleric Wizard Rogue Warrior Druid'
+    }
+  }
+};
+
+// ─── Result-screen helpers ──────────────────────────────────────────────────
+const WUBRG_ORDER = ['W', 'U', 'B', 'R', 'G'];
+
+// Fill {placeholders} in a copy template. Unknown placeholders stay visible.
+function fillCopy(template, vars) {
+  return String(template).replace(/\{(\w+)\}/g, (m, k) => (vars && vars[k] !== undefined ? String(vars[k]) : m));
+}
+
+function htmlText(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// Player mode gets the Magic-flavoured copy. Workplace mode never does.
+function isPlayerMode() {
+  return state.gamingFamiliar === true && (state.audience || 'consumer') !== 'workplace';
+}
+
+function copyVariant(entry) {
+  return isPlayerMode() ? entry.player : entry.plain;
+}
+
+function identityName(id) {
+  return RESULT_COPY.names[id] || (PROFILES[id] ? PROFILES[id].name : id);
+}
+
+// "Legendary Creature — Human Advisor (Dimir)". Four-colour names lose their
+// inner brackets here: "(Four-colour, no red)".
+function identityTypeline(id) {
+  const T = RESULT_COPY.typeline;
+  return fillCopy(T.format, {
+    cardType: T.artifact.includes(id) ? T.artifactCardType : T.cardType,
+    subtype: T.subtypes[id] || 'Human',
+    identity: identityName(id).replace(' (', ', ').replace(')', '')
+  });
+}
+
+function renderTypeline(id) {
+  const el = document.getElementById('res-banner-typeline');
+  if (!el) return;
+  const show = isPlayerMode() && !!PROFILES[id];
+  el.textContent = show ? identityTypeline(id) : '';
+  el.classList.toggle('hidden', !show);
+}
+
 function showResults() {
   // Persist the finished result so a reload offers "See result" instead of a
   // stale mid-round snapshot. Shared-link views have no answers and are not saved.
@@ -9817,6 +9937,7 @@ function showResults() {
   }
   const bannerCmd = document.getElementById('res-banner-commander');
   if (bannerCmd) bannerCmd.textContent = p.cmd ? `Commander · ${p.cmd}` : '';
+  renderTypeline(state.result.identity);
 
   // Claude Design plinth: typeline name + commander aside.
   const typelineName = document.getElementById('res-typeline-name');
