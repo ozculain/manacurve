@@ -26,3 +26,6 @@ Thumbs.db
 
 # Local-only / experimental HTML scratch
 scripts/_followup/_processed.html
+
+# Simulation output
+tests/out/
