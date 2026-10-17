@@ -23,10 +23,18 @@ Newest first. Dates are when the work was committed.
   directory and fails on a stale or hand-edited page. Re-run
   `npm run previews` after changing a profile's name, tag or philosophy, a
   commander, or a commander image.
-- Not live yet: the share-link builder in `index.html` (`buildResultURL`) still
-  emits `?r=...`, so nothing links to these pages. It has to emit
-  `r/<ID>.html?p=...&c=...&a=...` instead (a later change, owned by the
-  presentation work).
+- Share links now point at the preview pages: `buildResultURL` writes
+  `<site root>/r/<ID>.html?p=...&c=...&a=...&s=...&i=...[&f=...]`, for example
+  `https://ozculain.github.io/manacurve/r/DIMIR.html?p=22,78,64,11,31&c=moderate&a=consumer&s=1&i=1`,
+  with no `r` of its own: the page adds `r=<ID>` when it forwards, so
+  `parseSeedURL` is unchanged and links shared before this (`?r=...`) still
+  open. The site root comes from the page URL (`siteRootURL`), so it is right
+  on GitHub Pages with or without `index.html` and on a local preview. The
+  share text, Web Share, the clipboard fallback and Copy Link all use it; the
+  share images' footers print the site address, not a result link, and are as
+  they were. The golden test still compares `r`, `p`, `c` and `a` (it reads `r`
+  from the page name), and `tests/fixtures/seed-urls.json` gains two recorded
+  preview-page links beside the ten old ones.
 - `.github/workflows/deploy.yml.proposed` now copies `r/` alongside `index.html`,
   `data.js`, `favicon.svg` and `images/`, so enabling it keeps the preview pages.
 ### Phase 2: presentation, one verdict and next door

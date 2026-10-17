@@ -14,6 +14,7 @@
 const fs = require('fs');
 const path = require('path');
 const { bootPage, pageArgs } = require('./_lib/load');
+const { PREVIEW_PATH } = require('./_lib/forward');
 const { runRespondent } = require('./_lib/respondent');
 const { run } = require('./_lib/report');
 
@@ -30,13 +31,21 @@ const keyOf = (r) => `${r.id} p=${r.p} #${r.idx}`;
 
 // The result link as scoring decides it: r, p, c and a. Versions (s, i), an
 // appeal (f) and any later additions are presentation and stay out of the
-// fixture (docs/SCORING_CONTRACT.md).
+// fixture (docs/SCORING_CONTRACT.md). A share link goes through the identity's
+// preview page, <root>/r/<ID>.html?p=..., which puts r=<ID> in the query when it
+// forwards to index.html. The fixture keeps the one shape it was recorded in,
+// <root>/?r=<ID>&p=..., so the identity is read from the page name and the
+// path is cut back to the root; an old-form link is read as it stands.
 function linkCore(url) {
   if (!url) return url;
   const u = new URL(url);
+  const preview = PREVIEW_PATH.exec(u.pathname);
+  const r = u.searchParams.has('r') ? u.searchParams.get('r') : (preview && preview[1]);
   const core = new URLSearchParams();
-  for (const k of ['r', 'p', 'c', 'a']) if (u.searchParams.has(k)) core.set(k, u.searchParams.get(k));
-  return `${u.origin}${u.pathname}?${core.toString().replace(/%2C/g, ',')}`;
+  if (r) core.set('r', r);
+  for (const k of ['p', 'c', 'a']) if (u.searchParams.has(k)) core.set(k, u.searchParams.get(k));
+  const root = preview ? u.pathname.slice(0, preview.index + 1) : u.pathname;
+  return `${u.origin}${root}?${core.toString().replace(/%2C/g, ',')}`;
 }
 
 function record(win, id, spec, idx) {

@@ -31,6 +31,7 @@ Existing: `r` identity, `p` five integers 0..100 in WUBRG order, `c` confidence,
 Added: `s` scoringVersion, `i` instrumentVersion, `f` appealed identity (optional), later `v` result code (optional).
 Absent `s` or `i` means 1. Unknown parameters are ignored. `buildResultURL` writes `s` and `i`; `parseSeedURL` reads them into `state.result`.
 
+- Shared links go through the identity's link-preview page: `buildResultURL` writes `<site root>/r/<ID>.html?p=...&c=...&a=...&s=...&i=...[&f=...]` with no `r`, and the page forwards to `index.html?r=<ID>&p=...` (query and hash kept, `r` added). `parseSeedURL` still reads `r` from the query, and links written before the preview pages (`?r=<ID>&...`) still open.
 - `r` stays the verdict after an appeal; the appeal is `state.result.appeal = { chosen, shown, copyVersion, labelShown, timeToAppealMs }` (presentation-owned; scoring never writes it). `f` carries `appeal.chosen`, and is not written in workplace mode, where the appeal stays private.
 - The golden test compares the result link on `r`, `p`, `c` and `a` only, so adding `s`, `i`, `f` (or `v`) to links never forces a fixture rewrite; a change of `SCORING_VERSION` shows up there through the identity, confidence and bars it changes, not through `s`.
 
