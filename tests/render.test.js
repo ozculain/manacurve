@@ -22,7 +22,7 @@ const match = (a, b, winner, i) => ({
 const alt = (id, s1, s2, wins, losses) => [id, { s1, s2, combined: s1, wins, losses, isTournament: true }];
 
 // Page constants the checks read back (they are top-level consts, not window properties).
-const PAGE_EXPOSE = [...EXPOSE, 'RESULT_COPY', 'ROLES_HIDDEN_FOR_FUN'];
+const PAGE_EXPOSE = [...EXPOSE, 'RESULT_COPY', 'ROLES_HIDDEN_FOR_FUN', 'MANA_BASE_LANDS', 'manaBaseLine'];
 
 // typeline: what the card's typeline must say in player mode (section 8: the
 // commander's printed type line); rules: its rules text (section 2).
@@ -48,7 +48,7 @@ const CASES = [
     rules: "Whenever a player says something, surveil 1. You have shroud. (You can't be the target of spells, abilities or friends.)",
     rolesForFun: 'Strategic Planning, Competitive Intelligence, Investigative Journalism',
     share: { consumer: "Turns out I'm Dimir. Sultai lives next door and keeps looking over the fence. You?", workplace: "I'm Dimir. Sultai lives next door. What are you?" },
-    manaBase: '37 lands: Watery Grave, Polluted Delta, Drowned Catacomb, 19 Island, 15 Swamp.',
+    manaBase: '37 lands: Command Tower, Watery Grave, Polluted Delta, Drowned Catacomb, 19 Island, 14 Swamp.',
     nextDoor: {
       player: [['up', 'SULTAI', 'Splash green? Sultai.', 'Your green was well short. On nodding terms, no more.'],
         ['down', 'MONO-U', 'Cut the Swamps: Mono-Blue.', "Black made the cut easily. Without it, it's a different deck."]],
@@ -75,7 +75,7 @@ const CASES = [
     rules: 'Trample. Sacrifice another creature: This creature gets +1/+0 until end of turn. It knew what the job was.',
     rolesForFun: 'Aggressive Sales, Competitive Industries, Startups, Sports, Private Equity',
     share: { consumer: "I'm Jund. Four-colour (no blue) lives next door. What are you?", workplace: "I'm Jund. Four-colour (no blue) lives next door. What are you?" },
-    manaBase: "37 lands: Ziatora's Proving Ground, Blood Crypt, Stomping Ground, Overgrown Tomb, 11 Mountain, 11 Forest, 11 Swamp.",
+    manaBase: "37 lands: Command Tower, Ziatora's Proving Ground, Blood Crypt, Stomping Ground, Overgrown Tomb, 11 Mountain, 11 Forest, 10 Swamp.",
     nextDoor: {
       player: [['up', 'DUNE', 'Splash white? Four-colour (no blue).', 'Your white was well short. On nodding terms, no more.'],
         ['down', 'GRUUL', 'Cut the Swamps: Gruul.', "Black made the cut easily. Without it, it's a different deck."]],
@@ -98,7 +98,7 @@ const CASES = [
     rules: "Trample, cascade. Phasing (When the bill arrives, treat this creature as though it doesn't exist.)",
     rolesForFun: 'Disruption, High-Risk Ventures, Competitive Industries, Activist Investing',
     share: { consumer: "I'm Four-colour (no white). Five-colour lives next door. What are you?", workplace: "I'm Four-colour (no white). Five-colour lives next door. What are you?" },
-    manaBase: '37 lands: Command Tower, Mana Confluence, City of Brass, Exotic Orchard, 9 Island, 8 Swamp, 8 Mountain, 8 Forest.',
+    manaBase: '37 lands: Command Tower, Mana Confluence, City of Brass, Exotic Orchard, six shocks, four Triomes, 6 Island, 6 Swamp, 6 Mountain, 5 Forest.',
     nextDoor: {
       player: [['up', 'WUBRG', 'Splash white? Five-colour.', 'Your white was well short. On nodding terms, no more.'],
         ['down', 'GRIXIS', 'Cut the Forests: Grixis.', "Green made the cut easily. Without it, it's a different deck."]],
@@ -119,7 +119,7 @@ const CASES = [
     rules: 'Changeling. You have every ability. Each works at a fifth of its strength.',
     rolesForFun: 'Consulting, General Tazri, Generalist Leadership, Facilitation',
     share: { consumer: "I'm Five-colour. Four-colour (no green) lives next door. What are you?", workplace: "I'm Five-colour. Four-colour (no green) lives next door. What are you?" },
-    manaBase: '37 lands: Command Tower, Mana Confluence, City of Brass, Exotic Orchard, 7 Plains, 7 Island, 7 Swamp, 6 Mountain, 6 Forest.',
+    manaBase: '37 lands: Command Tower, Mana Confluence, City of Brass, Exotic Orchard, all ten shocks, all ten Triomes, and 13 basics, mostly for the Cultivate.',
     nextDoor: {
       player: [['down', 'YORE', 'Cut the Forests: Four-colour (no green).', 'Green only just made the cut.']],
       plain: [['down', 'YORE', 'Drop green: Four-colour (no green).', 'Green only just made it in.']],
@@ -131,16 +131,45 @@ const CASES = [
 // a precedes b in document order
 const before = (win, a, b) => !!(a && b && (a.compareDocumentPosition(b) & win.Node.DOCUMENT_POSITION_FOLLOWING));
 
-// Lands counted in a mana base line: "N Basic" counts N, every other listed
-// land one, and a final "and a <land> <joke or tail>" one more.
+// [10] A mana base line is the deck ("37 lands: ...") and, sometimes, a
+// maybeboard line after it, outside the 37.
+const deckPart = (line) => (line || '').split(' Maybeboard: ')[0];
+const maybeboardPart = (line) => ((line || '').split(' Maybeboard: ')[1] || '');
+
+// Lands counted in the deck part: "N Basic" counts N; "six shocks", "four
+// Triomes", "all ten shocks" and "all ten Triomes" what they say; "and N
+// basics" N; a mono line's "N Basic and a <land>" N + 1; any other land one.
 function landCount(line) {
-  const m = /^37 lands: (.*)\.$/.exec(line || '');
+  const m = /^37 lands: (.*)\.$/.exec(deckPart(line));
   if (!m) return -1;
-  const [list, last] = m[1].split(/,? and an? /);
-  return list.split(', ').reduce((sum, item) => {
-    const basics = /^(\d+) (Plains|Island|Swamp|Mountain|Forest)$/.exec(item);
-    return sum + (basics ? Number(basics[1]) : 1);
-  }, last ? 1 : 0);
+  const mono = /^(\d+) (Plains|Island|Swamp|Mountain|Forest) and an? /.exec(m[1]);
+  if (mono) return Number(mono[1]) + 1;
+  const WORDS = { four: 4, six: 6, ten: 10 };
+  return m[1].split(', ').reduce((sum, item) => {
+    let x;
+    if ((x = /^(\d+) (Plains|Island|Swamp|Mountain|Forest)$/.exec(item))) return sum + Number(x[1]);
+    if ((x = /^(?:all )?(four|six|ten) (?:shocks|Triomes)$/.exec(item))) return sum + WORDS[x[1]];
+    if ((x = /^and (\d+) basics$/.exec(item))) return sum + Number(x[1]);
+    return sum + (item === 'mostly for the Cultivate' ? 0 : 1);
+  }, 0);
+}
+
+// The colours of every land MANA_BASE_LANDS names: a pair land its two, a
+// Triome its three, a utility land or a basic its one, the rest none.
+function landColours(L) {
+  const map = new Map();
+  Object.entries(L.basics).forEach(([c, name]) => map.set(name, c));
+  Object.entries(L.pairs).forEach(([k, p]) => [p.shock, p.fetch, p.check].forEach((name) => map.set(name, k)));
+  Object.entries(L.triples).forEach(([k, t]) => map.set(t.triome, k));
+  Object.entries(L.mono).forEach(([c, name]) => map.set(name, c));
+  [L.commandTower, ...L.wide].forEach((name) => map.set(name, ''));
+  return map;
+}
+
+// Named lands in the deck part that carry a colour outside the identity.
+function offIdentityLands(line, colours, map) {
+  const deck = deckPart(line);
+  return [...map].filter(([name, cols]) => deck.includes(name) && ![...cols].every((c) => colours.includes(c))).map(([name]) => name);
 }
 
 // [4] Label words and base-rate sentences: the same in both modes, joke-free,
@@ -286,10 +315,13 @@ function checkRender(win, h, c, audience, player, threw, errors) {
     need(!visible('res-rules') && text('res-rules') === '', 'rules strip shown outside player mode');
   }
 
-  // 6. Mana base under the commander, player mode only: 37 lands.
+  // 6. Mana base at the foot of the commander block, player mode only: 37
+  //    lands, none of them outside the identity's colours.
   if (playerCopy) {
     need(shown('res-mana-base') && text('res-mana-base') === c.manaBase, `mana base "${text('res-mana-base')}" != "${c.manaBase}"`);
     need(landCount(text('res-mana-base')) === 37, `mana base counts ${landCount(text('res-mana-base'))} lands`);
+    const off = offIdentityLands(text('res-mana-base'), p.colors, landColours(h.MANA_BASE_LANDS));
+    need(off.length === 0, 'off-identity lands in the deck: ' + off.join(', '));
     need(before(win, el('cmd-desc-aside'), el('res-mana-base')), 'mana base should sit under the commander');
   } else {
     need(!shown('res-mana-base') && text('res-mana-base') === '', 'mana base shown outside player mode');
@@ -427,28 +459,90 @@ run('render', async (t) => {
     t.ok('next door: the worked examples read as drafted, in player and plain modes', problems.length === 0, problems.join('; '));
   }
 
-  // Mana base splash: one land for the up neighbour, only when its colour is
-  // within a few answers (the bars of five recorded links, plus a close
-  // four-colour result). The splash land replaces a basic; still 37 lands.
-  const SPLASHES = [
-    ['MONO-W', { W: 0.70, U: 0.22, B: 0.34, R: 0.40, G: 0.58 },
-      '37 lands: 35 Plains, Castle Ardenvale, and a Temple Garden for the green you keep toying with.'],
-    ['MONO-B', { W: 0.35, U: 0.33, B: 0.73, R: 0.46, G: 0.58 },
-      '37 lands: 35 Swamp, Cabal Coffers, and an Overgrown Tomb for the green you keep toying with.'],
-    ['RAKDOS', { W: 0.48, U: 0.28, B: 0.49, R: 0.83, G: 0.24 },
-      '37 lands: Blood Crypt, Bloodstained Mire, Dragonskull Summit, 21 Mountain, 12 Swamp, and a Savai Triome you swear is for the splash.'],
-    ['ESPER', { W: 0.68, U: 0.48, B: 0.59, R: 0.33, G: 0.15 },
-      "37 lands: Raffine's Tower, Hallowed Fountain, Watery Grave, Godless Shrine, 13 Plains, 11 Swamp, 8 Island, and a Savai Triome for the red you keep toying with."],
-    ['TEMUR', { W: 0.33, U: 0.62, B: 0.09, R: 0.42, G: 0.68 },
-      "37 lands: Ketria Triome, Breeding Pool, Steam Vents, Stomping Ground, 13 Forest, 12 Island, 7 Mountain, and a Spara's Headquarters for the white you keep toying with."],
-    ['GLINT', { U: 0.66, B: 0.63, R: 0.60, G: 0.58, W: 0.52 },
-      '37 lands: Command Tower, Mana Confluence, City of Brass, Exotic Orchard, 8 Island, 8 Swamp, 8 Mountain, 8 Forest, and a Hallowed Fountain you swear is for the splash.'],
+  // [10] The drafts' sample lines, rendered: Dimir with green one answer short
+  // (the plan's sample, made legal: the Triome is a maybeboard line), mono,
+  // three colours within an answer, four colours and five.
+  const MANA_SAMPLES = [
+    ['DIMIR', { U: 0.70, B: 0.66, G: 0.60, W: 0.20, R: 0.10 },
+      '37 lands: Command Tower, Watery Grave, Polluted Delta, Drowned Catacomb, 17 Island, 16 Swamp. Maybeboard: Zagoth Triome, just in case.'],
+    ['MONO-G', { G: 0.90, W: 0.40, R: 0.30, U: 0.20, B: 0.10 },
+      "37 lands: 36 Forest and a Gaea's Cradle you've had since 1998."],
+    ['NAYA', { R: 0.70, G: 0.68, W: 0.64, U: 0.30, B: 0.20 },
+      "37 lands: Command Tower, Jetmir's Garden, Stomping Ground, Temple Garden, Sacred Foundry, 11 Mountain, 11 Forest, 10 Plains."],
+    ['WITCH', { W: 0.66, U: 0.65, B: 0.64, G: 0.60, R: 0.20 },
+      '37 lands: Command Tower, Mana Confluence, City of Brass, Exotic Orchard, six shocks, four Triomes, 6 Plains, 6 Island, 6 Swamp, 5 Forest.'],
+    ['WUBRG', { W: 0.55, U: 0.53, B: 0.52, R: 0.50, G: 0.49 },
+      '37 lands: Command Tower, Mana Confluence, City of Brass, Exotic Orchard, all ten shocks, all ten Triomes, and 13 basics, mostly for the Cultivate.'],
   ];
-  for (const [id, activation, want] of SPLASHES) {
-    const c = { id, confidence: 'HIGH', activation, result: { allResults: [], round3Data: {} } };
-    const { win, errors, threw } = await renderCase(c, 'consumer', true, seed++);
-    const got = text(win, 'res-mana-base');
-    t.ok(`mana base splash ${id}`, !threw && errors.length === 0 && got === want && landCount(got) === 37, `${threw || ''} "${got}" (${landCount(got)} lands)`);
+  // The maybeboard on five recorded links' bars and a close four-colour
+  // result: one answer short gets "just in case", a few short "It's been there
+  // a while", and a mono line then drops its utility land's joke.
+  const MAYBEBOARDS = [
+    ['MONO-W', { W: 0.70, U: 0.22, B: 0.34, R: 0.40, G: 0.58 },
+      "37 lands: 36 Plains and a Castle Ardenvale. Maybeboard: Temple Garden. It's been there a while."],
+    ['MONO-B', { W: 0.35, U: 0.33, B: 0.73, R: 0.46, G: 0.58 },
+      "37 lands: 36 Swamp and a Cabal Coffers. Maybeboard: Overgrown Tomb. It's been there a while."],
+    ['RAKDOS', { W: 0.48, U: 0.28, B: 0.49, R: 0.83, G: 0.24 },
+      '37 lands: Command Tower, Blood Crypt, Bloodstained Mire, Dragonskull Summit, 21 Mountain, 12 Swamp. Maybeboard: Savai Triome, just in case.'],
+    ['ESPER', { W: 0.68, U: 0.48, B: 0.59, R: 0.33, G: 0.15 },
+      "37 lands: Command Tower, Raffine's Tower, Hallowed Fountain, Watery Grave, Godless Shrine, 13 Plains, 11 Swamp, 8 Island. Maybeboard: Savai Triome. It's been there a while."],
+    ['TEMUR', { W: 0.33, U: 0.62, B: 0.09, R: 0.42, G: 0.68 },
+      "37 lands: Command Tower, Ketria Triome, Breeding Pool, Steam Vents, Stomping Ground, 13 Forest, 12 Island, 7 Mountain. Maybeboard: Spara's Headquarters. It's been there a while."],
+    ['GLINT', { U: 0.66, B: 0.63, R: 0.60, G: 0.58, W: 0.52 },
+      '37 lands: Command Tower, Mana Confluence, City of Brass, Exotic Orchard, six shocks, four Triomes, 6 Island, 6 Swamp, 6 Mountain, 5 Forest. Maybeboard: Hallowed Fountain, just in case.'],
+  ];
+  for (const [label, list] of [['sample', MANA_SAMPLES], ['maybeboard', MAYBEBOARDS]]) {
+    for (const [id, activation, want] of list) {
+      const c = { id, confidence: 'HIGH', activation, result: { allResults: [], round3Data: {} } };
+      const { win, errors, threw } = await renderCase(c, 'consumer', true, seed++);
+      const got = text(win, 'res-mana-base');
+      t.ok(`mana base ${label} ${id}`, !threw && errors.length === 0 && got === want && landCount(got) === 37, `${threw || ''} "${got}" (${landCount(got)} lands)`);
+      win.close();
+    }
+  }
+
+  // [10] Every identity, with its up neighbour one answer, a few answers and
+  // well short: 37 lands; Command Tower first in every two- and three-colour
+  // base, the four colourless lands first in four and five; no land in the
+  // deck outside the identity's colours; and a maybeboard line exactly when
+  // the up neighbour qualifies (one or a few short), holding a land that
+  // brings in that colour and no other outside one.
+  {
+    const { win, h, errors } = bootPage({ ...pageArgs(), seed: seed++, expose: PAGE_EXPOSE });
+    await whenReady(win);
+    const L = h.MANA_BASE_LANDS, colourOf = landColours(L), problems = [];
+    const tail = { one: ', just in case.', few: ". It's been there a while." };
+    for (const [id, prof] of Object.entries(h.PROFILES)) {
+      const lit = prof.colors;
+      for (const [margin, gap] of [['one', 0.05], ['few', 0.15], ['well', 0.4]]) {
+        // Lit bars within an answer of each other; the strongest unlit colour
+        // `gap` below the weakest lit one; the rest well below.
+        const act = {}, out = WUBRG.filter((c) => !lit.includes(c));
+        lit.forEach((c, i) => { act[c] = 0.7 - 0.01 * i; });
+        out.forEach((c, i) => { act[c] = i === 0 ? 0.7 - 0.01 * (lit.length - 1) - gap : 0.1 - 0.01 * i; });
+        const line = h.manaBaseLine(id, act);
+        const where = `${id} ${margin}: "${line}"`;
+        if (landCount(line) !== 37) problems.push(`${where} counts ${landCount(line)}`);
+        const off = offIdentityLands(line, lit, colourOf);
+        if (off.length) problems.push(`${where} has ${off.join(', ')} in the deck`);
+        const opens = lit.length >= 4 ? '37 lands: Command Tower, Mana Confluence, City of Brass, Exotic Orchard, '
+          : lit.length >= 2 ? '37 lands: Command Tower, ' : '37 lands: 36 ';
+        if (!line.startsWith(opens)) problems.push(`${where} should open "${opens}"`);
+        const mb = maybeboardPart(line);
+        const qualifies = out.length > 0 && margin !== 'well';
+        if (!!mb !== qualifies) problems.push(`${where} maybeboard ${mb ? 'shown' : 'missing'}`);
+        if (mb) {
+          const land = mb.replace(/(, just in case\.|\. It's been there a while\.)$/, '');
+          const cols = colourOf.get(land) || '';
+          const outside = [...cols].filter((c) => !lit.includes(c));
+          if (!mb.endsWith(tail[margin]) || outside.length !== 1 || outside[0] !== out[0]) problems.push(`${where} maybeboard land ${land} (${cols})`);
+          if (lit.length === 1 && !deckPart(line).endsWith(`and a ${L.mono[lit[0]]}.`)) problems.push(`${where} keeps its joke beside a maybeboard line`);
+        }
+      }
+    }
+    if (errors.length) problems.push('errors: ' + errors.slice(0, 2).join(' | '));
+    t.ok('mana base: all 31 identities, 37 lands, Command Tower, no off-identity land in the deck, maybeboard only when a neighbour qualifies',
+      problems.length === 0, problems.slice(0, 6).join('; '));
     win.close();
   }
 

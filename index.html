@@ -10520,23 +10520,30 @@ const RESULT_COPY = {
     WUBRG: 'Changeling. You have every ability. Each works at a fifth of its strength.'
   },
 
-  // [10] Commander mana base under the commander, player mode only. The land
-  // names are in MANA_BASE_LANDS (data.js). {lands} is the comma list:
-  // nonbasics, then basics by count ("17 Island"), then any splash land.
+  // [10] Commander mana base, player mode only, at the foot of the commander
+  // block. The land names are in MANA_BASE_LANDS (data.js). 37 lands: Command
+  // Tower opens every two- and three-colour line, four and five colours count
+  // their shocks and Triomes, and basics (printed singular, as in a decklist:
+  // "17 Island") fill the rest, split by the bars. {lands} is the comma list.
   manaBase: {
     line: '{total} lands: {lands}.',
+    // Mono: 36 basics and a utility land with a joke. The joke goes when a
+    // maybeboard line follows, so the block keeps one joke.
     monoLine: '{total} lands: {count} {basic} and {utility}{joke}.',
-    splashItem: 'and {land} {tail}',
-    // The splash tail by how far short the up neighbour's colour was.
-    splash: { one: 'you swear is for the splash', few: 'for the {colour} you keep toying with' },
-    // Mono: the utility land's joke (dropped when a splash land follows it).
     monoJokes: {
       'MONO-W': ', for staffing the subcommittee',
-      'MONO-U': ', so you can scry 2 and still not decide',
+      'MONO-U': ", for reading ahead, which you'd have done anyway",
       'MONO-B': ', which pays out in proportion to what you already own',
       'MONO-R': ', so nothing has to wait its turn',
       'MONO-G': " you've had since 1998"
-    }
+    },
+    // Four and five colours: the shocks and Triomes inside the colours,
+    // counted rather than named. Five colours keep their 13 basics unsplit.
+    counted: { 4: 'six shocks, four Triomes', 5: 'all ten shocks, all ten Triomes' },
+    fiveBasics: 'and {count} basics, mostly for the Cultivate',
+    // The up neighbour's land, outside the 37 and replacing nothing, by how
+    // far short its colour was; "well" short gets no maybeboard line.
+    maybeboard: { one: 'Maybeboard: {land}, just in case.', few: "Maybeboard: {land}. It's been there a while." }
   },
 
   // [3] Slot words for the next-door lines: {colour} / {Colour} and {lands}.
@@ -11135,15 +11142,19 @@ function splitBasics(colours, act, n) {
   return order.map(c => [c, count[c]]).sort((a, b) => (b[1] - a[1]) || (order.indexOf(a[0]) - order.indexOf(b[0])));
 }
 
-// "37 lands: Watery Grave, Polluted Delta, Drowned Catacomb, 17 Island,
-// 16 Swamp, and a Zagoth Triome you swear is for the splash."
-// Guild: shock, fetch, check. Three colours: the Triome and three shocks.
-// Four or five: Command Tower, Mana Confluence, City of Brass, Exotic Orchard.
-// Mono: basics and one utility land. The next-door splash is one land in place
-// of a basic, only when the up neighbour's colour is within a few answers:
-// guild, the Triome with the splash colour; mono, the shock for both colours;
-// three colours, the Triome of the splash and the two strongest bars; four
-// colours, the shock for the splash and the strongest bar.
+// "37 lands: Command Tower, Watery Grave, Polluted Delta, Drowned Catacomb,
+// 17 Island, 16 Swamp. Maybeboard: Zagoth Triome, just in case."
+// The deck: a guild is Command Tower, the shock, fetch and check; three
+// colours are Command Tower, the Triome and three shocks; four and five are
+// Command Tower, Mana Confluence, City of Brass and Exotic Orchard, then the
+// shocks and Triomes inside the colours, counted; mono is basics and one
+// utility land. Basics fill the rest of 37, split by the bars (five colours
+// leave them unsplit). Every land in the deck is inside the identity's
+// colours. The up neighbour's land is a maybeboard line outside the 37, only
+// when its colour is one or a few answers short: for a guild, the Triome with
+// the new colour; mono, the shock for both colours; three colours, the Triome
+// of the new colour and the two strongest bars; four colours, the shock for
+// the new colour and the strongest bar.
 function manaBaseLine(id, act) {
   const prof = PROFILES[id];
   if (!prof || !prof.colors || typeof MANA_BASE_LANDS === 'undefined') return '';
@@ -11152,38 +11163,45 @@ function manaBaseLine(id, act) {
   const key = colours.join('');
   const bar = (c) => act[c] || 0;
   const strongest = [...colours].sort((a, b) => (bar(b) - bar(a)) || (WUBRG_ORDER.indexOf(a) - WUBRG_ORDER.indexOf(b)));
+  const inside = (k) => [...k].every(c => colours.includes(c));
 
-  let nonbasics;
-  if (colours.length === 1) nonbasics = [L.mono[key]];
-  else if (colours.length === 2) nonbasics = [L.pairs[key].shock, L.pairs[key].fetch, L.pairs[key].check];
-  else if (colours.length === 3) nonbasics = [L.triples[key].triome, ...L.triples[key].shocks];
-  else nonbasics = [...L.wide];
+  // The nonbasics: named, and for four and five colours counted as well.
+  let named, counted = '', countedLands = 0;
+  if (colours.length === 1) named = [L.mono[key]];
+  else if (colours.length === 2) named = [L.commandTower, L.pairs[key].shock, L.pairs[key].fetch, L.pairs[key].check];
+  else if (colours.length === 3) named = [L.commandTower, L.triples[key].triome, ...L.triples[key].shocks];
+  else {
+    named = [...L.wide];
+    counted = M.counted[colours.length];
+    countedLands = Object.keys(L.pairs).filter(inside).length + Object.keys(L.triples).filter(inside).length;
+  }
+  const basicCount = COMMANDER_LANDS - named.length - countedLands;
 
+  // The maybeboard line, when the up neighbour's colour is close enough.
   const up = nextDoorFor(id, act).find(row => row.dir === 'up');
-  const splash = up && M.splash[up.margin] ? up : null;
-  let splashLand = null;
-  if (splash) {
-    const s = splash.colour;
-    if (colours.length === 1) splashLand = L.pairs[colourKey([key, s])].shock;
-    else if (colours.length === 2) splashLand = L.triples[colourKey([...colours, s])].triome;
-    else if (colours.length === 3) splashLand = L.triples[colourKey([strongest[0], strongest[1], s])].triome;
-    else splashLand = L.pairs[colourKey([strongest[0], s])].shock;
+  let maybeboard = '';
+  if (up && M.maybeboard[up.margin]) {
+    const s = up.colour;
+    const land = colours.length === 1 ? L.pairs[colourKey([key, s])].shock
+      : colours.length === 2 ? L.triples[colourKey([...colours, s])].triome
+      : colours.length === 3 ? L.triples[colourKey([strongest[0], strongest[1], s])].triome
+      : L.pairs[colourKey([strongest[0], s])].shock;
+    maybeboard = fillCopy(M.maybeboard[up.margin], { land });
   }
 
-  const basics = splitBasics(colours, act, COMMANDER_LANDS - nonbasics.length - (splashLand ? 1 : 0));
-  if (colours.length === 1 && !splashLand) {
-    return fillCopy(M.monoLine, {
-      total: COMMANDER_LANDS, count: basics[0][1], basic: L.basics[key],
-      utility: withArticle(nonbasics[0]), joke: M.monoJokes[id] || ''
+  let deck;
+  if (colours.length === 1) {
+    deck = fillCopy(M.monoLine, {
+      total: COMMANDER_LANDS, count: basicCount, basic: L.basics[key],
+      utility: withArticle(named[0]), joke: maybeboard ? '' : (M.monoJokes[id] || '')
     });
+  } else if (colours.length === 5) {
+    deck = fillCopy(M.line, { total: COMMANDER_LANDS, lands: [...named, counted, fillCopy(M.fiveBasics, { count: basicCount })].join(', ') });
+  } else {
+    const basics = splitBasics(colours, act, basicCount).map(([c, n]) => `${n} ${L.basics[c]}`);
+    deck = fillCopy(M.line, { total: COMMANDER_LANDS, lands: [...named, ...(counted ? [counted] : []), ...basics].join(', ') });
   }
-  const basicItems = basics.map(([c, n]) => `${n} ${L.basics[c]}`);
-  const items = colours.length === 1 ? [...basicItems, ...nonbasics] : [...nonbasics, ...basicItems];
-  if (splashLand) {
-    const tail = fillCopy(M.splash[splash.margin], { colour: RESULT_COPY.colourWords[splash.colour] });
-    items.push(fillCopy(M.splashItem, { land: withArticle(splashLand), tail }));
-  }
-  return fillCopy(M.line, { total: COMMANDER_LANDS, lands: items.join(', ') });
+  return maybeboard ? `${deck} ${maybeboard}` : deck;
 }
 
 function renderManaBase(id) {

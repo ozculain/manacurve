@@ -882,14 +882,21 @@ const PROFILES = {
 };
 
 // MANA_BASE_LANDS
-// Land names for the Commander mana base line on the results page (player mode
-// only). Colour keys are in WUBRG order: 'UB' is Dimir, 'UBG' is Sultai.
-// Card names follow the fan-content practice already used for the commanders;
-// every name here was checked against Scryfall on 17 October 2026.
+// Land names for the 37-land Commander mana base on the results page (player
+// mode only); the wording around them is RESULT_COPY.manaBase in index.html.
+// Colour keys are in WUBRG order: 'UB' is Dimir, 'UBG' is Sultai. Card names
+// follow the fan-content practice already used for the commanders; every name
+// here was checked against Scryfall on 17 October 2026 (copy drafts,
+// revision 2, section 10). A land outside the commander's colours is illegal
+// in the deck, so the next-door neighbour's land is only ever a maybeboard
+// line, outside the 37.
 const MANA_BASE_LANDS = {
   basics: { W: 'Plains', U: 'Island', B: 'Swamp', R: 'Mountain', G: 'Forest' },
+  // Opens every two- and three-colour base; four and five colours start with
+  // it as part of `wide`.
+  commandTower: 'Command Tower',
   // Two colours: the shock, the fetch and the check, printed in that order.
-  // A shock is also the splash land for a mono or four-colour result.
+  // A shock is also the maybeboard land for a mono or four-colour result.
   pairs: {
     WU: { shock: 'Hallowed Fountain', fetch: 'Flooded Strand',    check: 'Glacial Fortress' },   // Azorius
     UB: { shock: 'Watery Grave',      fetch: 'Polluted Delta',    check: 'Drowned Catacomb' },   // Dimir
@@ -904,7 +911,7 @@ const MANA_BASE_LANDS = {
   },
   // Three colours: the Triome, then the three shocks. Shard Triomes are from
   // Streets of New Capenna, wedge Triomes from Ikoria. A Triome is also the
-  // splash land for a two- or three-colour result.
+  // maybeboard land for a two- or three-colour result.
   triples: {
     WUG: { triome: "Spara's Headquarters",     shocks: ['Temple Garden', 'Hallowed Fountain', 'Breeding Pool'] }, // Bant
     WUB: { triome: "Raffine's Tower",          shocks: ['Hallowed Fountain', 'Watery Grave', 'Godless Shrine'] }, // Esper
@@ -917,8 +924,9 @@ const MANA_BASE_LANDS = {
     WBR: { triome: 'Savai Triome',             shocks: ['Sacred Foundry', 'Godless Shrine', 'Blood Crypt'] },     // Mardu
     URG: { triome: 'Ketria Triome',            shocks: ['Breeding Pool', 'Steam Vents', 'Stomping Ground'] }      // Temur
   },
-  // Four and five colours.
+  // Four and five colours: these four, then the shocks and Triomes inside the
+  // colours (from the two tables above), counted rather than named.
   wide: ['Command Tower', 'Mana Confluence', 'City of Brass', 'Exotic Orchard'],
-  // One colour: basics plus one utility land.
+  // One colour: 36 basics and one utility land.
   mono: { W: 'Castle Ardenvale', U: 'Castle Vantress', B: 'Cabal Coffers', R: 'Hanweir Battlements', G: "Gaea's Cradle" }
 };
