@@ -71,8 +71,9 @@ function parseArgs(argv) {
 //            gets qGrid [X] wherever the page passes no grid of its own (as
 //            built it averages q over ROUND3_Q_GRID). The posterior changes,
 //            and with it the tiebreak questions, so this runs on the page.
-//   pm       the candidate with the highest final posterior (engine 2's own
-//            rule; the same as page on a build without another rule)
+//   pm       the candidate with the highest final posterior: what engine 2
+//            reported before round3RecordRanking, so on this build pm is the
+//            "before" of that change and page the "after"
 //   tour     the tournament winner (the page's getTournamentWinner on the same
 //            matches) when it beat the posterior maximum head-to-head (won more
 //            of their matches than it lost)

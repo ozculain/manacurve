@@ -75,7 +75,9 @@ comma-separated variant is one of these, or several joined with `+`:
   `round3LogLikelihoods` gets `qGrid: [X]` wherever the page passes no grid of
   its own (as built it averages q over `ROUND3_Q_GRID`). The posterior decides
   the tiebreak questions, so each `q` runs the respondents on the page again.
-- `pm`: the candidate with the highest final posterior, engine 2's own rule.
+- `pm`: the candidate with the highest final posterior, which engine 2
+  reported before `round3RecordRanking`; on the current build, `pm` is the
+  "before" and `page` the "after" of that change.
 - `tour`: the tournament winner (the page's `getTournamentWinner` on the same
   matches), when it beat the posterior maximum head-to-head.
 - `lostall` and `losing`: the best-posterior candidate that did not lose every
@@ -85,8 +87,10 @@ comma-separated variant is one of these, or several joined with `+`:
   posterior maximum's net losses (losses minus wins).
 - `rule:M` keeps the posterior maximum when its posterior is at least M times
   the runner-up's (the next candidate by posterior); `losing:M:M0` uses M0
-  instead when the posterior maximum won no match. Rules joined with `+` are
-  tried in order; the first that changes the result decides it.
+  instead when the posterior maximum won no match. `losing:3:16` is the rule
+  the page now applies (`ROUND3_LOSING_RECORD_MARGIN`, `ROUND3_NO_WINS_MARGIN`).
+  Rules joined with `+` are tried in order; the first that changes the result
+  decides it.
 
 A rule acts after the last answer, so it changes no question: it is applied to
 what the page recorded when it decided (each candidate's final posterior and
