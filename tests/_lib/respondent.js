@@ -36,12 +36,139 @@ function idealRespondent({ colors: C, rnd, p, neither }) {
   };
 }
 
-const MODELS = { ideal: idealRespondent };
+// ---------- Misspecified model ----------
+// A respondent the scoring was not designed around (see tests/README.md):
+// graded colour weights instead of a binary set, items that differ in how well
+// and which way they discriminate, people who differ in consistency, a lean
+// toward White and Green options, a lean toward the first option shown, a few
+// people clicking at random, and Round 3 choices that are noisy near the
+// boundary between neighbouring identities.
+const WUBRG = ['W', 'U', 'B', 'R', 'G'];
+const MIS = {
+  disengaged: 0.05,             // share of coin-flippers
+  consistency: [8, 3],          // Beta(a, b) per person; scales choice sharpness
+  inSet: [0.6, 1.0],            // latent weight of a colour in the identity
+  outSet: [0, 0.3],             // latent weight of a colour outside it
+  itemLogSd: 0.35,              // discrimination a ~ LogNormal(0, 0.35)
+  itemThresholdSd: 0.12,        // difficulty b ~ Normal(0, 0.12), in weight units
+  desirability: 0.25,           // logit lean toward W and G options
+  position: 0.2,                // logit lean toward the first option shown
+  maxP: 0.99,                   // calibration target cap (p = 1 is not reachable)
+};
+const sigmoid = (z) => 1 / (1 + Math.exp(-z));
+function normal(rnd) { // Box-Muller
+  const u = 1 - rnd(), v = rnd();
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+}
+function gammaInt(rnd, k) { let s = 0; for (let i = 0; i < k; i++) s -= Math.log(1 - rnd()); return s; }
+function beta(rnd, a, b) { const x = gammaInt(rnd, a), y = gammaInt(rnd, b); return x / (x + y); }
+const BETA_MEAN = MIS.consistency[0] / (MIS.consistency[0] + MIS.consistency[1]);
+const desirable = (c) => (c === 'W' || c === 'G' ? 1 : 0);
+const uniformIn = (rnd, [lo, hi]) => lo + (hi - lo) * rnd();
+
+// Item discrimination and difficulty: fixed per item id (not per run or per
+// --seed), so an item is equally good or bad in every simulation.
+const itemCache = new Map();
+function itemParams(id) {
+  let it = itemCache.get(id);
+  if (!it) {
+    const r = mulberry32(hashSeed('misspecified-item', id));
+    it = { a: Math.exp(MIS.itemLogSd * normal(r)), b: MIS.itemThresholdSd * normal(r) };
+    itemCache.set(id, it);
+  }
+  return it;
+}
+function latentWeights(rnd, C) {
+  const w = {};
+  for (const c of WUBRG) w[c] = C.includes(c) ? uniformIn(rnd, MIS.inSet) : uniformIn(rnd, MIS.outSet);
+  return w;
+}
+// Identity-colour similarity: 1 - mean |indicator - weight| over the five
+// colours. The true identity is always the most similar one (its colours are
+// exactly those weighted above 0.5); neighbours differ from it by |2w - 1| / 5.
+function similarity(colors, w) {
+  let s = 0;
+  for (const c of WUBRG) s += colors.includes(c) ? w[c] : 1 - w[c];
+  return s / 5;
+}
+
+// Choice sharpness is calibrated so that, at the requested p, an engaged
+// respondent picks the in-identity option of an item with one option in the
+// identity and one outside it with average probability p (over people, items,
+// colours and display order), and picks the true identity over a one-colour
+// neighbour in Round 3 with average probability p. Deterministic per p.
+const calibCache = new Map();
+function calibrateMisspecified(p) {
+  const target = Math.min(MIS.maxP, Math.max(0.5, p));
+  if (calibCache.has(target)) return calibCache.get(target);
+  const rnd = mulberry32(hashSeed('misspecified-calibration'));
+  const N = 20000, items = [], r3 = [];
+  const IDS = [];
+  for (let m = 1; m < 32; m++) IDS.push(WUBRG.filter((_, i) => m & (1 << i)));
+  for (let n = 0; n < N; n++) {
+    const u = beta(rnd, ...MIS.consistency) / BETA_MEAN;
+    const a = Math.exp(MIS.itemLogSd * normal(rnd)), b = MIS.itemThresholdSd * normal(rnd);
+    const cin = WUBRG[Math.floor(rnd() * 5)];
+    const cout = WUBRG.filter((c) => c !== cin)[Math.floor(rnd() * 4)];
+    const lean = MIS.desirability * (desirable(cin) - desirable(cout)) + (rnd() < 0.5 ? MIS.position : -MIS.position);
+    items.push({ s: a * u, d: uniformIn(rnd, MIS.inSet) - uniformIn(rnd, MIS.outSet) - (rnd() < 0.5 ? b : -b), lean });
+    const C = IDS[Math.floor(rnd() * IDS.length)], w = latentWeights(rnd, C);
+    const flips = WUBRG.filter((c) => C.length > 1 || !C.includes(c));
+    const flip = flips[Math.floor(rnd() * flips.length)];
+    const N1 = C.includes(flip) ? C.filter((c) => c !== flip) : [...C, flip];
+    r3.push({ s: u, d: similarity(C, w) - similarity(N1, w) });
+  }
+  const solve = (rows, withLean) => {
+    const mean = (k) => rows.reduce((acc, x) => acc + sigmoid(k * x.s * x.d + (withLean ? x.lean : 0)), 0) / rows.length;
+    let lo = 0, hi = 1000;
+    for (let i = 0; i < 60; i++) { const mid = (lo + hi) / 2; if (mean(mid) < target) lo = mid; else hi = mid; }
+    return (lo + hi) / 2;
+  };
+  const calib = { target, k: solve(items, true), k3: solve(r3, false) };
+  calibCache.set(target, calib);
+  return calib;
+}
+
+function misspecifiedRespondent({ colors: C, rnd, p, neither, seed, trueId, idx, win, calibration }) {
+  const calib = calibration || calibrateMisspecified(p);
+  const person = mulberry32(hashSeed(seed, trueId, idx, 'person'));
+  const disengaged = person() < MIS.disengaged;
+  const u = beta(person, ...MIS.consistency) / BETA_MEAN;
+  const w = latentWeights(person, C);
+  // Options in the order the page is showing them.
+  const shown = (q) => {
+    const texts = [...win.document.querySelectorAll('#choices .mc-choice__text')].map((e) => e.textContent);
+    const order = texts.map((t) => q.r.find((o) => (o.t || o.text) === t)).filter(Boolean);
+    return order.length === q.r.length ? order : q.r;
+  };
+  const choose = (q) => {
+    if (disengaged) return q.r[Math.floor(rnd() * q.r.length)];
+    const [o0, o1] = q.r, it = itemParams(q.id);
+    const z = it.a * calib.k * u * (w[o0.c] - w[o1.c] - it.b)
+      + MIS.desirability * (desirable(o0.c) - desirable(o1.c))
+      + (shown(q)[0] === o0 ? MIS.position : -MIS.position);
+    return rnd() < sigmoid(z) ? o0 : o1;
+  };
+  return {
+    person: { disengaged, consistency: u * BETA_MEAN, weights: w },
+    round1(q) { return !disengaged && rnd() < neither ? null : choose(q); },
+    round2: choose,
+    round3(aId, bId, colorsOf) {
+      if (disengaged) return rnd() < 0.5 ? aId : bId;
+      const z = calib.k3 * u * (similarity(colorsOf(aId), w) - similarity(colorsOf(bId), w));
+      return rnd() < sigmoid(z) ? aId : bId;
+    },
+    shownIndex(q, o) { return shown(q).indexOf(o); },
+  };
+}
+
+const MODELS = { ideal: idealRespondent, misspecified: misspecifiedRespondent };
+const MODEL_NAMES = Object.keys(MODELS);
 
 const round = (x, dp) => { const f = 10 ** dp; return Math.round(x * f) / f; };
 const roundActivation = (sorted) => (sorted || []).map(([c, v]) => [c, round(v, 3)]);
 
-// params: { model = 'ideal', p, neither, seed, audience = 'consumer' }
+// params: { model = 'ideal', p, neither, seed, audience = 'consumer', calibration }
 // With trace, the result also carries what the golden test records.
 function runRespondent(win, trueId, idx, params, { trace = false } = {}) {
   const { model = 'ideal', p, neither, seed, audience = 'consumer' } = params;
@@ -51,7 +178,7 @@ function runRespondent(win, trueId, idx, params, { trace = false } = {}) {
   const make = MODELS[model];
   if (!make) throw new Error('unknown respondent model ' + model);
   const colorsOf = (id) => h.PROFILES[id].colors;
-  const resp = make({ colors: colorsOf(trueId), rnd, p, neither, seed, trueId, idx, win });
+  const resp = make({ ...params, colors: colorsOf(trueId), rnd, trueId, idx, win });
 
   h.restart(); // the page's own "Start fresh" path: rebuilds state, hides all screens
   const s0 = h.state;
@@ -107,4 +234,4 @@ function runRespondent(win, trueId, idx, params, { trace = false } = {}) {
   return out;
 }
 
-module.exports = { MODELS, jaccard, chooseOption, runRespondent, round, roundActivation };
+module.exports = { MODELS, MODEL_NAMES, MIS, jaccard, chooseOption, similarity, calibrateMisspecified, runRespondent, round, roundActivation };
