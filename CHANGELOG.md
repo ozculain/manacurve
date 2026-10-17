@@ -48,7 +48,7 @@ with the editor's decisions applied. It all still lives in one block,
 - Typeline: the commander's own printed type line for all 31 identities
   ("Legendary Creature — Human Ninja"), no parenthetical. In player mode the
   name, tagline, typeline, rules text and collector number ("MC2 • EN •
-  007/031") read as one card under the banner, and the typeline takes the
+  009/031") read as one card under the banner, and the typeline takes the
   "Personality" divider's place, so the page has one. Plain mode keeps the
   divider and prints "Scoring version 2" in the footer.
 - Confidence: the label words stay; each base-rate sentence is the same in
