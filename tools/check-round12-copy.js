@@ -15,7 +15,7 @@
 // Nothing else reaches Rounds 1 and 2: state.poolS2, the old Round 2 ranking path in showQ, is
 // never filled, and Pool D is gone.
 //
-// The rules (itemProblems):
+// The rules (itemProblems; hintProblems holds every hint in CONTEXT_HINTS to the same ones):
 //   - a stem is 25 words or fewer, an answer 20 or fewer and a label 4 or fewer (words are counted
 //     as tools/apply-round3-copy.js counts them)
 //   - no stem, answer, label or hint names a colour, a basic land or an identity in PROFILES (its
@@ -32,9 +32,10 @@
 //          prints the problems, if any (exit 1 when there are); --list prints every item first,
 //          with its word counts and its hint
 //        node tools/check-round12-copy.js --write-fixture [--root <dir>]
-//          writes tests/fixtures/round12-keys.json from the sources as they are now (the keys and a
-//          hash of each item's words), keeping the file's keptAfterReview list. Only in a commit of
-//          its own, when items are added, removed or re-keyed on purpose.
+//          writes tests/fixtures/round12-keys.json from the sources as they are now: every item's
+//          keys, and the hash of its words as they were before the rewrite (writeFixture says how a
+//          new item enters). Only in a commit of its own, when items are added, removed or re-keyed
+//          on purpose.
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
@@ -174,6 +175,22 @@ function itemProblems(model) {
   return problems;
 }
 
+// The same rules on every hint in CONTEXT_HINTS, whichever round shows it.
+function hintProblems(model) {
+  const rules = textRules(model.PROFILES).filter((r) => !r.answersOnly);
+  const problems = [];
+  for (const [key, entry] of Object.entries(model.CONTEXT_HINTS)) {
+    const id = 'CONTEXT_HINTS.' + key;
+    const text = entry && entry.hint;
+    if (typeof text !== 'string' || !text.trim()) { problems.push({ id, where: 'hint', rule: 'text', detail: 'empty or not a string' }); continue; }
+    for (const { kind, re } of rules) {
+      const m = re.exec(text);
+      if (m) problems.push({ id, where: 'hint', rule: kind, detail: `"${m[0]}" in: ${text}` });
+    }
+  }
+  return problems;
+}
+
 // The words of an item (label, stem, answers in source order), straightened and with the spacing
 // evened out, so a curly apostrophe made straight is not a rewrite.
 function wordsOf(item) {
@@ -184,16 +201,29 @@ const wordsHash = (item) => crypto.createHash('sha1').update(wordsOf(item), 'utf
 // What the fixture holds for an item: everything scoring and the seeded draws read, and a hash of the words.
 const keyOf = (item) => ({ pool: item.pool, pair: item.pair, w: item.w, answers: item.answers.map((a) => a.c), words: wordsHash(item) });
 
+// Writes the fixture from the sources as they are. An item already in it keeps the hash of the words
+// it had when it entered (for the first 111, the words before the copy rewrite), so the rewrite
+// stays measurable; a new item enters with its words as they are and counts as kept after review;
+// an item no longer in the sources leaves.
 function writeFixture(root = ROOT, file = FIXTURE) {
   const model = readSources(root);
-  let kept = [];
-  if (fs.existsSync(file)) kept = JSON.parse(fs.readFileSync(file, 'utf-8')).keptAfterReview || [];
-  const note = 'Rounds 1 and 2 (POOL_A and POOL_ALLY in index.html) as they were before the copy rewrite: each item\'s pool, pair, weight (null when it has none) and answer colours, in source order, and a hash of its words (tools/check-round12-copy.js, wordsHash). keptAfterReview lists the items whose words were reviewed and kept. See tests/round12-copy.test.js; rewrite only with node tools/check-round12-copy.js --write-fixture, in a commit of its own.';
-  const rows = model.items.map((item) => '    ' + JSON.stringify(item.id) + ': ' + JSON.stringify(keyOf(item)));
+  let old = { items: {}, keptAfterReview: [] };
+  if (fs.existsSync(file)) old = JSON.parse(fs.readFileSync(file, 'utf-8'));
+  const ids = new Set(model.items.map((i) => i.id));
+  const kept = (old.keptAfterReview || []).filter((id) => ids.has(id));
+  const added = [];
+  const rows = model.items.map((item) => {
+    const key = keyOf(item);
+    if (old.items && old.items[item.id]) key.words = old.items[item.id].words;
+    else if (fs.existsSync(file)) { added.push(item.id); if (!kept.includes(item.id)) kept.push(item.id); }
+    return '    ' + JSON.stringify(item.id) + ': ' + JSON.stringify(key);
+  });
+  const note = 'Rounds 1 and 2 (POOL_A and POOL_ALLY in index.html): each item\'s pool, pair, weight (null when it has none) and answer colours, in source order, and a hash of its words (tools/check-round12-copy.js, wordsHash) as they were before the copy rewrite. keptAfterReview lists the items whose words were reviewed and kept. See tests/round12-copy.test.js; rewrite only with node tools/check-round12-copy.js --write-fixture, in a commit of its own.';
   const text = '{\n  "note": ' + JSON.stringify(note) + ',\n  "items": {\n' + rows.join(',\n') + '\n  },\n  "keptAfterReview": '
     + JSON.stringify(kept) + '\n}\n';
   fs.writeFileSync(file, text);
-  return { file, items: rows.length, kept: kept.length };
+  const removed = Object.keys(old.items || {}).filter((id) => !ids.has(id));
+  return { file, items: rows.length, added: added.length, removed: removed.length, kept: kept.length };
 }
 
 // ---------- CLI ----------
@@ -201,8 +231,8 @@ function main(argv = process.argv.slice(2)) {
   const at = argv.indexOf('--root');
   const root = at >= 0 ? path.resolve(argv[at + 1]) : ROOT;
   if (argv.includes('--write-fixture')) {
-    const { file, items, kept } = writeFixture(root, path.join(root, 'tests', 'fixtures', 'round12-keys.json'));
-    console.log(`wrote ${path.relative(root, file)} (${items} items, ${kept} kept after review)`);
+    const { file, items, added, removed, kept } = writeFixture(root, path.join(root, 'tests', 'fixtures', 'round12-keys.json'));
+    console.log(`wrote ${path.relative(root, file)} (${items} items, ${added} new, ${removed} gone, ${kept} kept after review)`);
     return 0;
   }
   const model = readSources(root);
@@ -213,7 +243,7 @@ function main(argv = process.argv.slice(2)) {
       for (const a of item.answers) console.log(`  ${a.c} (${wordCount(a.t)}): ${a.t}`);
     }
   }
-  const problems = itemProblems(model);
+  const problems = [...itemProblems(model), ...hintProblems(model)];
   const count = (pool) => model.items.filter((i) => i.pool === pool).length;
   console.log(`${POOLS.map((p) => `${p} ${count(p)}`).join(', ')} items; ${problems.length} problem${problems.length === 1 ? '' : 's'}`);
   for (const p of problems) console.log(`  ${p.id} ${p.where} [${p.rule}] ${p.detail}`);
@@ -224,5 +254,5 @@ if (require.main === module) process.exit(main());
 
 module.exports = {
   ROOT, FIXTURE, POOLS, STEM_CAP, ANSWER_CAP, LABEL_CAP, MAGIC_PREFIX,
-  textRules, arrayRegion, functionRegion, readModel, readSources, itemProblems, wordsOf, wordsHash, keyOf, writeFixture, main,
+  textRules, arrayRegion, functionRegion, readModel, readSources, itemProblems, hintProblems, wordsOf, wordsHash, keyOf, writeFixture, main,
 };

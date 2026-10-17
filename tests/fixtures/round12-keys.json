@@ -1,5 +1,5 @@
 {
-  "note": "Rounds 1 and 2 (POOL_A and POOL_ALLY in index.html) as they were before the copy rewrite: each item's pool, pair, weight (null when it has none) and answer colours, in source order, and a hash of its words (tools/check-round12-copy.js, wordsHash). keptAfterReview lists the items whose words were reviewed and kept. See tests/round12-copy.test.js; rewrite only with node tools/check-round12-copy.js --write-fixture, in a commit of its own.",
+  "note": "Rounds 1 and 2 (POOL_A and POOL_ALLY in index.html): each item's pool, pair, weight (null when it has none) and answer colours, in source order, and a hash of its words (tools/check-round12-copy.js, wordsHash) as they were before the copy rewrite. keptAfterReview lists the items whose words were reviewed and kept. See tests/round12-copy.test.js; rewrite only with node tools/check-round12-copy.js --write-fixture, in a commit of its own.",
   "items": {
     "A-WB-W01": {"pool":"POOL_A","pair":"W-B","w":null,"answers":["W","B"],"words":"fa75fc0ce2a12d70"},
     "A-WB-W03": {"pool":"POOL_A","pair":"W-B","w":null,"answers":["W","B"],"words":"85ec5b7583309580"},
@@ -113,5 +113,5 @@
     "MTG-GW-01": {"pool":"POOL_ALLY","pair":"G-W","w":null,"answers":["G","W"],"words":"e543c0c61ed79675"},
     "MTG-GW-02": {"pool":"POOL_ALLY","pair":"G-W","w":null,"answers":["G","W"],"words":"68a9b13de6b8dd7b"}
   },
-  "keptAfterReview": []
+  "keptAfterReview": ["A-UR-REV"]
 }
