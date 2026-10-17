@@ -74,7 +74,7 @@ respondents always decline it), and the top confusions.
 
 The run exits with status 1 if the page logs an error or any result breaks the
 `state.result` contract in `docs/SCORING_CONTRACT.md`: an identity, a
-confidence label, `scoringVersion` equal to the engine, `instrumentVersion` 1,
+confidence label, `scoringVersion` equal to the engine, `instrumentVersion` 2,
 and under engine 2 a posterior over all 31 identities that sums to 1.
 
 **Ideal model.** For each identity in `PROFILES`, with colour set C:

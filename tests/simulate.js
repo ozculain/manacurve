@@ -20,7 +20,10 @@ const { runRespondent, calibrateMisspecified, MODEL_NAMES } = require('./_lib/re
 // The page's default engine; ?engine=1 selects the win-rate engine for one release.
 const ENGINES = [1, 2];
 const DEFAULT_ENGINE = 2;
-const engineUrl = (engine) => (engine === 1 ? 'http://localhost/?engine=1' : 'http://localhost/');
+// The instrument version the page stamps on a finished result (INSTRUMENT_VERSION in
+// index.html): 2 since the Phase 3 quiz copy changed the items and screens.
+const INSTRUMENT_VERSION = 2;
+const engineUrl =(engine) => (engine === 1 ? 'http://localhost/?engine=1' : 'http://localhost/');
 
 // ---------- CLI ----------
 function fail(msg) { console.error(msg); process.exit(2); }
@@ -184,7 +187,7 @@ function contractProblems(r, engine) {
   if (!r.recovered) bad.push('no identity');
   if (!LABELS.includes(r.confidence)) bad.push('confidence ' + r.confidence);
   if (r.scoringVersion !== engine) bad.push(`scoringVersion ${r.scoringVersion} on engine ${engine}`);
-  if (r.instrumentVersion !== 1) bad.push('instrumentVersion ' + r.instrumentVersion);
+  if (r.instrumentVersion !== INSTRUMENT_VERSION) bad.push('instrumentVersion ' + r.instrumentVersion);
   if (engine >= 2) {
     if (r.posteriorIds !== 31) bad.push('posterior over ' + r.posteriorIds + ' identities');
     else if (Math.abs(r.posteriorSum - 1) > 1e-9) bad.push('posterior sums to ' + r.posteriorSum);
