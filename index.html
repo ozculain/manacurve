@@ -5945,6 +5945,9 @@ function showEarlyTerminationOffer(confidenceData) {
   // Store for later use
   window.earlyConfidenceData = confidenceData;
   
+  // The offer replaces the question screen (engine 1 never reached this, so
+  // the last Round 1 question used to stay on screen behind it).
+  document.getElementById('screen-assessment').classList.add('hidden');
   document.getElementById('screen-interstitial').classList.add('hidden');
   document.getElementById('screen-early-offer').classList.remove('hidden');
   
@@ -5989,6 +5992,8 @@ function showResultsEarly() {
     s2Data: null
   };
   
+  // Leave the offer screen (the calculating and results screens do not hide it).
+  document.getElementById('screen-early-offer').classList.add('hidden');
   showCalculating();
 }
 
