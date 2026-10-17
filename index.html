@@ -1717,6 +1717,12 @@ body[data-theme="frames"] .mc-nextdoor__chip { border-radius: 10px; }
 }
 .mc-rules-strip i { color: var(--ink-muted); }
 
+/* Mana base (player mode), under the commander */
+.mc-manabase {
+  font-family: var(--f-body); font-size: 13.5px; line-height: 1.6; color: var(--ink-muted);
+  margin: 14px 0 0; padding-top: 12px; border-top: 1px dashed var(--rule);
+}
+
 </style>
 </head>
 <body data-mode="draft" data-audience="consumer" data-flavor="9" data-theme="gilded">
@@ -2312,6 +2318,8 @@ body[data-theme="frames"] .mc-nextdoor__chip { border-radius: 10px; }
               <strong style="color:var(--ink);font-style:normal;font-family:var(--f-display);letter-spacing:.1em;" id="cmd-name-aside">…</strong>
               <span id="cmd-desc-aside" style="display:block;margin-top:6px;"></span>
             </p>
+            <!-- Player mode: a Commander mana base for this identity -->
+            <p class="mc-manabase hidden" id="res-mana-base"></p>
           </div>
         </div>
 
@@ -9934,6 +9942,25 @@ const RESULT_COPY = {
     WUBRG: 'Changeling. You have every ability. Each one works at a fifth of its strength.'
   },
 
+  // [10] Commander mana base under the commander, player mode only. The land
+  // names are in MANA_BASE_LANDS (data.js). {lands} is the comma list:
+  // nonbasics, then basics by count ("17 Island"), then any splash land.
+  manaBase: {
+    line: '{total} lands: {lands}.',
+    monoLine: '{total} lands: {count} {basic} and {utility}{joke}.',
+    splashItem: 'and {land} {tail}',
+    // The splash tail by how far short the up neighbour's colour was.
+    splash: { one: 'you swear is for the splash', few: 'for the {colour} you keep toying with' },
+    // Mono: the utility land's joke (dropped when a splash land follows it).
+    monoJokes: {
+      'MONO-W': ', for staffing the subcommittee',
+      'MONO-U': ', so you can scry 2 and still not decide',
+      'MONO-B': ', which pays out in proportion to what you already own',
+      'MONO-R': ', so nothing has to wait its turn',
+      'MONO-G': " you've had since 1998"
+    }
+  },
+
   // [3] Slot words for the next-door lines: {colour} / {Colour} and {lands}.
   colourWords: { W: 'white', U: 'blue', B: 'black', R: 'red', G: 'green' },
   landWords: { W: 'Plains', U: 'Islands', B: 'Swamps', R: 'Mountains', G: 'Forests' },
@@ -10156,6 +10183,100 @@ function renderNextDoor() {
   }).join('');
 }
 
+// ─── Commander mana base (player mode) ──────────────────────────────────────
+const COMMANDER_LANDS = 37;
+
+function withArticle(name) {
+  return (/^[AEIOU]/i.test(name) ? 'an ' : 'a ') + name;
+}
+
+// Split n basics across the identity's colours by their bars. Bars within
+// about one answer of each other get equal counts; any remainder goes to the
+// strongest bars, one each. Returns [[colour, count], ...], most first.
+function splitBasics(colours, act, n) {
+  const bar = (c) => Math.max(act[c] || 0, 0.01);
+  const order = [...colours].sort((a, b) => (bar(b) - bar(a)) || (WUBRG_ORDER.indexOf(a) - WUBRG_ORDER.indexOf(b)));
+  const groups = [];
+  order.forEach(c => {
+    const g = groups[groups.length - 1];
+    if (g && bar(g[0]) - bar(c) < ONE_ANSWER) g.push(c); else groups.push([c]);
+  });
+  const total = order.reduce((s, c) => s + bar(c), 0);
+  const count = {};
+  groups.forEach(g => {
+    const each = Math.floor(n * g.reduce((s, c) => s + bar(c), 0) / total / g.length);
+    g.forEach(c => { count[c] = each; });
+  });
+  let left = n - order.reduce((s, c) => s + count[c], 0);
+  for (let i = 0; left > 0; i = (i + 1) % order.length, left--) count[order[i]]++;
+  // Never print "0 Island": a colour in the identity gets at least one basic.
+  order.forEach(c => {
+    if (count[c] >= 1) return;
+    const donor = order.find(d => count[d] > 1);
+    if (donor) { count[donor]--; count[c] = 1; }
+  });
+  return order.map(c => [c, count[c]]).sort((a, b) => (b[1] - a[1]) || (order.indexOf(a[0]) - order.indexOf(b[0])));
+}
+
+// "37 lands: Watery Grave, Polluted Delta, Drowned Catacomb, 17 Island,
+// 16 Swamp, and a Zagoth Triome you swear is for the splash."
+// Guild: shock, fetch, check. Three colours: the Triome and three shocks.
+// Four or five: Command Tower, Mana Confluence, City of Brass, Exotic Orchard.
+// Mono: basics and one utility land. The next-door splash is one land in place
+// of a basic, only when the up neighbour's colour is within a few answers:
+// guild, the Triome with the splash colour; mono, the shock for both colours;
+// three colours, the Triome of the splash and the two strongest bars; four
+// colours, the shock for the splash and the strongest bar.
+function manaBaseLine(id, act) {
+  const prof = PROFILES[id];
+  if (!prof || !prof.colors || typeof MANA_BASE_LANDS === 'undefined') return '';
+  const L = MANA_BASE_LANDS, M = RESULT_COPY.manaBase;
+  const colours = WUBRG_ORDER.filter(c => prof.colors.includes(c));
+  const key = colours.join('');
+  const bar = (c) => act[c] || 0;
+  const strongest = [...colours].sort((a, b) => (bar(b) - bar(a)) || (WUBRG_ORDER.indexOf(a) - WUBRG_ORDER.indexOf(b)));
+
+  let nonbasics;
+  if (colours.length === 1) nonbasics = [L.mono[key]];
+  else if (colours.length === 2) nonbasics = [L.pairs[key].shock, L.pairs[key].fetch, L.pairs[key].check];
+  else if (colours.length === 3) nonbasics = [L.triples[key].triome, ...L.triples[key].shocks];
+  else nonbasics = [...L.wide];
+
+  const up = nextDoorFor(id, act).find(row => row.dir === 'up');
+  const splash = up && M.splash[up.margin] ? up : null;
+  let splashLand = null;
+  if (splash) {
+    const s = splash.colour;
+    if (colours.length === 1) splashLand = L.pairs[colourKey([key, s])].shock;
+    else if (colours.length === 2) splashLand = L.triples[colourKey([...colours, s])].triome;
+    else if (colours.length === 3) splashLand = L.triples[colourKey([strongest[0], strongest[1], s])].triome;
+    else splashLand = L.pairs[colourKey([strongest[0], s])].shock;
+  }
+
+  const basics = splitBasics(colours, act, COMMANDER_LANDS - nonbasics.length - (splashLand ? 1 : 0));
+  if (colours.length === 1 && !splashLand) {
+    return fillCopy(M.monoLine, {
+      total: COMMANDER_LANDS, count: basics[0][1], basic: L.basics[key],
+      utility: withArticle(nonbasics[0]), joke: M.monoJokes[id] || ''
+    });
+  }
+  const basicItems = basics.map(([c, n]) => `${n} ${L.basics[c]}`);
+  const items = colours.length === 1 ? [...basicItems, ...nonbasics] : [...nonbasics, ...basicItems];
+  if (splashLand) {
+    const tail = fillCopy(M.splash[splash.margin], { colour: RESULT_COPY.colourWords[splash.colour] });
+    items.push(fillCopy(M.splashItem, { land: withArticle(splashLand), tail }));
+  }
+  return fillCopy(M.line, { total: COMMANDER_LANDS, lands: items.join(', ') });
+}
+
+function renderManaBase(id) {
+  const el = document.getElementById('res-mana-base');
+  if (!el) return;
+  const line = isPlayerMode() ? manaBaseLine(id, activationMap()) : '';
+  el.textContent = line;
+  el.classList.toggle('hidden', !line);
+}
+
 function showResults() {
   // Persist the finished result so a reload offers "See result" instead of a
   // stale mid-round snapshot. Shared-link views have no answers and are not saved.
@@ -10232,6 +10353,7 @@ function showResults() {
   if (cmdNameAside) cmdNameAside.textContent = p.cmd || '';
   const cmdDescAside = document.getElementById('cmd-desc-aside');
   if (cmdDescAside) cmdDescAside.textContent = p.cmdDesc || '';
+  renderManaBase(state.result.identity);
 
   // 5-color profile bars (the "psychometric receipt"). Pulls from state.activationSorted —
   // an [ [color, 0..1], ... ] array already ordered top-down. Render in WUBRG order so the

@@ -30,6 +30,7 @@ const CASES = [
     id: 'MONO-R', type: 'mono', confidence: 'HIGH',
     activation: { R: 0.86, B: 0.52, G: 0.44, W: 0.21, U: 0.12 },
     typeline: 'Legendary Creature — Human Berserker (Mono-Red)',
+    manaBase: '37 lands: 36 Mountain and a Hanweir Battlements, so nothing has to wait its turn.',
     nextDoor: {
       player: [['up', 'RAKDOS', 'Splash black: Rakdos.', 'Your black was well short. On nodding terms, no more.']],
       plain: [['up', 'RAKDOS', 'Add black: Rakdos.', 'Black was well short.']],
@@ -40,6 +41,7 @@ const CASES = [
     id: 'DIMIR', type: 'guild', confidence: 'MODERATE',
     activation: { U: 0.78, B: 0.64, G: 0.31, W: 0.22, R: 0.11 },
     typeline: 'Legendary Creature — Human Advisor (Dimir)',
+    manaBase: '37 lands: Watery Grave, Polluted Delta, Drowned Catacomb, 19 Island, 15 Swamp.',
     nextDoor: {
       player: [['up', 'SULTAI', 'Splash green: Sultai.', 'Your green was well short. On nodding terms, no more.'],
         ['down', 'MONO-U', 'Cut the Swamps: Mono-Blue.', "Black made the cut easily. Without it, it's a different deck."]],
@@ -63,6 +65,7 @@ const CASES = [
     id: 'JUND', type: 'three', confidence: 'LOW',
     activation: { R: 0.71, G: 0.69, B: 0.66, W: 0.24, U: 0.18 },
     typeline: 'Legendary Creature — Human Mercenary (Jund)',
+    manaBase: "37 lands: Ziatora's Proving Ground, Blood Crypt, Stomping Ground, Overgrown Tomb, 11 Mountain, 11 Forest, 11 Swamp.",
     nextDoor: {
       player: [['up', 'DUNE', 'Splash white: Four-colour (no blue).', 'Your white was well short. On nodding terms, no more.'],
         ['down', 'GRUUL', 'Cut the Swamps: Gruul.', "Black made the cut easily. Without it, it's a different deck."]],
@@ -82,6 +85,7 @@ const CASES = [
     id: 'GLINT', type: 'four', confidence: 'MODERATE',
     activation: { U: 0.66, B: 0.63, R: 0.6, G: 0.58, W: 0.2 },
     typeline: 'Legendary Creature — Human Wizard (Four-colour, no white)',
+    manaBase: '37 lands: Command Tower, Mana Confluence, City of Brass, Exotic Orchard, 9 Island, 8 Swamp, 8 Mountain, 8 Forest.',
     nextDoor: {
       player: [['up', 'WUBRG', 'Splash white: Five-colour.', 'Your white was well short. On nodding terms, no more.'],
         ['down', 'GRIXIS', 'Cut the Forests: Grixis.', "Green made the cut easily. Without it, it's a different deck."]],
@@ -99,6 +103,7 @@ const CASES = [
     id: 'WUBRG', type: 'five', confidence: 'LOW',
     activation: { W: 0.55, U: 0.53, B: 0.52, R: 0.5, G: 0.49 },
     typeline: 'Legendary Creature — Human Cleric Wizard Rogue Warrior Druid (Five-colour)',
+    manaBase: '37 lands: Command Tower, Mana Confluence, City of Brass, Exotic Orchard, 7 Plains, 7 Island, 7 Swamp, 6 Mountain, 6 Forest.',
     nextDoor: {
       player: [['down', 'YORE', 'Cut the Forests: Four-colour (no green).', 'Green only just made the cut.']],
       plain: [['down', 'YORE', 'Drop green: Four-colour (no green).', 'Green only just made it in.']],
@@ -109,6 +114,18 @@ const CASES = [
 
 // a precedes b in document order
 const before = (win, a, b) => !!(a && b && (a.compareDocumentPosition(b) & win.Node.DOCUMENT_POSITION_FOLLOWING));
+
+// Lands counted in a mana base line: "N Basic" counts N, every other listed
+// land one, and a final "and a <land> <joke or tail>" one more.
+function landCount(line) {
+  const m = /^37 lands: (.*)\.$/.exec(line || '');
+  if (!m) return -1;
+  const [list, last] = m[1].split(/,? and an? /);
+  return list.split(', ').reduce((sum, item) => {
+    const basics = /^(\d+) (Plains|Island|Swamp|Mountain|Forest)$/.exec(item);
+    return sum + (basics ? Number(basics[1]) : 1);
+  }, last ? 1 : 0);
+}
 
 // Label words and base-rate sentences (scoring version 1, measured 17 October 2026).
 const LABELS = {
@@ -230,6 +247,15 @@ function checkRender(win, h, c, audience, player, threw, errors) {
   } else {
     need(!shown('res-rules') && text('res-rules') === '', 'rules strip shown outside player mode');
   }
+
+  // 6. Mana base under the commander, player mode only: 37 lands.
+  if (playerCopy) {
+    need(shown('res-mana-base') && text('res-mana-base') === c.manaBase, `mana base "${text('res-mana-base')}" != "${c.manaBase}"`);
+    need(landCount(text('res-mana-base')) === 37, `mana base counts ${landCount(text('res-mana-base'))} lands`);
+    need(before(win, el('cmd-desc-aside'), el('res-mana-base')), 'mana base should sit under the commander');
+  } else {
+    need(!shown('res-mana-base') && text('res-mana-base') === '', 'mana base shown outside player mode');
+  }
   return problems;
 }
 
@@ -273,6 +299,31 @@ run('render', async (t) => {
     t.ok('scoring version 2 base rate falls back to version 1 until filled',
       !threw && errors.length === 0 && text(win, 'conf-base-rate') === LABELS.MODERATE.plain && text(win, 'conf-small-print') === SMALL_PRINT,
       `${threw || ''} ${text(win, 'conf-base-rate')}`);
+    win.close();
+  }
+
+  // Mana base splash: one land for the up neighbour, only when its colour is
+  // within a few answers (the bars of five recorded links, plus a close
+  // four-colour result). The splash land replaces a basic; still 37 lands.
+  const SPLASHES = [
+    ['MONO-W', { W: 0.70, U: 0.22, B: 0.34, R: 0.40, G: 0.58 },
+      '37 lands: 35 Plains, Castle Ardenvale, and a Temple Garden for the green you keep toying with.'],
+    ['MONO-B', { W: 0.35, U: 0.33, B: 0.73, R: 0.46, G: 0.58 },
+      '37 lands: 35 Swamp, Cabal Coffers, and an Overgrown Tomb for the green you keep toying with.'],
+    ['RAKDOS', { W: 0.48, U: 0.28, B: 0.49, R: 0.83, G: 0.24 },
+      '37 lands: Blood Crypt, Bloodstained Mire, Dragonskull Summit, 21 Mountain, 12 Swamp, and a Savai Triome you swear is for the splash.'],
+    ['ESPER', { W: 0.68, U: 0.48, B: 0.59, R: 0.33, G: 0.15 },
+      "37 lands: Raffine's Tower, Hallowed Fountain, Watery Grave, Godless Shrine, 13 Plains, 11 Swamp, 8 Island, and a Savai Triome for the red you keep toying with."],
+    ['TEMUR', { W: 0.33, U: 0.62, B: 0.09, R: 0.42, G: 0.68 },
+      "37 lands: Ketria Triome, Breeding Pool, Steam Vents, Stomping Ground, 13 Forest, 12 Island, 7 Mountain, and a Spara's Headquarters for the white you keep toying with."],
+    ['GLINT', { U: 0.66, B: 0.63, R: 0.60, G: 0.58, W: 0.52 },
+      '37 lands: Command Tower, Mana Confluence, City of Brass, Exotic Orchard, 8 Island, 8 Swamp, 8 Mountain, 8 Forest, and a Hallowed Fountain you swear is for the splash.'],
+  ];
+  for (const [id, activation, want] of SPLASHES) {
+    const c = { id, confidence: 'HIGH', activation, result: { allResults: [], round3Data: {} } };
+    const { win, errors, threw } = await renderCase(c, 'consumer', true, seed++);
+    const got = text(win, 'res-mana-base');
+    t.ok(`mana base splash ${id}`, !threw && errors.length === 0 && got === want && landCount(got) === 37, `${threw || ''} "${got}" (${landCount(got)} lands)`);
     win.close();
   }
 
