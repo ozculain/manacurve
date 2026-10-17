@@ -4,6 +4,66 @@ Newest first. Dates are when the work was committed.
 
 ## 2026-10-17
 
+### Phase 2: presentation, one verdict and next door
+
+All new result-screen copy is provisional and lives in one block,
+`RESULT_COPY` (with `CONFIDENCE_BASE_RATES`, `NEXT_DOOR_MARGINS` and
+`ROLES_HIDDEN_FOR_FUN`), just above `showResults()` in `index.html`.
+"Player mode" is `state.gamingFamiliar` until a "Played Magic?" question
+replaces the toggle; workplace mode always gets the plain copy.
+
+- The reveal lands first: the plinth opens on the philosophy; the
+  confidence badge, its explanation and the quality warning follow it. In
+  player mode the banner adds a typeline under the commander
+  ("Legendary Creature — Human Advisor (Dimir)").
+- Next door replaces the LOW/MODERATE-only alternatives box and shows at
+  every confidence level: one colour up (add the strongest colour the
+  identity does not run) and one down (drop its weakest), from the five
+  bars alone, so old links render it. The margin wording (one answer, a
+  few, well short) measures the gap between the weakest colour in and the
+  strongest out, about 8 bar points to an answer (50% when all five are
+  in). Splash/cut copy in player mode, add/drop otherwise.
+- Confidence labels read "Locked in", "Leaning" and "Still shuffling"
+  (links keep `c=high|moderate|low`), each with a base-rate sentence from
+  `CONFIDENCE_BASE_RATES`, keyed by `state.result.scoringVersion`: version
+  1 holds today's simulator numbers (54, 53 and 31%); version 2 is a
+  marked placeholder that falls back to version 1. No rarity mark: the
+  frames theme's mythic/rare/uncommon gem becomes a plain status dot.
+- "Your Mana Pool" gains the caption "The name's the summary. The bars are
+  what you said."
+- Player mode: a rules-text strip above strengths and shadows, and a
+  37-land Commander mana base under the commander (shock, fetch and check
+  for guilds; Triome and shocks for three colours; Command Tower, Mana
+  Confluence, City of Brass and Exotic Orchard for four and five; basics
+  and a utility land for mono), with basics split by the bars and a
+  next-door splash land when that colour is within a few answers. Land
+  names are a new `MANA_BASE_LANDS` constant in `data.js`, checked against
+  Scryfall.
+- Appeal the verdict: the first tap on a neighbour peeks at its
+  philosophy, rules text, strengths and shadows; a separate button appeals.
+  The verdict stays in `state.result.identity`; the appeal is
+  `state.result.appeal = { chosen, shown, copyVersion, labelShown,
+  timeToAppealMs }`, saved with the session, shown as "(on appeal)" with a
+  way back. "Neither. Show me all 31." appeals from the explorer.
+- Seed links: `s` and `i` (scoring and instrument version, 1 when absent)
+  and `f` (the appealed identity; not written in workplace mode). The ten
+  recorded links still render, now with their next-door rows. The golden
+  test compares links on `r`, `p`, `c` and `a` only (contract updated).
+- Share Card: the confidence word is gone from the set-symbol slot; in
+  player mode it carries a collector number, "MC1 • EN • 009/031". Share
+  images and share text keep showing the verdict, never an appeal.
+- Share text dares a friend: "I'm Dimir. Sultai lives next door. What are
+  you?" (three drafted lines; workplace mode always uses the first).
+- Consumer mode leaves 21 corporate-sounding entries out of "Natural
+  Roles"; the data keeps them and workplace mode shows them all.
+- Fixed: the explorer's profile detail never appeared (an inline display
+  could not beat `.hidden`).
+- Tests: the render test runs every case with player mode off and on and
+  covers each item above, the peek and appeal flow, the all-31 path and
+  the Card export in the gilded and frames themes (html-to-image stubbed);
+  the seed test covers the next-door rows of the recorded links and the
+  `s`, `i` and `f` round trip.
+
 ### Phase 0: repository hygiene and tests
 
 - `.gitattributes` keeps text files LF in the repository and the working tree
