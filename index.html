@@ -9448,12 +9448,19 @@ function displayFinalDetermination() {
     if (explanationDiv) {
       let expHTML = '<div style="padding: 16px; background: rgba(16, 185, 129, 0.05); border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.2); margin-top: 16px;">';
       expHTML += '<p style="font-size: 13px; color: #d0d0d0; margin: 0; line-height: 1.6;">';
-      const winner = data.allScores[0];
-      expHTML += '<strong class="text-accent">' + state.result.identity + '</strong> finished with the best record (' + winner.wins + 'W-' + winner.losses + 'L)';
-      if (data.runnerUp) {
-        expHTML += ', ahead of <strong>' + data.runnerUp.id + '</strong> (' + data.runnerUp.wins + 'W-' + data.runnerUp.losses + 'L).';
+      if (decidedByAllAnswers()) {
+        // Engine 2: the weight of all the answers decided it, and the line
+        // says so when the result lacked the best record (round3DecidedHTML).
+        expHTML += round3DecidedHTML(data);
       } else {
-        expHTML += '.';
+        // Engine 1 (?engine=1): the best record decided it.
+        const winner = data.allScores[0];
+        expHTML += '<strong class="text-accent">' + state.result.identity + '</strong> finished with the best record (' + winner.wins + 'W-' + winner.losses + 'L)';
+        if (data.runnerUp) {
+          expHTML += ', ahead of <strong>' + data.runnerUp.id + '</strong> (' + data.runnerUp.wins + 'W-' + data.runnerUp.losses + 'L).';
+        } else {
+          expHTML += '.';
+        }
       }
       expHTML += '</p>';
       expHTML += '</div>';
@@ -10637,6 +10644,19 @@ const RESULT_COPY = {
     // it. {commander} is the name before the comma: Yuriko, Kenrith, Kynaios
     // and Tiro of Meletis.
     playerCommander: "I'm {identity}. {commander}, apparently. What are you?"
+  },
+
+  // What decided the result: the confidence explanation and Round 3 of "How
+  // we read you". Scoring engine 2 weighs all the answers, so the result can
+  // lack the best head-to-head record (about 15% of results); engine 1
+  // (?engine=1) keeps its old lines. {n}: head-to-head comparisons; {record}:
+  // wins and losses, "2W-1L". (Not in the drafts.)
+  decided: {
+    clear: 'Decided by a clear margin on the weight of all your answers, {n} head-to-head comparisons included.',
+    leaning: 'Decided by a clear but not overwhelming margin on the weight of all your answers, {n} head-to-head comparisons included.',
+    won: '{identity} won on the weight of all your answers ({record} in this round).',
+    wonNotBest: '{identity} won on the weight of all your answers, though not with the best record in this round ({record}).',
+    next: '{identity} came next ({record}).'
   }
 };
 
@@ -10772,6 +10792,32 @@ function renderConfidenceLabel() {
   badge.innerHTML = '<span class="mc-confidence__dot"></span><span class="mc-confidence__word"></span>';
   badge.querySelector('.mc-confidence__word').textContent = label.word;
   document.getElementById('conf-base-rate').textContent = label.line;
+}
+
+// Scoring engine 2 picks the identity on the weight of all the answers, not
+// on the Round 3 record alone. Engine 1 (?engine=1, and results saved or
+// shared before engine 2) keeps its wording.
+function decidedByAllAnswers() {
+  return resultVersion('scoringVersion') >= 2;
+}
+
+// Round 3 of "How we read you", engine 2: what decided the result and, when
+// it lacked the best record of the candidates that played (wins minus
+// losses, as engine 1 ranks them), one plain clause saying so.
+function round3DecidedHTML(data) {
+  const D = RESULT_COPY.decided, r = state.result;
+  const scores = (data && data.allScores) || [];
+  const played = scores.filter(s => (s.wins || 0) + (s.losses || 0) > 0);
+  const winner = scores.find(s => s.id === r.identity) || scores[0];
+  if (!winner) return '';
+  const record = (s) => `${s.wins || 0}W-${s.losses || 0}L`;
+  const diff = (s) => (s.wins || 0) - (s.losses || 0);
+  const best = played.length ? Math.max(...played.map(diff)) : diff(winner);
+  const name = (id, cls) => `<strong${cls ? ` class="${cls}"` : ''}>${htmlText(identityName(id))}</strong>`;
+  let html = fillCopy(htmlText(diff(winner) < best ? D.wonNotBest : D.won), { identity: name(winner.id, 'text-accent'), record: record(winner) });
+  const next = data.runnerUp && data.runnerUp.id !== winner.id ? data.runnerUp : null;
+  if (next) html += ' ' + fillCopy(htmlText(D.next), { identity: name(next.id), record: record(next) });
+  return html;
 }
 
 function activationMap() {
@@ -11392,19 +11438,21 @@ function showResults() {
   const confComparisons = (r3ForConf.matchHistory || []).length;
   const confRunnerUpId = r3ForConf.runnerUp ? r3ForConf.runnerUp.id : null;
   const confRunnerUpName = confRunnerUpId ? (PROFILES[confRunnerUpId]?.name || confRunnerUpId) : null;
+  // Engine 2 weighs every answer, not the head-to-heads alone (RESULT_COPY.decided).
+  const allAnswers = decidedByAllAnswers();
   let confBasis;
   if (state.result.confidence === 'HIGH') {
-    confBasis = confComparisons
-      ? `Decided by a clear margin across ${confComparisons} head-to-head comparisons.`
-      : 'Your early answers pointed one way and kept pointing there.';
+    confBasis = !confComparisons ? 'Your early answers pointed one way and kept pointing there.'
+      : allAnswers ? fillCopy(RESULT_COPY.decided.clear, { n: confComparisons })
+      : `Decided by a clear margin across ${confComparisons} head-to-head comparisons.`;
   } else if (state.result.confidence === 'LOW' && r3ForConf.cycle) {
     confBasis = `Your final-round preferences formed a loop (${r3ForConf.cycle.join(' beat ')}, who beat ${r3ForConf.cycle[0]}), so the scenarios couldn't decide this. ${copyVariant(RESULT_COPY.barsPointer.loop)} Treat this as a soft read.`;
   } else if (state.result.confidence === 'LOW') {
     confBasis = 'The margins stayed thin throughout. Treat this as a soft read.';
   } else {
-    confBasis = confComparisons
-      ? `Decided by a clear but not overwhelming margin across ${confComparisons} head-to-head comparisons.`
-      : 'A clear pattern, with some genuine variation inside it.';
+    confBasis = !confComparisons ? 'A clear pattern, with some genuine variation inside it.'
+      : allAnswers ? fillCopy(RESULT_COPY.decided.leaning, { n: confComparisons })
+      : `Decided by a clear but not overwhelming margin across ${confComparisons} head-to-head comparisons.`;
   }
   const isBorderline = confRunnerUpName && typeof r3ForConf.gap === 'number' && r3ForConf.gap <= 1 && !r3ForConf.cycle;
   if (isBorderline) {

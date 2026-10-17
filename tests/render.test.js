@@ -546,6 +546,34 @@ run('render', async (t) => {
     win.close();
   }
 
+  // What decided the result. Engine 2 (the default) weighs all the answers,
+  // so the reported identity can lack the best Round 3 record: the Round 3
+  // line says what decided it, and says so plainly when the record was not
+  // the best; the confidence explanation no longer credits the head-to-heads
+  // alone. Engine 1 (?engine=1) keeps "finished with the best record".
+  {
+    const notBest = JSON.parse(JSON.stringify(DIMIR.result));
+    notBest.round3Data.allScores = [cand('DIMIR', 1, 2, 0.81), cand('GRIXIS', 3, 0, 0.74), cand('ESPER', 1, 2, 0.66), cand('MONO-U', 1, 2, 0.61)];
+    notBest.round3Data.runnerUp = { id: 'GRIXIS', wins: 3, losses: 0 };
+    const ENGINE2_CONF = 'Decided by a clear but not overwhelming margin on the weight of all your answers, 6 head-to-head comparisons included.';
+    const ENGINE1_CONF = 'Decided by a clear but not overwhelming margin across 6 head-to-head comparisons.';
+    const R3 = [
+      ['engine 2, the winner lacks the best record', notBest, 2,
+        'Dimir won on the weight of all your answers, though not with the best record in this round (1W-2L). Grixis came next (3W-0L).', ENGINE2_CONF],
+      ['engine 2, the winner shares the best record', DIMIR.result, 2,
+        'Dimir won on the weight of all your answers (2W-1L in this round). Grixis came next (2W-1L).', ENGINE2_CONF],
+      ['engine 1 keeps its line', DIMIR.result, 1,
+        'DIMIR finished with the best record (2W-1L), ahead of GRIXIS (2W-1L).', ENGINE1_CONF],
+    ];
+    for (const [what, result, version, want, wantConf] of R3) {
+      const { win, errors, threw } = await renderCase({ ...DIMIR, result }, 'consumer', false, seed++, { scoringVersion: version });
+      const got = text(win, 'round3-testing-explanation'), conf = text(win, 'conf-exp');
+      t.ok(`what decided it: ${what}`, !threw && errors.length === 0 && got === want && conf.startsWith(wantConf),
+        `${threw || ''} "${got}" | "${conf.slice(0, 140)}"`);
+      win.close();
+    }
+  }
+
   // 7. [9] Appeal the ruling: each next-door row has its own peek and appeal.
   //    The first tap on a row opens its own panel with that neighbour's
   //    philosophy, strengths and shadows; the panel's button is the second,
