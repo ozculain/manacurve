@@ -5748,9 +5748,9 @@ function updateLikelihood(stage) {
 // Every string the quiz screens show (the welcome and preflight lines, the
 // beats, the transitions, the line-up, the early offer, the undo) lives in
 // PLAY_COPY, so the author can edit them in one place. The text is the reviewed
-// copy. Three groups have no reviewed text yet and are marked PROVISIONAL:
-// the round names, the line into the result, and the results page's share and
-// table strings.
+// copy. A few groups have no reviewed text yet and are marked PROVISIONAL: the
+// round names, the line-up screen's title, the line into the result, and the
+// results page's share and table strings.
 // Variants: "player" strings show when state.gamingFamiliar is on; "plain"
 // strings show to everyone else, and the workplace audience always gets plain
 // (isPlayerMode).
@@ -5897,6 +5897,7 @@ const PLAY_COPY = {
   },
 
   interstitial: {
+    // PROVISIONAL: the screen's own title, after Round 2 (or Round 1 when there is no Round 2)
     titleRefined: 'Refinement Complete',
     titleRound1: 'Round 1 Complete',
     lineup: 'Suspects',
