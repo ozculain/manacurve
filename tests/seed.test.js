@@ -11,6 +11,8 @@
 //     welcome screen.
 //  4. An appealed link (&f=) opens on the appealed identity, marked, with the
 //     verdict kept in state.result.identity; an unusable f is ignored.
+//  5. Scoring and instrument versions (&s= &i=) and the appeal round-trip
+//     through a link; old links read as version 1; workplace links drop f.
 // Usage: node tests/seed.test.js [path/to/index.html]
 const path = require('path');
 const { bootPage, pageArgs, whenReady, isVisible } = require('./_lib/load');
@@ -157,6 +159,54 @@ run('seed', async ({ ok }) => {
     ok('an appealed link opens on the appeal, marked ' + q, problems.length === 0, problems.join('; '));
     win.close();
   }
+  // ---------- 5. Versions and the appeal round-trip (&s= &i= &f=) ----------
+  {
+    const { win, h, errors } = bootPage({ ...pageArgs(), seed: seedNum++ });
+    await whenReady(win);
+    const problems = [];
+    const act = { U: 0.78, B: 0.64, G: 0.31, W: 0.22, R: 0.11 };
+    h.state.result = { identity: 'DIMIR', confidence: 'MODERATE', allResults: [], scoringVersion: 2, instrumentVersion: 3, appeal: { chosen: 'SULTAI', shown: ['SULTAI', 'MONO-U'], copyVersion: 1, labelShown: 'Leaning', timeToAppealMs: 4200 } };
+    h.state.activationSorted = sorted(act);
+    h.state.audience = 'consumer';
+    const url = h.buildResultURL();
+    if (!/\?r=DIMIR&p=22,78,64,11,31&c=moderate&a=consumer&s=2&i=3&f=SULTAI$/.test(url)) problems.push('built ' + url);
+    win.history.replaceState(null, '', url);
+    const seed = h.parseSeedURL() || {};
+    if (seed.scoringVersion !== 2 || seed.instrumentVersion !== 3 || !seed.appeal || seed.appeal.chosen !== 'SULTAI') {
+      problems.push('parsed ' + JSON.stringify({ s: seed.scoringVersion, i: seed.instrumentVersion, f: seed.appeal }));
+    }
+    h.loadFromSeed(seed);
+    const r = h.state.result || {};
+    if (r.identity !== 'DIMIR' || r.scoringVersion !== 2 || r.instrumentVersion !== 3 || !r.appeal || r.appeal.chosen !== 'SULTAI') {
+      problems.push('loaded ' + JSON.stringify(r));
+    }
+    if (!isVisible(win, 'res-appeal-mark') || (win.document.getElementById('res-id').textContent || '').trim() !== h.PROFILES.SULTAI.name) problems.push('appeal not on screen');
+    if (h.buildResultURL() !== url) problems.push('rebuilt ' + h.buildResultURL());
+    // Workplace mode keeps the appeal out of the link.
+    h.state.audience = 'workplace';
+    if (!/&a=workplace&s=2&i=3$/.test(h.buildResultURL())) problems.push('workplace ' + h.buildResultURL());
+    if (errors.length) problems.push('errors: ' + errors.slice(0, 2).join(' | '));
+    ok('s, i and f round-trip through a link ' + url.replace(/^https?:\/\/[^/]+\//, ''), problems.length === 0, problems.join('; '));
+    win.close();
+  }
+  {
+    // Old links carry no versions: they read as 1, and links rebuilt from them say so.
+    const { win, h, errors } = await openLink(urls[2]);
+    const r = h.state.result || {};
+    ok('an old link reads as scoring and instrument version 1 ' + urls[2],
+      r.scoringVersion === 1 && r.instrumentVersion === 1 && h.buildResultURL().endsWith(urls[2] + '&s=1&i=1') && errors.length === 0,
+      JSON.stringify({ s: r.scoringVersion, i: r.instrumentVersion, url: h.buildResultURL() }));
+    win.close();
+  }
+  for (const v of ['s=abc&i=0', 's=-2&i=1.5', 's=&i=']) {
+    const q = urls[0] + '&' + v;
+    const { win, h, errors } = await openLink(q);
+    const r = h.state.result || {};
+    ok('unusable versions read as 1 ' + q, r.scoringVersion === 1 && r.instrumentVersion === 1 && errors.length === 0 && isVisible(win, 'screen-results'),
+      JSON.stringify({ s: r.scoringVersion, i: r.instrumentVersion }));
+    win.close();
+  }
+
   for (const f of ['NOT-AN-IDENTITY', 'DIMIR', '']) {
     const q = '?r=DIMIR&p=22,78,64,11,31&c=moderate&a=consumer&f=' + f;
     const { win, h, errors } = await openLink(q);

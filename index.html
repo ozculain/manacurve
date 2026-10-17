@@ -4868,9 +4868,16 @@ function updateWispWeights() {
 //   p = mana bar percentages in WUBRG order, comma-separated ints 0..100
 //   c = confidence (low/moderate/high)
 //   a = audience (consumer/workplace)
+//   s = scoring version, i = instrument version (absent in old links: 1)
 //   f = appealed identity, when the taker appealed the verdict (optional; never
 //       written in workplace mode, where the appeal stays private)
 // Unknown parameters are ignored.
+
+// A version parameter: a positive integer, or 1 when absent or unusable.
+function seedVersion(raw) {
+  const v = /^\d+$/.test(raw || '') ? parseInt(raw, 10) : NaN;
+  return v >= 1 ? v : 1;
+}
 
 function buildResultURL() {
   if (!state.result || !state.result.identity || !state.activationSorted) {
@@ -4883,7 +4890,9 @@ function buildResultURL() {
   const c = (state.result.confidence || 'MODERATE').toLowerCase();
   const a = state.audience || 'consumer';
   const r = encodeURIComponent(state.result.identity);
-  let url = `${location.origin}${location.pathname}?r=${r}&p=${p}&c=${c}&a=${a}`;
+  const s = seedVersion(String(state.result.scoringVersion));
+  const i = seedVersion(String(state.result.instrumentVersion));
+  let url = `${location.origin}${location.pathname}?r=${r}&p=${p}&c=${c}&a=${a}&s=${s}&i=${i}`;
   const appeal = state.result.appeal;
   if (a !== 'workplace' && appeal && PROFILES[appeal.chosen] && appeal.chosen !== state.result.identity) {
     url += `&f=${encodeURIComponent(appeal.chosen)}`;
@@ -4910,7 +4919,9 @@ function parseSeedURL() {
     identity: r,
     confidence: ['LOW','MODERATE','HIGH'].includes(conf) ? conf : 'MODERATE',
     activationSorted,
-    audience
+    audience,
+    scoringVersion: seedVersion(params.get('s')),
+    instrumentVersion: seedVersion(params.get('i'))
   };
   // An appeal travels as its choice alone; an unknown id, or the verdict
   // itself, is ignored.
@@ -4923,7 +4934,9 @@ function loadFromSeed(seed) {
   state.result = {
     identity: seed.identity,
     confidence: seed.confidence,
-    allResults: []
+    allResults: [],
+    scoringVersion: seed.scoringVersion || 1,
+    instrumentVersion: seed.instrumentVersion || 1
   };
   if (seed.appeal) state.result.appeal = { ...seed.appeal };
   state.activationSorted = seed.activationSorted;

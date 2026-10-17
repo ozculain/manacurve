@@ -28,12 +28,23 @@ const TYPE = { 1: 'mono', 2: 'guild', 3: 'three', 4: 'four', 5: 'five' };
 const FIELDS = ['r1', 'r1Activation', 'earlyOffer', 'activation', 'identity', 'confidence', 'matchups', 'url'];
 const keyOf = (r) => `${r.id} p=${r.p} #${r.idx}`;
 
+// The result link as scoring decides it: r, p, c and a. Versions (s, i), an
+// appeal (f) and any later additions are presentation and stay out of the
+// fixture (docs/SCORING_CONTRACT.md).
+function linkCore(url) {
+  if (!url) return url;
+  const u = new URL(url);
+  const core = new URLSearchParams();
+  for (const k of ['r', 'p', 'c', 'a']) if (u.searchParams.has(k)) core.set(k, u.searchParams.get(k));
+  return `${u.origin}${u.pathname}?${core.toString().replace(/%2C/g, ',')}`;
+}
+
 function record(win, id, spec, idx) {
   const r = runRespondent(win, id, idx, { model: 'ideal', p: spec.p, neither: spec.neither, seed: SEED }, { trace: true });
   return {
     id, p: spec.p, neither: spec.neither, idx,
     r1: r.r1, r1Activation: r.r1Activation, earlyOffer: r.earlyOffer, activation: r.activation,
-    identity: r.recovered, confidence: r.confidence, matchups: r.matchups, url: r.url,
+    identity: r.recovered, confidence: r.confidence, matchups: r.matchups, url: linkCore(r.url),
   };
 }
 
