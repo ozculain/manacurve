@@ -11554,6 +11554,9 @@ function showDetail(id) {
   document.getElementById(`card-${id}`)?.classList.add('selected');
 
   document.getElementById('detail-placeholder').style.display = 'none';
+  // The markup starts it with .hidden (display: none !important), which an
+  // inline display cannot beat, so lift the class as well.
+  document.getElementById('detail-content').classList.remove('hidden');
   document.getElementById('detail-content').style.display = 'block';
 
   // Identity header — use mc-pip artwork (the actual mana symbols)

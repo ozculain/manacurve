@@ -424,6 +424,7 @@ run('render', async (t) => {
     need(shown('screen-explorer') && !shown('screen-results') && shown('appeal-pick-bar') && text(win, 'appeal-pick-bar').includes('Pick the one that sounds like you.'), 'explorer with the pick bar');
     el('card-GOLGARI').click();
     need(text(win, 'detail-name') === h.PROFILES.GOLGARI.name && text(win, 'appeal-pick-btn') === "Respond: I'm Golgari", `pick bar "${text(win, 'appeal-pick-bar')}"`);
+    need(shown('detail-content'), 'the explorer\'s profile detail stays hidden, so there is nothing to read before appealing');
     el('appeal-pick-btn').click();
     await tick();
     const a = h.state.result.appeal || {};
