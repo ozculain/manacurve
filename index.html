@@ -3518,23 +3518,20 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
 
 
 // ============================================================================
-// CONTEXT HINTS - Non-work alternatives for corporate scenarios
+// CONTEXT HINTS - Non-work alternatives for the work scenarios
 // ============================================================================
+// A line under the stem for someone without the job the stem assumes: the first
+// hint with a pattern that matches the stem (getContextHint). Rounds 1 and 2:
+// TEAM on three items, COLLEAGUE on two, MANAGER on one. Round 3: TEAM and
+// ORGANISATION, on 15 of its 48 stems. tests/round12-copy.test.js holds which
+// Round 1 and 2 item shows which hint; tests/play.test.js the Round 3 ones.
 const CONTEXT_HINTS = {
   TEAM: {
     hint: "No team at work? Think: sports club, volunteer group, band, or any group you collaborate with.",
     patterns: [/your team/i, /team members/i, /team is/i, /team has/i, /team needs/i, /new team/i, /team away-day/i, /team culture/i, /team collaborates/i, /team operates/i]
   },
-  BUDGET: {
-    hint: "No budget? Think: splitting holiday costs, choosing which events to attend when you can't afford both.",
-    patterns: [/your budget/i, /budget to/i, /initiatives need funding/i, /give everyone a small raise/i]
-  },
-  HIRING: {
-    hint: "Not hiring? Think: choosing a doubles partner, picking who to invite when you've only got one spare ticket.",
-    patterns: [/candidates for a role/i, /final candidates/i, /choosing between two.*candidates/i]
-  },
   COLLEAGUE: {
-    hint: "No colleagues? Think: housemates, club members, friends you see regularly—anyone you cooperate with.",
+    hint: "No colleagues? Think: housemates, club members, or anyone you get things done with.",
     patterns: [/a colleague/i, /your colleague/i]
   },
   MANAGER: {
@@ -3544,79 +3541,16 @@ const CONTEXT_HINTS = {
   ORGANISATION: {
     hint: "No organisation? Think: your family, sports club, church group, or any group that makes collective decisions.",
     patterns: [/your organisation/i, /the organisation/i, /cross-functional/i, /institutional knowledge/i, /parts of the organisation/i, /organisation is implementing/i, /major changes affecting/i]
-  },
-  DEPARTMENT: {
-    hint: "No department? Think: your friend group vs another, your team within a larger club or community.",
-    patterns: [/your department/i, /another department/i, /the department/i, /hit the department/i]
-  },
-  CUSTOMER: {
-    hint: "No customers? Think: people you're helping—friends asking advice, someone you're tutoring, anyone relying on you.",
-    patterns: [/customers are waiting/i, /customer problem/i]
-  },
-  SUPPLIER: {
-    hint: "No suppliers? Think: your regular mechanic, favourite restaurant, any long-term service relationship.",
-    patterns: [/supplier relationship/i]
-  },
-  PERFORMANCE: {
-    hint: "No performance reviews? Think: giving feedback to a friend, addressing a housemate's habits, any honest conversation.",
-    patterns: [/underperforming/i, /performance standards/i, /acting inappropriately/i, /honest feedback/i]
-  },
-  DELIVERABLE: {
-    hint: "No deliverables? Think: any project with a deadline—uni assignment, DIY project, event you're organising.",
-    patterns: [/a deliverable/i, /deliver a project/i, /behind on a project/i, /project faster/i]
-  },
-  STAKEHOLDER: {
-    hint: "No stakeholders? Think: anyone affected by your decisions—family, friends, club members.",
-    patterns: [/stakeholders/i]
-  },
-  ONBOARDING: {
-    hint: "No onboarding? Think: showing a new housemate how things work, teaching someone the rules of a game.",
-    patterns: [/onboarding checklist/i, /new hire points out/i, /new team member.*struggling/i]
-  },
-  NEGOTIATION: {
-    hint: "No negotiations at work? Think: haggling over rent, splitting bills, convincing friends on holiday plans.",
-    patterns: [/difficult negotiation/i, /renegotiate/i]
-  },
-  MEETING: {
-    hint: "No meetings? Think: any group decision—where to eat, what to watch, planning something with friends.",
-    patterns: [/attending a meeting/i, /in a meeting/i]
-  },
-  CRISIS: {
-    hint: "No work crises? Think: car breaking down, kitchen flooding, any sudden problem needing quick action.",
-    patterns: [/system has crashed/i, /sudden crisis/i, /critical system/i, /critical project.*failing/i, /immediate intervention/i]
-  },
-  COMPETITIVE: {
-    hint: "No business competition? Think: applying for the same flat, competing in sports, any situation with rivals.",
-    patterns: [/competitor.*strategy/i, /stay competitive/i, /rivals for/i, /competitive situation/i]
-  },
-  CAREER: {
-    hint: "Not thinking about career? Think: any long-term path—hobby progression, fitness journey, learning over years.",
-    patterns: [/career path/i, /career development/i, /networking event/i, /advance your position/i, /your current role/i]
-  },
-  STRATEGY: {
-    hint: "No strategy at work? Think: planning a trip, deciding what skills to learn, any multi-year planning.",
-    patterns: [/strategy for your function/i, /over the next 2-3 years/i, /developing strategy/i]
-  },
-  GOVERNANCE: {
-    hint: "No governance? Think: house rules with housemates, club constitution, how your friend group makes decisions.",
-    patterns: [/decision-making frameworks/i, /governance/i, /new policies/i, /implementing new policies/i]
-  },
-  MTG: {
-    hint: "Don't play card games? Just imagine any hobby where you collect things, build strategies, and compete with friends.",
-    patterns: [/Commander/i, /playing Commander/i]
   }
 };
 
 // Function to detect which hint applies to a scenario
 function getContextHint(scenarioText, questionId) {
-  // MTG questions detected by ID
-  if (questionId && questionId.startsWith('MTG-')) {
-    return CONTEXT_HINTS.MTG.hint;
-  }
+  // Magic items reach only players who said they play: no hint
+  if (questionId && questionId.startsWith('MTG-')) return null;
   
   // Check each hint type's patterns against the scenario
-  for (const [type, data] of Object.entries(CONTEXT_HINTS)) {
-    if (type === 'MTG') continue; // Already handled
+  for (const data of Object.values(CONTEXT_HINTS)) {
     for (const pattern of data.patterns) {
       if (pattern.test(scenarioText)) {
         return data.hint;
