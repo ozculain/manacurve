@@ -4007,6 +4007,11 @@ function saveSession() {
       disclaimerAcknowledged: state.disclaimerAcknowledged || false,
       qualityFlags: state.qualityFlags,
       audience: state.audience || 'consumer',
+      // Scoring engine 2: the engine this assessment runs on, and its last
+      // log-likelihood table and posterior. Shown option orders ride on the
+      // response records above (responses, refinementAnswers, tournament).
+      scoringEngine: state.scoringEngine || null,
+      likelihood: state.likelihood || null,
       timestamp: Date.now()
     };
     sessionStorage.setItem(SESSION_KEY, JSON.stringify(snapshot));
@@ -4038,6 +4043,13 @@ function clearSession() {
 
 function restoreSession(snapshot) {
   Object.assign(state, snapshot);
+  // Snapshots saved before scoring engine 2 existed came from engine 1: finish
+  // them there, and label a finished one as engine 1's.
+  if (state.scoringEngine !== 1 && state.scoringEngine !== 2) state.scoringEngine = 1;
+  if (state.result && state.result.scoringVersion === undefined) {
+    state.result.scoringVersion = 1;
+    state.result.instrumentVersion = 1;
+  }
   document.body.dataset.audience = state.audience === 'workplace' ? 'workplace' : 'forfun';
   
   // Determine which screen to show
@@ -5191,6 +5203,198 @@ window.addEventListener('DOMContentLoaded', function() {
 
 
 // ============================================================================
+// SCORING ENGINE: version switch and the likelihood engine
+// ============================================================================
+// Two engines score the same answers. Engine 2, the likelihood engine below, is
+// the default. Engine 1, the win-rate engine (analyseGapBasedPatterns ->
+// generateCandidatesGapBased, then calculateRefinedActivation ->
+// recalculateCandidates), stays reachable for one release with ?engine=1 in the
+// URL. Both write the state.result shape in docs/SCORING_CONTRACT.md, tagged
+// with scoringVersion and instrumentVersion.
+const SCORING_VERSION = 2;
+const INSTRUMENT_VERSION = 1; // the current items and screens
+
+// Read once, at load: restart() strips the query string, and a page must not
+// switch engine between one assessment and the next.
+const SCORING_ENGINE_OVERRIDE = (function () {
+  try { return new URLSearchParams(location.search).get('engine') === '1' ? 1 : null; }
+  catch (e) { return null; }
+})();
+
+// The engine for the assessment in progress. startAssessment pins it on the
+// state, so a resumed session finishes on the engine it started with.
+function scoringEngine() {
+  if (state && (state.scoringEngine === 1 || state.scoringEngine === 2)) return state.scoringEngine;
+  return SCORING_ENGINE_OVERRIDE || SCORING_VERSION;
+}
+
+// ----------------------------------------------------------------------------
+// LIKELIHOOD ENGINE (scoringVersion 2)
+// Every Round 1 and Round 2 item is a forced choice between two options, each
+// written for one colour. If the respondent's identity is the colour set S and
+// exactly one of the two colours is in S, they pick that one with probability p
+// (their consistency); if both or neither are in S, the choice is a coin flip.
+// "Neither" answers are no evidence: as in engine 1 they add to no tally. An
+// item's authored weight q.w multiplies its log-likelihood, as it multiplies
+// its tally. So one colour pair's answers reduce to its two weighted counts
+// (state.pairwise for the enemy pairs, Round 2's enemy re-tests included;
+// state.refinementPairwise for the ally pairs), and each of the 31 identities in
+// PROFILES gets a log-likelihood from the ten pairs:
+//   - per pair, the log-likelihood ratio against a coin-flipping respondent,
+//     clamped to +/-PAIR_LOGLIK_CAP: the items within a pair repeat its theme,
+//     so they are not independent evidence, and no single pair may decide alone;
+//   - summed over the pairs at each p on LIKELIHOOD_P_GRID, then averaged over
+//     the grid (a uniform prior on p) instead of fixing p at one guess.
+// Round 3 adds a term of the same kind: each matchup is a forced choice between
+// two identities, and under S the respondent picks the one whose colours are
+// closer to S (Jaccard similarity) with probability q, or flips a coin when
+// both are equally close; q is averaged over ROUND3_Q_GRID. With a uniform
+// prior over the 31 identities, the posterior is the normalised likelihood.
+// Confidence is the posterior of the reported identity, read against
+// CONFIDENCE_HIGH_POSTERIOR and CONFIDENCE_MODERATE_POSTERIOR.
+// ----------------------------------------------------------------------------
+const LIKELIHOOD_P_GRID = [0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9];
+// The most one colour pair can move any identity's log-likelihood, in nats. A
+// unanimous pair of six at p = 0.8 is worth 2.8; at 2.5 the cap binds only on
+// near-unanimous pairs, which simulated respondents with graded preferences
+// produce for colours outside their identity too. Accuracy barely moves between
+// 2.5 and 4; the confident end (HIGH labels, the early offer) is where it helps.
+const PAIR_LOGLIK_CAP = 2.5;
+const ROUND3_Q_GRID = [0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9];
+const CONFIDENCE_HIGH_POSTERIOR = 0.7;     // reported identity's posterior >= 0.7: HIGH
+const CONFIDENCE_MODERATE_POSTERIOR = 0.5; // 0.5 to 0.7: MODERATE; below 0.5: LOW
+const EARLY_OFFER_POSTERIOR = 0.9;         // the early-result offer after Round 1 needs this
+const EARLY_OFFER_HOLDOUT_POSTERIOR = 0.6; // ...and this with any one colour pair set aside
+const ROUND3_CANDIDATE_COUNT = 4;          // Round 3 plays the top four by posterior
+
+function logMeanExp(xs) {
+  const m = Math.max(...xs);
+  if (m === -Infinity) return -Infinity;
+  return m + Math.log(xs.reduce((s, x) => s + Math.exp(x - m), 0) / xs.length);
+}
+
+// Weighted answer counts per colour pair, from the tallies Rounds 1 and 2 keep.
+function likelihoodEvidence() {
+  const evidence = {};
+  const add = (tallies) => Object.entries(tallies || {}).forEach(([pair, s]) => {
+    const [a, b] = pair.split('-');
+    evidence[pair] = { [a]: Number(s[a]) || 0, [b]: Number(s[b]) || 0 };
+  });
+  add(state.pairwise);
+  add(state.refinementPairwise);
+  return evidence;
+}
+
+// One pair's log-likelihood ratio under S at consistency p, against a respondent
+// flipping coins: zero when S holds both colours or neither.
+function pairLogLikRatio(nA, nB, hasA, hasB, p) {
+  if (hasA === hasB) return 0;
+  const hit = Math.log(2 * p), miss = Math.log(2 * (1 - p));
+  return hasA ? nA * hit + nB * miss : nA * miss + nB * hit;
+}
+
+// { identity: log-likelihood } over every PROFILES identity, marginalised over p.
+function identityLogLikelihoods(evidence, opts = {}) {
+  const grid = opts.pGrid || LIKELIHOOD_P_GRID;
+  const cap = opts.pairCap === undefined ? PAIR_LOGLIK_CAP : opts.pairCap;
+  const pairs = Object.entries(evidence || {});
+  const out = {};
+  Object.keys(PROFILES).forEach(id => {
+    const S = PROFILES[id].colors;
+    out[id] = logMeanExp(grid.map(p => pairs.reduce((sum, [pair, n]) => {
+      const [a, b] = pair.split('-');
+      const llr = pairLogLikRatio(n[a] || 0, n[b] || 0, S.includes(a), S.includes(b), p);
+      return sum + Math.max(-cap, Math.min(cap, llr));
+    }, 0)));
+  });
+  return out;
+}
+
+function identityJaccard(aColors, bColors) {
+  const inter = aColors.filter(c => bColors.includes(c)).length;
+  return inter / (aColors.length + bColors.length - inter);
+}
+
+// { identity: log-likelihood } of the Round 3 choices, marginalised over q.
+function round3LogLikelihoods(matchHistory, opts = {}) {
+  const grid = opts.qGrid || ROUND3_Q_GRID;
+  const matches = (matchHistory || []).filter(m => m && m.winner && m.loser
+    && PROFILES[m.winner.id] && PROFILES[m.loser.id]);
+  const out = {};
+  Object.keys(PROFILES).forEach(id => {
+    const S = PROFILES[id].colors;
+    // +1 when S says the winner is the closer identity, -1 when the loser is, 0 on a tie.
+    const signs = matches.map(m => Math.sign(
+      identityJaccard(PROFILES[m.winner.id].colors, S) - identityJaccard(PROFILES[m.loser.id].colors, S)));
+    out[id] = logMeanExp(grid.map(q => signs.reduce((sum, s) =>
+      sum + (s > 0 ? Math.log(2 * q) : s < 0 ? Math.log(2 * (1 - q)) : 0), 0)));
+  });
+  return out;
+}
+
+// Normalise log-likelihoods (uniform prior) into { identity: probability }.
+function posteriorFromLogLik(logLik) {
+  const ids = Object.keys(logLik);
+  const m = Math.max(...ids.map(id => logLik[id]));
+  const post = {};
+  let z = 0;
+  ids.forEach(id => { post[id] = Math.exp(logLik[id] - m); z += post[id]; });
+  ids.forEach(id => { post[id] /= z; });
+  return post;
+}
+
+function confidenceFromPosterior(prob) {
+  if (prob >= CONFIDENCE_HIGH_POSTERIOR) return 'HIGH';
+  if (prob >= CONFIDENCE_MODERATE_POSTERIOR) return 'MODERATE';
+  return 'LOW';
+}
+
+// Identities best first. Ties keep PROFILES order, so the ranking is deterministic.
+function rankPosterior(posterior) {
+  return Object.entries(posterior).sort((a, b) => b[1] - a[1]);
+}
+
+// The top n identities by posterior, in the candidate shape Round 3, its guards
+// and the results screen read (s1 and combinedScore carry the posterior).
+function posteriorCandidates(posterior, n = ROUND3_CANDIDATE_COUNT) {
+  return rankPosterior(posterior).slice(0, n).map(([id, prob], i) => ({
+    id,
+    s1: prob,
+    combinedScore: prob,
+    colors: [...PROFILES[id].colors],
+    reasoning: `#${i + 1} by posterior (${Math.round(prob * 100)}%)`,
+    type: getCandidateType(id)
+  }));
+}
+
+// The early-result offer skips Round 2, whose ally pairs exist to cross-check
+// Round 1, so it must not rest on any one colour pair: a pair's items share a
+// theme, and a whole pair can lean one way for reasons that are not the
+// identity. With each pair's answers set aside in turn, the offered identity
+// must keep a posterior of EARLY_OFFER_HOLDOUT_POSTERIOR. On 155,000 simulated
+// misspecified respondents at p = 0.8, offers at a posterior of 0.9 were right
+// about 88% of the time without this guard, whatever the posterior bar, and
+// about 91% with it; it roughly halves how often the offer appears.
+function offerSurvivesPairHoldout(evidence, id) {
+  return Object.keys(evidence).every(pair => {
+    const rest = { ...evidence };
+    delete rest[pair];
+    return posteriorFromLogLik(identityLogLikelihoods(rest))[id] >= EARLY_OFFER_HOLDOUT_POSTERIOR;
+  });
+}
+
+// Recompute the Round 1 + Round 2 log-likelihood table and posterior from the
+// tallies and keep them on the state (saveSession persists them). stage names
+// the last round folded in.
+function updateLikelihood(stage) {
+  const evidence = likelihoodEvidence();
+  const logLik = identityLogLikelihoods(evidence);
+  state.likelihood = { stage, evidence, logLik, posterior: posteriorFromLogLik(logLik) };
+  return state.likelihood;
+}
+
+
+// ============================================================================
 // GAMING FAMILIARITY GATE
 // ============================================================================
 function toggleGaming() {
@@ -5271,6 +5475,9 @@ function selectTheme(theme) {
 }
 
 function startAssessment() {
+  // Pin the scoring engine for this assessment (saved with the session).
+  state.scoringEngine = SCORING_ENGINE_OVERRIDE || SCORING_VERSION;
+  state.likelihood = null;
 
   // Select exactly 6 questions per enemy pair to ensure balanced scoring
   const enemyPairs = ['W-B', 'U-R', 'G-U', 'W-R', 'B-G'];
@@ -5790,6 +5997,8 @@ function showQ() {
   // Track render time + presented order for quality-flag detection (fast clicks, position bias).
   state.qShownAt = Date.now();
   state.qPresentedOrder = shuffled.map(r => r.t || r.text);
+  // The order the options were shown in (their colours), logged on the response record.
+  state.qShown = { id: q.id, order: shuffled.map(r => r.c || r.g || null) };
 
   // Position labels rotate I/II/III for the .mc-choice__pos header. (No "Path of X" flavor
   // names since the answer text already speaks for itself.)
@@ -5879,7 +6088,10 @@ function answerQ(resp, optionIdx) {
   if (optionIdx === 0) state.qualityFlags.alwaysLeftCount++;
   state.qualityFlags.totalAnswered++;
 
-  state.responses.push(resp);
+  // The response record: the chosen option (a copy, so the item bank is never
+  // mutated) plus the item, its weight and the order the options were shown in.
+  const answeredItem = state.stage === 1 ? state.poolA[state.qNum] : state.poolS2[state.qNum];
+  state.responses.push(responseRecord(resp, answeredItem));
   
   // Stage 1: Track color scores and pairwise (with item quality weighting)
   if (state.stage === 1) {
@@ -6005,7 +6217,7 @@ function answerNeither(q) {
   }
   
   // Store a placeholder response
-  state.responses.push({ c: 'NEITHER', pair: pair, text: 'Neither selected (skipped)' });
+  state.responses.push(responseRecord({ c: 'NEITHER', pair: pair, text: 'Neither selected (skipped)' }, q));
   
   
   // Advance to next question
@@ -6030,6 +6242,26 @@ function answerNeither(q) {
   } else {
     finishS2();
   }
+}
+
+// The order an item's options were shown in (their colours), if this item is
+// the one on screen; null otherwise.
+function shownOrderFor(item) {
+  return item && state.qShown && state.qShown.id === item.id ? [...state.qShown.order] : null;
+}
+
+// A response record for state.responses: a copy of the chosen option with the
+// item's id, pair and authored weight, and the order its options were shown in.
+function responseRecord(option, item) {
+  const rec = { ...option };
+  if (item) {
+    rec.id = item.id;
+    if (item.pair) rec.pair = item.pair;
+    rec.w = item.w || 1;
+    const shown = shownOrderFor(item);
+    if (shown) rec.shown = shown;
+  }
+  return rec;
 }
 
 // ============================================================================
@@ -6124,6 +6356,9 @@ function showEarlyTerminationOffer(confidenceData) {
   // Store for later use
   window.earlyConfidenceData = confidenceData;
   
+  // The offer replaces the question screen (engine 1 never reached this, so
+  // the last Round 1 question used to stay on screen behind it).
+  document.getElementById('screen-assessment').classList.add('hidden');
   document.getElementById('screen-interstitial').classList.add('hidden');
   document.getElementById('screen-early-offer').classList.remove('hidden');
   
@@ -6160,14 +6395,32 @@ function showResultsEarly() {
   const data = window.earlyConfidenceData;
   
   // Set result without Round 2 data
-  state.result = {
-    identity: data.identity,
-    confidence: data.confidence >= 0.90 ? 'HIGH' : 'MODERATE',
-    earlyTermination: true,
-    allResults: [],
-    s2Data: null
-  };
+  if (scoringEngine() === 2) {
+    // The offer's confidence is the Round 1 posterior of the offered identity.
+    state.result = {
+      identity: data.identity,
+      confidence: confidenceFromPosterior(data.confidence),
+      earlyTermination: true,
+      allResults: [],
+      s2Data: null,
+      scoringVersion: 2,
+      instrumentVersion: INSTRUMENT_VERSION,
+      posterior: { ...((state.likelihood && state.likelihood.posterior) || { [data.identity]: 1 }) }
+    };
+  } else {
+    state.result = {
+      identity: data.identity,
+      confidence: data.confidence >= 0.90 ? 'HIGH' : 'MODERATE',
+      earlyTermination: true,
+      allResults: [],
+      s2Data: null,
+      scoringVersion: 1,
+      instrumentVersion: INSTRUMENT_VERSION
+    };
+  }
   
+  // Leave the offer screen (the calculating and results screens do not hide it).
+  document.getElementById('screen-early-offer').classList.add('hidden');
   showCalculating();
 }
 
@@ -6590,7 +6843,59 @@ function generateCandidatesGapBased(analysis) {
   return final;
 }
 
+// Round 1 activation for the bars: each colour's mean win rate over its two
+// enemy pairs ("Neither" answers shrink the denominator). Both engines show it.
+function round1Activation() {
+  const rate = (pair, c) => state.pairwise[pair][c] / pairDenom(pair);
+  return {
+    W: (rate('W-B', 'W') + rate('W-R', 'W')) / 2,
+    U: (rate('U-R', 'U') + rate('G-U', 'U')) / 2,
+    B: (rate('W-B', 'B') + rate('B-G', 'B')) / 2,
+    R: (rate('U-R', 'R') + rate('W-R', 'R')) / 2,
+    G: (rate('G-U', 'G') + rate('B-G', 'G')) / 2
+  };
+}
+
+// Engine 2 after Round 1: the candidates are the top four identities by
+// posterior, and the early-result offer needs the top posterior to reach
+// EARLY_OFFER_POSTERIOR, with the decisive pairs well answered and no one
+// colour pair carrying it (offerSurvivesPairHoldout).
+function finishS1Likelihood() {
+  // Round 2 still picks its ally pairs from the win-rate analysis.
+  const analysis = analyseGapBasedPatterns();
+  const activation = round1Activation();
+  const sorted = Object.entries(activation).sort((a, b) => b[1] - a[1]);
+  state.activationSorted = sorted;
+
+  const { posterior, evidence } = updateLikelihood('round1');
+  const candidates = posteriorCandidates(posterior);
+  state.round1Analysis = analysis;
+  state.round1Candidates = candidates;
+
+  const top = candidates[0];
+  if (top.s1 >= EARLY_OFFER_POSTERIOR && decisivePairsWellAnswered(top.colors)
+      && offerSurvivesPairHoldout(evidence, top.id)) {
+    state.pendingCandidates = candidates;
+    const prof = PROFILES[top.id];
+    showEarlyTerminationOffer({
+      identity: top.id,
+      confidence: top.s1, // the posterior: showEarlyTerminationOffer and showResultsEarly read it
+      needsRound2: false,
+      activation: activation,
+      sorted: sorted,
+      message: `Your Round 1 answers already point clearly to ${prof ? prof.name : top.id}. Round 2 may still shift the read.`
+    });
+  } else {
+    showRoundTransition(1, 2, () => {
+      document.getElementById('screen-assessment').classList.remove('hidden');
+      startRefinement(analysis);
+    });
+  }
+}
+
 function finishS1() {
+  if (scoringEngine() === 2) { finishS1Likelihood(); return; }
+  // Engine 1 (win-rate), unchanged.
   // NEW: Use gap-based analysis
   const analysis = analyseGapBasedPatterns();
   const candidates = generateCandidatesGapBased(analysis);
@@ -6982,6 +7287,8 @@ function showRefinementQuestion() {
   choicesDiv.innerHTML = '';
 
   const options = shuffleArray([...q.r]);
+  // The order the options were shown in (their colours), logged on the answer record.
+  state.qShown = { id: q.id, order: options.map(o => o.c || null) };
   const posLabels = ['I', 'II', 'III', 'IV', 'V', 'VI'];
 
   options.forEach((opt, idx) => {
@@ -7037,12 +7344,16 @@ function showRefinementQuestion() {
 
 function selectRefinementChoice(color, pair) {
   
-  // Record the choice
+  // Record the choice, with the item's weight and the order its options were shown in
+  const shownQ = state.refinementQuestions[state.qNum];
+  const shown = shownOrderFor(shownQ);
   state.refinementAnswers.push({
-    questionId: state.refinementQuestions[state.qNum].id,
+    questionId: shownQ.id,
     pair: pair,
     choice: color,
-    type: state.refinementQuestions[state.qNum].refinementType
+    type: shownQ.refinementType,
+    w: shownQ.w || 1,
+    ...(shown ? { shown } : {})
   });
   
   // Update tallies. Ally-pair questions feed refinementPairwise; ENEMY_RETEST
@@ -7076,11 +7387,15 @@ function selectRefinementNeither(pair) {
   state.refinementNeitherCount++;
   
   // Record as neither - no points to either color
+  const shownQ = state.refinementQuestions[state.qNum];
+  const shown = shownOrderFor(shownQ);
   state.refinementAnswers.push({
-    questionId: state.refinementQuestions[state.qNum].id,
+    questionId: shownQ.id,
     pair: pair,
     choice: 'NEITHER',
-    type: state.refinementQuestions[state.qNum].refinementType
+    type: shownQ.refinementType,
+    w: shownQ.w || 1,
+    ...(shown ? { shown } : {})
   });
   
   // Neither color gets points - if neither resonates, we don't inflate both
@@ -7097,10 +7412,14 @@ function selectRefinementNeither(pair) {
 function finishRefinement() {
   
   // Analyze refinement results and adjust activation estimates
+  // (both engines: the bars and the context-agreement guard read it)
   const adjustedActivation = calculateRefinedActivation();
   
-  // Recalculate candidates with refined data
-  const refinedCandidates = recalculateCandidates(adjustedActivation);
+  // Recalculate candidates with refined data. Engine 2: the top four
+  // identities by the Round 1 + Round 2 posterior.
+  const refinedCandidates = scoringEngine() === 2
+    ? posteriorCandidates(updateLikelihood('round2').posterior)
+    : recalculateCandidates(adjustedActivation);
   
   state.pendingCandidates = refinedCandidates;
   
@@ -7460,7 +7779,8 @@ function recordTournamentResult(tournament, winnerId) {
     loser: loser,
     type: matchup.type,
     scenarioId: matchup.scenarioId || null,
-    questionNum: tournament.questionCount
+    questionNum: tournament.questionCount,
+    shown: matchup.shown || null // identity ids in the order the two options were shown
   });
   
   tournament.questionCount++;
@@ -7605,6 +7925,50 @@ function applyContextAgreementGuard(result) {
   return { color: worst ? worst[0] : null, agreement: ca.overall };
 }
 
+// Engine 2: the posterior from Rounds 1 and 2 and the Round 3 matches played so far.
+function combinedPosterior(tournament) {
+  const evidence = likelihoodEvidence();
+  const logLik = identityLogLikelihoods(evidence);
+  const round3LogLik = round3LogLikelihoods(tournament.matchHistory);
+  const total = {};
+  Object.keys(logLik).forEach(id => { total[id] = logLik[id] + round3LogLik[id]; });
+  return { evidence, logLik, round3LogLik, posterior: posteriorFromLogLik(total) };
+}
+
+// The tournament candidates by combined posterior, best first (ties keep the
+// Round 1 + Round 2 order they were seeded in).
+function rankCandidatesByPosterior(tournament, posterior) {
+  return [...tournament.candidates].sort((a, b) => posterior[b.id] - posterior[a.id]);
+}
+
+// Engine 2's Round 3 decision. The Round 1 + Round 2 likelihood and the Round 3
+// choices combine into the final posterior over all 31 identities, which is
+// what result.posterior reports. The reported identity is the tournament
+// candidate it rates highest (the candidates are the ones the person actually
+// compared), result.runnerUp the next, result.gap the difference in their
+// win-loss records, and result.confidence the reported identity's posterior
+// read against the thresholds. Measured on simulated respondents, deciding by
+// posterior beat crowning the tournament's win-count leader by about 14 points
+// (ideal respondents) and 7 (misspecified), because it keeps what Rounds 1 and 2
+// said. The guards may still lower the confidence: here, a Condorcet cycle
+// through the reported identity makes it LOW; afterwards, the scenario-
+// contradiction and context-agreement guards cap HIGH.
+function applyPosteriorDecision(result, tournament) {
+  const combined = combinedPosterior(tournament);
+  const { posterior } = combined;
+  state.likelihood = { stage: 'round3', ...combined };
+
+  const ranked = rankCandidatesByPosterior(tournament, posterior);
+  const winner = ranked[0];
+  const runnerUp = ranked[1] || null;
+  result.winner = winner;
+  result.runnerUp = runnerUp;
+  result.gap = runnerUp ? (winner.wins - winner.losses) - (runnerUp.wins - runnerUp.losses) : 0;
+  result.confidence = confidenceFromPosterior(posterior[winner.id]);
+  if (result.cycle && result.cycle.includes(winner.id)) result.confidence = 'LOW';
+  return { posterior, ranked };
+}
+
 function startRound3(candidates) {
   
   // Candidates come pre-scored from R1/R2 - use them directly
@@ -7703,6 +8067,8 @@ function showTournamentQuestion() {
   choicesDiv.innerHTML = '';
 
   const options = Math.random() > 0.5 ? [matchup.a, matchup.b] : [matchup.b, matchup.a];
+  matchup.shown = options.map(c => c.id); // logged on the match record
+
   const posLabels = ['I', 'II', 'III', 'IV', 'V', 'VI'];
 
   options.forEach((candidate, idx) => {
@@ -7820,9 +8186,20 @@ function finishRound3Tournament() {
   // never fake it. A tiebreak answer that contradicts the round-robin can surface
   // a Condorcet cycle and drop confidence to LOW; that is honest behaviour (the
   // answers really are inconsistent), not a bug.
+  // Engine 2 decides by posterior, so its tiebreak goes to the posterior's top
+  // two candidates, whenever the leader's posterior is still short of HIGH.
   if (!tournament.tiebreakAdded && tournament.termReason?.reason !== 'CLINCHED') {
-    const provisional = getTournamentWinner(tournament);
-    if (!provisional.cycle && provisional.runnerUp && provisional.gap <= 1) {
+    let provisional, wantTiebreak;
+    if (scoringEngine() === 2) {
+      const post = combinedPosterior(tournament).posterior;
+      const ranked = rankCandidatesByPosterior(tournament, post);
+      provisional = { winner: ranked[0], runnerUp: ranked[1] };
+      wantTiebreak = !!ranked[1] && post[ranked[0].id] < CONFIDENCE_HIGH_POSTERIOR;
+    } else {
+      provisional = getTournamentWinner(tournament);
+      wantTiebreak = !provisional.cycle && provisional.runnerUp && provisional.gap <= 1;
+    }
+    if (wantTiebreak) {
       const leaderC = tournament.candidates.find(c => c.id === provisional.winner.id);
       const runnerC = tournament.candidates.find(c => c.id === provisional.runnerUp.id);
       const exclude = [...(tournament.usedPoolScenarios || [])];
@@ -7850,13 +8227,16 @@ function finishRound3Tournament() {
   }
 
   const result = getTournamentWinner(state.tournament);
+  // Engine 2: the final posterior picks the identity and sets the confidence.
+  const decision = scoringEngine() === 2 ? applyPosteriorDecision(result, state.tournament) : null;
 
   // Cap confidence when the scenario winner contradicts the item-round leader.
   const scenarioContradiction = applyScenarioContradictionGuard(result, state.activationSorted);
   const contextDisagreement = applyContextAgreementGuard(result);
 
   // Build allResults from tournament candidates, sorted by performance
-  const sortedCandidates = [...state.tournament.candidates].sort((a, b) => {
+  // (engine 2: by final posterior, so the reported identity comes first)
+  const sortedCandidates = decision ? decision.ranked : [...state.tournament.candidates].sort((a, b) => {
     // Primary: win-loss differential
     const aDiff = a.wins - a.losses;
     const bDiff = b.wins - b.losses;
@@ -7872,25 +8252,38 @@ function finishRound3Tournament() {
   const allResults = sortedCandidates.map(c => [c.id, {
     s1: c.combinedScore || 0,
     s2: (c.wins - c.losses + 2) / 4, // Normalize tournament performance to 0-1
-    combined: c.combinedScore || 0,
+    // engine 2: the final posterior (Rounds 1-3); engine 1: the Round 1-2 score
+    combined: decision ? decision.posterior[c.id] : (c.combinedScore || 0),
     wins: c.wins,
     losses: c.losses,
     isTournament: true
   }]);
   
+  const allScores = state.tournament.candidates.map(c => ({
+    id: c.id,
+    wins: c.wins,
+    losses: c.losses,
+    combinedScore: c.combinedScore
+  }));
+  if (decision) {
+    // Engine 2 ranks the standings by final posterior, like allResults.
+    const rank = Object.fromEntries(decision.ranked.map((c, i) => [c.id, i]));
+    allScores.forEach(s => { s.posterior = decision.posterior[s.id]; });
+    allScores.sort((a, b) => rank[a.id] - rank[b.id]);
+  } else {
+    allScores.sort((a, b) => (b.wins - b.losses) - (a.wins - a.losses));
+  }
   
   // Store result in format compatible with existing results display
   state.result = {
     identity: result.winner.id,
     confidence: result.confidence,
     allResults: allResults,
+    scoringVersion: decision ? 2 : 1,
+    instrumentVersion: INSTRUMENT_VERSION,
+    ...(decision ? { posterior: decision.posterior } : {}),
     round3Data: {
-      allScores: state.tournament.candidates.map(c => ({
-        id: c.id,
-        wins: c.wins,
-        losses: c.losses,
-        combinedScore: c.combinedScore
-      })).sort((a, b) => (b.wins - b.losses) - (a.wins - a.losses)),
+      allScores: allScores,
       gap: result.gap,
       runnerUp: result.runnerUp ? {
         id: result.runnerUp.id,

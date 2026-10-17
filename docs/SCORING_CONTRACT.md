@@ -21,6 +21,13 @@ Agreed before the scoring branch (Phase 1) and the presentation branch (Phase 2)
 - Confidence is computed only by scoring code and written to `result.confidence`. Presentation maps it to a display label and a base-rate sentence keyed by `scoringVersion`; it never recomputes it.
 - The neighbourhood ("next door") is derived from the five activation values only, so it renders for old links.
 
+### What engine 2 puts there (added by Phase 1)
+
+- `confidence` is the reported identity's posterior: below 0.5 LOW, 0.5 to 0.7 MODERATE, 0.7 and above HIGH. The Round 3 guards can only lower it: a Condorcet cycle through the reported identity makes it LOW, and the scenario-contradiction and context-disagreement guards cap HIGH at MODERATE. An early result (`earlyTermination: true`) uses the Round 1 posterior, which is at least 0.9 for the offer to appear, so it is HIGH.
+- `posterior` covers all 31 identities and folds in Rounds 1 to 3 (Round 1 only for an early result).
+- The reported identity is the Round 3 candidate with the highest posterior, not necessarily the one with the best win-loss record. So `allResults` and `round3Data.allScores` are ordered by posterior, best first (`allResults[i][1].combined` is the posterior and each `allScores` entry gains `posterior`), `round3Data.runnerUp` is the next candidate by posterior, and `round3Data.gap`, still the win-loss difference between the two, can be negative. In simulation the reported identity had the best or tied-best record about 85% of the time (engine 1: about 92%); the remaining 15% is where the line "finished with the best record" (`displayFinalDetermination`) is not true.
+- Both engines set `scoringVersion` and `instrumentVersion`. A session saved before engine 2 existed resumes on engine 1, and its finished result is labelled 1 and 1.
+
 ## Engine switch
 
 - `const SCORING_VERSION = 2;` at the top of the scoring section once Phase 1 lands. `?engine=1` in the URL selects the old engine for one release. Both engines must populate the shape above.
