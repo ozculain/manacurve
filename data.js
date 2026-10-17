@@ -261,7 +261,7 @@ const ROUND2_SCENARIOS = {
       'TEMUR': 'The market will catch up with this. Get us into whatever replaces it first.',
       'WITCH': "Run it through the ethics checklist. Feelings aren't one of the boxes.",
       'GLINT': "If nobody's complaining, push it further. Someone else will if we don't.",
-      'DUNE': 'If it feels wrong, it is. Notice in tomorrow. No philosophy degree required.',
+      'DUNE': 'If it feels wrong, it is. Notice goes in tomorrow. No philosophy degree needed.',
       'INK': "Speak up, even if it costs me the job. I'll worry about the mortgage later.",
       'YORE': "Don't patch the rules. Scrap them and design a system where this can't happen.",
       'WUBRG': "I'll weigh the rules, the money, the harm and the precedent. Meanwhile, it carries on."
