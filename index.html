@@ -1676,6 +1676,12 @@ body[data-theme="frames"] .mc-cardback { border-radius: 9px; }
 .mc-mulligan:hover:not(:disabled) { color: var(--gilt-bright); }
 .mc-mulligan:disabled { color: var(--ink-ghost); cursor: default; text-decoration: none; }
 
+/* The results banner: share, right beside the name */
+.mc-result__name-row .mc-banner-share {
+  align-self: center; padding: 9px 16px; font-size: 11px; letter-spacing: 0.16em;
+  background: rgba(0, 0, 0, 0.5);
+}
+
 /* ============================================================================
    THEMES — body[data-theme]: "frames" (default), "gilded", "borderless".
    Chosen on the results page (#theme-switch), persisted in localStorage (mc_theme).
@@ -2417,6 +2423,8 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
               <div class="mc-result__name" id="res-id">—</div>
               <!-- Shown while an appeal stands; tap or hover says where it started -->
               <button type="button" class="mc-appeal-mark hidden" id="res-appeal-mark" aria-controls="res-appeal-note" aria-expanded="false" onclick="toggleAppealNote()">(on appeal)</button>
+              <!-- Share, right beside the identity: the same action as the share button below -->
+              <button type="button" class="mc-btn mc-banner-share" id="res-banner-share" onclick="shareResult(this)" data-copy="results.share"></button>
             </div>
             <div class="mc-appeal-note hidden" id="res-appeal-note" role="note"></div>
             <div class="mc-result__tag" id="res-tag"></div>
@@ -5673,6 +5681,7 @@ const PLAY_COPY = {
   },
 
   results: {
+    share: '⚜ Share',
     themeLabel: 'Table',
     themes: { gilded: 'Gilded Hall', frames: 'Card Frames', borderless: 'Borderless' },
     themeNote: 'Card Frames deals your next quiz face-down and turns your colours over with the result.',

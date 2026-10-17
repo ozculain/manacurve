@@ -17,6 +17,7 @@
 //      trait lines and every-ten beats that never name a colour
 //   6. the free mulligan: one undo per round, only the final answer scored,
 //      the first answer and both response times on the record
+//   7. share beside the identity in the results banner
 // Usage: node tests/play.test.js [path/to/index.html]
 const fs = require('fs');
 const { bootPage, pageArgs, whenReady, isVisible, waitForResults, INDEX_HTML } = require('./_lib/load');
@@ -531,5 +532,31 @@ run('play', async (t) => {
       textOf(player.win, 'mulligan-btn') === 'Free mulligan' && textOf(work.win, 'mulligan-btn') === 'Undo' && labels.every((x) => !COLOUR_WORDS.test(x)),
       `${textOf(player.win, 'mulligan-btn')} / ${textOf(work.win, 'mulligan-btn')}`);
     player.win.close(); work.win.close();
+  }
+
+  // ---------- 7: share beside the identity ----------
+  {
+    const { win, h, errors } = await page();
+    const d = win.document;
+    const s = h.state;
+    s.result = { identity: 'DIMIR', confidence: 'MODERATE', allResults: [], round3Data: {} };
+    s.activationSorted = [['U', 0.78], ['B', 0.64], ['G', 0.31], ['W', 0.22], ['R', 0.11]];
+    s.responses = new Array(30).fill({ c: 'U' });
+    s.disclaimerAcknowledged = true;
+    h.showResults();
+    const share = d.getElementById('res-banner-share');
+    const row = d.getElementById('res-id').parentElement;
+    ok('P7a a share button sits in the banner meta, next to the identity',
+      !!share && d.querySelector('.mc-result__banner-meta').contains(share) && row.contains(share) && row.classList.contains('mc-result__name-row') && /Share/.test(share.textContent),
+      share ? share.textContent : 'missing');
+    const copied = [];
+    Object.defineProperty(win.navigator, 'clipboard', { configurable: true, value: { writeText: async (x) => { copied.push(x); } } });
+    share.click();
+    await tick(); await tick();
+    await win.shareResult(d.getElementById('share-result-btn'));
+    ok('P7b it reuses the share action: the same dare and link as the main share button',
+      copied.length === 2 && copied[0] === copied[1] && copied[0].includes(h.buildResultURL()) && share.textContent === '✓ Link copied!', JSON.stringify(copied));
+    ok('P7c no errors on the results page', errors.length === 0, errors.slice(0, 2).join(' | '));
+    win.close();
   }
 });
