@@ -220,6 +220,16 @@ function checkRender(win, h, c, audience, player, threw, errors) {
   need(barsTitle && barsTitle.textContent.trim() === 'Your Mana Pool', 'bars title');
   need(text('res-bars-caption') === "The name's the summary. The bars are what you said.", `bars caption "${text('res-bars-caption')}"`);
   need(before(win, el('res-bars-caption'), el('res-profile-bars')), 'caption should sit above the bars');
+
+  // 5. Rules-text strip above strengths and shadows, player mode only.
+  if (playerCopy) {
+    need(shown('res-rules') && text('res-rules') === h.RESULT_COPY.rules[c.id] && text('res-rules').length > 20, `rules strip "${text('res-rules')}"`);
+    need(before(win, el('res-rules'), el('strengths')) && before(win, el('res-profile-bars'), el('res-rules')), 'rules strip should sit between the bars and strengths');
+    need(!text('res-rules').includes('(') || (el('res-rules').querySelector('i') || {}).textContent === text('res-rules').match(/\([^)]*\)/)[0],
+      'bracketed reminder text should be in italics');
+  } else {
+    need(!shown('res-rules') && text('res-rules') === '', 'rules strip shown outside player mode');
+  }
   return problems;
 }
 

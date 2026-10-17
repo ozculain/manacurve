@@ -1709,6 +1709,14 @@ body[data-theme="frames"] .mc-nextdoor__chip { border-radius: 10px; }
 /* Bars caption: the name is the summary, the bars are the evidence */
 .mc-profile__caption { font-family: var(--f-flavor); font-style: italic; font-size: 15px; color: var(--ink-faded); margin: 0 0 14px; }
 
+/* Rules-text strip (player mode): one line of card rules text */
+.mc-rules-strip {
+  font-family: var(--f-body); font-size: 15px; line-height: 1.6; color: var(--ink);
+  margin: 0 0 4px; padding: 12px 16px; background: rgba(236, 223, 186, 0.035);
+  border: 1px solid var(--gilt-line); border-left: 3px solid var(--gilt); border-radius: 3px;
+}
+.mc-rules-strip i { color: var(--ink-muted); }
+
 </style>
 </head>
 <body data-mode="draft" data-audience="consumer" data-flavor="9" data-theme="gilded">
@@ -2264,6 +2272,9 @@ body[data-theme="frames"] .mc-nextdoor__chip { border-radius: 10px; }
 
         <!-- Type-line divider: "Personality — <NAME>" -->
         <div class="mc-typeline"><span class="mc-typeline__diamond"></span>Personality <span style="opacity:0.6;">—</span> <span id="res-typeline-name">…</span><span class="mc-typeline__diamond"></span></div>
+
+        <!-- Rules-text strip, player mode only -->
+        <p class="mc-rules-strip hidden" id="res-rules"></p>
 
         <!-- Strengths / Shadows grid (Claude Design's mc-result__grid) -->
         <div class="mc-result__grid">
@@ -9887,6 +9898,42 @@ const RESULT_COPY = {
   // Caption under "Your Mana Pool". [plan, Phase 2]
   barsCaption: "The name's the summary. The bars are what you said.",
 
+  // [2] Rules-text strip above strengths and shadows, player mode only.
+  // Bracketed reminder text prints in italics, as on a card.
+  rules: {
+    'MONO-W': "Vigilance. Other creatures you control get +1/+1. Your rules can't leave the battlefield, even after their reason has.",
+    'MONO-U': 'Flash. Hexproof from feedback. At the beginning of your upkeep, you may reconsider. If you do, reconsider again.',
+    'MONO-B': 'Menace, lifelink. You may pay life instead of mana. Any trust you gain lasts until end of turn.',
+    'MONO-R': 'Haste, trample. After your sixth turn, skip your next two turns. (This is called pacing.)',
+    'MONO-G': "Reach. You don't lose unspent mana as phases end. Spells that change things have suspend 7.",
+    AZORIUS: 'Flash. Spells your opponents cast cost one more and need a form. Your decisions resolve two turns late.',
+    DIMIR: 'Ninjutsu. Whenever a player says something, surveil 1. Shroud. (Nobody can target you, including your friends.)',
+    RAKDOS: 'Unleash. Spectacle. At the beginning of your upkeep, if nothing went wrong last turn, something does.',
+    GRUUL: 'Riot. Trample. This creature attacks each combat if able. Meetings count as combat.',
+    SELESNYA: "Convoke. Populate. You can't sacrifice creatures. Not even that one.",
+    ORZHOV: 'Extort. Whenever a player takes a favour from you, they get a debt counter. Nobody with one will sit next to you.',
+    IZZET: 'Prowess. Jump-start. Whenever one of your spells resolves, you lose interest in it.',
+    GOLGARI: 'Undergrowth. Whenever another creature you control dies, get an experience counter. Nothing ever leaves your graveyard.',
+    SIMIC: "Evolve. Adapt 1. This creature can't attack while it could still be improved.",
+    BOROS: 'First strike. Mentor. Whenever an injustice is alleged, attack. Check the facts after combat.',
+    BANT: "Exalted. Vigilance. You can't declare attackers until every player has had their say.",
+    ESPER: "Flying. Your creatures are artifacts in addition to their other types. (They've noticed.)",
+    GRIXIS: 'Haste. Creatures you control get +2/+0. At your end step, one of them leaves for a calmer deck.',
+    JUND: "Trample. At the beginning of your upkeep, sacrifice another creature, then explain it wasn't built for this.",
+    NAYA: 'Battle cry. Other creatures you control have haste. Each combat costs a speech, plus a follow-up speech.',
+    ABZAN: 'Outlast. Vigilance. New permanents you control enter as pilots, and stay pilots.',
+    JESKAI: 'Prowess. Mentor. Mentor can\'t target a creature whose question was obvious.',
+    SULTAI: "Exploit. Whenever another player's idea resolves, you may gain control of it. At the beginning of next year, they notice.",
+    MARDU: "Haste. Raid — At your end step, if you attacked this turn, sacrifice a creature. Don't count them.",
+    TEMUR: "Trample. This spell can't be countered. At the beginning of your upkeep, shuffle your plan into your library.",
+    WITCH: "Vigilance, deathtouch, lifelink. Proliferate. This creature can't have haste, and can't see what it adds.",
+    YORE: 'Flying. Whenever an artifact you control works, sacrifice it and build a better one.',
+    GLINT: "Cascade. Trample. Phasing. (When the consequences arrive, you've phased out.)",
+    DUNE: "Haste. Vigilance. You can't scry, and you've never once wanted to.",
+    INK: 'Vigilance. At the beginning of your end step, each player draws a card. Opponents draw two.',
+    WUBRG: 'Changeling. You have every ability. Each one works at a fifth of its strength.'
+  },
+
   // [3] Slot words for the next-door lines: {colour} / {Colour} and {lands}.
   colourWords: { W: 'white', U: 'blue', B: 'black', R: 'red', G: 'green' },
   landWords: { W: 'Plains', U: 'Islands', B: 'Swamps', R: 'Mountains', G: 'Forests' },
@@ -9989,6 +10036,15 @@ function renderTypeline(id) {
   const show = isPlayerMode() && !!PROFILES[id];
   el.textContent = show ? identityTypeline(id) : '';
   el.classList.toggle('hidden', !show);
+}
+
+// One line of rules text above strengths and shadows, player mode only.
+function renderRulesStrip(id) {
+  const el = document.getElementById('res-rules');
+  if (!el) return;
+  const line = isPlayerMode() ? RESULT_COPY.rules[id] : '';
+  el.innerHTML = line ? htmlText(line).replace(/\([^)]*\)/g, m => `<i>${m}</i>`) : '';
+  el.classList.toggle('hidden', !line);
 }
 
 // state.result.scoringVersion / instrumentVersion; absent (old engine, old link) means 1.
@@ -10380,6 +10436,8 @@ function showResults() {
     document.getElementById('cmd-desc-simple').textContent = p.cmdDesc;
   }
   
+  renderRulesStrip(state.result.identity);
+
   // Strengths — let .mc-result__list li::before draw the ✦ bullet; no inline colour overrides.
   const strList = document.getElementById('strengths');
   strList.innerHTML = '';
