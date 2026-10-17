@@ -1,3 +1,28 @@
+# Tests
+
+Each test file is a plain Node script: it prints one `PASS` or `FAIL` line per
+check and exits non-zero if anything failed. They need jsdom in the repo's
+`node_modules` (`npm ci`).
+
+| File | Checks |
+| --- | --- |
+| `structure.test.js` | `index.html` markup: balanced `<div>`s, no duplicate ids, every `getElementById` target exists, no `#id` display rule beats `.hidden`, screens are siblings; the inline script and `data.js` parse; the SCRIPT END marker the other tests inject at is present |
+| `render.test.js` | `showResults()` on a fake mono, guild, three-, four- and five-colour result, in both audience modes: every key element is populated with that identity's data, the bars match the activation, and the workplace mode hides the banter |
+| `journey.test.js` | 43 checks over full journeys: the Round 2 gaming gate, weighted ally answers, session save and resume at every stage, the Round 3 clinch rule, Neither-neutral Round 1 ranking, the early-offer evidence floor, the context-disagreement caveat |
+| `seed.test.js` | `buildResultURL()` to `parseSeedURL()` round trips, and the ten links in `fixtures/seed-urls.json` (recorded from the live build) still open onto their result |
+
+The page tests (all but `structure`) boot `index.html` through `_lib/load.js`:
+`data.js` is inlined into the main script tag, the html-to-image CDN script is
+dropped, and a helper block is injected just before the
+`// === SCRIPT END — all functions defined ===` comment, so it shares the page's
+script scope. The helpers skip the round-transition animation and the answer
+debounce, and expose the page's `state` and handlers on `window.__h`. Pages load
+at `http://localhost/` (so `sessionStorage` works), with `Math.random` seeded and
+`prefers-reduced-motion` on (jsdom cannot draw the canvas background). No
+scoring code is replaced. Every test also takes an optional path to another
+build's `index.html`, with its `data.js` beside it:
+`node tests/render.test.js ../other-checkout/index.html`.
+
 # Respondent simulation
 
 `node tests/simulate.js [--n 200] [--p 0.8] [--neither 0.05] [--seed 1] [--workers auto]`

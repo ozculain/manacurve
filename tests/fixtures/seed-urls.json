@@ -1,0 +1,15 @@
+{
+  "note": "Seed links written by buildResultURL() at the end of simulated journeys on the build at commit 5e079fb (captured 2026-10-17). They stand in for links people have already shared, so never regenerate them: if one stops parsing or rendering, a real link is broken.",
+  "urls": [
+    "?r=MONO-W&p=70,22,34,40,58&c=high&a=consumer",
+    "?r=MONO-B&p=35,33,73,46,58&c=high&a=workplace",
+    "?r=AZORIUS&p=64,65,32,49,26&c=moderate&a=consumer",
+    "?r=RAKDOS&p=48,28,49,83,24&c=low&a=workplace",
+    "?r=SIMIC&p=43,75,42,35,47&c=high&a=consumer",
+    "?r=ESPER&p=68,48,59,33,15&c=moderate&a=consumer",
+    "?r=TEMUR&p=33,62,9,42,68&c=high&a=workplace",
+    "?r=GLINT&p=17,56,48,48,64&c=moderate&a=consumer",
+    "?r=WITCH&p=47,55,49,19,62&c=high&a=workplace",
+    "?r=WUBRG&p=61,38,45,39,52&c=high&a=consumer"
+  ]
+}
