@@ -47,7 +47,7 @@ const CASES = [
     typeline: 'Legendary Creature — Human Ninja',
     rules: "Whenever a player says something, surveil 1. You have shroud. (You can't be the target of spells, abilities or friends.)",
     rolesForFun: 'Strategic Planning, Competitive Intelligence, Investigative Journalism',
-    share: { consumer: "Turns out I'm Dimir. Sultai lives next door and keeps looking over the fence. You?", workplace: "I'm Dimir. Sultai lives next door. What are you?" },
+    share: { consumer: "I'm Dimir. Sultai lives next door. What are you?", workplace: "I'm Dimir. Sultai lives next door. What are you?" },
     manaBase: '37 lands: Command Tower, Watery Grave, Polluted Delta, Drowned Catacomb, 19 Island, 14 Swamp.',
     nextDoor: {
       player: [['up', 'SULTAI', 'Splash green? Sultai.', 'Your green was well short. On nodding terms, no more.'],
@@ -620,6 +620,18 @@ run('render', async (t) => {
     const url = h.buildResultURL();
     if (audience === 'workplace') need(!/[?&]f=/.test(url) && !text(win, 'share-preview').includes('f=SULTAI'), 'workplace link carries the appeal: ' + url);
     else need(/&f=SULTAI(&|$)/.test(url), 'link lacks &f=SULTAI: ' + url);
+    // [11] Shares after an appeal: consumer mode names the identity on the
+    // page, marked, with that identity's own neighbour; workplace mode keeps
+    // the appeal private and names the verdict.
+    const wantShare = audience === 'workplace'
+      ? "I'm Dimir. Sultai lives next door. What are you?"
+      : "I'm Sultai (on appeal). Four-colour (no red) lives next door. What are you?";
+    let sharedText = null;
+    Object.defineProperty(win.navigator, 'share', { configurable: true, value: async (data) => { sharedText = data.text; } });
+    await win.shareResult(null);
+    delete win.navigator.share;
+    need(text(win, 'share-preview').split('\n')[0] === wantShare && sharedText === wantShare, `share after an appeal "${text(win, 'share-preview').split('\n')[0]}" / "${sharedText}"`);
+    need(audience === 'workplace' || text(win, 'share-preview').includes(P.SULTAI.str[0]), 'the consumer share preview should follow the identity on the page');
     const saved = h.loadSession();
     need(saved && saved.result && saved.result.appeal && saved.result.appeal.chosen === 'SULTAI' && saved.result.identity === 'DIMIR', 'appeal not saved with the session');
     h.restoreSession(h.loadSession());
@@ -668,13 +680,15 @@ run('render', async (t) => {
   //    html-to-image is stubbed and the test checks the node it is handed:
   //    the Card, whose set-symbol slot holds the collector number in player
   //    mode (scoring version as the set code) and nothing otherwise, and no
-  //    confidence word anywhere on it. Share images show the verdict: an
-  //    appeal never reaches them (in workplace mode, never at all).
+  //    confidence word anywhere on it. Share images show the verdict, with no
+  //    "(on appeal)" mark: release-1 images keep the original until the
+  //    release-2 mark lands (and in workplace mode an appeal is private).
   for (const theme of ['gilded', 'frames']) {
     for (const [audience, player, extra, want] of [
       ['consumer', true, {}, 'MC1 • EN • 009/031'],
       ['consumer', true, { scoringVersion: 2 }, 'MC2 • EN • 009/031'],
       ['consumer', false, {}, ''],
+      ['consumer', true, { appeal: { chosen: 'SULTAI' } }, 'MC1 • EN • 009/031'],
       ['workplace', true, {}, ''],
       ['workplace', false, { appeal: { chosen: 'SULTAI' } }, ''],
     ]) {
@@ -703,15 +717,15 @@ run('render', async (t) => {
     }
   }
 
-  // 10. shareResult() sends the dare through the Web Share API, or copies the
-  //     dare and the link; the second line variant goes to identities whose
-  //     place in PROFILES picks it (Orzhov is eighth).
+  // 10. [11] shareResult() sends the dare through the Web Share API, or copies
+  //     the dare and the link. One line ships in every mode (the drafts'
+  //     other variants are dropped).
   {
     const ORZHOV = {
       id: 'ORZHOV', confidence: 'HIGH', activation: { W: 0.74, B: 0.7, U: 0.35, G: 0.3, R: 0.28 },
       result: { allResults: [], round3Data: {} },
     };
-    const want = "I'm Orzhov, with Esper next door. Guess yours before you look.";
+    const want = "I'm Orzhov. Esper lives next door. What are you?";
     const { win, h, errors, threw } = await renderCase(ORZHOV, 'consumer', false, seed++);
     const problems = threw ? [threw] : [];
     let shared = null, copied = null;

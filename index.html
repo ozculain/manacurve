@@ -10624,14 +10624,20 @@ const RESULT_COPY = {
   },
 
   // [11] Share text that dares a friend: the Web Share text, the clipboard
-  // fallback and the first line of #share-preview. {neighbour} is the nearer
-  // next-door row. Workplace mode always uses the first line; otherwise each
-  // identity keeps one line (its place in PROFILES picks it).
-  share: [
-    "I'm {identity}. {neighbour} lives next door. What are you?",
-    "I'm {identity}, with {neighbour} next door. Guess yours before you look.",
-    "Turns out I'm {identity}. {neighbour} lives next door and keeps looking over the fence. You?"
-  ]
+  // fallback and the first line of #share-preview, one line in every mode.
+  // {neighbour} is the nearer next-door row of the identity named (mono has
+  // only an up row, five-colour only a down row). After an appeal, consumer
+  // shares name the identity on the page, marked with appeal.mark ({mark}),
+  // and the link carries both; workplace shares keep the appeal private and
+  // name the verdict. Share images keep the verdict until the release-2 mark.
+  share: {
+    line: "I'm {identity}. {neighbour} lives next door. What are you?",
+    appealed: "I'm {identity} {mark}. {neighbour} lives next door. What are you?",
+    // Approved for player mode as an alternative, not shipped; nothing reads
+    // it. {commander} is the name before the comma: Yuriko, Kenrith, Kynaios
+    // and Tiro of Meletis.
+    playerCommander: "I'm {identity}. {commander}, apparently. What are you?"
+  }
 };
 
 // "Natural Roles" entries left out in consumer mode because they read as
@@ -10714,16 +10720,29 @@ function confidenceLevel() {
   return ['HIGH', 'MODERATE', 'LOW'].includes(c) ? c : 'MODERATE';
 }
 
-// "I'm Azorius. Esper lives next door. What are you?" Shares carry the
-// verdict, not an appeal. Both next-door rows sit the same gap from the line,
-// so the nearer one is the up row; mono has only up, five-colour only down.
+// The identity a share names: the one on the page, appealed or not, except
+// in workplace mode, where the appeal stays private and shares name the
+// verdict. Share images (Card, Scorecard, Story) keep the verdict for now.
+function shareIdentityId() {
+  const r = state.result;
+  if (!r) return null;
+  return (state.audience || 'consumer') === 'workplace' ? r.identity : resultShownId();
+}
+
+// "I'm Azorius. Esper lives next door. What are you?", or after an appeal
+// "I'm Sultai (on appeal). Four-colour (no red) lives next door. What are
+// you?". The neighbour is the named identity's own: both next-door rows sit
+// the same gap from the line, so the nearer one is the up row; mono has only
+// up, five-colour only down.
 function shareDareText() {
   const r = state.result;
-  if (!r || !PROFILES[r.identity]) return '';
-  const near = nextDoorFor(r.identity, activationMap())[0];
-  const lines = RESULT_COPY.share;
-  const pick = (state.audience || 'consumer') === 'workplace' ? 0 : Object.keys(PROFILES).indexOf(r.identity) % lines.length;
-  return fillCopy(lines[pick], { identity: identityName(r.identity), neighbour: near ? identityName(near.id) : '' });
+  const id = shareIdentityId();
+  if (!r || !PROFILES[id]) return '';
+  const near = nextDoorFor(id, activationMap())[0];
+  const S = RESULT_COPY.share;
+  return fillCopy(id === r.identity ? S.line : S.appealed, {
+    identity: identityName(id), mark: RESULT_COPY.appeal.mark, neighbour: near ? identityName(near.id) : ''
+  });
 }
 
 // The identity's roles, less the corporate jargon in consumer mode.
@@ -11561,12 +11580,14 @@ function showResults() {
   // Populate share preview. Layout: symbols + name → banter (consumer only) → top
   // strength line → tag-a-friend CTA (consumer only) → URL. Workplace mode drops the
   // banter + CTA so the result stays defensible if it lands in a Slack channel.
-  // Shares carry the verdict; an appeal travels only as &f= in the link.
-  // The dare line leads; the banter follows in consumer mode only.
+  // The dare line leads; the banter follows in consumer mode only. Consumer
+  // shares name the identity on the page, marked "(on appeal)" after an appeal
+  // (the link carries the verdict and the appeal); workplace shares keep the
+  // appeal private and name the verdict.
   const sharePreview = document.getElementById('share-preview');
-  const verdictP = PROFILES[state.result.identity];
-  if (sharePreview && verdictP) {
-    const p = verdictP;
+  const shareP = PROFILES[shareIdentityId()];
+  if (sharePreview && shareP) {
+    const p = shareP;
     const url = buildResultURL();
     const audience = state.audience || 'consumer';
     const topStrength = (p.str && p.str[0]) ? p.str[0] : '';
