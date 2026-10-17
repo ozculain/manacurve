@@ -5461,6 +5461,23 @@ const CONFIDENCE_MODERATE_POSTERIOR = 0.5; // 0.5 to 0.7: MODERATE; below 0.5: L
 const EARLY_OFFER_POSTERIOR = 0.9;         // the early-result offer after Round 1 needs this
 const EARLY_OFFER_HOLDOUT_POSTERIOR = 0.6; // ...and this with any one colour pair set aside
 const ROUND3_CANDIDATE_COUNT = 4;          // Round 3 plays the top four by posterior
+// Round 3 face validity. Deciding by posterior alone reported an identity the
+// person had chosen against in most of its Round 3 matches for 6 to 11% of
+// simulated respondents, and one that won none of its matches for about 2%. A
+// posterior leader with a losing record is now reported only with a posterior
+// this many times the runner-up's; otherwise the best candidate by posterior
+// without a losing record is (round3RecordRanking). Measured with
+// tests/simulate.js --r3 pm,page (n = 200 per identity, seeds 3 and 4, ideal /
+// misspecified respondents): at p = 0.8 exact recovery 71.3 -> 70.4 / 59.7 ->
+// 59.9, losing records 6.8 -> 1.5% / 6.2 -> 1.0%, no-win results 1.9 -> 0.02% /
+// 2.1 -> 0.02%; at p = 0.65 recovery 25.7 -> 25.4 / 24.5 -> 24.8, losing
+// records 10.5 -> 0.9% / 9.8 -> 1.0%, no-win results 2.0 -> 0%. Label accuracy
+// and next-door coverage hold. A margin of 4 cost the ideal respondents more
+// than two standard errors at p = 0.8; fixing Round 3's discrimination
+// (ROUND3_Q_GRID) at one q from 0.65 to 0.95 instead at best halved losing
+// records within that accuracy, and made HIGH and MODERATE labels less accurate.
+const ROUND3_LOSING_RECORD_MARGIN = 3;     // fewer wins than losses: 3 times the runner-up's posterior
+const ROUND3_NO_WINS_MARGIN = 16;          // no win in any match it played: 16 times
 
 function logMeanExp(xs) {
   const m = Math.max(...xs);
@@ -8508,24 +8525,43 @@ function rankCandidatesByPosterior(tournament, posterior) {
   return [...tournament.candidates].sort((a, b) => posterior[b.id] - posterior[a.id]);
 }
 
+// The candidates by posterior, except that a leader the person chose against
+// more often than for in Round 3 (fewer wins than losses) stays first only with
+// a clear margin over the runner-up: a posterior ROUND3_LOSING_RECORD_MARGIN
+// times the runner-up's, or ROUND3_NO_WINS_MARGIN times when it won no match.
+// Otherwise the best candidate by posterior without a losing record moves to
+// the top and the rest keep their order. Only the order changes: the posterior
+// is untouched, and the confidence is still the reported identity's own.
+function round3RecordRanking(ranked, posterior) {
+  const [top, next] = ranked;
+  const losing = (c) => (c.wins || 0) < (c.losses || 0);
+  if (!top || !next || !losing(top)) return ranked;
+  const margin = (top.wins || 0) === 0 ? ROUND3_NO_WINS_MARGIN : ROUND3_LOSING_RECORD_MARGIN;
+  if (posterior[top.id] >= margin * posterior[next.id]) return ranked;
+  const alt = ranked.find(c => !losing(c));
+  return alt ? [alt, ...ranked.filter(c => c !== alt)] : ranked;
+}
+
 // Engine 2's Round 3 decision. The Round 1 + Round 2 likelihood and the Round 3
 // choices combine into the final posterior over all 31 identities, which is
 // what result.posterior reports. The reported identity is the tournament
 // candidate it rates highest (the candidates are the ones the person actually
-// compared), result.runnerUp the next, result.gap the difference in their
-// win-loss records, and result.confidence the reported identity's posterior
-// read against the thresholds. Measured on simulated respondents, deciding by
-// posterior beat crowning the tournament's win-count leader by about 14 points
-// (ideal respondents) and 7 (misspecified), because it keeps what Rounds 1 and 2
-// said. The guards may still lower the confidence: here, a Condorcet cycle
-// through the reported identity makes it LOW; afterwards, the scenario-
-// contradiction and context-agreement guards cap HIGH.
+// compared), unless that candidate has a losing Round 3 record without a clear
+// margin (round3RecordRanking); result.runnerUp is the next in that order,
+// result.gap the difference in their win-loss records, and result.confidence
+// the reported identity's posterior read against the thresholds. Measured on
+// simulated respondents, deciding by posterior beat crowning the tournament's
+// win-count leader by about 14 points (ideal respondents) and 7 (misspecified),
+// because it keeps what Rounds 1 and 2 said. The guards may still lower the
+// confidence: here, a Condorcet cycle through the reported identity makes it
+// LOW; afterwards, the scenario-contradiction and context-agreement guards cap
+// HIGH.
 function applyPosteriorDecision(result, tournament) {
   const combined = combinedPosterior(tournament);
   const { posterior } = combined;
   state.likelihood = { stage: 'round3', ...combined };
 
-  const ranked = rankCandidatesByPosterior(tournament, posterior);
+  const ranked = round3RecordRanking(rankCandidatesByPosterior(tournament, posterior), posterior);
   const winner = ranked[0];
   const runnerUp = ranked[1] || null;
   result.winner = winner;
@@ -8810,7 +8846,7 @@ function finishRound3Tournament() {
   const contextDisagreement = applyContextAgreementGuard(result);
 
   // Build allResults from tournament candidates, sorted by performance
-  // (engine 2: by final posterior, so the reported identity comes first)
+  // (engine 2: the reported identity first, then the rest by final posterior)
   const sortedCandidates = decision ? decision.ranked : [...state.tournament.candidates].sort((a, b) => {
     // Primary: win-loss differential
     const aDiff = a.wins - a.losses;
@@ -8841,7 +8877,7 @@ function finishRound3Tournament() {
     combinedScore: c.combinedScore
   }));
   if (decision) {
-    // Engine 2 ranks the standings by final posterior, like allResults.
+    // Engine 2 ranks the standings like allResults: the reported identity, then by final posterior.
     const rank = Object.fromEntries(decision.ranked.map((c, i) => [c.id, i]));
     allScores.forEach(s => { s.posterior = decision.posterior[s.id]; });
     allScores.sort((a, b) => rank[a.id] - rank[b.id]);

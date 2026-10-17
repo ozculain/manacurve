@@ -40,7 +40,7 @@ build's `index.html`, with its `data.js` beside it:
 
 # Respondent simulation
 
-`node tests/simulate.js [--n 200] [--p 0.8] [--neither 0.05] [--seed 1] [--model ideal] [--engine 2] [--gaming] [--workers auto] [--out file]`
+`node tests/simulate.js [--n 200] [--p 0.8] [--neither 0.05] [--seed 1] [--model ideal] [--engine 2] [--r3 variants] [--gaming] [--workers auto] [--out file] [path/to/index.html]`
 (or `npm run simulate`). Needs jsdom in the repo's `node_modules`.
 
 It boots `index.html` with `data.js` in jsdom (one page per worker thread and
@@ -59,9 +59,54 @@ live in `_lib/respondent.js`, which the golden test shares.
   page's default; 1 boots the page with `?engine=1`. `--engine 1,2` runs both
   on the same respondents and prints them side by side with the change, engine
   2 minus engine 1, so a before/after comes from one build.
+- `--seed` takes a comma list (`--seed 1,2`): the respondents of every seed are
+  pooled into one report, so `--n 100 --seed 1,2` reports 200 per identity.
 - `--gaming` turns the gaming toggle on for every respondent, which lets the
   Magic-flavoured items into Rounds 1 and 2.
 - `--out` writes the JSON somewhere other than `tests/out/simulation.json`.
+- A path to another build's `index.html` (its `data.js` beside it) simulates
+  that build, as the page tests do.
+
+`--r3` (engine 2 only) compares ways of turning the Round 3 answers into the
+reported identity, on the same respondents: `--r3 pm,page,q=0.85`. Each
+comma-separated variant is one of these, or several joined with `+`:
+
+- `page`: the build as it is.
+- `q=X`: the Round 3 discrimination fixed at X. The page's
+  `round3LogLikelihoods` gets `qGrid: [X]` wherever the page passes no grid of
+  its own (as built it averages q over `ROUND3_Q_GRID`). The posterior decides
+  the tiebreak questions, so each `q` runs the respondents on the page again.
+- `pm`: the candidate with the highest final posterior, which engine 2
+  reported before `round3RecordRanking`; on the current build, `pm` is the
+  "before" and `page` the "after" of that change.
+- `tour`: the tournament winner (the page's `getTournamentWinner` on the same
+  matches), when it beat the posterior maximum head-to-head.
+- `lostall` and `losing`: the best-posterior candidate that did not lose every
+  match, or that has no losing record (fewer wins than losses), when the
+  posterior maximum lost every match, or has a losing record.
+- `net`: as `losing`, but the margin below is raised to the power of the
+  posterior maximum's net losses (losses minus wins).
+- `rule:M` keeps the posterior maximum when its posterior is at least M times
+  the runner-up's (the next candidate by posterior); `losing:M:M0` uses M0
+  instead when the posterior maximum won no match. `losing:3:16` is the rule
+  the page now applies (`ROUND3_LOSING_RECORD_MARGIN`, `ROUND3_NO_WINS_MARGIN`).
+  Rules joined with `+` are tried in order; the first that changes the result
+  decides it.
+
+A rule acts after the last answer, so it changes no question: it is applied to
+what the page recorded when it decided (each candidate's final posterior and
+record, the matches, the tournament winner, and the label the page would give
+each candidate as the result), and costs no extra page run. The run fails if a
+result's label differs from the recorded one. The report gives, per p, each
+variant's exact recovery per type and overall (with two binomial standard
+errors, per seed, and the change from the first variant on the same
+respondents with two paired standard errors); the reported identity's Round 3
+record (losing, lost every match, of those the ones that lost three or more,
+and how often they were right, not the best record); where the posterior
+maximum and the tournament winner disagree, how
+often each was the true identity; and each label's share and accuracy with
+neighbourhood coverage. The page's functions are wrapped only under `--r3`;
+without it the run is the plain one above.
 
 Each report gives exact recovery per identity and per type (final, and Round 1's
 top candidate alone), enemy-pair guilds (Orzhov, Izzet, Golgari, Simic, Boros)
