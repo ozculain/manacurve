@@ -1683,6 +1683,23 @@ body[data-theme="frames"] .mc-cardback { border-radius: 9px; }
 }
 
 /* ============================================================================
+   PHASE 3 — QUIZ COPY
+   The reviewed quiz-screen copy (PLAY_COPY) and the markup it needed. After
+   the play-feel block so these rules win over its.
+   ============================================================================ */
+
+/* Round 3: the line above the stem carries the short context hint, sentence
+   case and quiet, instead of a label in small capitals */
+.mc-eyebrow--hint {
+  font-family: var(--f-flavor); font-style: italic; font-weight: 400;
+  text-transform: none; letter-spacing: 0.01em; font-size: 13px; line-height: 1.5;
+  color: var(--ink-muted); margin-bottom: 6px;
+}
+@media (max-width: 599px) {
+  .mc-eyebrow--hint { font-size: 12.5px; line-height: 1.4; margin-bottom: 2px; }
+}
+
+/* ============================================================================
    THEMES — body[data-theme]: "frames" (default), "gilded", "borderless".
    Chosen on the results page (#theme-switch), persisted in localStorage (mc_theme).
 
@@ -3567,6 +3584,18 @@ function getContextHint(scenarioText, questionId) {
   }
   
   return null; // No hint needed - universal scenario
+}
+
+// The line above the question (#ctx). Rounds 1 and 2 label the item there (its
+// category). Round 3 shows the stem once, in #scenario, and uses this line only
+// for the short context hint when the scenario has one (hint: true); with no
+// text the line is hidden, so the stem is never printed twice.
+function setQuestionEyebrow(text, { hint = false } = {}) {
+  const el = document.getElementById('ctx');
+  if (!el) return;
+  el.textContent = text || '';
+  el.classList.toggle('mc-eyebrow--hint', !!hint && !!text);
+  el.classList.toggle('hidden', !text);
 }
 
 // ============================================================================
@@ -6527,7 +6556,7 @@ function showQ() {
     return;
   }
   
-  document.getElementById('ctx').textContent = q.ctx || 'Context';
+  setQuestionEyebrow(q.ctx || 'Context');
   
   // Build scenario with mana symbols for Stage 1 (only in constructed mode)
   const scenarioText = q.sc || q.scenario || 'Scenario';
@@ -7857,7 +7886,7 @@ function showRefinementQuestion() {
   saveSession(); // Persist Round 2 progress so a refresh can resume here
 
   renderQuizCounter();
-  document.getElementById('ctx').textContent = q.ctx || 'Ally Pair Test';
+  setQuestionEyebrow(q.ctx || 'Ally Pair Test');
 
   const scenarioText = q.sc;
   const contextHint = getContextHint(scenarioText, q.id);
@@ -8656,14 +8685,12 @@ function showTournamentQuestion() {
     prog3.style.width = `${pct}%`;
   }
   
+  // The stem is shown once, in #scenario. The line above it carries the short
+  // context hint when this scenario has one (15 of the 48 stems do) and is
+  // hidden otherwise; it used to repeat the stem word for word.
   const tournamentHint = getContextHint(scenario.context, scenarioId);
-  const hintHTML = tournamentHint
-    ? `<div style="font-size: 13px; color: var(--ink-muted); margin-top: 16px; font-style: italic; text-align: center; padding: 10px 16px; background: rgba(0,0,0,0.04); border-radius: 8px; line-height: 1.5;">💡 ${tournamentHint}</div>`
-    : '';
-
-  // The eyebrow is a short label; it used to repeat the scenario word for word.
-  document.getElementById('ctx').textContent = isTiebreak ? PLAY_COPY.round3.tiebreak : PLAY_COPY.round3.eyebrow;
-  document.getElementById('scenario').innerHTML = scenario.context + hintHTML;
+  setQuestionEyebrow(tournamentHint ? `💡 ${tournamentHint}` : '', { hint: true });
+  document.getElementById('scenario').innerHTML = scenario.context;
   document.getElementById('instr').innerHTML = PLAY_COPY.stems[3];
 
   // Build the two choices using the Round-1 `.mc-choice` markup so all rounds match.

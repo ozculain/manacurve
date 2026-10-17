@@ -19,12 +19,14 @@
 //      the first answer and both response times on the record
 //   7. share beside the identity in the results banner
 //   8. no colour cues while the scored rounds run (the sky and the Card Frames marks)
+//   9. the stem is shown once (Round 3's eyebrow carries only the context hint)
 // Usage: node tests/play.test.js [path/to/index.html]
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
 const { bootPage, pageArgs, whenReady, isVisible, waitForResults, INDEX_HTML, DATA_JS } = require('./_lib/load');
 const { run } = require('./_lib/report');
+const tool = require('../tools/apply-round3-copy');
 
 const SESSION_KEY = 'mana_assessment_state';
 // Nothing shown during the scored rounds may name a colour or a basic land.
@@ -637,6 +639,78 @@ run('play', async (t) => {
     ok('P8f starting over puts the sky back to the neutral palette (no constellation, equal weights)',
       allEqual(weightsOf(sky)) && sky().identityColors === null && win.eval('_skyNeutral') === true, `weights=${weightsOf(sky)}`);
     ok('P8g no errors', errors.length === 0, errors.slice(0, 3).join(' | '));
+    win.close();
+  }
+
+  // ---------- 9: the stem is shown once ----------
+  // Round 3 used to print the stem in the eyebrow (#ctx) and again in #scenario.
+  // Now #scenario carries it alone; #ctx carries the short context hint when the
+  // scenario has one (15 of the 48 stems) and is hidden otherwise. Rounds 1 and 2
+  // label the item in #ctx, and must not repeat the stem there either.
+  {
+    const { win, h, errors } = await page();
+    const d = win.document;
+    const norm = (x) => String(x).replace(/\s+/g, ' ').trim().toLowerCase();
+    begin(h);
+    const eyes = [];
+    playThrough(h, win, () => {
+      const stem = d.getElementById('scenario');
+      const own = stem.firstChild && stem.firstChild.nodeType === 3 ? stem.firstChild.textContent : stem.textContent;
+      const screen = d.getElementById('screen-assessment').textContent;
+      eyes.push({ round: win.eval('quizRound()'), ctx: d.getElementById('ctx').textContent, own, count: screen.split(own).length - 1 });
+    });
+    const dupes = eyes.filter((x) => x.count !== 1 || norm(x.ctx) === norm(x.own) || norm(x.ctx).includes(norm(x.own)));
+    ok('P9a over a whole journey every question prints its stem once, and the line above it is never the stem (Rounds 1, 2 and 3)',
+      eyes.length > 40 && [...new Set(eyes.map((x) => x.round))].join() === '1,2,3' && dupes.length === 0,
+      dupes.slice(0, 2).map((x) => `R${x.round} x${x.count} ctx="${x.ctx.slice(0, 40)}"`).join('; '));
+    const asked = [...(h.state.poolA || []), ...(h.state.refinementQuestions || [])];
+    const same = asked.filter((q) => norm(q.ctx || '') === norm(q.sc || ''));
+    ok('P9b no Round 1 or Round 2 item has a label that is its own stem', asked.length > 35 && same.length === 0, same.slice(0, 3).map((q) => q.id).join(' '));
+    win.close();
+  }
+  {
+    const { win, h, errors } = await page();
+    const d = win.document;
+    const args = pageArgs();
+    const live = tool.readSources(args.htmlPath ? path.dirname(args.htmlPath) : tool.ROOT);
+    begin(h);
+    finishRound(h, 1);
+    if (isVisible(win, 'screen-early-offer')) h.continueToRound2();
+    finishRound(h, 2);
+    h.continueToStage2();
+    win.eval('getPoolScenarioForMatchup = function () { return window.__scenario; }'); // render each of the 48 in the live Round 3
+    const hintOf = win.eval('getContextHint');
+    const eyebrow = d.getElementById('ctx');
+    const stemEl = d.getElementById('scenario');
+    const bad = [], hinted = [];
+    for (const sc of live.scenarios) {
+      win.__scenario = { id: sc.id, context: sc.stem, responses: Object.fromEntries(sc.options.map((o) => [o.key, o.text])), isPool: true };
+      win.showTournamentQuestion();
+      const hint = hintOf(sc.stem, sc.id);
+      const shown = stemEl.textContent.trim();
+      const times = d.getElementById('screen-assessment').textContent.split(sc.stem).length - 1;
+      const problems = [];
+      if (shown !== sc.stem) problems.push('stem line reads "' + shown.slice(0, 40) + '"');
+      if (times !== 1) problems.push('the stem is on screen ' + times + ' times');
+      if (stemEl.children.length) problems.push('a hint box is still inside the stem');
+      if (hint) {
+        hinted.push(sc.id);
+        if (eyebrow.classList.contains('hidden') || eyebrow.textContent !== '💡 ' + hint || !eyebrow.classList.contains('mc-eyebrow--hint')) problems.push('the hint is not in the eyebrow');
+      } else if (!eyebrow.classList.contains('hidden') || eyebrow.textContent !== '') problems.push('the eyebrow is not hidden');
+      if (problems.length) bad.push(sc.id + ': ' + problems.join(', '));
+    }
+    ok('P9c all 48 Round 3 stems: shown once in the stem line, the hint (when there is one) in the eyebrow above it, the eyebrow hidden when there is none',
+      live.scenarios.length === 48 && bad.length === 0, bad.slice(0, 3).join(' | '));
+    ok('P9d 15 of the 48 stems keep a hint: the generic CONFLICT, 8 in POOL_B, 6 in POOL_C',
+      hinted.length === 15 && hinted.filter((x) => x === 'CONFLICT').length === 1 && hinted.filter((x) => x.startsWith('POOL_B.')).length === 8
+        && hinted.filter((x) => x.startsWith('POOL_C.')).length === 6, hinted.join(' '));
+    // Back to a real question afterwards: the eyebrow and the hint class come off with the next Round 1 quiz
+    h.restart();
+    begin(h);
+    ok('P9e a new quiz after Round 3 shows its Round 1 label again, as an ordinary eyebrow',
+      !eyebrow.classList.contains('hidden') && !eyebrow.classList.contains('mc-eyebrow--hint') && eyebrow.textContent === h.state.poolA[0].ctx && eyebrow.textContent !== '',
+      `"${eyebrow.textContent}" classes=${eyebrow.className}`);
+    ok('P9f no errors', errors.length === 0, errors.slice(0, 3).join(' | '));
     win.close();
   }
 });
