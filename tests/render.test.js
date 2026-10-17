@@ -30,6 +30,7 @@ const CASES = [
     id: 'MONO-R', type: 'mono', confidence: 'HIGH',
     activation: { R: 0.86, B: 0.52, G: 0.44, W: 0.21, U: 0.12 },
     typeline: 'Legendary Creature — Human Berserker (Mono-Red)',
+    share: { consumer: "I'm Mono-Red. Rakdos lives next door. What are you?", workplace: "I'm Mono-Red. Rakdos lives next door. What are you?" },
     manaBase: '37 lands: 36 Mountain and a Hanweir Battlements, so nothing has to wait its turn.',
     nextDoor: {
       player: [['up', 'RAKDOS', 'Splash black: Rakdos.', 'Your black was well short. On nodding terms, no more.']],
@@ -41,6 +42,7 @@ const CASES = [
     id: 'DIMIR', type: 'guild', confidence: 'MODERATE',
     activation: { U: 0.78, B: 0.64, G: 0.31, W: 0.22, R: 0.11 },
     typeline: 'Legendary Creature — Human Advisor (Dimir)',
+    share: { consumer: "Turns out I'm Dimir. Sultai lives next door and keeps looking over the fence. You?", workplace: "I'm Dimir. Sultai lives next door. What are you?" },
     manaBase: '37 lands: Watery Grave, Polluted Delta, Drowned Catacomb, 19 Island, 15 Swamp.',
     nextDoor: {
       player: [['up', 'SULTAI', 'Splash green: Sultai.', 'Your green was well short. On nodding terms, no more.'],
@@ -65,6 +67,7 @@ const CASES = [
     id: 'JUND', type: 'three', confidence: 'LOW',
     activation: { R: 0.71, G: 0.69, B: 0.66, W: 0.24, U: 0.18 },
     typeline: 'Legendary Creature — Human Mercenary (Jund)',
+    share: { consumer: "I'm Jund. Four-colour (no blue) lives next door. What are you?", workplace: "I'm Jund. Four-colour (no blue) lives next door. What are you?" },
     manaBase: "37 lands: Ziatora's Proving Ground, Blood Crypt, Stomping Ground, Overgrown Tomb, 11 Mountain, 11 Forest, 11 Swamp.",
     nextDoor: {
       player: [['up', 'DUNE', 'Splash white: Four-colour (no blue).', 'Your white was well short. On nodding terms, no more.'],
@@ -85,6 +88,7 @@ const CASES = [
     id: 'GLINT', type: 'four', confidence: 'MODERATE',
     activation: { U: 0.66, B: 0.63, R: 0.6, G: 0.58, W: 0.2 },
     typeline: 'Legendary Creature — Human Wizard (Four-colour, no white)',
+    share: { consumer: "I'm Four-colour (no white). Five-colour lives next door. What are you?", workplace: "I'm Four-colour (no white). Five-colour lives next door. What are you?" },
     manaBase: '37 lands: Command Tower, Mana Confluence, City of Brass, Exotic Orchard, 9 Island, 8 Swamp, 8 Mountain, 8 Forest.',
     nextDoor: {
       player: [['up', 'WUBRG', 'Splash white: Five-colour.', 'Your white was well short. On nodding terms, no more.'],
@@ -103,6 +107,7 @@ const CASES = [
     id: 'WUBRG', type: 'five', confidence: 'LOW',
     activation: { W: 0.55, U: 0.53, B: 0.52, R: 0.5, G: 0.49 },
     typeline: 'Legendary Creature — Human Cleric Wizard Rogue Warrior Druid (Five-colour)',
+    share: { consumer: "I'm Five-colour. Four-colour (no green) lives next door. What are you?", workplace: "I'm Five-colour. Four-colour (no green) lives next door. What are you?" },
     manaBase: '37 lands: Command Tower, Mana Confluence, City of Brass, Exotic Orchard, 7 Plains, 7 Island, 7 Swamp, 6 Mountain, 6 Forest.',
     nextDoor: {
       player: [['down', 'YORE', 'Cut the Forests: Four-colour (no green).', 'Green only just made the cut.']],
@@ -201,7 +206,9 @@ function checkRender(win, h, c, audience, player, threw, errors) {
   const banter = el('res-counter-section'), disclaimer = el('workplace-disclaimer');
   const share = text('share-preview');
   need(share.includes(h.buildResultURL()), 'share preview lacks the result link');
-  need(share.includes(p.name.trim()), 'share preview lacks the identity name');
+  // 10. The share text dares a friend: the first line names the identity and
+  //     its nearer next-door neighbour. Workplace mode always uses line one.
+  need(share.split('\n')[0] === c.share[audience], `share line "${share.split('\n')[0]}" != "${c.share[audience]}"`);
   if (audience === 'workplace') {
     need(banter && banter.style.display === 'none', 'pub banter visible in workplace mode');
     need(disclaimer && disclaimer.style.display !== 'none', 'workplace disclaimer hidden');
@@ -450,6 +457,33 @@ run('render', async (t) => {
       t.ok(`share Card exports (${theme}, ${audience}, player mode ${player ? 'on' : 'off'}${label})`, problems.length === 0, problems.join('; '));
       win.close();
     }
+  }
+
+  // 10. shareResult() sends the dare through the Web Share API, or copies the
+  //     dare and the link; the second line variant goes to identities whose
+  //     place in PROFILES picks it (Orzhov is eighth).
+  {
+    const ORZHOV = {
+      id: 'ORZHOV', confidence: 'HIGH', activation: { W: 0.74, B: 0.7, U: 0.35, G: 0.3, R: 0.28 },
+      result: { allResults: [], round3Data: {} },
+    };
+    const want = "I'm Orzhov, with Esper next door. Guess yours before you look.";
+    const { win, h, errors, threw } = await renderCase(ORZHOV, 'consumer', false, seed++);
+    const problems = threw ? [threw] : [];
+    let shared = null, copied = null;
+    Object.defineProperty(win.navigator, 'share', { configurable: true, value: async (data) => { shared = data; } });
+    await win.shareResult(null);
+    if (!shared || shared.text !== want || shared.url !== h.buildResultURL()) problems.push('Web Share ' + JSON.stringify(shared));
+    delete win.navigator.share;
+    Object.defineProperty(win.navigator, 'clipboard', { configurable: true, value: { writeText: async (s) => { copied = s; } } });
+    const btn = win.document.getElementById('share-result-btn');
+    await win.shareResult(btn);
+    if (copied !== `${want} ${h.buildResultURL()}`) problems.push('clipboard ' + JSON.stringify(copied));
+    if (btn.textContent !== '✓ Link copied!') problems.push('button feedback ' + btn.textContent);
+    if (text(win, 'share-preview').split('\n')[0] !== want) problems.push('preview ' + text(win, 'share-preview').split('\n')[0]);
+    if (errors.length) problems.push('errors: ' + errors.slice(0, 2).join(' | '));
+    t.ok('share: the dare goes out through Web Share and the clipboard', problems.length === 0, problems.join('; '));
+    win.close();
   }
 
   // The Scorecard share image shows the label word, not the old confidence word.
