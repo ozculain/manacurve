@@ -10143,6 +10143,17 @@ const RESULT_COPY = {
   }
 };
 
+// "Natural Roles" entries left out in consumer mode because they read as
+// corporate jargon. The data keeps them; workplace mode shows the full list.
+// (Not in the drafts.)
+const ROLES_HIDDEN_FOR_FUN = [
+  'COO', 'CFO/Finance', 'Chief Compliance Officer', 'Chief People Officer', 'Turnaround CEO',
+  'General Counsel', 'Senior Management', 'HR Leadership', 'Strategic HR', 'Legal/Compliance',
+  'Corporate Development', 'Corporate Strategy', 'Institutional Investing', 'Sovereign Wealth',
+  'Patient Capital', 'Distressed Asset Acquisition', 'Portfolio Management', 'Insolvency Practice',
+  'Executive Leadership in slow-growth sectors', 'M&A', 'VC/PE'
+];
+
 // [4] Base rates: the share of results carrying each label that matched the
 // simulated respondent's own identity, keyed by state.result.scoringVersion.
 // One dated constant; RESULT_COPY.labels prints it. Version 1 is the current
@@ -10237,6 +10248,15 @@ function shareDareText() {
   const lines = RESULT_COPY.share;
   const pick = (state.audience || 'consumer') === 'workplace' ? 0 : Object.keys(PROFILES).indexOf(r.identity) % lines.length;
   return fillCopy(lines[pick], { identity: identityName(r.identity), neighbour: near ? identityName(near.id) : '' });
+}
+
+// The identity's roles, less the corporate jargon in consumer mode.
+function rolesFor(id) {
+  const all = ((PROFILES[id] && PROFILES[id].roles) || '').split(',').map(r => r.trim()).filter(Boolean);
+  if ((state.audience || 'consumer') === 'workplace') return all.join(', ');
+  const hidden = new Set(ROLES_HIDDEN_FOR_FUN.map(r => r.toLowerCase()));
+  const kept = all.filter(r => !hidden.has(r.toLowerCase()));
+  return (kept.length ? kept : all).join(', ');
 }
 
 // "MC1 • EN • 009/031"
@@ -10975,7 +10995,7 @@ function showResults() {
     document.getElementById('cmd-desc-simple').textContent = p.cmdDesc;
   }
   
-  document.getElementById('roles').textContent = p.roles;
+  document.getElementById('roles').textContent = rolesFor(shownId);
   
   // Populate normative context
   const normativeEl = document.getElementById('normative-text');

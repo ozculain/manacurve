@@ -22,7 +22,7 @@ const match = (a, b, winner, i) => ({
 const alt = (id, s1, s2, wins, losses) => [id, { s1, s2, combined: s1, wins, losses, isTournament: true }];
 
 // Page constants the checks read back (they are top-level consts, not window properties).
-const PAGE_EXPOSE = [...EXPOSE, 'RESULT_COPY'];
+const PAGE_EXPOSE = [...EXPOSE, 'RESULT_COPY', 'ROLES_HIDDEN_FOR_FUN'];
 
 // typeline: what the banner typeline must say in player mode.
 const CASES = [
@@ -30,6 +30,7 @@ const CASES = [
     id: 'MONO-R', type: 'mono', confidence: 'HIGH',
     activation: { R: 0.86, B: 0.52, G: 0.44, W: 0.21, U: 0.12 },
     typeline: 'Legendary Creature — Human Berserker (Mono-Red)',
+    rolesForFun: 'Startups, Sales, Crisis Response, Creative Industries, Frontline Operations, Live Events',
     share: { consumer: "I'm Mono-Red. Rakdos lives next door. What are you?", workplace: "I'm Mono-Red. Rakdos lives next door. What are you?" },
     manaBase: '37 lands: 36 Mountain and a Hanweir Battlements, so nothing has to wait its turn.',
     nextDoor: {
@@ -42,6 +43,7 @@ const CASES = [
     id: 'DIMIR', type: 'guild', confidence: 'MODERATE',
     activation: { U: 0.78, B: 0.64, G: 0.31, W: 0.22, R: 0.11 },
     typeline: 'Legendary Creature — Human Advisor (Dimir)',
+    rolesForFun: 'Strategic Planning, Competitive Intelligence, Investigative Journalism',
     share: { consumer: "Turns out I'm Dimir. Sultai lives next door and keeps looking over the fence. You?", workplace: "I'm Dimir. Sultai lives next door. What are you?" },
     manaBase: '37 lands: Watery Grave, Polluted Delta, Drowned Catacomb, 19 Island, 15 Swamp.',
     nextDoor: {
@@ -67,6 +69,7 @@ const CASES = [
     id: 'JUND', type: 'three', confidence: 'LOW',
     activation: { R: 0.71, G: 0.69, B: 0.66, W: 0.24, U: 0.18 },
     typeline: 'Legendary Creature — Human Mercenary (Jund)',
+    rolesForFun: 'Aggressive Sales, Competitive Industries, Startups, Sports, Private Equity',
     share: { consumer: "I'm Jund. Four-colour (no blue) lives next door. What are you?", workplace: "I'm Jund. Four-colour (no blue) lives next door. What are you?" },
     manaBase: "37 lands: Ziatora's Proving Ground, Blood Crypt, Stomping Ground, Overgrown Tomb, 11 Mountain, 11 Forest, 11 Swamp.",
     nextDoor: {
@@ -88,6 +91,7 @@ const CASES = [
     id: 'GLINT', type: 'four', confidence: 'MODERATE',
     activation: { U: 0.66, B: 0.63, R: 0.6, G: 0.58, W: 0.2 },
     typeline: 'Legendary Creature — Human Wizard (Four-colour, no white)',
+    rolesForFun: 'Disruption, High-Risk Ventures, Competitive Industries, Activist Investing',
     share: { consumer: "I'm Four-colour (no white). Five-colour lives next door. What are you?", workplace: "I'm Four-colour (no white). Five-colour lives next door. What are you?" },
     manaBase: '37 lands: Command Tower, Mana Confluence, City of Brass, Exotic Orchard, 9 Island, 8 Swamp, 8 Mountain, 8 Forest.',
     nextDoor: {
@@ -107,6 +111,7 @@ const CASES = [
     id: 'WUBRG', type: 'five', confidence: 'LOW',
     activation: { W: 0.55, U: 0.53, B: 0.52, R: 0.5, G: 0.49 },
     typeline: 'Legendary Creature — Human Cleric Wizard Rogue Warrior Druid (Five-colour)',
+    rolesForFun: 'Consulting, General Tazri, Generalist Leadership, Facilitation',
     share: { consumer: "I'm Five-colour. Four-colour (no green) lives next door. What are you?", workplace: "I'm Five-colour. Four-colour (no green) lives next door. What are you?" },
     manaBase: '37 lands: Command Tower, Mana Confluence, City of Brass, Exotic Orchard, 7 Plains, 7 Island, 7 Swamp, 6 Mountain, 6 Forest.',
     nextDoor: {
@@ -262,6 +267,21 @@ function checkRender(win, h, c, audience, player, threw, errors) {
     need(before(win, el('cmd-desc-aside'), el('res-mana-base')), 'mana base should sit under the commander');
   } else {
     need(!shown('res-mana-base') && text('res-mana-base') === '', 'mana base shown outside player mode');
+  }
+
+  // 11. Consumer mode leaves the corporate-sounding roles out; workplace keeps them all.
+  const wantRoles = audience === 'workplace' ? p.roles : c.rolesForFun;
+  need(text('roles') === wantRoles, `roles "${text('roles')}" != "${wantRoles}"`);
+  if (audience === 'consumer') {
+    const hidden = text('roles').split(', ').filter((r) => h.ROLES_HIDDEN_FOR_FUN.includes(r));
+    need(hidden.length === 0, 'consumer roles still list ' + hidden.join(', '));
+  }
+
+  // Workplace mode gets the plain copy throughout: no Magic nods, no banter.
+  if (audience === 'workplace') {
+    const visible = ['res-banner-typeline', 'next-door', 'conf-base-rate', 'res-rules', 'res-mana-base']
+      .filter(shown).map((id) => text(id)).join(' ');
+    need(!/splash|cut the|sleeve|proxy|on the stack|respond|legendary|37 lands/i.test(visible), 'Magic-flavoured copy in workplace mode');
   }
   return problems;
 }
