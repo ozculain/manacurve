@@ -4868,8 +4868,16 @@ function updateWispWeights() {
 
 // ─── SEED URL (deep-link to a specific result) ─────────────────────────────
 // Encodes the result + mana bars into URL params so a shared link lands on
-// the original taker's exact result. URL shape: ?r=DIMIR&p=20,15,40,5,20&c=high&a=consumer
-//   r = identity key (PROFILES key): the verdict
+// the original taker's exact result. A shared link goes through the identity's
+// link-preview page (r/<ID>.html, written by tools/build-previews.js), which
+// carries the Open Graph tags chat apps unfurl, then forwards to index.html
+// with the query string kept and r=<ID> added:
+//   shared:  <site root>/r/DIMIR.html?p=20,15,40,5,20&c=high&a=consumer&s=1&i=1
+//   opened:  <site root>/index.html?r=DIMIR&p=20,15,40,5,20&c=high&a=consumer&s=1&i=1
+// Links shared before the preview pages (?r=DIMIR&p=...) open index.html
+// directly and still work. parseSeedURL reads the query as it arrives.
+//   r = identity key (PROFILES key): the verdict. In the path of a shared link,
+//       in the query once the preview page has forwarded
 //   p = mana bar percentages in WUBRG order, comma-separated ints 0..100
 //   c = confidence (low/moderate/high)
 //   a = audience (consumer/workplace)
@@ -4884,6 +4892,20 @@ function seedVersion(raw) {
   return v >= 1 ? v : 1;
 }
 
+// The site root: the directory index.html is served from, as an absolute URL
+// with a trailing slash and no query or hash. The link-preview pages sit under
+// it, in r/. Resolving "." against the page URL copes with every way in:
+//   https://ozculain.github.io/manacurve/              (no index.html)
+//   https://ozculain.github.io/manacurve/index.html?r=DIMIR&p=...#top
+//   http://127.0.0.1:4179/index.html                   (a local preview)
+// give https://ozculain.github.io/manacurve/ twice, then http://127.0.0.1:4179/.
+// It never throws, because showResults builds the share link: a page URL that
+// cannot be a base (about:srcdoc, a data: URL) gets the live site.
+function siteRootURL(pageHref) {
+  try { return new URL('.', pageHref).href; }
+  catch (e) { return 'https://ozculain.github.io/manacurve/'; }
+}
+
 function buildResultURL() {
   if (!state.result || !state.result.identity || !state.activationSorted) {
     return location.origin + location.pathname;
@@ -4894,10 +4916,12 @@ function buildResultURL() {
     .join(',');
   const c = (state.result.confidence || 'MODERATE').toLowerCase();
   const a = state.audience || 'consumer';
-  const r = encodeURIComponent(state.result.identity);
+  const id = encodeURIComponent(state.result.identity);
   const s = seedVersion(String(state.result.scoringVersion));
   const i = seedVersion(String(state.result.instrumentVersion));
-  let url = `${location.origin}${location.pathname}?r=${r}&p=${p}&c=${c}&a=${a}&s=${s}&i=${i}`;
+  // Through the identity's preview page, which puts r=<ID> in the query when it
+  // forwards to index.html, so there is no r in the link itself.
+  let url = `${siteRootURL(location.href)}r/${id}.html?p=${p}&c=${c}&a=${a}&s=${s}&i=${i}`;
   const appeal = state.result.appeal;
   if (a !== 'workplace' && appeal && PROFILES[appeal.chosen] && appeal.chosen !== state.result.identity) {
     url += `&f=${encodeURIComponent(appeal.chosen)}`;

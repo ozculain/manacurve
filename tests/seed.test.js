@@ -16,6 +16,7 @@
 // Usage: node tests/seed.test.js [path/to/index.html]
 const path = require('path');
 const { bootPage, pageArgs, whenReady, isVisible } = require('./_lib/load');
+const { followShareLink } = require('./_lib/forward');
 const { run } = require('./_lib/report');
 
 const WUBRG = ['W', 'U', 'B', 'R', 'G'];
@@ -74,6 +75,9 @@ function renderProblems(win, h, want, errors) {
   return problems;
 }
 
+// The preview-page form of an old-form query: ?r=ID&rest becomes r/ID.html?rest.
+const previewForm = (query) => query.replace(/^\?r=([^&]+)&/, 'r/$1.html?');
+
 function parseQuery(q) {
   const u = new URLSearchParams(q);
   return {
@@ -93,7 +97,8 @@ run('seed', async ({ ok }) => {
       h.state.activationSorted = sorted(c.act);
       h.state.audience = c.audience;
       const url = h.buildResultURL();
-      win.history.replaceState(null, '', url);
+      // A visitor lands on index.html, not on the link: the preview page forwards there.
+      win.history.replaceState(null, '', followShareLink(url));
       const seed = h.parseSeedURL();
       if (!seed) problems.push('parseSeedURL returned null for ' + url);
       else {
@@ -169,8 +174,8 @@ run('seed', async ({ ok }) => {
     h.state.activationSorted = sorted(act);
     h.state.audience = 'consumer';
     const url = h.buildResultURL();
-    if (!/\?r=DIMIR&p=22,78,64,11,31&c=moderate&a=consumer&s=2&i=3&f=SULTAI$/.test(url)) problems.push('built ' + url);
-    win.history.replaceState(null, '', url);
+    if (!/\/r\/DIMIR\.html\?p=22,78,64,11,31&c=moderate&a=consumer&s=2&i=3&f=SULTAI$/.test(url)) problems.push('built ' + url);
+    win.history.replaceState(null, '', followShareLink(url));
     const seed = h.parseSeedURL() || {};
     if (seed.scoringVersion !== 2 || seed.instrumentVersion !== 3 || !seed.appeal || seed.appeal.chosen !== 'SULTAI') {
       problems.push('parsed ' + JSON.stringify({ s: seed.scoringVersion, i: seed.instrumentVersion, f: seed.appeal }));
@@ -190,11 +195,12 @@ run('seed', async ({ ok }) => {
     win.close();
   }
   {
-    // Old links carry no versions: they read as 1, and links rebuilt from them say so.
+    // Old links carry no versions: they read as 1, and links rebuilt from them say so, in the
+    // preview-page form (the old ?r=ID&rest becomes r/ID.html?rest).
     const { win, h, errors } = await openLink(urls[2]);
     const r = h.state.result || {};
     ok('an old link reads as scoring and instrument version 1 ' + urls[2],
-      r.scoringVersion === 1 && r.instrumentVersion === 1 && h.buildResultURL().endsWith(urls[2] + '&s=1&i=1') && errors.length === 0,
+      r.scoringVersion === 1 && r.instrumentVersion === 1 && h.buildResultURL().endsWith(previewForm(urls[2]) + '&s=1&i=1') && errors.length === 0,
       JSON.stringify({ s: r.scoringVersion, i: r.instrumentVersion, url: h.buildResultURL() }));
     win.close();
   }
