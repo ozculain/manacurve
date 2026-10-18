@@ -4,6 +4,58 @@ Newest first. Dates are when the work was committed.
 
 ## 2026-10-18
 
+### Profile rhythm
+
+Plain profiles and pages took the em dashes and tacked-on jokes out of the
+identity profiles, but they still read as machine-made because of their
+rhythm. Mono-Blue's philosophy opened four sentences in a row on "You" and
+ended "You'd rather be the last person to commit than the first one to be
+wrong."; Golgari's was four short sentences of one shape ("What dies feeds
+what comes next. Failure teaches; success teaches differently."); 15
+commander descriptions ended on a line that summed up the card just
+described ("The card rewards patience and accumulation."), and much of the
+banter ended on a grudging compliment ("On one of those occasions you were
+right.").
+
+- Profiles (`data.js`): 153 of the 186 passages changed (philosophy,
+  description, banter, commander description, strengths and shadows for all
+  31 identities), mostly by cutting: closing lines that summed up or turned
+  the passage ("You've decided the time is worth it.", "The team finds you
+  brilliant and untrustworthy in roughly equal measure."), "You'd rather X
+  than Y" and the other antitheses, the second beat of two-beat strengths
+  and shadows ("Brilliant in chaos. Mildly destructive in stability."), and
+  seven list items that were a joke or repeated another line ("Answered the
+  personality test honestly and instinctively."); two more pairs are
+  merged. Runs of short sentences are joined, and a run of openings on
+  "You" gets other subjects.
+  No description opens "You combine X with Y" any more (12 did), or closes
+  on how the team or the room finds you. 32 of the 105 paragraphs that
+  changed were only cut; 210 of the 309 list items are word for word as
+  they were, and 300 remain. Each philosophy keeps its first sentence, so
+  the link previews in `r/` do not change.
+- Commander descriptions: every card fact stays word for word. The sentence
+  after the facts that summed the card up is cut, in 28 of them, and
+  Temur's three fact sentences ("Can't be countered. Your creatures can't be
+  countered. Your other creatures have trample.") are one.
+- Not changed: names, taglines, roles, colours, commanders, the card text
+  and scoring; the golden fixture does not move.
+- Tests: `tests/visible-copy.test.js` (111 checks, 10 new), section 16,
+  reads the 31 profiles as the result screen and the explorer render them
+  (tagline, philosophy, strengths, shadows, banter, roles, commander
+  description and description: 248 passages) and fails on three sentences
+  in a row that open on the same word; three short sentences (10 words or
+  fewer) in a row with the same shape; "rather than", "would rather", "not
+  X but Y", "X, not Y" and "the bigger the X, the calmer the Y"; a list of
+  three or more that is not the identity's own colours or a card's modes
+  (each list kept is named in the test); a closing line in the old
+  formulas; an em dash, a rhetorical question, "actually", "genuinely",
+  "simply", "truly" or "the real". Run against main it finds 81 problems (7
+  runs of openings, 21 runs of short sentences, 14 antitheses, 9 lists, 30
+  closing lines) and fails 5 of its checks; now it finds none. The checker
+  is tested on the profiles' old passages and on made-up ones. A list of
+  three with no comma before the "and", a neat closing line in new words
+  and a joke are left to review.
+
 ### Even bars and Five-colour
 
 The results screen draws five bars under "How often you picked each colour
