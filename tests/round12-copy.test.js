@@ -32,17 +32,14 @@ const ROOT = args.htmlPath ? path.dirname(args.htmlPath) : tool.ROOT;
 const fixture = JSON.parse(fs.readFileSync(tool.FIXTURE, 'utf-8'));
 
 // The Round 1 and 2 items that show a hint under the stem, and which one. Every other item shows none.
-// Every item still set at work or in a business carries one, so someone without a job can answer:
-// JOB ("a job you've had, or the kind you'd want") and BUSINESS ("as you would if it were yours")
-// keep the stakes a job or a business of your own. AL-BR-02 and AL-BR-06 keep COLLEAGUE and MANAGER,
-// and TEAM is still shown under Round 3 stems.
+// Only the nine items whose stem assumes a job of your own (a boss, a firm, clients, a union, a
+// colleague) carry one, so someone without a job can answer, and each has its own wording, so no
+// hint line repeats. Items that cast you in a role (you run a shop, you've taught for fifteen years)
+// need none. Round 3 shows one more, EMPLOYER under ETHICS (tests/play.test.js).
 const HINTS = {
-  'A-WB-W01': 'JOB', 'A-WB-W05': 'JOB', 'A-WB-PSY': 'JOB', 'A-WB-PSY3': 'JOB', 'A-UR-W03': 'JOB',
-  'A-GU-W10': 'JOB', 'A-GU-PSY': 'JOB', 'A-WR-W07': 'JOB', 'A-WR-W09': 'JOB', 'A-WR-HET': 'JOB',
-  'A-WR-PSY2': 'JOB', 'A-BG-REV': 'JOB', 'A-BG-PSY2': 'JOB', 'AL-WU-06': 'JOB', 'AL-UB-PSY': 'JOB',
-  'AL-BR-05': 'JOB', 'AL-RG-01': 'JOB',
-  'A-UR-HET': 'BUSINESS', 'A-BG-W08': 'BUSINESS', 'A-BG-W12': 'BUSINESS', 'AL-UB-03': 'BUSINESS',
-  'AL-BR-02': 'COLLEAGUE', 'AL-BR-06': 'MANAGER',
+  'A-WB-W01': 'SUCCESSOR', 'A-WB-W05': 'PAY', 'A-WB-PSY': 'CUTS', 'A-WB-PSY3': 'CLIENTS',
+  'A-WR-W07': 'UNION', 'A-WR-W09': 'PROMISE', 'A-BG-REV': 'TOP_JOB', 'AL-WU-06': 'SUPPLIER',
+  'AL-BR-02': 'COLLEAGUE',
 };
 // Items per pool and pair, Magic items included: what Round 1's six-per-pair draw and Round 2's
 // two-per-pair draw are made from, and what the golden fixture's seeded paths depend on.
@@ -203,7 +200,7 @@ run('round12-copy', async (t) => {
   {
     const wrong = live.items.filter((i) => (i.hintKey || null) !== (HINTS[i.id] || null))
       .map((i) => `${i.id} shows ${i.hintKey || 'none'}, expected ${HINTS[i.id] || 'none'}`);
-    ok('C5a the hints under the stems: JOB on 17 items, BUSINESS on 4, COLLEAGUE on one, MANAGER on one, none on any other item (Magic items included)',
+    ok('C5a the hints under the stems: nine items each show their own, none on any other item (Magic items included)',
       wrong.length === 0, list(wrong));
     const keyOfHint = (hint) => Object.keys(live.CONTEXT_HINTS).find((k) => live.CONTEXT_HINTS[k].hint === hint);
     const shown = new Set(live.items.map((i) => i.hintKey).filter(Boolean));
@@ -211,6 +208,13 @@ run('round12-copy', async (t) => {
     for (const sc of round3.scenarios) { const hint = live.getContextHint(sc.stem, sc.id); if (hint) shown.add(keyOfHint(hint)); }
     const unused = Object.keys(live.CONTEXT_HINTS).filter((k) => !shown.has(k));
     ok('C5b every hint in CONTEXT_HINTS is shown under some Round 1, 2 or 3 stem', unused.length === 0, 'never shown: ' + list(unused));
+    // A line seen again and again reads as a template, so each hint has its own words and one item.
+    const texts = Object.values(live.CONTEXT_HINTS).map((entry) => entry.hint);
+    const twice = texts.filter((text, i) => texts.indexOf(text) !== i);
+    const perKey = live.items.reduce((m, i) => { if (i.hintKey) m[i.hintKey] = (m[i.hintKey] || 0) + 1; return m; }, {});
+    const shared = Object.entries(perKey).filter(([, n]) => n > 1).map(([k, n]) => `${k} on ${n} items`);
+    ok('C5c no hint line repeats: each hint has its own words, and none shows under more than one Round 1 or 2 item',
+      twice.length === 0 && shared.length === 0, list(twice.concat(shared)));
   }
 
   // ---------- 6. in the page ----------
