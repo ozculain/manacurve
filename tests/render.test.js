@@ -305,7 +305,7 @@ function checkRender(win, h, c, audience, player, threw, errors) {
   //    and the same caption in every mode.
   need(text('res-bars-title') === BARS_TITLE[playerCopy ? 'player' : 'plain'] && el('res-bars-title') === el('res-bars-caption').previousElementSibling,
     `bars title "${text('res-bars-title')}"`);
-  need(text('res-bars-caption') === 'How often you picked each colour when it was one of the answers.', `bars caption "${text('res-bars-caption')}"`);
+  need(text('res-bars-caption') === 'How often you picked each colour when it was offered.', `bars caption "${text('res-bars-caption')}"`);
   need(before(win, el('res-bars-caption'), el('res-profile-bars')), 'caption should sit above the bars');
 
   // 5. Rules-text strip, player mode only, on the card (its place is checked
