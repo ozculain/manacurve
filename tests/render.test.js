@@ -33,11 +33,11 @@ const CASES = [
     typeline: 'Legendary Creature — Goblin Warrior',
     rules: 'Trample, haste. At the beginning of the end step, sacrifice this creature. Back Thursday.',
     rolesForFun: 'Startups, Sales, Crisis Response, Creative Industries, Frontline Operations, Live Events',
-    share: { consumer: "I'm Mono-Red. Rakdos lives next door. What are you?", workplace: "I'm Mono-Red. Rakdos lives next door. What are you?" },
+    share: { consumer: "I'm Mono-Red. What are you?", workplace: "I'm Mono-Red. What are you?" },
     manaBase: '37 lands: 36 Mountain and a Hanweir Battlements, so nothing has to wait its turn.',
     nextDoor: {
-      player: [['up', 'RAKDOS', 'Splash black? Rakdos.', 'Your black was well short. On nodding terms, no more.']],
-      plain: [['up', 'RAKDOS', 'Add black? Rakdos.', 'Black was well short.']],
+      player: [['up', 'RAKDOS', 'Splash black: Rakdos.', 'Your black was well short.']],
+      plain: [['up', 'RAKDOS', 'Add black: Rakdos.', 'Black was well short.']],
     },
     result: { allResults: [], round3Data: { matchHistory: [] } },
   },
@@ -47,12 +47,12 @@ const CASES = [
     typeline: 'Legendary Creature — Human Ninja',
     rules: "Whenever a player says something, surveil 1. You have shroud. (You can't be the target of spells, abilities or friends.)",
     rolesForFun: 'Strategic Planning, Competitive Intelligence, Investigative Journalism',
-    share: { consumer: "I'm Dimir. Sultai lives next door. What are you?", workplace: "I'm Dimir. Sultai lives next door. What are you?" },
+    share: { consumer: "I'm Dimir. What are you?", workplace: "I'm Dimir. What are you?" },
     manaBase: '37 lands: Command Tower, Watery Grave, Polluted Delta, Drowned Catacomb, 19 Island, 14 Swamp.',
     nextDoor: {
-      player: [['up', 'SULTAI', 'Splash green? Sultai.', 'Your green was well short. On nodding terms, no more.'],
-        ['down', 'MONO-U', 'Cut the Swamps: Mono-Blue.', "Black made the cut easily. Without it, it's a different deck."]],
-      plain: [['up', 'SULTAI', 'Add green? Sultai.', 'Green was well short.'], ['down', 'MONO-U', 'Drop black: Mono-Blue.', 'Black made it in comfortably.']],
+      player: [['up', 'SULTAI', 'Splash green: Sultai.', 'Your green was well short.'],
+        ['down', 'MONO-U', 'Cut the Swamps: Mono-Blue.', "Black made the cut easily."]],
+      plain: [['up', 'SULTAI', 'Add green: Sultai.', 'Green was well short.'], ['down', 'MONO-U', 'Drop black: Mono-Blue.', 'Black made it in comfortably.']],
     },
     result: {
       allResults: [alt('DIMIR', 0.81, 0.75, 2, 1), alt('GRIXIS', 0.74, 0.75, 2, 1), alt('ESPER', 0.66, 0.25, 1, 2), alt('MONO-U', 0.61, 0.25, 1, 2)],
@@ -74,12 +74,12 @@ const CASES = [
     typeline: 'Legendary Creature — Dragon',
     rules: 'Trample. Sacrifice another creature: This creature gets +1/+0 until end of turn. It knew what the job was.',
     rolesForFun: 'Aggressive Sales, Competitive Industries, Startups, Sports, Private Equity',
-    share: { consumer: "I'm Jund. Four-colour (no blue) lives next door. What are you?", workplace: "I'm Jund. Four-colour (no blue) lives next door. What are you?" },
+    share: { consumer: "I'm Jund. What are you?", workplace: "I'm Jund. What are you?" },
     manaBase: "37 lands: Command Tower, Ziatora's Proving Ground, Blood Crypt, Stomping Ground, Overgrown Tomb, 11 Mountain, 11 Forest, 10 Swamp.",
     nextDoor: {
-      player: [['up', 'DUNE', 'Splash white? Four-colour (no blue).', 'Your white was well short. On nodding terms, no more.'],
-        ['down', 'GRUUL', 'Cut the Swamps: Gruul.', "Black made the cut easily. Without it, it's a different deck."]],
-      plain: [['up', 'DUNE', 'Add white? Four-colour (no blue).', 'White was well short.'], ['down', 'GRUUL', 'Drop black: Gruul.', 'Black made it in comfortably.']],
+      player: [['up', 'DUNE', 'Splash white: Four-colour (no blue).', 'Your white was well short.'],
+        ['down', 'GRUUL', 'Cut the Swamps: Gruul.', "Black made the cut easily."]],
+      plain: [['up', 'DUNE', 'Add white: Four-colour (no blue).', 'White was well short.'], ['down', 'GRUUL', 'Drop black: Gruul.', 'Black made it in comfortably.']],
     },
     result: {
       allResults: [alt('JUND', 0.7, 0.5, 2, 2), alt('GRUUL', 0.68, 0.5, 2, 2), alt('RAKDOS', 0.65, 0.5, 2, 2)],
@@ -97,12 +97,12 @@ const CASES = [
     typeline: 'Legendary Creature — Ogre Wizard',
     rules: "Trample, cascade. Phasing (When the bill arrives, treat this creature as though it doesn't exist.)",
     rolesForFun: 'Disruption, High-Risk Ventures, Competitive Industries, Activist Investing',
-    share: { consumer: "I'm Four-colour (no white). Five-colour lives next door. What are you?", workplace: "I'm Four-colour (no white). Five-colour lives next door. What are you?" },
+    share: { consumer: "I'm Four-colour (no white). What are you?", workplace: "I'm Four-colour (no white). What are you?" },
     manaBase: '37 lands: Command Tower, Mana Confluence, City of Brass, Exotic Orchard, six shocks, four Triomes, 6 Island, 6 Swamp, 6 Mountain, 5 Forest.',
     nextDoor: {
-      player: [['up', 'WUBRG', 'Splash white? Five-colour.', 'Your white was well short. On nodding terms, no more.'],
-        ['down', 'GRIXIS', 'Cut the Forests: Grixis.', "Green made the cut easily. Without it, it's a different deck."]],
-      plain: [['up', 'WUBRG', 'Add white? Five-colour.', 'White was well short.'], ['down', 'GRIXIS', 'Drop green: Grixis.', 'Green made it in comfortably.']],
+      player: [['up', 'WUBRG', 'Splash white: Five-colour.', 'Your white was well short.'],
+        ['down', 'GRIXIS', 'Cut the Forests: Grixis.', "Green made the cut easily."]],
+      plain: [['up', 'WUBRG', 'Add white: Five-colour.', 'White was well short.'], ['down', 'GRIXIS', 'Drop green: Grixis.', 'Green made it in comfortably.']],
     },
     result: {
       allResults: [alt('GLINT', 0.64, 0.75, 3, 0), alt('GRIXIS', 0.6, 0.5, 2, 1)],
@@ -118,7 +118,7 @@ const CASES = [
     typeline: 'Legendary Creature — Human Noble',
     rules: 'Changeling. You have every ability. Each works at a fifth of its strength.',
     rolesForFun: 'Consulting, General Tazri, Generalist Leadership, Facilitation',
-    share: { consumer: "I'm Five-colour. Four-colour (no green) lives next door. What are you?", workplace: "I'm Five-colour. Four-colour (no green) lives next door. What are you?" },
+    share: { consumer: "I'm Five-colour. What are you?", workplace: "I'm Five-colour. What are you?" },
     manaBase: '37 lands: Command Tower, Mana Confluence, City of Brass, Exotic Orchard, all ten shocks, all ten Triomes, and 13 basics, mostly for the Cultivate.',
     nextDoor: {
       player: [['down', 'YORE', 'Cut the Forests: Four-colour (no green).', 'Green only just made the cut.']],
@@ -172,12 +172,13 @@ function offIdentityLands(line, colours, map) {
   return [...map].filter(([name, cols]) => deck.includes(name) && ![...cols].every((c) => colours.includes(c))).map(([name]) => name);
 }
 
-// [4] Label words and base-rate sentences: the same in both modes, joke-free,
-// and with no number until Phase 5 measures real results.
+// [4] Label words and the one line under each: the same in both modes, plain,
+// and with no number until Phase 5 measures real results. Nothing else is
+// stacked under them (tests/visible-copy.test.js holds the block to that).
 const LABELS = {
-  HIGH: { word: 'Locked in', line: 'The colours are usually right. One more or one fewer is where it wobbles.' },
-  MODERATE: { word: 'Leaning', line: "Mostly one way, with a pull next door. If it's off, it's usually by one colour." },
-  LOW: { word: 'Still shuffling', line: 'Your answers pulled several ways. Read next door before you settle on this one.' },
+  HIGH: { word: 'Locked in', line: 'A clear result.' },
+  MODERATE: { word: 'Leaning', line: 'Fairly clear. Your nearest neighbour is next door.' },
+  LOW: { word: 'Still shuffling', line: 'Your answers were split between a few results. Have a look next door.' },
 };
 // [4] The bars' title by mode; the caption is the same in both.
 const BARS_TITLE = { player: 'Your Mana Pool', plain: 'Your colours' };
@@ -203,25 +204,27 @@ function checkRender(win, h, c, audience, player, threw, errors) {
   need(isVisible(win, 'screen-results'), 'results screen hidden');
   need(text('res-id') === p.name.trim(), `res-id "${text('res-id')}"`);
   need(text('res-tag') === p.tag.trim(), 'res-tag');
-  need(text('res-typeline-name') === p.name.trim(), 'res-typeline-name');
+  need(text('res-typeline-name') === h.RESULT_COPY.names[c.id], 'res-typeline-name');
   need(text('cmd-name-aside') === (p.cmd || '').trim() && text('cmd-name-aside') !== '', 'cmd-name-aside');
   need(text('cmd-desc-aside') === (p.cmdDesc || '').trim() && text('cmd-desc-aside') !== '', 'cmd-desc-aside');
   need(d.querySelectorAll('#strengths li').length === p.str.length && p.str.length > 0, 'strengths list');
   need(d.querySelectorAll('#weaknesses li').length === p.weak.length && p.weak.length > 0, 'shadows list');
-  for (const id of ['roles', 'res-desc', 'identity-exp', 'conf-exp', 'share-preview']) real(id);
-  need(!el('conf-exp').classList.contains('hidden'), 'conf-exp hidden');
+  for (const id of ['roles', 'res-desc', 'identity-exp', 'share-preview']) real(id);
+  need(!el('conf-exp'), 'the old confidence explanation (#conf-exp) is back');
   need(el('conf-badge').dataset.level === c.confidence.toLowerCase(), 'confidence badge level');
   need(d.querySelectorAll('#res-banner-pips .mc-pip').length === p.colors.length, 'banner pips');
 
   // 1. The reveal lands first: commander, name, tagline, then (player mode)
   //    the identity as a card: the typeline, the rules text directly under
   //    it, the collector number at its foot. Then the philosophy, with the
-  //    confidence badge and its explanation after it.
+  //    confidence badge and its one line after it, then the quality line's
+  //    place (hidden here: these answers raise no quality flag).
   need(text('res-banner-commander') === 'Commander · ' + p.cmd, 'banner commander ' + text('res-banner-commander'));
   need(before(win, el('res-id'), el('res-tag')) && before(win, el('res-tag'), el('identity-exp')), 'name and tagline should precede the philosophy');
   need(before(win, el('identity-exp'), el('conf-badge')), 'confidence badge should follow the philosophy');
-  need(before(win, el('conf-badge'), el('conf-exp')), 'confidence explanation should follow the badge');
-  need(before(win, el('identity-exp'), el('quality-warning')), 'quality warning should follow the philosophy');
+  need(before(win, el('conf-base-rate'), el('quality-warning')) && before(win, el('quality-warning'), el('res-bars-title')),
+    'the quality line should sit between the confidence line and the bars');
+  need(!shown('quality-warning') && text('quality-warning') === '', `a quality line with no flag raised: "${text('quality-warning')}"`);
   need(text('identity-exp') === p.philosophy.trim(), 'philosophy text');
   // 8. One typeline on the page: the card's in player mode, the "Personality"
   //    divider's in plain mode, which prints the scoring version in the footer.
@@ -236,7 +239,7 @@ function checkRender(win, h, c, audience, player, threw, errors) {
     need(!visible('res-personality') && !visible('res-version'), 'a second typeline (the Personality divider) or the footer version in player mode');
   } else {
     need(!visible('res-idcard') && !visible('res-typeline') && text('res-typeline') === '' && text('res-collector') === '', 'card shown outside player mode');
-    need(visible('res-personality') && text('res-personality').replace(/\s+/g, ' ') === 'Personality — ' + p.name.trim(), `divider "${text('res-personality')}"`);
+    need(visible('res-personality') && text('res-personality').replace(/\s+/g, ' ') === 'Personality · ' + h.RESULT_COPY.names[c.id], `divider "${text('res-personality')}"`);
     need(visible('res-version') && text('res-version') === 'Scoring version 1', `footer "${text('res-version')}"`);
   }
 
@@ -253,8 +256,8 @@ function checkRender(win, h, c, audience, player, threw, errors) {
   const banter = el('res-counter-section'), disclaimer = el('workplace-disclaimer');
   const share = text('share-preview');
   need(share.includes(h.buildResultURL()), 'share preview lacks the result link');
-  // 10. The share text dares a friend: the first line names the identity and
-  //     its nearer next-door neighbour. Workplace mode always uses line one.
+  // 10. The share text asks a friend: the first line names the identity and
+  //     asks theirs. Workplace mode always uses line one.
   need(share.split('\n')[0] === c.share[audience], `share line "${share.split('\n')[0]}" != "${c.share[audience]}"`);
   if (audience === 'workplace') {
     need(banter && banter.style.display === 'none', 'pub banter visible in workplace mode');
@@ -286,7 +289,7 @@ function checkRender(win, h, c, audience, player, threw, errors) {
       && panel.classList.contains('hidden') && chip.getAttribute('aria-expanded') === 'false';
   });
   need(ownPanels, 'each next-door row should have its own closed panel');
-  need(text('next-door-prompt') === (playerCopy ? 'Appeal this ruling' : 'Not quite you? Look next door.'), `next-door prompt "${text('next-door-prompt')}"`);
+  need(text('next-door-prompt') === (playerCopy ? 'Appeal this ruling' : "If this isn't you, look next door."), `next-door prompt "${text('next-door-prompt')}"`);
   need(text('next-door-all') === 'None of these. Show me all 31.', `all-31 link "${text('next-door-all')}"`);
 
   // 3. Label words in both modes, one base-rate sentence per label (the same
@@ -302,7 +305,7 @@ function checkRender(win, h, c, audience, player, threw, errors) {
   //    and the same caption in every mode.
   need(text('res-bars-title') === BARS_TITLE[playerCopy ? 'player' : 'plain'] && el('res-bars-title') === el('res-bars-caption').previousElementSibling,
     `bars title "${text('res-bars-title')}"`);
-  need(text('res-bars-caption') === "The name's the summary. The bars are what you said.", `bars caption "${text('res-bars-caption')}"`);
+  need(text('res-bars-caption') === 'How often you picked each colour when it was offered.', `bars caption "${text('res-bars-caption')}"`);
   need(before(win, el('res-bars-caption'), el('res-profile-bars')), 'caption should sit above the bars');
 
   // 5. Rules-text strip, player mode only, on the card (its place is checked
@@ -337,7 +340,7 @@ function checkRender(win, h, c, audience, player, threw, errors) {
 
   // Workplace mode gets the plain copy throughout: no Magic nods, no banter.
   if (audience === 'workplace') {
-    const plainText = ['res-idcard', 'res-bars-title', 'next-door', 'conf-base-rate', 'conf-exp', 'res-mana-base']
+    const plainText = ['res-idcard', 'res-bars-title', 'next-door', 'conf-base-rate', 'res-mana-base']
       .filter(visible).map((id) => text(id)).join(' ');
     need(!/splash|cut the|sleeve|proxy|on the stack|respond|legendary|37 lands|mana pool|maybeboard|ruling/i.test(plainText), 'Magic-flavoured copy in workplace mode');
   }
@@ -419,27 +422,27 @@ run('render', async (t) => {
   }
 
   // [3] Next door reasons, from the drafts' worked examples, in player and
-  // plain modes: the colon headline for one or a few answers, the question
-  // for "well", and a four-colour neighbour by its sentence name.
+  // plain modes: the colon headline whatever the margin, one plain reason,
+  // and a four-colour neighbour by its sentence name.
   {
     const EXAMPLES = [
       ['MONO-U', { U: 0.70, B: 0.64, W: 0.30, R: 0.20, G: 0.10 }, {
-        player: [['up', 'DIMIR', 'Splash black: Dimir.', 'Your black was one answer short of moving in.']],
+        player: [['up', 'DIMIR', 'Splash black: Dimir.', 'Your black was one answer short.']],
         plain: [['up', 'DIMIR', 'Add black: Dimir.', 'Black came in one answer short.']],
       }],
       ['MONO-R', { R: 0.85, G: 0.45, W: 0.30, U: 0.20, B: 0.10 }, {
-        player: [['up', 'GRUUL', 'Splash green? Gruul.', 'Your green was well short. On nodding terms, no more.']],
-        plain: [['up', 'GRUUL', 'Add green? Gruul.', 'Green was well short.']],
+        player: [['up', 'GRUUL', 'Splash green: Gruul.', 'Your green was well short.']],
+        plain: [['up', 'GRUUL', 'Add green: Gruul.', 'Green was well short.']],
       }],
       ['BOROS', { W: 0.70, R: 0.62, U: 0.45, B: 0.20, G: 0.10 }, {
-        player: [['up', 'JESKAI', 'Splash blue: Jeskai.', "Your blue was a few answers short. It's been round for a viewing."],
-          ['down', 'MONO-W', 'Cut the Mountains: Mono-White.', 'Red made the cut by a few answers. It would be missed.']],
+        player: [['up', 'JESKAI', 'Splash blue: Jeskai.', "Your blue was a few answers short."],
+          ['down', 'MONO-W', 'Cut the Mountains: Mono-White.', 'Red made the cut by a few answers.']],
         plain: [['up', 'JESKAI', 'Add blue: Jeskai.', 'Blue was a few answers short.'], ['down', 'MONO-W', 'Drop red: Mono-White.', 'Red made it in by a few answers.']],
       }],
       ['ESPER', { W: 0.62, U: 0.70, B: 0.66, G: 0.20, R: 0.10 }, {
-        player: [['up', 'WITCH', 'Splash green? Four-colour (no red).', 'Your green was well short. On nodding terms, no more.'],
-          ['down', 'DIMIR', 'Cut the Plains: Dimir.', "White made the cut easily. Without it, it's a different deck."]],
-        plain: [['up', 'WITCH', 'Add green? Four-colour (no red).', 'Green was well short.'], ['down', 'DIMIR', 'Drop white: Dimir.', 'White made it in comfortably.']],
+        player: [['up', 'WITCH', 'Splash green: Four-colour (no red).', 'Your green was well short.'],
+          ['down', 'DIMIR', 'Cut the Plains: Dimir.', "White made the cut easily."]],
+        plain: [['up', 'WITCH', 'Add green: Four-colour (no red).', 'Green was well short.'], ['down', 'DIMIR', 'Drop white: Dimir.', 'White made it in comfortably.']],
       }],
     ];
     const problems = [];
@@ -548,28 +551,28 @@ run('render', async (t) => {
 
   // What decided the result. Engine 2 (the default) weighs all the answers,
   // so the reported identity can lack the best Round 3 record: the Round 3
-  // line says what decided it, and says so plainly when the record was not
-  // the best; the confidence explanation no longer credits the head-to-heads
-  // alone. Engine 1 (?engine=1) keeps "finished with the best record".
+  // line in "How we read you" says what decided it, and says so plainly when
+  // the record was not the best. Engine 1 (?engine=1) keeps "finished with
+  // the best record". The confidence block says none of it: under either
+  // engine it is the label and its one line.
   {
     const notBest = JSON.parse(JSON.stringify(DIMIR.result));
     notBest.round3Data.allScores = [cand('DIMIR', 1, 2, 0.81), cand('GRIXIS', 3, 0, 0.74), cand('ESPER', 1, 2, 0.66), cand('MONO-U', 1, 2, 0.61)];
     notBest.round3Data.runnerUp = { id: 'GRIXIS', wins: 3, losses: 0 };
-    const ENGINE2_CONF = 'Decided by a clear but not overwhelming margin on the weight of all your answers, 6 head-to-head comparisons included.';
-    const ENGINE1_CONF = 'Decided by a clear but not overwhelming margin across 6 head-to-head comparisons.';
     const R3 = [
       ['engine 2, the winner lacks the best record', notBest, 2,
-        'Dimir won on the weight of all your answers, though not with the best record in this round (1W-2L). Grixis came next (3W-0L).', ENGINE2_CONF],
+        'Dimir won on the weight of all your answers, though not with the best record in this round (1W-2L). Grixis came next (3W-0L).'],
       ['engine 2, the winner shares the best record', DIMIR.result, 2,
-        'Dimir won on the weight of all your answers (2W-1L in this round). Grixis came next (2W-1L).', ENGINE2_CONF],
+        'Dimir won on the weight of all your answers (2W-1L in this round). Grixis came next (2W-1L).'],
       ['engine 1 keeps its line', DIMIR.result, 1,
-        'DIMIR finished with the best record (2W-1L), ahead of GRIXIS (2W-1L).', ENGINE1_CONF],
+        'DIMIR finished with the best record (2W-1L), ahead of GRIXIS (2W-1L).'],
     ];
-    for (const [what, result, version, want, wantConf] of R3) {
+    for (const [what, result, version, want] of R3) {
       const { win, errors, threw } = await renderCase({ ...DIMIR, result }, 'consumer', false, seed++, { scoringVersion: version });
-      const got = text(win, 'round3-testing-explanation'), conf = text(win, 'conf-exp');
-      t.ok(`what decided it: ${what}`, !threw && errors.length === 0 && got === want && conf.startsWith(wantConf),
-        `${threw || ''} "${got}" | "${conf.slice(0, 140)}"`);
+      const got = text(win, 'round3-testing-explanation');
+      const block = win.document.querySelector('.mc-verdict-status').textContent.replace(/\s+/g, ' ').trim();
+      t.ok(`what decided it: ${what}`, !threw && errors.length === 0 && got === want && block === `${LABELS.MODERATE.word} ${LABELS.MODERATE.line}`,
+        `${threw || ''} "${got}" | "${block}"`);
       win.close();
     }
   }
@@ -581,8 +584,8 @@ run('render', async (t) => {
   //    verdict stays in state.result.identity.
   const tick = () => new Promise((r) => setTimeout(r, 0));
   const APPEAL = {
-    player: { peekNote: 'Just looking. The ruling stands unless you appeal.', after: 'Overturned on appeal. The original ruling stays on the record.' },
-    plain: { peekNote: 'Just a look. Your result stays put unless you appeal.', after: 'Appeal noted. Your original result is kept too.' },
+    player: { peekNote: 'The ruling stands unless you appeal.', after: 'Overturned on appeal. The original ruling stays on the record.' },
+    plain: { peekNote: 'Your result stays the same unless you appeal.', after: 'Appeal noted. Your original result is kept too.' },
   };
   for (const [audience, player] of [['consumer', true], ['consumer', false], ['workplace', true]]) {
     const { win, h, errors, threw } = await renderCase(DIMIR, audience, player, seed++);
@@ -633,7 +636,7 @@ run('render', async (t) => {
     el('appeal-btn').click();
     const a = h.state.result.appeal || {};
     need(h.state.result.identity === 'DIMIR', 'the verdict was overwritten');
-    need(a.chosen === 'SULTAI' && JSON.stringify(a.shown) === '["SULTAI","MONO-U"]' && a.copyVersion === 2
+    need(a.chosen === 'SULTAI' && JSON.stringify(a.shown) === '["SULTAI","MONO-U"]' && a.copyVersion === 3
       && a.labelShown === 'Leaning' && Number.isFinite(a.timeToAppealMs) && a.timeToAppealMs >= 0, 'appeal record ' + JSON.stringify(a));
     need(text(win, 'res-id') === P.SULTAI.name && text(win, 'res-tag') === P.SULTAI.tag && text(win, 'identity-exp') === P.SULTAI.philosophy.trim(), 'appealed identity not on screen');
     need(!playerCopy || (text(win, 'res-typeline') === 'Legendary Creature — Snake Shaman' && text(win, 'res-rules') === h.RESULT_COPY.rules.SULTAI),
@@ -652,8 +655,8 @@ run('render', async (t) => {
     // page, marked, with that identity's own neighbour; workplace mode keeps
     // the appeal private and names the verdict.
     const wantShare = audience === 'workplace'
-      ? "I'm Dimir. Sultai lives next door. What are you?"
-      : "I'm Sultai (on appeal). Four-colour (no red) lives next door. What are you?";
+      ? "I'm Dimir. What are you?"
+      : "I'm Sultai (on appeal). What are you?";
     let sharedText = null;
     Object.defineProperty(win.navigator, 'share', { configurable: true, value: async (data) => { sharedText = data.text; } });
     await win.shareResult(null);
@@ -753,7 +756,7 @@ run('render', async (t) => {
       id: 'ORZHOV', confidence: 'HIGH', activation: { W: 0.74, B: 0.7, U: 0.35, G: 0.3, R: 0.28 },
       result: { allResults: [], round3Data: {} },
     };
-    const want = "I'm Orzhov. Esper lives next door. What are you?";
+    const want = "I'm Orzhov. What are you?";
     const { win, h, errors, threw } = await renderCase(ORZHOV, 'consumer', false, seed++);
     const problems = threw ? [threw] : [];
     let shared = null, copied = null;
@@ -765,7 +768,7 @@ run('render', async (t) => {
     const btn = win.document.getElementById('share-result-btn');
     await win.shareResult(btn);
     if (copied !== `${want} ${h.buildResultURL()}`) problems.push('clipboard ' + JSON.stringify(copied));
-    if (btn.textContent !== '✓ Link copied!') problems.push('button feedback ' + btn.textContent);
+    if (btn.textContent !== '✓ Link copied') problems.push('button feedback ' + btn.textContent);
     if (text(win, 'share-preview').split('\n')[0] !== want) problems.push('preview ' + text(win, 'share-preview').split('\n')[0]);
     if (errors.length) problems.push('errors: ' + errors.slice(0, 2).join(' | '));
     t.ok('share: the dare goes out through Web Share and the clipboard', problems.length === 0, problems.join('; '));

@@ -10,7 +10,7 @@ Agreed before the scoring branch (Phase 1) and the presentation branch (Phase 2)
   confidence:        'HIGH' | 'MODERATE' | 'LOW',
   allResults:        Array<{ id, ... }>,// as today, best first
   scoringVersion:    number,            // 1 = current engine, 2 = likelihood engine
-  instrumentVersion: number,            // 3 = current items and screens (Round 1 and 2 copy rewrite); 2 = Phase 3 quiz copy and flow; 1 = before, and any link or saved result without one
+  instrumentVersion: number,            // 4 = current items and screens (Plain screens: the transitions, Round 3 line-up, early offer, progress line and undo seen while answering); 3 = Round 1 and 2 copy rewrite; 2 = Phase 3 quiz copy and flow; 1 = before, and any link or saved result without one
   posterior:         { [id]: number } | undefined, // present when scoringVersion >= 2; sums to 1
   round3Data:        { ... as today, scenarioContradiction, contextDisagreement, runnerUp, ... },
   earlyTermination:  boolean | undefined
@@ -35,7 +35,7 @@ Agreed before the scoring branch (Phase 1) and the presentation branch (Phase 2)
 - Engine 2 seeds Round 3 with the four identities the bars allow that the Round 1 + Round 2 posterior rates highest (so `round3Data.allScores` and `allResults` hold only such identities), and reports the one of them the final posterior rates highest, the record rule acting among them. The posterior itself is unchanged by the bars, and `confidence` is still the reported identity's posterior.
 - Engine 1 reports its tournament winner when the bars allow it; otherwise the best candidate they allow in its standings, or, if none, the identity of the top bars as wide as the winner (narrower, for five colours, until the bars allow it), with `confidence` LOW and the tournament's pick as `round3Data.runnerUp`.
 - The early-result offer is made only for an identity the Round 1 bars, which an early result shows, allow. A session that reached Round 3 on an earlier build finishes on one the bars allow too (engine 2: the best such candidate by posterior, or the best such identity of all 31 at 0-0).
-- `round3Data.loopBrokenByBars` is true only when engine 1 re-ranked a Round 3 cycle by the bars and that pick stood; the results screen says the bars broke the loop only then (engine 2's posterior decides inside a cycle). A saved result without the field keeps the sentence on engine 1 only.
+- `round3Data.loopBrokenByBars` is true only when engine 1 re-ranked a Round 3 cycle by the bars and that pick stood; engine 2's posterior decides inside a cycle, so under engine 2 it is always false. The results screen no longer describes how a result was reached (Plain screens), so nothing shown reads it; it records what happened.
 - `tests/simulate.js` counts a result its bars do not allow as a contract violation.
 
 ## Engine switch

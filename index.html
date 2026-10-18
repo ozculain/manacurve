@@ -2165,25 +2165,25 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
           <div class="mc-how__num">I</div>
           <div>
             <div class="mc-how__title"><span id="how-name-1"></span></div>
-            <div class="mc-how__desc">Thirty forced choices between opposing philosophies/colours. Through this process we will, regrettably, learn things about you.</div>
+            <div class="mc-how__desc">Thirty choices between two answers.</div>
           </div>
 
           <div class="mc-how__num">II</div>
           <div>
             <div class="mc-how__title"><span id="how-name-2"></span></div>
-            <div class="mc-how__desc">The second round is harder, and tests pairs of colours which are closer to each other, to help us discriminate between similar types.</div>
+            <div class="mc-how__desc">Closer choices, to tell similar results apart.</div>
           </div>
 
           <div class="mc-how__num">III</div>
           <div>
             <div class="mc-how__title"><span id="how-name-3"></span></div>
-            <div class="mc-how__desc">In step III we have a few candidate options, and we put them Head-to-head until all but one wizard admits defeat.</div>
+            <div class="mc-how__desc">The last few results, compared two at a time.</div>
           </div>
 
           <div class="mc-how__num">✦</div>
           <div>
             <div class="mc-how__title">Results</div>
-            <div class="mc-how__desc">Discover your mana identity. Judge yourself accordingly.</div>
+            <div class="mc-how__desc">Your colour identity, one of 31.</div>
           </div>
         </div>
       </div>
@@ -2191,9 +2191,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
       <!-- Warning seal -->
       <div class="mc-warning">
         <div class="mc-warning__label">⚠ Not For Official Use</div>
-        <p style="font-family: var(--f-body); font-size: 13px; line-height: 1.6; color: var(--ink-muted); margin-bottom: 6px;">Do not use this for hiring, firing, promoting, demoting, or any decision affecting actual humans.</p>
-        <p style="font-family: var(--f-body); font-size: 13px; line-height: 1.6; color: var(--ink-muted); margin-bottom: 6px;">This is a personality framework based on a trading card game about wizards fighting each other.</p>
-        <p style="font-family: var(--f-flavor); font-style: italic; font-size: 13px; line-height: 1.6; color: var(--ink-faded);">Is this a joke? Unclear. We keep updating it, which worries us too.</p>
+        <p style="font-family: var(--f-body); font-size: 13px; line-height: 1.6; color: var(--ink-muted); margin-bottom: 0;">Do not use this for hiring, firing or any other decision about a person.</p>
       </div>
 
       <!-- Secondary actions (the explorer sits beside the start button now) -->
@@ -2257,7 +2255,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
                mulligan: one undo per round (useMulligan). -->
           <div class="mc-q__count-row">
             <div class="mc-q__count">Question <span id="q-num">1</span> of <span id="q-tot">45</span></div>
-            <button type="button" class="mc-mulligan" id="mulligan-btn" onclick="askMulligan()" disabled>Undo last answer</button>
+            <button type="button" class="mc-mulligan" id="mulligan-btn" onclick="askMulligan()" disabled>Undo</button>
           </div>
           <!-- Under the button: the hint, then "taken" and "used" (updateMulliganControl). The
                confirm takes its place when the button is pressed (askMulligan). -->
@@ -2334,7 +2332,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
   <div id="screen-interstitial" class="hidden">
     <div class="mc-inter fade-in">
       <div class="mc-inter__crest" aria-hidden="true">✦</div>
-      <h2 class="mc-inter__title">Round 1 Complete</h2>
+      <h2 class="mc-inter__title" data-copy="interstitial.title"></h2>
 
       <div class="mc-plinth mc-inter__plinth">
         <svg class="mc-corner mc-corner--tl"><use href="#fleuron"/></svg>
@@ -2342,34 +2340,24 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
         <svg class="mc-corner mc-corner--bl"><use href="#fleuron"/></svg>
         <svg class="mc-corner mc-corner--br"><use href="#fleuron"/></svg>
 
-        <!-- The line-up: one face-down card per Round 3 candidate, a caption, a
-             trait line (never a colour) and a note. showInterstitial fills them
+        <!-- The line-up: one face-down card per result Round 3 plays, as
+             decoration, and one line under them. showInterstitial fills them
              from PLAY_COPY.interstitial; no colour is named or shown here. -->
-        <div class="mc-typeline"><span class="mc-typeline__diamond"></span><span id="inter-lineup-title" data-copy="interstitial.lineup"></span><span class="mc-typeline__diamond"></span></div>
-        <div class="mc-suspects" id="inter-suspects" role="img"></div>
-        <p class="mc-suspects__caption" id="inter-suspects-caption"></p>
-        <p class="mc-flavor" id="inter-banter" style="font-size: 17px; color: var(--gilt-bright); text-align: center; margin: 14px 0;"></p>
-        <p class="mc-body" id="inter-note" data-copy="interstitial.note" style="font-size: 13px; color: var(--ink-faded); font-style: italic; text-align: center; margin-top: 14px;"></p>
+        <div class="mc-suspects" id="inter-suspects" aria-hidden="true"></div>
+        <p class="mc-body mc-early__body" id="inter-line"></p>
         <div class="mc-typeline" style="margin-top: 22px;"><span class="mc-typeline__diamond"></span></div>
-
-        <!-- Hidden compat anchors — older JS paths write to these IDs; we keep them so the writes don't throw. -->
-        <div id="inter-scores" style="display:none"></div>
-        <p id="inter-explanation" style="display:none"></p>
-        <p id="inter-next" style="display:none"></p>
 
         <div class="mc-inter__cta">
           <button class="mc-btn mc-btn--primary" id="inter-continue" onclick="continueToStage2()" data-copy="interstitial.continue"></button>
-          <!-- Filled by showInterstitial: how many head-to-heads Round 3 plays -->
-          <p class="mc-inter__caption" id="inter-caption"></p>
         </div>
       </div>
     </div>
   </div>
 
   <!-- The early offer, after Round 1 when the first answers already point one
-       way. It names neither the identity nor a colour: the rest is optional,
-       and here is how much of it is left. Copy from PLAY_COPY.earlyOffer; the
-       body and the minutes are filled by showEarlyTerminationOffer. -->
+       way. It names neither the identity nor a colour: the result can be
+       shown now, or the quiz can go on. Copy from PLAY_COPY.earlyOffer; the
+       body is filled by showEarlyTerminationOffer. -->
   <div id="screen-early-offer" class="hidden">
     <div class="mc-inter fade-in">
       <div class="mc-inter__crest" aria-hidden="true">✦</div>
@@ -2381,8 +2369,6 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
         <svg class="mc-corner mc-corner--bl"><use href="#fleuron"/></svg>
         <svg class="mc-corner mc-corner--br"><use href="#fleuron"/></svg>
 
-        <div class="mc-typeline"><span class="mc-typeline__diamond"></span><span id="early-typeline" data-copy="earlyOffer.typeline"></span><span class="mc-typeline__diamond"></span></div>
-
         <p class="mc-body mc-early__body" id="early-message"></p>
 
         <div class="mc-typeline" style="margin-top: 26px;"><span class="mc-typeline__diamond"></span></div>
@@ -2390,7 +2376,6 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
         <div class="mc-inter__cta" style="display:flex; flex-direction:column; align-items:center; gap:12px; margin-top: 24px;">
           <button class="mc-btn mc-btn--primary" id="early-keep-going" onclick="continueToRound2()" data-copy="earlyOffer.keepGoing"></button>
           <button class="mc-btn mc-btn--ghost" id="early-show-now" onclick="showResultsEarly()" data-copy="earlyOffer.showNow"></button>
-          <p class="mc-inter__caption" id="early-length"></p>
         </div>
       </div>
     </div>
@@ -2399,7 +2384,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
   <div id="screen-calculating" class="hidden">
     <div class="mc-inter fade-in" style="max-width: 640px;">
       <div class="mc-inter__crest" aria-hidden="true">✦</div>
-      <h2 class="mc-inter__title" style="margin-bottom: 28px;">Reading your hand</h2>
+      <h2 class="mc-inter__title" style="margin-bottom: 28px;">Working out your result</h2>
 
       <div class="mc-plinth" style="padding: 40px 36px; text-align: center;">
         <svg class="mc-corner mc-corner--tl"><use href="#fleuron"/></svg>
@@ -2415,26 +2400,17 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
           <span class="mc-pip is-lit mc-pip--lg" data-color="G" aria-label="G"></span>
         </div>
         <div class="mc-typeline"><span class="mc-typeline__diamond"></span></div>
-        <p class="mc-flavor" style="font-size: 18px; color: var(--ink-muted); margin-top: 14px;">
-          Weighing your enemy pairs, ally pairs, and the head-to-heads between them.
-        </p>
-        <p class="mc-body" style="font-size: 13px; color: var(--ink-faded); font-style: italic; margin-top: 12px;">
-          A moment, while the cards settle.
-        </p>
       </div>
     </div>
   </div>
 
-  <!-- Round Transition: the round badge and name, a one-line beat, a trait
-       line (never a colour), and a Continue the player taps when ready
-       (showRoundTransition; copy from PLAY_COPY.transition). -->
+  <!-- Round Transition: which round has just finished, and a Continue the
+       player taps when ready (showRoundTransition; copy from
+       PLAY_COPY.transition). -->
   <div id="screen-round-transition" class="hidden">
     <div class="mc-transition fade-in">
-      <div class="mc-typeline" style="margin-bottom: 20px;"><span class="mc-typeline__diamond"></span><span style="font-family:var(--f-display); letter-spacing:0.32em; color:var(--ink-muted); font-size:12px;">Round</span><span class="mc-typeline__diamond"></span></div>
-      <div class="mc-transition__roman" id="transition-roman">II</div>
-      <div class="mc-transition__name" id="transition-title">Refinement</div>
-      <div class="mc-transition__flavor" id="transition-subtitle"></div>
-      <p class="mc-transition__trait" id="transition-banter"></p>
+      <div class="mc-typeline" style="margin-bottom: 20px;"><span class="mc-typeline__diamond"></span><span class="mc-typeline__diamond"></span></div>
+      <div class="mc-transition__name" id="transition-title"></div>
       <button type="button" class="mc-btn mc-btn--primary mc-transition__continue" id="transition-continue">Continue</button>
       <div class="mc-typeline" style="max-width: 320px; margin: 0 auto;"><span class="mc-typeline__diamond"></span><span class="mc-typeline__diamond"></span><span class="mc-typeline__diamond"></span></div>
     </div>
@@ -2443,7 +2419,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
   <!-- Pre-result honesty screen: shown once between Round 3 and results reveal -->
   <div id="screen-pre-result-disclaimer" class="hidden">
     <div class="mc-welcome" style="max-width: 600px;">
-      <div class="mc-typeline"><span class="mc-typeline__diamond"></span>A Caveat<span class="mc-typeline__diamond"></span></div>
+      <div class="mc-typeline"><span class="mc-typeline__diamond"></span><span class="mc-typeline__diamond"></span></div>
       <div class="mc-plinth fade-in" style="text-align: center; padding: 40px 36px;">
         <svg class="mc-corner mc-corner--tl"><use href="#fleuron"/></svg>
         <svg class="mc-corner mc-corner--tr"><use href="#fleuron"/></svg>
@@ -2461,16 +2437,13 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
         <h2 class="mc-display" style="font-size: 28px; margin-bottom: 18px;">Before we show you the result</h2>
 
         <p class="mc-body" style="line-height: 1.7; margin-bottom: 14px;">
-          This is based on <strong id="pre-result-q-count">a few dozen</strong> forced choices and a 30-year-old card game about wizards.
+          This result comes from <span id="pre-result-q-count">your</span> answers.
         </p>
-        <p class="mc-body" style="line-height: 1.7; margin-bottom: 14px;">
-          It isn't validated. It isn't science (like most psychometrics). It's just a bit of fun. But also it's 100% accurate. All the time.
-        </p>
-        <p class="mc-flavor" style="font-size: 16px; margin-bottom: 28px;">
-          With that said — let's see.
+        <p class="mc-body" style="line-height: 1.7; margin-bottom: 28px;">
+          It isn't validated, and it isn't science. It's a bit of fun.
         </p>
 
-        <button class="mc-btn mc-btn--primary" onclick="revealResults()" style="padding: 18px 40px;">Show me what I am ›</button>
+        <button class="mc-btn mc-btn--primary" onclick="revealResults()" style="padding: 18px 40px;">Show my result</button>
       </div>
     </div>
   </div>
@@ -2502,14 +2475,14 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
 
       <!-- Seed banner: shown only when the result was loaded via a shared seed URL -->
       <div id="seed-banner" class="mc-seed-banner hidden">
-        <span class="mc-seed-banner__text">You're viewing someone else's result. Curious what yours is?</span>
+        <span class="mc-seed-banner__text">You're viewing someone else's result.</span>
         <button onclick="restart()" class="mc-btn mc-btn--primary mc-seed-banner__cta">Take the test yourself ›</button>
       </div>
 
       <!-- Workplace disclaimer banner (audience-aware) -->
       <div id="workplace-disclaimer" style="display: none; margin-bottom: 28px; padding: 18px 22px; background: var(--inset); border: 1px dashed var(--gilt-soft); font-family: var(--f-body); font-size: 14px; color: var(--ink-muted); line-height: 1.6;">
         <span class="mc-eyebrow mc-eyebrow--gilt" style="display: inline-block; margin-bottom: 6px;">⚠ Work mode</span><br>
-        This profile has no reliability or validity data behind it. Use it as a bit of fun and to start a conversation about working styles — not as a basis for hiring, promotion, or any decision affecting actual humans, please. If it also starts someone on a thirty-year-old card game about wizards, that's between them and their disposable income.
+        This profile has no reliability or validity data behind it. Use it for fun and to start a conversation about working styles. Do not use it for hiring, promotion or any other decision about a person.
       </div>
 
       <!-- Hidden compat anchors (legacy IDs that JS still writes to but are now redundant — banner above carries the visible values). -->
@@ -2546,17 +2519,16 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
         <!-- Philosophy quote (the type's worldview) -->
         <p class="mc-result__philosophy" id="identity-exp">Explanation</p>
 
-        <!-- Confidence, below the philosophy: the label, its base-rate sentence
-             (no number until Phase 5), then why. -->
+        <!-- Confidence, below the philosophy: the label and its one line (no
+             number until Phase 5), then at most one small quality line, only
+             when a quality flag fires (renderQualityWarning). -->
         <div class="mc-verdict-status">
           <span class="mc-confidence" id="conf-badge" data-level="moderate"><span class="mc-confidence__dot"></span><span>Leaning</span></span>
           <div class="mc-verdict-status__rate">
             <p class="mc-verdict-status__line" id="conf-base-rate"></p>
           </div>
         </div>
-        <span class="mc-flavor text-md hidden" id="conf-exp">Pattern read from your responses.</span>
-
-        <div id="quality-warning" style="display: none; margin-bottom: 16px; padding: 12px 16px; background: var(--inset); border: 1px dashed var(--gilt-soft); font-family: var(--f-body); font-size: 13px; color: var(--ink-muted);"></div>
+        <p id="quality-warning" style="display: none; margin: 0 0 16px; font-family: var(--f-body); font-size: 13px; line-height: 1.5; color: var(--ink-muted);"></p>
 
         <!-- Profile bars — the psychometric receipt. 5 rows, populated from state.activationSorted. -->
         <div style="margin: 32px 0;">
@@ -2565,9 +2537,9 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
           <div class="mc-profile" id="res-profile-bars"></div>
         </div>
 
-        <!-- Type-line divider: "Personality — <NAME>" in plain mode; in player
+        <!-- Type-line divider: "Personality · <Name>" in plain mode; in player
              mode the card's typeline above replaces its text. -->
-        <div class="mc-typeline"><span class="mc-typeline__diamond"></span><span class="mc-typeline__label" id="res-personality">Personality <span style="opacity:0.6;">—</span> <span id="res-typeline-name">…</span></span><span class="mc-typeline__diamond"></span></div>
+        <div class="mc-typeline"><span class="mc-typeline__diamond"></span><span class="mc-typeline__label" id="res-personality">Personality <span style="opacity:0.6;">·</span> <span id="res-typeline-name">…</span></span><span class="mc-typeline__diamond"></span></div>
 
         <!-- Strengths / Shadows grid (Claude Design's mc-result__grid) -->
         <div class="mc-result__grid" id="res-traits">
@@ -2890,9 +2862,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
 
       <div class="mc-warning" style="margin-top: 32px;">
         <div class="mc-warning__label">⚠ Not For Official Use</div>
-        <p style="font-family: var(--f-body); font-size: 13px; line-height: 1.6; color: var(--ink-muted); margin-bottom: 6px;">Do not use this for hiring, firing, promoting, demoting, or any decision affecting actual humans.</p>
-        <p style="font-family: var(--f-body); font-size: 13px; line-height: 1.6; color: var(--ink-muted); margin-bottom: 6px;">This is a personality framework based on a trading card game about wizards fighting each other.</p>
-        <p style="font-family: var(--f-flavor); font-style: italic; font-size: 13px; line-height: 1.6; color: var(--ink-faded);">Is this a joke? Unclear. We keep updating it, which worries us too.</p>
+        <p style="font-family: var(--f-body); font-size: 13px; line-height: 1.6; color: var(--ink-muted); margin-bottom: 0;">Do not use this for hiring, firing or any other decision about a person.</p>
       </div>
       <!-- Footer, plain mode: the scoring version (player mode prints it as the card's collector number) -->
       <p class="mc-result__version hidden" id="res-version"></p>
@@ -3859,61 +3829,6 @@ const POOL_C = {
 
   // ROUND2_SCENARIOS moved to data.js (Phase F file split)
 
-// ─── Trait lines ────────────────────────────────────────────────────────────
-// The beats, the line into Round 3 and the line-up speak to the trait in the
-// lead so far, so they land as recognition, and never name its colour. The
-// copy (PLAY_COPY) is keyed by the trait, not by the colour.
-const TRAIT_OF = { W: 'group', U: 'homework', B: 'door', R: 'now', G: 'leave' };
-// The top colour counts as leading when it beats the second by this much
-// (activation runs 0 to 1); otherwise nothing clearly leads, and the trait is
-// 'balanced'.
-const CLEAR_LEAD = 0.1;
-
-// The activation so far: the scored one once Round 1 is done, until then a win
-// rate per colour from the tallies (a pair with no answers yet counts as even).
-function runningActivation() {
-  if (state.activationSorted && state.activationSorted.length) return Object.fromEntries(state.activationSorted);
-  const rate = (pair, colour) => {
-    const tally = state.pairwise && state.pairwise[pair];
-    if (!tally) return 0.5;
-    const answered = Object.values(tally).reduce((a, b) => a + b, 0);
-    return answered ? (tally[colour] || 0) / answered : 0.5;
-  };
-  return {
-    W: (rate('W-B', 'W') + rate('W-R', 'W')) / 2,
-    U: (rate('U-R', 'U') + rate('G-U', 'U')) / 2,
-    B: (rate('W-B', 'B') + rate('B-G', 'B')) / 2,
-    R: (rate('U-R', 'R') + rate('W-R', 'R')) / 2,
-    G: (rate('G-U', 'G') + rate('B-G', 'G')) / 2
-  };
-}
-
-// The colour clearly in the lead so far, or null.
-function leadingColour() {
-  const ranked = Object.entries(runningActivation()).sort((a, b) => b[1] - a[1]);
-  return ranked.length > 1 && ranked[0][1] - ranked[1][1] >= CLEAR_LEAD ? ranked[0][0] : null;
-}
-
-// 'group', 'homework', 'door', 'now' or 'leave'; 'balanced' when nothing leads.
-function leadingTrait() {
-  const colour = leadingColour();
-  return colour ? TRAIT_OF[colour] : 'balanced';
-}
-
-// One line from a pool of variants. Always exactly one random draw, even from
-// a pool of one: the seeded tests share one random stream with the page's
-// shuffles, so adding a variant later must not move the ones that follow.
-function pickLine(lines) {
-  return lines[Math.floor(Math.random() * lines.length)];
-}
-
-// The line for a screen between rounds: the player line in player mode,
-// otherwise the line for the trait leading. One draw.
-function traitLine(set) {
-  const lines = isPlayerMode() ? set.player : (set[leadingTrait()] || set.balanced);
-  return pickLine(lines);
-}
-
 // 40 random taglines for the welcome page (user-authored, FRONT_AND_END.md)
 const RANDOM_TAGLINES = [
   "What happens when a serious psychometric research project's budget all gets spent on cardboard",
@@ -4246,9 +4161,6 @@ function sessionSnapshot() {
     // The free mulligan's bookkeeping: rounds whose undo is spent, and a
     // taken-back first answer waiting for its replacement's record.
     mulligan: state.mulligan || null,
-    // What each every-ten beat showed (renderQuizBeat), so a refresh or an undo
-    // shows the same line and no line repeats
-    beats: state.beats || null,
     timestamp: Date.now()
   };
 }
@@ -4446,9 +4358,7 @@ function renderRelations() {
       <div class="mc-relations-detail__sub">You contain everything. There's nothing missing to compensate for; the difficulty isn't a gap but holding all five tensions at once.</div>
       <div class="mc-relations-detail__empty">No single colour completes you, because no single colour is absent. The friction is internal: your different colours pull against each other. Your work is choosing which voice leads when.</div>`;
   } else {
-    const subtitle = missing.length >= 3
-      ? "These are the cognitive functions your blend doesn't naturally run. Each is a real colleague worth keeping close."
-      : "These are the cognitive functions your blend doesn't naturally run. Each is a real colleague worth keeping close.";
+    const subtitle = 'The colours you lack, and what a colleague strong in each one brings.';
     const cards = missing.map(c => {
       const g = COLOR_GAPS[c];
       return `<div class="mc-gap-card" data-color="${c}">
@@ -5269,7 +5179,7 @@ function loadFromSeed(seed) {
 
 // Primary share action. Uses the Web Share API (system share sheet on mobile,
 // some desktop browsers); falls back to clipboard with button feedback. The
-// text dares a friend: "I'm Dimir. Sultai lives next door. What are you?"
+// text asks a friend: "I'm Dimir. What are you?"
 async function shareResult(btn) {
   if (!state.result || !state.result.identity) return;
   const p = PROFILES[state.result.identity];
@@ -5293,7 +5203,7 @@ async function shareResult(btn) {
   try {
     await navigator.clipboard.writeText(text ? `${text} ${url}` : url);
     if (btn) {
-      btn.textContent = '✓ Link copied!';
+      btn.textContent = '✓ Link copied';
       setTimeout(() => { btn.textContent = restore; }, 2200);
     }
   } catch (e) {
@@ -5342,48 +5252,6 @@ function offerSessionRestore() {
     welcomeCard.insertBefore(resumeBar, before);
   }
   return true;
-}
-
-// Easter egg confetti for when someone breaks the assessment
-function createConfetti() {
-  const colors = ['#FDE047', '#93C5FD', '#D1D5DB', '#FCA5A5', '#6EE7B7', '#a78bfa', '#f472b6'];
-  const confettiCount = 150;
-  
-  for (let i = 0; i < confettiCount; i++) {
-    setTimeout(() => {
-      const confetti = document.createElement('div');
-      confetti.style.cssText = `
-        position: fixed;
-        width: ${Math.random() * 10 + 5}px;
-        height: ${Math.random() * 10 + 5}px;
-        background: ${colors[Math.floor(Math.random() * colors.length)]};
-        left: ${Math.random() * 100}vw;
-        top: -20px;
-        border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
-        pointer-events: none;
-        z-index: 9999;
-        animation: confettiFall ${Math.random() * 3 + 2}s linear forwards;
-        transform: rotate(${Math.random() * 360}deg);
-      `;
-      document.body.appendChild(confetti);
-      
-      // Remove after animation
-      setTimeout(() => confetti.remove(), 5000);
-    }, i * 20);
-  }
-  
-  // Add the animation if it doesn't exist
-  if (!document.getElementById('confetti-style')) {
-    const style = document.createElement('style');
-    style.id = 'confetti-style';
-    style.textContent = `
-      @keyframes confettiFall {
-        0% { transform: translateY(0) rotate(0deg); opacity: 1; }
-        100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-      }
-    `;
-    document.head.appendChild(style);
-  }
 }
 
 function initArchetypeOfMonth() {
@@ -5495,7 +5363,7 @@ window.addEventListener('DOMContentLoaded', function() {
 // URL. Both write the state.result shape in docs/SCORING_CONTRACT.md, tagged
 // with scoringVersion and instrumentVersion.
 const SCORING_VERSION = 2;
-const INSTRUMENT_VERSION = 3; // the current items and screens (2: before the Round 1 and 2 copy rewrite; 1: before the Phase 3 copy and flow, and links without i)
+const INSTRUMENT_VERSION = 4; // the current items and screens (3: before the Plain screens copy; 2: before the Round 1 and 2 copy rewrite; 1: before the Phase 3 copy and flow, and links without i)
 
 // THE NAME MATCHES THE BARS (both engines). The results screen names an
 // identity and draws five bars (state.activationSorted: each colour's Round 1
@@ -5743,18 +5611,18 @@ function updateLikelihood(stage) {
 // ════════════════════════════════════════════════════════════════════════════
 // QUIZ-SCREEN COPY AND LENGTHS
 // Every string the quiz screens show (the welcome and preflight lines, the
-// beats, the transitions, the line-up, the early offer, the undo) lives in
-// PLAY_COPY, so the author can edit them in one place. The text is the reviewed
-// copy. A few groups have no reviewed text yet and are marked PROVISIONAL: the
-// round names, the line-up screen's title, the line into the result, and the
-// results page's share and table strings.
+// progress line, the transitions, the Round 3 line-up, the early offer, the
+// undo) lives in PLAY_COPY, so the author can edit them in one place. The
+// text is the plain copy (Plain screens, 18 October 2026): the shortest plain
+// sentence that does the job, no flourish, nothing about how the scoring
+// works (tests/visible-copy.test.js holds it to that). The round names and
+// the results page's share and table strings are still marked PROVISIONAL.
 // Variants: "player" strings show when state.gamingFamiliar is on; "plain"
 // strings show to everyone else, and the workplace audience always gets plain
 // (isPlayerMode).
 // Rule for anything shown during Rounds 1 to 3: never name a colour, a basic
 // land or an identity, and never tint by colour (tests/play.test.js checks the
-// whole of PLAY_COPY). The trait lines are keyed by the trait leading so far,
-// not by its colour.
+// whole of PLAY_COPY).
 // Markup elements with data-copy="path.to.key" are filled from here on load
 // (applyPlayCopy). Placeholders in braces are filled by fillCopy().
 // ════════════════════════════════════════════════════════════════════════════
@@ -5776,9 +5644,9 @@ const PLAY_COPY = {
   rounds: { 1: 'First Impressions', 2: 'Refinement', 3: 'Final Determination' },
 
   welcome: {
-    rule0: "Rule 0: it's a bit of fun, not science. We keep having to remind ourselves.",
+    rule0: "Rule 0: it's a bit of fun, not science.",
     explore: 'Explore all 31',
-    length: "Up to {questions} questions, about {minutes} minutes. Less if you're decisive.",
+    length: 'Up to {questions} questions, about {minutes} minutes.',
     // The fold: one line for the whole quiz, so the fold, the counter and the
     // time agree
     howLength: 'Up to {questions} questions over three rounds.',
@@ -5811,51 +5679,31 @@ const PLAY_COPY = {
   // Round 3's tiebreak marker, in the question label
   round3: { tiebreak: 'Tiebreaker' },
 
-  // The one-line beat above the question after answers 10, 20 and 40 (not 30,
-  // which ends Round 1, and not when a round ends on the answer). Plain and
-  // workplace: keyed by the trait leading at that moment, first line then
-  // second line. Player mode: keyed by the pattern (the first beat with a clear
-  // lead, the same lead as last time, a changed lead, no clear lead), because
-  // players read a trait line as a colour. A line is never shown twice in a
-  // run: a key coming up again gets its second line, and a beat with nothing
-  // left is skipped.
+  // After answers 10, 20 and 40 (not 30, which ends Round 1, and not on the
+  // first question of a round, which a transition has just introduced), one
+  // line above the next question: how far through the quiz the player is, by
+  // the one counter. The same line in every mode.
   beats: {
-    plain: {
-      group: ['You keep picking the answer where everyone gets a turn.', 'Still the answer where everyone gets a turn.'],
-      homework: ['You keep picking the answer with homework in it.', 'Still bringing homework.'],
-      door: ['You keep picking the answer that skips the queue.', 'Still skipping the queue.'],
-      now: ['You keep picking the answer that starts before the meeting does.', 'Still starting before the meeting.'],
-      leave: ['You keep picking the answer that leaves well alone.', 'Still leaving well alone.'],
-      balanced: ["No pattern yet. You're either balanced or doing it on purpose.", 'Still no clear pattern.'],
-    },
-    // The workplace audience reads these over the plain set
-    workplace: {
-      balanced: ['No pattern yet.', 'Still no clear pattern.'],
-    },
-    player: {
-      first: ["Ten in. Something's forming. We're not saying what."],
-      same: ['Same pattern as last time. Consistent, or stubborn. Both count.'],
-      moved: ['Different pattern from last time. Noted.'],
-      balanced: ["No pattern yet. You're either balanced or doing it on purpose."],
-    },
+    progress: '{answered} answered, {left} to go.',
   },
 
-  // The undo: "Free mulligan" for players, "Undo last answer" for everyone else.
-  // hint is the line under the button; confirm is asked first (yes / no);
-  // after is shown on the question that comes back; used replaces the hint for
-  // the rest of the round once the round's one undo is spent.
+  // The undo: "Free mulligan" for players, "Undo" for everyone else; the rest
+  // of its wording is the same in both. hint is the line under the button;
+  // confirm is asked first (yes / no); after is shown on the question that
+  // comes back; used replaces the hint for the rest of the round once the
+  // round's one undo is spent.
   mulligan: {
     player: {
       button: 'Free mulligan',
-      hint: 'Just the one, like Commander.',
-      confirm: "Mulligan your last answer? It's free, once a round.",
-      yes: 'Mulligan',
-      no: 'Keep',
-      after: 'Mulligan taken. Same question, new answer.',
-      used: "Mulligan used for this round. Keep what you've got.",
+      hint: 'One per round.',
+      confirm: 'Undo your last answer? You get one per round.',
+      yes: 'Undo',
+      no: 'Keep it',
+      after: 'Undone. Answer that one again.',
+      used: 'Mulligan used for this round.',
     },
     plain: {
-      button: 'Undo last answer',
+      button: 'Undo',
       hint: 'One per round.',
       confirm: 'Undo your last answer? You get one per round.',
       yes: 'Undo',
@@ -5865,73 +5713,33 @@ const PLAY_COPY = {
     },
   },
 
+  // Between rounds: the round just finished, and the player's own Continue.
+  // Keyed by the round about to start (4: the result).
   transition: {
     continue: 'Continue',
-    // The round's name line, under its roman numeral (the numeral and the
-    // "Round" above it carry "Round II:" and "Round III:"). 4 is the line into
-    // the result: PROVISIONAL.
-    names: { 2: 'Closer calls', 3: 'Head to head', 4: 'Results' },
-    // The one-line beat, keyed by the round about to start (4: the result,
-    // PROVISIONAL).
-    beats: {
-      2: "Both answers will sound like you now. Pick the one you'd actually do.",
-      3: 'Your answers so far have picked the suspects. Now they meet.',
-      4: 'Every card played. Time to turn them over.',
-    },
-    // The button, where it is not "Continue"
-    buttons: { 2: 'Next round ›' },
-    // Into Round 3 only: by the trait leading (plain and workplace), or the
-    // player line. The other transitions carry no trait line.
-    banter: {
-      group: ['Last round. Everyone still gets a fair hearing.'],
-      homework: ["Last round. You've probably read ahead."],
-      door: ["Last round. You'll be looking for the shortcut."],
-      now: ['Last round. You started it about a minute ago.'],
-      leave: ['Last round. No rush, which you knew.'],
-      balanced: ['Last round. Still no clear favourite.'],
-      player: ['Last round. Same you, harder choices.'],
-    },
+    done: { 2: 'Round 1 done.', 3: 'Round 2 done.', 4: 'Round 3 done.' },
   },
 
+  // Before Round 3 (after Round 2, or after Round 1 when Round 2 had nothing
+  // to ask): one face-down card per result still in the running, which are
+  // only decoration, and one line under them.
   interstitial: {
-    // PROVISIONAL: the screen's own title, after Round 2 (or Round 1 when there is no Round 2)
-    titleRefined: 'Refinement Complete',
-    titleRound1: 'Round 1 Complete',
-    lineup: 'Suspects',
-    // Under the face-down cards, by how many candidates Round 3 plays (four
-    // under the likelihood engine; the old engine can bring fewer).
-    suspects: { 1: 'One suspect remains.', 2: 'Two suspects remain.', 3: 'Three suspects remain.', 4: 'Four suspects remain.' },
-    note: "They stay face down. You'll meet them two at a time.",
-    // By the trait leading (plain and workplace), or the player line
-    banter: {
-      group: ["Whoever's left, you'll give them a fair hearing."],
-      homework: ["You'll want to read up on them first. No such luck."],
-      door: ["One of them is the way out. You'll spot it."],
-      now: ["You'd like to just pick one. Nearly."],
-      leave: ["They'll keep. Take your time."],
-      balanced: ['No favourite yet. Good: nor have we.'],
-      player: ["We know who they are. You don't. That's the game."],
-    },
-    continue: 'Bring them in ›',
-    // {n}: the head-to-heads Round 3 plays for this many suspects
-    caption: 'About {n} questions, two suspects at a time.',
-    // the same line for a single head-to-head (two suspects: the old engine only)
-    captionOne: 'About 1 question, two suspects at a time.',
+    title: 'Round 3',
+    // {n}: how many results Round 3 plays, as a word (four under the
+    // likelihood engine; the old engine can bring fewer)
+    line: "{n} results are still in the running. You'll compare them two at a time.",
+    lineOne: 'One result is still in the running.',
+    count: { 2: 'Two', 3: 'Three', 4: 'Four' },
+    continue: 'Start Round 3',
   },
 
   // After Round 1, when the first answers already point one way. It names
   // neither the identity nor a colour.
   earlyOffer: {
-    typeline: 'Round I complete',
-    heading: 'The rest is optional.',
-    // {n}: the questions the one counter still has to go
-    body: 'Stop here and see your result, or play on for the fuller picture: about {n} more questions.',
+    heading: 'Round 1 done.',
+    body: 'We can call it now, or you can keep going for a firmer result.',
     keepGoing: 'Keep going',
-    showNow: 'Show me now',
-    caption: 'About {minutes} minutes.',
-    // the same line for a single minute (the minutes are 8 until measured; this
-    // is for after they are)
-    captionOne: 'About 1 minute.',
+    showNow: 'Show my result',
   },
 
   // PROVISIONAL: the results page's share button and table switcher
@@ -5939,7 +5747,7 @@ const PLAY_COPY = {
     share: '⚜ Share',
     themeLabel: 'Table',
     themes: { gilded: 'Gilded Hall', frames: 'Card Frames', borderless: 'Borderless' },
-    themeNote: 'Card Frames deals your next quiz face-down and turns your colours over with the result.',
+    themeNote: 'Card Frames keeps the colours hidden until your result.',
   },
 };
 
@@ -6023,16 +5831,14 @@ function renderQuizCounter() {
   if (qTot) qTot.textContent = String(total);
 }
 
-// ─── The every-ten beats ────────────────────────────────────────────────────
-// After answers 10, 20 and 40, one line above the next question (never a
-// colour). Not after 30, which ends Round 1, and not when any round ends on the
-// answer: a transition follows instead, so the beat is skipped when the
-// question is the first of its round. Plain and workplace speak to the trait
-// leading at that moment; player mode speaks to the pattern. A line is never
-// shown twice in a run: the same key coming up again gets its second line, and
-// a beat with nothing left is skipped. state.beats keeps what was decided for
-// each answer count, so a re-render, a refresh or an undo shows the same line
-// (it is part of the session snapshot, so an undone answer takes its beat with it).
+// ─── The every-ten progress line ────────────────────────────────────────────
+// After answers 10, 20 and 40, one line above the next question: how many are
+// answered and how many are left, by the one counter's own total (so it moves
+// with the counter when a round's real length becomes known). Not after 30,
+// which ends Round 1, and not when any round ends on the answer: a transition
+// follows instead, so the line is skipped when the question is the first of
+// its round. It is worked out from the counter each time, so a re-render, a
+// refresh or an undo shows the same line.
 
 // Whether the question on screen is the first of its round.
 function firstQuestionOfRound() {
@@ -6040,49 +5846,13 @@ function firstQuestionOfRound() {
   return !(state.qNum > 0);
 }
 
-function beatBook() {
-  if (!Array.isArray(state.beats)) state.beats = [];
-  return state.beats;
-}
-
-// The lines to draw from: player mode its own; the workplace audience the plain
-// set with its balanced line over it.
-function beatSet() {
-  const copy = PLAY_COPY.beats;
-  if (isPlayerMode()) return copy.player;
-  return state.audience === 'workplace' ? { ...copy.plain, ...copy.workplace } : copy.plain;
-}
-
-// The key for this beat. Plain: the trait leading. Player mode: the first beat
-// with a lead, the same lead as the last beat, a changed lead, or no lead.
-function beatKey(book, lead) {
-  if (!isPlayerMode()) return lead ? TRAIT_OF[lead] : 'balanced';
-  if (!lead) return 'balanced';
-  if (!book.length) return 'first';
-  return book[book.length - 1].lead === lead ? 'same' : 'moved';
-}
-
-// The beat for this many answers, decided once: '' means skip it.
-function beatFor(answered) {
-  const book = beatBook();
-  let entry = book.find(e => e.at === answered);
-  if (!entry) {
-    const lead = leadingColour();
-    const key = beatKey(book, lead);
-    const lines = beatSet()[key] || [];
-    const shown = book.filter(e => e.key === key && e.n > 0).length;
-    entry = { at: answered, key, lead, n: shown < lines.length ? shown + 1 : 0 };
-    book.push(entry);
-  }
-  return entry.n ? (beatSet()[entry.key] || [])[entry.n - 1] || '' : '';
-}
-
 function renderQuizBeat() {
   const el = document.getElementById('q-beat');
   if (!el) return;
   const answered = quizAnswered();
-  const due = answered > 0 && answered % 10 === 0 && !firstQuestionOfRound();
-  const line = due ? beatFor(answered) : '';
+  const left = quizLengths().total - answered;
+  const due = answered > 0 && answered % 10 === 0 && left > 0 && !firstQuestionOfRound();
+  const line = due ? fillCopy(PLAY_COPY.beats.progress, { answered, left }) : '';
   el.textContent = line;
   el.classList.toggle('hidden', !line);
 }
@@ -6946,11 +6716,11 @@ function showQ() {
   // Stacked layout for >2 options (Round 2 Pool D, etc.)
   choicesDiv.className = shuffled.length > 2 ? 'mc-choices mc-choices--stacked' : 'mc-choices';
 
-  // "Neither path is mine" — Round 1 only, gilt italic link
+  // "Neither", a gilt italic link under the two answers (Round 2 has its own)
   if (state.stage === 1) {
     const neitherBtn = document.createElement('button');
     neitherBtn.className = 'mc-neither';
-    neitherBtn.textContent = 'Neither path is mine';
+    neitherBtn.textContent = 'Neither';
     neitherBtn.onclick = () => answerNeither(q);
     choicesDiv.appendChild(neitherBtn);
   }
@@ -7250,14 +7020,9 @@ function showEarlyTerminationOffer(confidenceData) {
 
   // The offer names neither the identity nor a colour (confidenceData.identity
   // is kept for showResultsEarly, and the offer's own wording is in PLAY_COPY):
-  // it says the rest is optional, and how much of it is left, from the one
-  // counter (the same total the question screen has been showing).
-  const left = Math.max(0, quizLengths().total - quizAnswered());
+  // the result can be shown now, or the quiz can go on.
   const body = document.getElementById('early-message');
-  if (body) body.textContent = fillCopy(PLAY_COPY.earlyOffer.body, { n: left });
-  const lengthEl = document.getElementById('early-length');
-  const minutes = quizMinutes(left);
-  if (lengthEl) lengthEl.textContent = fillCopy(minutes === 1 ? PLAY_COPY.earlyOffer.captionOne : PLAY_COPY.earlyOffer.caption, { minutes });
+  if (body) body.textContent = PLAY_COPY.earlyOffer.body;
 
   window.scrollTo({top: 0, behavior: 'smooth'});
 }
@@ -8210,7 +7975,7 @@ function showRefinementQuestion() {
 
   const neitherBtn = document.createElement('button');
   neitherBtn.className = 'mc-neither';
-  neitherBtn.textContent = 'Neither path is mine';
+  neitherBtn.textContent = 'Neither';
   neitherBtn.onclick = () => selectRefinementNeither(q.pair);
   choicesDiv.appendChild(neitherBtn);
 
@@ -8403,109 +8168,34 @@ function recalculateCandidates(refinedData) {
   
 function showInterstitial(candidates) {
   state.pendingCandidates = candidates;
-  
+
   document.getElementById('screen-assessment').classList.add('hidden');
   document.getElementById('screen-interstitial').classList.remove('hidden');
-  
-  const sorted = state.activationSorted;
-  
-  // Check if refinement was done
-  const wasRefined = state.refinementAnswers && state.refinementAnswers.length > 0;
-  
-  // EASTER EGG: Check if user broke the assessment by selecting "neither" too much
-  // This catches: all refinement neithers, all R1 neithers, or any combo that produces NaN/zero
-  const allRefinementNeither = wasRefined && 
-    state.refinementAnswers.every(a => a.choice === 'NEITHER');
-  const allValuesZeroOrNaN = sorted.every(([c, act]) => isNaN(act) || act === 0 || act === undefined);
-  
-  if (allRefinementNeither || allValuesZeroOrNaN) {
-    // They broke it! Show the confetti screen
-    const scoresDiv = document.getElementById('inter-scores');
-    scoresDiv.innerHTML = '';
-    scoresDiv.style.cssText = 'text-align: center; padding: 40px 20px;';
-    
-    scoresDiv.innerHTML = `
-      <div style="font-size: 48px; margin-bottom: 16px;">🎉</div>
-      <div style="font-size: 28px; font-weight: 800; color: #a78bfa; margin-bottom: 12px;">Congratulations!</div>
-      <div style="font-size: 20px; color: #e0e0e0; margin-bottom: 8px;">You broke the internet.</div>
-      <div style="font-size: 14px; color: #808090; line-height: 1.6;">
-        By refusing to commit to anything, you've achieved a mathematically impossible result.<br><br>
-        This is either a profound statement about the limitations of forced-choice assessments, or you just really didn't want to play along.<br><br>
-        Either way, we respect it.
-      </div>
-    `;
-    
-    // Spray confetti
-    createConfetti();
-    
-    // Update title
-    const titleEl = document.querySelector('#screen-interstitial h2');
-    if (titleEl) {
-      titleEl.textContent = '🎊 Achievement Unlocked 🎊';
-    }
-    
-    // Hide the continue button and explanations
-    document.getElementById('inter-explanation').textContent = '';
-    document.getElementById('inter-next').textContent = '';
-    
-    // Replace the continue button with a restart option
-    const continueBtn = document.querySelector('#screen-interstitial .btn-primary');
-    if (continueBtn) {
-      continueBtn.textContent = 'Try Again (With Actual Choices)';
-      continueBtn.onclick = () => location.reload();
-    }
-    
-    // Hide the subtitle
-    const subtitle = document.querySelector('#screen-interstitial .btn-primary + p');
-    if (subtitle) subtitle.style.display = 'none';
-    
-    window.scrollTo({top: 0, behavior: 'smooth'});
-    return; // Don't continue with normal flow
-  }
-  
-  // Update interstitial title based on what was completed
+
+  // The title, "Round 3", whether Round 2 asked anything or not
+  const I = PLAY_COPY.interstitial;
   const titleEl = document.querySelector('#screen-interstitial h2');
-  if (titleEl) {
-    titleEl.textContent = wasRefined ? PLAY_COPY.interstitial.titleRefined : PLAY_COPY.interstitial.titleRound1;
-  }
-  
+  if (titleEl) titleEl.textContent = I.title;
+
   // The line-up: one face-down card per identity Round 3 will play (startRound3
-  // takes the top ROUND3_CANDIDATE_COUNT), captioned by the count. It replaced
-  // the five percentage bars: nothing here names or tints a colour.
-  const suspects = Math.max(1, Math.min(ROUND3_CANDIDATE_COUNT, (candidates || []).length));
-  const caption = PLAY_COPY.interstitial.suspects[suspects] || '';
-  const suspectsEl = document.getElementById('inter-suspects');
-  if (suspectsEl) {
-    suspectsEl.innerHTML = Array.from({ length: suspects }, () =>
-      '<div class="mc-cardback" aria-hidden="true"><span class="mc-cardback__oval">✦</span></div>').join('');
-    suspectsEl.setAttribute('aria-label', caption);
+  // takes the top ROUND3_CANDIDATE_COUNT). The cards are decoration only; the
+  // line under them says how many are left and what happens next. Nothing
+  // here names or tints a colour.
+  const inPlay = Math.max(1, Math.min(ROUND3_CANDIDATE_COUNT, (candidates || []).length));
+  const cardsEl = document.getElementById('inter-suspects');
+  if (cardsEl) {
+    cardsEl.innerHTML = Array.from({ length: inPlay }, () =>
+      '<div class="mc-cardback"><span class="mc-cardback__oval">✦</span></div>').join('');
   }
-  const captionEl = document.getElementById('inter-suspects-caption');
-  if (captionEl) captionEl.textContent = caption;
-  // A trait line, never a colour (one random draw, as the banter always had)
-  const banterEl = document.getElementById('inter-banter');
-  if (banterEl) banterEl.textContent = traitLine(PLAY_COPY.interstitial.banter);
+  const lineEl = document.getElementById('inter-line');
+  if (lineEl) lineEl.textContent = inPlay === 1 ? I.lineOne : fillCopy(I.line, { n: I.count[inPlay] || String(inPlay) });
   const continueBtn = document.getElementById('inter-continue');
-  if (continueBtn) continueBtn.textContent = PLAY_COPY.interstitial.continue;
-  // How many head-to-heads Round 3 plays for this many suspects: every pair once
-  const headToHeads = suspects * (suspects - 1) / 2;
-  const lengthEl = document.getElementById('inter-caption');
-  if (lengthEl) {
-    lengthEl.textContent = headToHeads < 1 ? ''
-      : fillCopy(headToHeads === 1 ? PLAY_COPY.interstitial.captionOne : PLAY_COPY.interstitial.caption, { n: headToHeads });
-    lengthEl.classList.toggle('hidden', headToHeads < 1);
-  }
-  
-  const refinementNote = wasRefined 
-    ? 'We\'ve cross-checked your responses across allied values to refine the signal. '
-    : '';
-  
-  const explanation = `${refinementNote}The data is in. One more round to confirm your identity.`;
-  const nextStep = 'In the final round, we\'ll present scenarios with competing approaches. Pick whichever feels more like you\u2014go with your gut even if it\'s close.';
-  
-  document.getElementById('inter-explanation').textContent = explanation;
-  document.getElementById('inter-next').textContent = nextStep;
-  
+  if (continueBtn) continueBtn.textContent = I.continue;
+  // The line-up used to draw one line of banter here. The seeded tests share
+  // one random stream with Round 3's shuffles, so the draw stays, though
+  // nothing shows it: a draw more or fewer would move every golden path.
+  Math.random();
+
   window.scrollTo({top: 0, behavior: 'smooth'});
 }
 
@@ -8998,7 +8688,7 @@ function showTournamentQuestion() {
   renderQuizCounter();
   const isTiebreak = matchup.type === 'POOL_TIEBREAK';
   document.getElementById('stage-label').textContent = isTiebreak
-    ? `${roundLabel(3)} — ${PLAY_COPY.round3.tiebreak}`
+    ? `Round 3: ${PLAY_COPY.round3.tiebreak}`
     : roundLabel(3);
   
   // Update progress bar
@@ -9611,36 +9301,21 @@ function showCalculating() {
   }, 2000);
 }
 
-// Between rounds: the round badge and name, a one-line beat, a trait line
-// (never a colour), and a Continue the player taps when ready. Nothing moves
-// on by itself. Continue stays disabled for the answer debounce, so a
-// double-tap on the last answer cannot skip the beat, and then takes focus.
-// Motion is CSS only and stops under prefers-reduced-motion.
+// Between rounds: which round has just finished ("Round 1 done.") and a
+// Continue the player taps when ready. Nothing moves on by itself. Continue
+// stays disabled for the answer debounce, so a double-tap on the last answer
+// cannot skip the screen, and then takes focus. Motion is CSS only and stops
+// under prefers-reduced-motion.
 function showRoundTransition(fromRound, toRound, callback) {
   const transitionScreen = document.getElementById('screen-round-transition');
   const title = document.getElementById('transition-title');
-  const subtitle = document.getElementById('transition-subtitle');
   const continueBtn = document.getElementById('transition-continue');
-  
+
   // Hide all other screens
   document.getElementById('screen-assessment').classList.add('hidden');
   document.getElementById('screen-interstitial').classList.add('hidden');
-  
-  // The roman numeral carries the round ("Round II:"), the name is what follows
-  // it, and the subtitle is the beat.
-  const romanMap = {1: 'I', 2: 'II', 3: 'III', 4: '✦'};
-  const romanEl = document.getElementById('transition-roman');
-  if (romanEl) romanEl.textContent = romanMap[toRound] || String(toRound);
-  title.textContent = PLAY_COPY.transition.names[toRound] || roundName(toRound) || `Round ${toRound}`;
-  subtitle.textContent = PLAY_COPY.transition.beats[toRound] || '';
 
-  // A trait line on the way into Round 3 only; the other transitions carry
-  // none, and the line is hidden rather than left as a gap.
-  const banterEl = document.getElementById('transition-banter');
-  if (banterEl) {
-    banterEl.textContent = toRound === 3 ? traitLine(PLAY_COPY.transition.banter) : '';
-    banterEl.classList.toggle('hidden', !banterEl.textContent);
-  }
+  title.textContent = PLAY_COPY.transition.done[toRound] || `Round ${fromRound} done.`;
 
   let done = false;
   const proceed = () => {
@@ -9650,7 +9325,7 @@ function showRoundTransition(fromRound, toRound, callback) {
     transitionScreen.classList.add('hidden');
     if (callback) callback();
   };
-  continueBtn.textContent = PLAY_COPY.transition.buttons[toRound] || PLAY_COPY.transition.continue;
+  continueBtn.textContent = PLAY_COPY.transition.continue;
   continueBtn.onclick = proceed;
   continueBtn.disabled = true;
 
@@ -9705,7 +9380,7 @@ function updateHeaderRoundIndicator(currentRound) {
     1: roundLabel(1),
     2: roundLabel(2),
     3: roundLabel(3),
-    4: PLAY_COPY.transition.names[4]
+    4: 'Results'
   };
   
   if (leftLabel) {
@@ -11254,23 +10929,24 @@ function getInteractionsContent(id) {
   return '<p style="color: #e0e0e0;">Interaction content coming soon.</p>';
 }
 
+// One small line under the confidence line, only when a quality flag fires,
+// and never more than one (RESULT_COPY.quality, most telling first): more
+// than 40% of answers under 0.6 s, the first answer more than 70% of the
+// time, Neither on more than 30%. The thresholds are as they were.
 function renderQualityWarning() {
   const el = document.getElementById('quality-warning');
   if (!el) return;
   const q = state.qualityFlags;
-  if (!q || !q.totalAnswered || q.totalAnswered < 10) { el.style.display = 'none'; return; }
-
-  const concerns = [];
-  const leftRate = q.alwaysLeftCount / q.totalAnswered;
-  const fastRate = q.fastResponseCount / q.totalAnswered;
-  const neitherRate = q.allNeitherCount / q.totalAnswered;
-  if (leftRate > 0.7) concerns.push("you picked the first option most of the time — that can mean strong consistency or it can mean position bias");
-  if (fastRate > 0.4) concerns.push("many answers came in under 0.6s — quicker than the questions can usually be read");
-  if (neitherRate > 0.3) concerns.push("you used 'Neither' on more than a third of items — the read is thinner as a result");
-
-  if (concerns.length === 0) { el.style.display = 'none'; return; }
-  el.style.display = 'block';
-  el.innerHTML = '<strong style="color: #F59E0B;">Heads up:</strong> ' + concerns.join('; ') + '. Take this with an extra grain of salt.';
+  let line = '';
+  if (q && q.totalAnswered >= 10) {
+    const rate = (n) => (n || 0) / q.totalAnswered;
+    const Q = RESULT_COPY.quality;
+    line = rate(q.fastResponseCount) > 0.4 ? Q.fast
+      : rate(q.alwaysLeftCount) > 0.7 ? Q.firstAnswer
+      : rate(q.allNeitherCount) > 0.3 ? Q.neither : '';
+  }
+  el.textContent = line;
+  el.style.display = line ? 'block' : 'none';
 }
 
 function showPreResultDisclaimer() {
@@ -11310,8 +10986,9 @@ function revealResults() {
 // ════════════════════════════════════════════════════════════════════════════
 
 // Bump when the next-door or appeal wording changes; every appeal records it.
-// 1: the first drafts. 2: revision 2 (17 October 2026).
-const RESULT_COPY_VERSION = 2;
+// 1: the first drafts. 2: revision 2 (17 October 2026). 3: Plain screens
+// (18 October 2026): no jokes in the next-door reasons, no question headings.
+const RESULT_COPY_VERSION = 3;
 
 const RESULT_COPY = {
   // One sentence-case name per identity, for use inside sentences. [3]
@@ -11329,7 +11006,7 @@ const RESULT_COPY = {
   // unchanged and with no parenthetical (checked against Scryfall on
   // 17 October 2026). It describes you, so it sits under the identity name and
   // tagline, not under the commander, and takes the place of the
-  // "Personality — NAME" divider's text, so the page has one typeline. With
+  // "Personality · Name" divider's text, so the page has one typeline. With
   // the rules text under it and the collector number at its foot it reads as
   // one card.
   typeline: {
@@ -11373,46 +11050,46 @@ const RESULT_COPY = {
   collector: 'MC{s} • EN • {n}/{total}',
   versionNote: 'Scoring version {s}',
 
-  // [4] Confidence labels and their base-rate sentences, the same in both modes
-  // and joke-free (links keep c=high|moderate|low). No numbers until real data
-  // exists (editor's decision 3), so `line` is what prints.
+  // [4] Confidence labels and the one line under each, the same in both modes
+  // (links keep c=high|moderate|low). The line is all the confidence block
+  // says: nothing about how the result was reached is stacked under it. No
+  // numbers until real data exists (editor's decision 3), so `line` is what
+  // prints.
   // PHASE 5, UNUSED: `phase5` (and phase5SmallPrint under it) waits for
   // recalibrated figures: {pct} is the share of results like this that held up,
   // {date} when that was measured. Nothing reads them before Phase 5.
   labels: {
     HIGH: {
       word: 'Locked in',
-      line: 'The colours are usually right. One more or one fewer is where it wobbles.',
+      line: 'A clear result.',
       phase5: 'About {pct}% of results like this held up when tested.'
     },
     MODERATE: {
       word: 'Leaning',
-      line: "Mostly one way, with a pull next door. If it's off, it's usually by one colour.",
+      line: 'Fairly clear. Your nearest neighbour is next door.',
       phase5: 'About {pct}% of results like this held up when tested.'
     },
     LOW: {
       word: 'Still shuffling',
-      line: 'Your answers pulled several ways. Read next door before you settle on this one.',
+      line: 'Your answers were split between a few results. Have a look next door.',
       phase5: 'About {pct}% of results like this held up when tested, so read next door too.'
     }
   },
   phase5SmallPrint: '(Tested on second visits and appeals, {date}.)', // PHASE 5, UNUSED
 
+  // Under the confidence line, at most one of these, and only when its flag
+  // fires (renderQualityWarning; the flags count Round 1's answers): answers
+  // quicker than the questions can be read first, then the first answer chosen
+  // most of the time, then many Neithers.
+  quality: {
+    fast: 'You answered a lot of these very quickly. A slower run might land somewhere else.',
+    firstAnswer: 'You often picked whichever answer came first, which can skew the result.',
+    neither: 'You chose neither quite often, so this result rests on fewer answers.'
+  },
+
   // [4] The bars: the title by mode, one caption for both.
   barsTitle: { player: 'Your Mana Pool', plain: 'Your colours' },
-  barsCaption: "The name's the summary. The bars are what you said.",
-  // Two caveats in the confidence explanation point at the bars; plain mode
-  // follows its own title. (Not in the drafts.)
-  barsPointer: {
-    loop: {
-      player: 'Your item answers — the mana pool below — broke the loop instead.',
-      plain: 'Your item answers — the bars below — broke the loop instead.'
-    },
-    story: {
-      player: 'The mana pool below remembers the other story.',
-      plain: 'The bars below remember the other story.'
-    }
-  },
+  barsCaption: 'How often you picked each colour when it was offered.',
 
   // [2] Rules-text strip, player mode only, one line per identity.
   // Bracketed reminder text prints in italics, as on a card; mana is in braces.
@@ -11484,20 +11161,17 @@ const RESULT_COPY = {
   // adds the strongest colour you don't run, "down" drops the weakest one you
   // do; mono has no down row, five-colour no up row. The margin (one / few /
   // well) says how far that colour sat from the line between in and out; see
-  // NEXT_DOOR_MARGINS. A "well" short up row asks its headline as a question
-  // (headWell), so it sits with a mana base that has no maybeboard line.
+  // NEXT_DOOR_MARGINS. One plain reason per row.
   nextDoor: {
     up: {
       player: {
         head: 'Splash {colour}: {identity}.',
-        headWell: 'Splash {colour}? {identity}.',
-        one: 'Your {colour} was one answer short of moving in.',
-        few: "Your {colour} was a few answers short. It's been round for a viewing.",
-        well: 'Your {colour} was well short. On nodding terms, no more.'
+        one: 'Your {colour} was one answer short.',
+        few: 'Your {colour} was a few answers short.',
+        well: 'Your {colour} was well short.'
       },
       plain: {
         head: 'Add {colour}: {identity}.',
-        headWell: 'Add {colour}? {identity}.',
         one: '{Colour} came in one answer short.',
         few: '{Colour} was a few answers short.',
         well: '{Colour} was well short.'
@@ -11507,8 +11181,8 @@ const RESULT_COPY = {
       player: {
         head: 'Cut the {lands}: {identity}.',
         one: '{Colour} only just made the cut.',
-        few: '{Colour} made the cut by a few answers. It would be missed.',
-        well: "{Colour} made the cut easily. Without it, it's a different deck."
+        few: '{Colour} made the cut by a few answers.',
+        well: '{Colour} made the cut easily.'
       },
       plain: {
         head: 'Drop {colour}: {identity}.',
@@ -11527,11 +11201,11 @@ const RESULT_COPY = {
   // workplace mode, where the appeal stays private).
   appeal: {
     // The line that leads into the rows (the drafts' "Button" row).
-    prompt: { player: 'Appeal this ruling', plain: 'Not quite you? Look next door.' },
+    prompt: { player: 'Appeal this ruling', plain: "If this isn't you, look next door." },
     peekHeading: 'Next door: {identity}',
     peekNote: {
-      player: 'Just looking. The ruling stands unless you appeal.',
-      plain: 'Just a look. Your result stays put unless you appeal.'
+      player: 'The ruling stands unless you appeal.',
+      plain: 'Your result stays the same unless you appeal.'
     },
     button: "Appeal: I'm {identity}",
     after: {
@@ -11553,30 +11227,26 @@ const RESULT_COPY = {
     pickCancel: 'Back to my result'
   },
 
-  // [11] Share text that dares a friend: the Web Share text, the clipboard
+  // [11] Share text that asks a friend: the Web Share text, the clipboard
   // fallback and the first line of #share-preview, one line in every mode.
-  // {neighbour} is the nearer next-door row of the identity named (mono has
-  // only an up row, five-colour only a down row). After an appeal, consumer
-  // shares name the identity on the page, marked with appeal.mark ({mark}),
-  // and the link carries both; workplace shares keep the appeal private and
-  // name the verdict. Share images keep the verdict until the release-2 mark.
+  // After an appeal, consumer shares name the identity on the page, marked
+  // with appeal.mark ({mark}), and the link carries both; workplace shares
+  // keep the appeal private and name the verdict. Share images keep the
+  // verdict until the release-2 mark.
   share: {
-    line: "I'm {identity}. {neighbour} lives next door. What are you?",
-    appealed: "I'm {identity} {mark}. {neighbour} lives next door. What are you?",
+    line: "I'm {identity}. What are you?",
+    appealed: "I'm {identity} {mark}. What are you?",
     // Approved for player mode as an alternative, not shipped; nothing reads
     // it. {commander} is the name before the comma: Yuriko, Kenrith, Kynaios
     // and Tiro of Meletis.
     playerCommander: "I'm {identity}. {commander}, apparently. What are you?"
   },
 
-  // What decided the result: the confidence explanation and Round 3 of "How
-  // we read you". Scoring engine 2 weighs all the answers, so the result can
-  // lack the best head-to-head record (about 15% of results); engine 1
-  // (?engine=1) keeps its old lines. {n}: head-to-head comparisons; {record}:
-  // wins and losses, "2W-1L". (Not in the drafts.)
+  // What decided the result, in Round 3 of "How we read you". Scoring engine 2
+  // weighs all the answers, so the result can lack the best head-to-head
+  // record (about 15% of results); engine 1 (?engine=1) keeps its old lines.
+  // {record}: wins and losses, "2W-1L". (Not in the drafts.)
   decided: {
-    clear: 'Decided by a clear margin on the weight of all your answers, {n} head-to-head comparisons included.',
-    leaning: 'Decided by a clear but not overwhelming margin on the weight of all your answers, {n} head-to-head comparisons included.',
     won: '{identity} won on the weight of all your answers ({record} in this round).',
     wonNotBest: '{identity} won on the weight of all your answers, though not with the best record in this round ({record}).',
     next: '{identity} came next ({record}).'
@@ -11632,7 +11302,7 @@ function identityName(id) {
 // Player mode: the identity as a card under its name and tagline. The
 // typeline ("Legendary Creature — Human Ninja"), the rules text directly
 // under it (bracketed reminder text in italics) and the collector number at
-// its foot. The "Personality — NAME" divider keeps its text only in plain
+// its foot. The "Personality · Name" divider keeps its text only in plain
 // mode, which prints the scoring version in the footer instead of the
 // collector number.
 function renderIdentityCard(id) {
@@ -11672,20 +11342,14 @@ function shareIdentityId() {
   return (state.audience || 'consumer') === 'workplace' ? r.identity : resultShownId();
 }
 
-// "I'm Azorius. Esper lives next door. What are you?", or after an appeal
-// "I'm Sultai (on appeal). Four-colour (no red) lives next door. What are
-// you?". The neighbour is the named identity's own: both next-door rows sit
-// the same gap from the line, so the nearer one is the up row; mono has only
-// up, five-colour only down.
+// "I'm Azorius. What are you?", or after an appeal "I'm Sultai (on appeal).
+// What are you?".
 function shareDareText() {
   const r = state.result;
   const id = shareIdentityId();
   if (!r || !PROFILES[id]) return '';
-  const near = nextDoorFor(id, activationMap())[0];
   const S = RESULT_COPY.share;
-  return fillCopy(id === r.identity ? S.line : S.appealed, {
-    identity: identityName(id), mark: RESULT_COPY.appeal.mark, neighbour: near ? identityName(near.id) : ''
-  });
+  return fillCopy(id === r.identity ? S.line : S.appealed, { identity: identityName(id), mark: RESULT_COPY.appeal.mark });
 }
 
 // The identity's roles, less the corporate jargon in consumer mode.
@@ -11805,8 +11469,7 @@ function nextDoorLine(row, player) {
     colour, Colour: colour.charAt(0).toUpperCase() + colour.slice(1),
     lands: RESULT_COPY.landWords[row.colour], identity: identityName(row.id)
   };
-  const head = row.margin === 'well' && t.headWell ? t.headWell : t.head;
-  return { head: fillCopy(head, vars), why: fillCopy(t[row.margin], vars) };
+  return { head: fillCopy(t.head, vars), why: fillCopy(t[row.margin], vars) };
 }
 
 // Ids of the next-door rows last rendered, in order (an appeal records them).
@@ -12274,9 +11937,10 @@ function showResults() {
   if (bannerCmd) bannerCmd.textContent = p.cmd ? `Commander · ${p.cmd}` : '';
   renderAppealMark();
 
-  // Claude Design plinth: typeline name + commander aside.
+  // Claude Design plinth: typeline name (its sentence-case name, as in prose)
+  // + commander aside.
   const typelineName = document.getElementById('res-typeline-name');
-  if (typelineName) typelineName.textContent = p.name;
+  if (typelineName) typelineName.textContent = identityName(shownId);
   const cmdNameAside = document.getElementById('cmd-name-aside');
   if (cmdNameAside) cmdNameAside.textContent = p.cmd || '';
   const cmdDescAside = document.getElementById('cmd-desc-aside');
@@ -12350,70 +12014,14 @@ function showResults() {
   document.getElementById('restart-text').textContent = 'Retake it to get the result you wanted instead of who you actually are?';
   document.getElementById('explorer-hint').textContent = '';
   
-  // Confidence label ("Locked in" / "Leaning" / "Still shuffling") and its base rate.
+  // The confidence block: the label ("Locked in" / "Leaning" / "Still
+  // shuffling") and its one line, then at most one quality line
+  // (renderQualityWarning, called above). Nothing else is stacked under it.
+  // The guards that lower the label (a Round 3 cycle, a scenario
+  // contradiction, a context disagreement) stay in the scoring code; the page
+  // does not describe them, and next door shows the alternatives.
   renderConfidenceLabel();
 
-  // Plain-language basis for the confidence call. The engine already knows why
-  // it believes what it believes; the reader should get the same courtesy —
-  // including the borderline warning, since near-ties genuinely can tip on a
-  // different day. Snapshot, not verdict.
-  const r3ForConf = state.result.round3Data || {};
-  const confComparisons = (r3ForConf.matchHistory || []).length;
-  const confRunnerUpId = r3ForConf.runnerUp ? r3ForConf.runnerUp.id : null;
-  const confRunnerUpName = confRunnerUpId ? (PROFILES[confRunnerUpId]?.name || confRunnerUpId) : null;
-  // Engine 2 weighs every answer, not the head-to-heads alone (RESULT_COPY.decided).
-  const allAnswers = decidedByAllAnswers();
-  let confBasis;
-  if (state.result.confidence === 'HIGH') {
-    confBasis = !confComparisons ? 'Your early answers pointed one way and kept pointing there.'
-      : allAnswers ? fillCopy(RESULT_COPY.decided.clear, { n: confComparisons })
-      : `Decided by a clear margin across ${confComparisons} head-to-head comparisons.`;
-  } else if (state.result.confidence === 'LOW' && r3ForConf.cycle) {
-    // The bars broke the loop only when engine 1 re-ranked its members by them
-    // and that pick stood (loopBrokenByBars). Engine 2's posterior decides
-    // inside a loop, so a result saved without the flag keeps the sentence
-    // only on engine 1.
-    const loopByBars = r3ForConf.loopBrokenByBars !== undefined ? r3ForConf.loopBrokenByBars : !allAnswers;
-    confBasis = `Your final-round preferences formed a loop (${r3ForConf.cycle.join(' beat ')}, who beat ${r3ForConf.cycle[0]}), so the scenarios couldn't decide this. ${loopByBars ? copyVariant(RESULT_COPY.barsPointer.loop) + ' ' : ''}Treat this as a soft read.`;
-  } else if (state.result.confidence === 'LOW') {
-    confBasis = 'The margins stayed thin throughout. Treat this as a soft read.';
-  } else {
-    confBasis = !confComparisons ? 'A clear pattern, with some genuine variation inside it.'
-      : allAnswers ? fillCopy(RESULT_COPY.decided.leaning, { n: confComparisons })
-      : `Decided by a clear but not overwhelming margin across ${confComparisons} head-to-head comparisons.`;
-  }
-  const isBorderline = confRunnerUpName && typeof r3ForConf.gap === 'number' && r3ForConf.gap <= 1 && !r3ForConf.cycle;
-  if (isBorderline) {
-    confBasis += ` You're near the border with ${confRunnerUpName} — take this again next month and it could tip. That's normal: this is a snapshot of your preferences, not a verdict on your character.`;
-  } else if (confRunnerUpName) {
-    confBasis += ` Your secondary lean: ${confRunnerUpName}.`;
-  }
-  // Scenario-vs-item contradiction: the winner's colours are not where the
-  // quick answers pointed. Say so — the bars below will show it anyway.
-  if (r3ForConf.scenarioContradiction) {
-    const contraNames = { W: 'White', U: 'Blue', B: 'Black', R: 'Red', G: 'Green' };
-    const contraName = contraNames[r3ForConf.scenarioContradiction.color] || r3ForConf.scenarioContradiction.color;
-    confBasis += ` One caveat: your quick answers kept choosing ${contraName}, and your scenario answers went somewhere else entirely. The scenarios decided it. ${copyVariant(RESULT_COPY.barsPointer.story)}`;
-  }
-  // Enemy-pair vs ally-pair disagreement: the two question rounds told
-  // different stories about a colour, so the margins are softer than they look.
-  if (r3ForConf.contextDisagreement) {
-    const agreeNames = { W: 'White', U: 'Blue', B: 'Black', R: 'Red', G: 'Green' };
-    const agreeName = agreeNames[r3ForConf.contextDisagreement.color];
-    confBasis += agreeName
-      ? ` Another caveat: Round 1 and Round 2 disagreed about ${agreeName} — you chose it against its enemies but not against its allies, or the other way round. Treat the margins as softer than they look.`
-      : ` Another caveat: Round 1 and Round 2 pulled in different directions. Treat the margins as softer than they look.`;
-  }
-  // Width shift (said by the old alternatives box, which next door replaces):
-  // the scenarios settled on more or fewer colours than the early answers did.
-  if (r3ForConf.widthShift && r3ForConf.expectedWinner && PROFILES[r3ForConf.expectedWinner]
-      && r3ForConf.expectedWinner !== state.result.identity) {
-    confBasis += ` Your initial patterns suggested ${PROFILES[r3ForConf.expectedWinner].name}, but your scenario choices revealed a ${r3ForConf.shiftDirection === 'wider' ? 'broader' : 'more focused'} identity.`;
-  }
-  const confExpEl = document.getElementById('conf-exp');
-  confExpEl.textContent = confBasis;
-  confExpEl.classList.remove('hidden');
-  
   // The card (player mode), philosophy, strengths and shadows of the identity
   // on screen. A peek next door opens under its own row instead.
   renderIdentitySections(shownId);

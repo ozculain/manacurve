@@ -13,8 +13,8 @@
 //      the explorer beside it, the long paragraph in the fold, the resume
 //      offer's anchor, about 8 minutes
 //   5. transitions that wait for a tap (the real showRoundTransition, not the
-//      stub), the face-down suspects, the renamed interstitial button, and
-//      trait lines and every-ten beats that never name a colour
+//      stub) and say which round is done, the Round 3 line-up (face-down
+//      cards and one line), and the every-ten progress line
 //   6. the free mulligan: one undo per round, only the final answer scored,
 //      the first answer and both response times on the record
 //   7. share beside the identity in the results banner
@@ -197,38 +197,29 @@ run('play', async (t) => {
       textOf(win, 'preflight-length') === 'Up to 45 questions, about 8 minutes.'
         && !/15\s*min|~\s*15/i.test(welcomeText + win.document.getElementById('screen-preflight').textContent),
       textOf(win, 'preflight-length'));
-    // The early offer: what is left of the one counter. It comes at the end
-    // of Round 1, before Round 2 is built.
+    // The early offer comes at the end of Round 1, before Round 2 is built.
     begin(h);
     h.state.qNum = 30;
     win.showEarlyTerminationOffer({ identity: 'DIMIR', confidence: 0.95, message: 'Your Round 1 answers already point clearly to DIMIR.' });
     const early = textOf(win, 'early-message');
-    ok('P2h the early offer counts what is left of the one counter (45 - 30 = about 15 more questions, about 3 minutes)',
-      isVisible(win, 'screen-early-offer')
-        && early === 'Stop here and see your result, or play on for the fuller picture: about 15 more questions.'
-        && textOf(win, 'early-length') === 'About 3 minutes.', early + ' / ' + textOf(win, 'early-length'));
-    // A single minute reads in the singular (once the minutes are measured they can come out at one)
-    h.state.refinementQuestions = [{}]; // a Round 2 of one question: 30 + 1 + 6 = 37 in all, 7 to go
-    win.showEarlyTerminationOffer({ identity: 'DIMIR', confidence: 0.95, message: '' });
-    ok('P2h2 one minute left reads "About 1 minute."', textOf(win, 'early-length') === 'About 1 minute.' && /about 7 more questions\.$/.test(textOf(win, 'early-message')),
-      textOf(win, 'early-length') + ' / ' + textOf(win, 'early-message'));
-    h.state.refinementQuestions = undefined;
-    win.showEarlyTerminationOffer({ identity: 'DIMIR', confidence: 0.95, message: 'Your Round 1 answers already point clearly to DIMIR.' });
+    ok('P2h the early offer says "Round 1 done." and "We can call it now, or you can keep going for a firmer result."',
+      isVisible(win, 'screen-early-offer') && win.document.querySelector('#screen-early-offer h2').textContent === 'Round 1 done.'
+        && early === 'We can call it now, or you can keep going for a firmer result.', early);
     // The caller's own message names the identity; the offer must not show it.
     const offer = win.document.getElementById('screen-early-offer');
     const offerText = offer.textContent.replace(/\s+/g, ' ').trim();
-    ok('P2i the early offer names neither the identity nor a colour: no pips, name, tagline or "Preliminary read" chip, and the reviewed lines',
+    ok('P2i the early offer names neither the identity nor a colour: no pips, name, tagline or "Preliminary read" chip; its two buttons are "Keep going" and "Show my result", and that is all it says',
       !/dimir|preliminary|already point/i.test(offerText) && !COLOUR_WORDS.test(offerText)
         && offer.querySelectorAll('.mc-pip, .mc-confidence, .mc-manastrip, #early-result-name, #early-result-tag').length === 0
-        && textOf(win, 'early-typeline') === 'Round I complete' && offer.querySelector('h2').textContent === 'The rest is optional.'
-        && textOf(win, 'early-keep-going') === 'Keep going' && textOf(win, 'early-show-now') === 'Show me now', offerText);
+        && textOf(win, 'early-keep-going') === 'Keep going' && textOf(win, 'early-show-now') === 'Show my result'
+        && offerText === '✦ Round 1 done. We can call it now, or you can keep going for a firmer result. Keep going Show my result', offerText);
     // The claims are the counter's computed total, not a number written into the copy:
     // a longer Round 2 estimate moves the welcome, the fold and the preflight together
     win.eval('QUIZ_LENGTH.round2 = 12');
     win.applyPlayCopy();
     ok('P2j the length lines follow the counter\'s computed total (a Round 2 estimate of 12 makes 48 everywhere)',
       win.eval('quizLengths().total') === 48 && textOf(win, 'preflight-length') === 'Up to 48 questions, about 8 minutes.'
-        && textOf(win, 'welcome-length') === "Up to 48 questions, about 8 minutes. Less if you're decisive." && textOf(win, 'how-length') === 'Up to 48 questions over three rounds.',
+        && textOf(win, 'welcome-length') === 'Up to 48 questions, about 8 minutes.' && textOf(win, 'how-length') === 'Up to 48 questions over three rounds.',
       `${textOf(win, 'preflight-length')} | ${textOf(win, 'welcome-length')} | ${textOf(win, 'how-length')}`);
     win.close();
   }
@@ -329,8 +320,8 @@ run('play', async (t) => {
     const d = win.document;
     const P = copy(win);
     const title = d.querySelector('#screen-welcome .mc-welcome__title');
-    ok('P4a "Rule 0" sits directly under the title, with its second sentence', title.nextElementSibling === d.getElementById('welcome-rule0')
-      && textOf(win, 'welcome-rule0') === P.welcome.rule0 && P.welcome.rule0 === "Rule 0: it's a bit of fun, not science. We keep having to remind ourselves.", textOf(win, 'welcome-rule0'));
+    ok('P4a "Rule 0" sits directly under the title, in one sentence', title.nextElementSibling === d.getElementById('welcome-rule0')
+      && textOf(win, 'welcome-rule0') === P.welcome.rule0 && P.welcome.rule0 === "Rule 0: it's a bit of fun, not science.", textOf(win, 'welcome-rule0'));
     const lede = d.getElementById('welcome-lede');
     const actions = lede.nextElementSibling;
     const start = d.getElementById('welcome-start');
@@ -343,8 +334,8 @@ run('play', async (t) => {
     ok('P4c the long paragraph moved into the "Learn more" fold',
       d.getElementById('learn-more-content').contains(intro) && /5 colours/.test(intro.textContent)
         && ![...lede.parentElement.children].some((el) => el.tagName === 'P' && /5 colours/.test(el.textContent)), '');
-    ok('P4d the welcome says "up to 45 questions, about 8 minutes", the counter\'s own total, and "less if you\'re decisive"',
-      textOf(win, 'welcome-length') === "Up to 45 questions, about 8 minutes. Less if you're decisive.", textOf(win, 'welcome-length'));
+    ok('P4d the welcome says "up to 45 questions, about 8 minutes", the counter\'s own total',
+      textOf(win, 'welcome-length') === 'Up to 45 questions, about 8 minutes.', textOf(win, 'welcome-length'));
     // The resume offer still lands after the crest, at its anchor.
     begin(h);
     for (let i = 0; i < 4; i++) answerOne(h);
@@ -360,49 +351,42 @@ run('play', async (t) => {
     w2.close();
   }
 
-  // ---------- 5: beats, trait lines and transitions; no colour named ----------
+  // ---------- 5: the progress line and the transitions; no colour named ----------
   {
-    // A whole journey in plain mode: the beat shows above the question after
-    // answers 10, 20 and 40 only (never after 30, which ends Round 1, nor when
-    // a round ends on the answer), from the plain set, and no line twice.
+    // A whole journey in plain mode: the progress line shows above the question
+    // after answers 10, 20 and 40 only (never after 30, which ends Round 1, nor
+    // when a round ends on the answer), and counts what is left by the counter.
     const { win, h, errors } = await page();
     const P = copy(win);
     begin(h);
     const seen = [];
     playThrough(h, win, () => seen.push({
-      num: +textOf(win, 'q-num'), label: textOf(win, 'stage-label'),
+      num: +textOf(win, 'q-num'), tot: +textOf(win, 'q-tot'), label: textOf(win, 'stage-label'),
       beat: isVisible(win, 'q-beat') ? textOf(win, 'q-beat') : '',
     }));
-    const plainLines = Object.values(P.beats.plain).flat();
     const shown = seen.filter((x) => x.beat);
     const wrongPlace = shown.filter((x) => ![11, 21, 41].includes(x.num)).map((x) => x.num);
-    const unknown = shown.filter((x) => !plainLines.includes(x.beat)).map((x) => `${x.num}:"${x.beat}"`);
-    const repeats = shown.filter((x, i) => shown.findIndex((y) => y.beat === x.beat) !== i).map((x) => x.num);
-    ok('P5a one beat line shows above the question after answers 10, 20 and 40 (never 30), from the plain set, and no line twice',
-      seen.length > 40 && shown.length >= 2 && wrongPlace.length === 0 && unknown.length === 0 && repeats.length === 0,
-      `beats at ${shown.map((x) => x.num)} wrong=${wrongPlace} unknown=${unknown.slice(0, 2)} repeats=${repeats}`);
+    const wrongWords = shown.filter((x) => x.beat !== `${x.num - 1} answered, ${x.tot - x.num + 1} to go.`).map((x) => `${x.num}:"${x.beat}"`);
+    ok('P5a the progress line shows above the question after answers 10, 20 and 40 (never 30), and reads "10 answered, 35 to go." by the counter',
+      seen.length > 40 && shown.length >= 2 && wrongPlace.length === 0 && wrongWords.length === 0 && shown[0].beat === '10 answered, 35 to go.',
+      `lines at ${shown.map((x) => x.num)} wrong=${wrongPlace} words=${wrongWords.slice(0, 2)}`);
     const leaks = seen.filter((x) => COLOUR_WORDS.test(x.label + ' ' + x.beat)).map((x) => x.num);
-    ok('P5b the stage label and the beats never name a colour during the rounds', leaks.length === 0 && errors.length === 0, leaks.join(',') + errors.slice(0, 2).join(' | '));
+    ok('P5b the stage label and the progress line never name a colour during the rounds', leaks.length === 0 && errors.length === 0, leaks.join(',') + errors.slice(0, 2).join(' | '));
     const strings = [];
     const walk = (v) => { if (typeof v === 'string') strings.push(v); else if (v && typeof v === 'object') Object.values(v).forEach(walk); };
     ['rounds', 'welcome', 'preflight', 'stems', 'round3', 'beats', 'mulligan', 'transition', 'interstitial', 'earlyOffer'].forEach((k) => walk(P[k]));
     const named = strings.map((x) => ({ x, kinds: forbiddenIn(h.PROFILES, x) })).filter((y) => y.kinds.length);
-    ok('P5c every quiz-screen string (round names, welcome, preflight, stems, beats, undo, transitions, line-up, early offer) names no colour, basic land or identity',
-      strings.length > 80 && named.length === 0, named.map((y) => `${y.kinds}: ${y.x}`).join(' | '));
+    ok('P5c every quiz-screen string (round names, welcome, preflight, stems, progress line, undo, transitions, line-up, early offer) names no colour, basic land or identity',
+      strings.length > 45 && named.length === 0, named.map((y) => `${y.kinds}: ${y.x}`).join(' | '));
     win.close();
   }
   {
-    // The beats' rules, on made-up tallies: first line, second line, nothing
-    // left; player mode's pattern keys; the workplace balanced line; the skip
-    // when a round ends on the answer; a re-render and an undo keep the choice.
-    const lead = (h, colour) => { // a clear lead for one colour in the Round 1 tallies
-      const t = h.state.pairwise;
-      Object.keys(t).forEach((pair) => { Object.keys(t[pair]).forEach((c) => { t[pair][c] = c === colour ? 5 : 1; }); });
-    };
-    const flat = (h) => { const t = h.state.pairwise; Object.keys(t).forEach((pair) => { Object.keys(t[pair]).forEach((c) => { t[pair][c] = 3; }); }); };
-    // The beat the question after this many answers would carry (answers 10 and 20
-    // in Round 1; 40 and later as questions into Round 2's count)
-    const beatAfter = (win, h, answered) => {
+    // The progress line's rules, on made-up counts: the same line in every
+    // mode and on a re-render; the skip on a round's first question; an undo
+    // takes it back.
+    // The line the question after this many answers would carry (answers 10 and
+    // 20 in Round 1; 40 and later as questions into Round 2's count)
+    const lineAfter = (win, h, answered) => {
       const s = h.state;
       if (answered <= 20) { s.stage = 1; s.qNum = answered; }
       else { s.stage = 'refinement'; s.refinementQuestions = new Array(40).fill({}); s.qNum = answered - 30; }
@@ -410,69 +394,42 @@ run('play', async (t) => {
       return isVisible(win, 'q-beat') ? textOf(win, 'q-beat') : '';
     };
     {
+      const lines = [];
+      for (const opts of [{}, { gaming: true }, { gaming: true, audience: 'workplace' }]) {
+        const { win, h } = await page();
+        begin(h, opts);
+        const a = lineAfter(win, h, 10), again = lineAfter(win, h, 10), b = lineAfter(win, h, 20);
+        lines.push(`${a} | ${again} | ${b}`);
+        win.close();
+      }
+      ok('P5p plain, player and workplace modes show the same line, the same again on a re-render: "10 answered, 35 to go.", then "20 answered, 25 to go."',
+        lines.every((x) => x === '10 answered, 35 to go. | 10 answered, 35 to go. | 20 answered, 25 to go.'), lines.join(' / '));
+    }
+    {
+      // A Round 2 of 40 questions makes the total 30 + 40 + 6 = 76: the line counts from the counter's own total
       const { win, h } = await page();
-      const P = copy(win);
       begin(h);
-      lead(h, 'W');
-      const a = beatAfter(win, h, 10), again = beatAfter(win, h, 10);
-      const b = beatAfter(win, h, 20), againB = beatAfter(win, h, 20);
-      ok('P5p plain mode, a clear lead: the trait line, the same line when it is drawn again, then the second line when the trait comes up again',
-        a === P.beats.plain.group[0] && a === 'You keep picking the answer where everyone gets a turn.' && again === a
-          && b === P.beats.plain.group[1] && b === 'Still the answer where everyone gets a turn.' && againB === b, `10:"${a}" again:"${again}" 20:"${b}"`);
-      const later = beatAfter(win, h, 40);
-      ok('P5q a third time on the same trait there is nothing left to say, and the beat is skipped', later === '', `40:"${later}"`);
+      const later = lineAfter(win, h, 40);
+      ok('P5q the line counts from the counter\'s computed total once a round\'s real length is known (40 answered of 76)',
+        later === '40 answered, 36 to go.' && win.eval('quizLengths().total') === 76, `40:"${later}"`);
       win.close();
     }
     {
-      // answer 30 has just ended Round 1: Round 2's first question carries no beat, with lines to spare
+      // answer 30 has just ended Round 1: Round 2's first question carries no line
       const { win, h } = await page();
       begin(h);
-      lead(h, 'W');
       h.state.stage = 'refinement'; h.state.qNum = 0; h.state.refinementQuestions = new Array(9).fill({});
       win.renderQuizBeat();
       const first = isVisible(win, 'q-beat');
       h.state.qNum = 1; // the next question is answer 31, not a multiple of ten: still none
       win.renderQuizBeat();
-      ok('P5q2 the first question of Round 2 (answer 30 has just ended Round 1) carries no beat, though a line is free', first === false && isVisible(win, 'q-beat') === false, `first=${first}`);
+      ok('P5q2 the first question of Round 2 (answer 30 has just ended Round 1) carries no line', first === false && isVisible(win, 'q-beat') === false, `first=${first}`);
       win.close();
     }
     {
-      const { win, h } = await page();
-      begin(h, { audience: 'workplace' });
-      flat(h);
-      const balanced = beatAfter(win, h, 10), second = beatAfter(win, h, 20);
-      const plain = await page();
-      begin(plain.h);
-      flat(plain.h);
-      const plainBalanced = beatAfter(plain.win, plain.h, 10);
-      ok('P5r no clear lead: "No pattern yet. You\'re either balanced or doing it on purpose." in plain mode, only "No pattern yet." at work, then "Still no clear pattern."',
-        plainBalanced === "No pattern yet. You're either balanced or doing it on purpose." && balanced === 'No pattern yet.' && second === 'Still no clear pattern.',
-        `plain:"${plainBalanced}" work:"${balanced}" then:"${second}"`);
-      plain.win.close(); win.close();
-    }
-    {
-      const { win, h } = await page();
-      const P = copy(win);
-      begin(h, { gaming: true });
-      lead(h, 'W');
-      const first = beatAfter(win, h, 10), same = beatAfter(win, h, 20);
-      lead(h, 'R');
-      const moved = beatAfter(win, h, 40);
-      ok('P5s player mode speaks to the pattern: "Ten in. Something\'s forming." first, "Same pattern as last time.", then "Different pattern from last time." when the lead moves',
-        first === "Ten in. Something's forming. We're not saying what." && same === 'Same pattern as last time. Consistent, or stubborn. Both count.'
-          && moved === 'Different pattern from last time. Noted.', `${first} | ${same} | ${moved}`);
-      flat(h);
-      const none = beatAfter(win, h, 50), noneAgain = beatAfter(win, h, 60);
-      ok('P5t player mode with no clear lead says so once ("No pattern yet."), and the line is not said twice',
-        none === P.beats.player.balanced[0] && none === "No pattern yet. You're either balanced or doing it on purpose." && noneAgain === '',
-        `"${none}" then "${noneAgain}"`);
-      win.close();
-    }
-    {
-      // No beat when the answer ends a round: a Round 2 of ten questions ends on answer 40
+      // No line when the answer ends a round: a Round 2 of ten questions ends on answer 40
       const { win, h } = await page();
       begin(h);
-      lead(h, 'W');
       h.state.stage = 3;
       h.state.refinementQuestions = new Array(10).fill({});
       h.state.tournament = { questionCount: 0, maxQuestions: 6 };
@@ -481,22 +438,22 @@ run('play', async (t) => {
       h.state.refinementQuestions = new Array(9).fill({});
       h.state.tournament.questionCount = 1; // 30 + 9 + 1 = 40 answers, mid-round
       win.renderQuizBeat();
-      ok('P5u answer 40 ending Round 2 skips the beat (a transition follows); answer 40 mid-round shows it',
-        !endsRound && isVisible(win, 'q-beat'), `endsRound=${endsRound}`);
+      ok('P5u answer 40 ending Round 2 skips the line (a transition follows); answer 40 mid-round shows it, with 5 to go',
+        !endsRound && isVisible(win, 'q-beat') && textOf(win, 'q-beat') === '40 answered, 5 to go.', `endsRound=${endsRound} "${textOf(win, 'q-beat')}"`);
       win.close();
     }
     {
-      // An undone answer takes its beat with it
+      // An undone answer takes its line with it
       const { win, h } = await page();
       begin(h);
-      for (let i = 0; i < 10; i++) answerOne(h); // the tenth: the next question carries the beat
-      const had = !!h.state.beats && h.state.beats.length === 1 && isVisible(win, 'q-beat');
+      for (let i = 0; i < 10; i++) answerOne(h); // the tenth: the next question carries the line
+      const had = isVisible(win, 'q-beat') && textOf(win, 'q-beat') === '10 answered, 35 to go.';
       win.document.getElementById('mulligan-btn').click();
       win.document.getElementById('mulligan-yes').click();
-      const undone = (!h.state.beats || h.state.beats.length === 0) && !isVisible(win, 'q-beat') && h.state.qNum === 9;
+      const undone = !isVisible(win, 'q-beat') && h.state.qNum === 9;
       answerOne(h);
-      ok('P5v undoing the tenth answer takes the beat back with it, and answering again decides it afresh',
-        had && undone && h.state.beats.length === 1, `had=${had} undone=${undone} beats=${JSON.stringify(h.state.beats)}`);
+      ok('P5v undoing the tenth answer takes the line back with it, and answering again shows it again',
+        had && undone && isVisible(win, 'q-beat') && textOf(win, 'q-beat') === '10 answered, 35 to go.', `had=${had} undone=${undone}`);
       win.close();
     }
   }
@@ -509,45 +466,30 @@ run('play', async (t) => {
     win.showRoundTransition(1, 2, () => { calls++; });
     const screen = d.getElementById('screen-round-transition');
     const btn = d.getElementById('transition-continue');
-    const banter = d.getElementById('transition-banter');
-    const shown = isVisible(win, 'screen-round-transition') && textOf(win, 'transition-roman') === 'II' && textOf(win, 'transition-title') === 'Closer calls'
-      && textOf(win, 'transition-subtitle') === "Both answers will sound like you now. Pick the one you'd actually do."
-      && banter.classList.contains('hidden') && banter.textContent === '' && btn.textContent === 'Next round ›';
-    ok('P5d Round 1 to 2: "Round II", "Closer calls", the one-line beat, no trait line, and a "Next round ›" control', shown,
-      `${textOf(win, 'transition-title')} / ${textOf(win, 'transition-subtitle')} / ${banter.textContent} / ${btn.textContent}`);
-    ok('P5e the transition names no colour', !COLOUR_WORDS.test(screen.textContent), screen.textContent.replace(/\s+/g, ' ').trim());
+    const screenText = () => screen.textContent.replace(/\s+/g, ' ').trim();
+    ok('P5d Round 1 to 2: "Round 1 done." and a "Continue" control, and nothing else on the screen',
+      isVisible(win, 'screen-round-transition') && textOf(win, 'transition-title') === 'Round 1 done.' && btn.textContent === 'Continue'
+        && screenText() === 'Round 1 done. Continue', screenText());
+    ok('P5e the transition names no colour', !COLOUR_WORDS.test(screen.textContent), screenText());
     await sleep(1700); // longer than the old 1.5 s auto-advance
     ok('P5f it does not advance on its own', calls === 0 && isVisible(win, 'screen-round-transition') && !btn.disabled, `calls=${calls}`);
     btn.click();
     btn.click();
     ok('P5g Continue advances exactly once', calls === 1 && !isVisible(win, 'screen-round-transition'), `calls=${calls}`);
-    // Into Round 3: "Round III", "Head to head", and the trait line for whoever leads.
+    // Into Round 3: "Round 2 done.", the same whoever leads and in every mode.
     const intoThree = (activation, gaming, audience) => {
       h.state.activationSorted = activation; h.state.gamingFamiliar = gaming; h.state.audience = audience;
       win.showRoundTransition(2, 3, () => {});
-      return { title: textOf(win, 'transition-title'), sub: textOf(win, 'transition-subtitle'), line: textOf(win, 'transition-banter'), roman: textOf(win, 'transition-roman'),
-        button: textOf(win, 'transition-continue'), hidden: banter.classList.contains('hidden') };
+      return screenText();
     };
     const lead = [['W', 0.8], ['U', 0.6], ['B', 0.4], ['R', 0.3], ['G', 0.2]];
     const level = [['W', 0.5], ['U', 0.48], ['B', 0.47], ['R', 0.46], ['G', 0.45]];
-    const plain = intoThree(lead, false, 'consumer');
-    ok('P5d2 Round 2 to 3: "Round III", "Head to head", "Your answers so far have picked the suspects. Now they meet.", Continue, and the trait line for the lead',
-      plain.roman === 'III' && plain.title === 'Head to head' && plain.sub === 'Your answers so far have picked the suspects. Now they meet.'
-        && plain.button === 'Continue' && !plain.hidden && plain.line === 'Last round. Everyone still gets a fair hearing.', JSON.stringify(plain));
-    const player = intoThree(lead, true, 'consumer');
-    const work = intoThree(lead, true, 'workplace');
-    const flat = intoThree(level, false, 'consumer');
-    ok('P5d3 into Round 3 a player gets "Same you, harder choices.", workplace stays plain even for a player, and no clear lead says "Still no clear favourite."',
-      player.line === 'Last round. Same you, harder choices.' && work.line === 'Last round. Everyone still gets a fair hearing.' && flat.line === 'Last round. Still no clear favourite.',
-      `${player.line} | ${work.line} | ${flat.line}`);
-    const traitCases = [['W', 'Everyone still gets a fair hearing.'], ['U', "You've probably read ahead."], ['B', "You'll be looking for the shortcut."], ['R', 'You started it about a minute ago.'], ['G', 'No rush, which you knew.']];
-    const traitLines = traitCases.map(([c, line]) => ({ got: intoThree([[c, 0.8], ...['W', 'U', 'B', 'R', 'G'].filter((x) => x !== c).map((x) => [x, 0.3])], false, 'consumer').line, want: 'Last round. ' + line }));
-    ok('P5d4 each leading trait has its own line into Round 3 (group, homework, door, now, leave)', traitLines.every((x) => x.got === x.want), traitLines.filter((x) => x.got !== x.want).map((x) => `"${x.got}" for "${x.want}"`).join(' | '));
+    const into = [intoThree(lead, false, 'consumer'), intoThree(lead, true, 'consumer'), intoThree(lead, true, 'workplace'), intoThree(level, false, 'consumer')];
+    ok('P5d2 Round 2 to 3: "Round 2 done." and "Continue", in plain, player and workplace modes, with or without a clear lead',
+      into.every((x) => x === 'Round 2 done. Continue'), into.join(' | '));
     h.state.gamingFamiliar = false; h.state.audience = 'consumer';
     win.showRoundTransition(3, 4, () => {});
-    ok('P5d5 into the result the transition keeps its provisional line, no trait line, and "Continue"',
-      textOf(win, 'transition-roman') === '✦' && textOf(win, 'transition-title') === 'Results' && banter.classList.contains('hidden') && textOf(win, 'transition-continue') === 'Continue',
-      `${textOf(win, 'transition-title')} / ${textOf(win, 'transition-continue')}`);
+    ok('P5d5 into the result: "Round 3 done." and "Continue"', screenText() === 'Round 3 done. Continue', screenText());
     // Motion only under prefers-reduced-motion: no-preference.
     const motion = mediaBlocks(win, /prefers-reduced-motion:\s*no-preference/).flatMap((m) => [...m.cssRules]);
     const animated = (sel) => { const r = ruleFor(motion, sel); return !!r && /mc\w+/.test(r.style.getPropertyValue('animation')); };
@@ -577,30 +519,27 @@ run('play', async (t) => {
     ok('P5j after Round 1 the transition holds Round 2 back until Continue is tapped',
       waiting12 && stillWaiting && h.state.stage === 'refinement' && isVisible(win, 'screen-assessment'), `offer=${offer} stage=${h.state.stage}`);
     finishRound(h, 2);
-    const waiting23 = isVisible(win, 'screen-round-transition') && !isVisible(win, 'screen-interstitial') && textOf(win, 'transition-roman') === 'III'
-      && textOf(win, 'transition-title') === 'Head to head' && Object.values(P.transition.banter).flat().includes(textOf(win, 'transition-banter'));
+    const waiting23 = isVisible(win, 'screen-round-transition') && !isVisible(win, 'screen-interstitial') && textOf(win, 'transition-title') === 'Round 2 done.';
     await sleep(400);
     d.getElementById('transition-continue').click();
     const inter = d.getElementById('screen-interstitial');
     const cards = inter.querySelectorAll('#inter-suspects .mc-cardback').length;
     const want = Math.min(4, (h.state.pendingCandidates || []).length);
-    ok('P5k after Round 2 the transition waits, then the line-up shows "Suspects", one face-down card per remaining suspect, and "Four suspects remain."',
-      waiting23 && isVisible(win, 'screen-interstitial') && cards === want && cards === 4
-        && textOf(win, 'inter-lineup-title') === 'Suspects' && textOf(win, 'inter-suspects-caption') === 'Four suspects remain.',
-      `cards=${cards} want=${want} caption=${textOf(win, 'inter-suspects-caption')}`);
-    ok('P5k2 under the cards: "They stay face down. You\'ll meet them two at a time." and, by the six head-to-heads, "About 6 questions, two suspects at a time."',
-      textOf(win, 'inter-note') === "They stay face down. You'll meet them two at a time." && textOf(win, 'inter-caption') === 'About 6 questions, two suspects at a time.',
-      `${textOf(win, 'inter-note')} | ${textOf(win, 'inter-caption')}`);
-    const allBanter = Object.values(P.interstitial.banter).flat();
-    ok('P5l the interstitial has no bars, percentages or colour names, and its banter is one of the line-up lines',
-      inter.querySelectorAll('.mc-profile__row, .mc-pip, [data-color]').length === 0 && !/%/.test(inter.textContent)
-        && !COLOUR_WORDS.test(inter.textContent) && allBanter.includes(textOf(win, 'inter-banter')),
-      inter.textContent.replace(/\s+/g, ' ').trim().slice(0, 200));
-    ok('P5m the interstitial button reads "Bring them in ›", not "Continue to Final Round"',
-      textOf(win, 'inter-continue') === 'Bring them in ›', textOf(win, 'inter-continue'));
+    ok('P5k after Round 2 the transition waits, then the line-up shows "Round 3", one face-down card per result still in the running, and "Four results are still in the running. You\'ll compare them two at a time."',
+      waiting23 && isVisible(win, 'screen-interstitial') && cards === want && cards === 4 && inter.querySelector('h2').textContent === 'Round 3'
+        && textOf(win, 'inter-line') === "Four results are still in the running. You'll compare them two at a time.",
+      `cards=${cards} want=${want} line=${textOf(win, 'inter-line')}`);
+    const interText = inter.textContent.replace(/\s+/g, ' ').trim();
+    ok('P5k2 the line-up says nothing else: the title, the cards\' marks, the line and the button',
+      interText === `✦ Round 3 ${'✦'.repeat(4)} Four results are still in the running. You'll compare them two at a time. Start Round 3`
+        && d.getElementById('inter-suspects').getAttribute('aria-hidden') === 'true', interText);
+    ok('P5l the interstitial has no bars, percentages or colour names',
+      inter.querySelectorAll('.mc-profile__row, .mc-pip, [data-color]').length === 0 && !/%/.test(inter.textContent) && !COLOUR_WORDS.test(inter.textContent),
+      interText.slice(0, 200));
+    ok('P5m the interstitial button reads "Start Round 3"', textOf(win, 'inter-continue') === 'Start Round 3', textOf(win, 'inter-continue'));
     h.continueToStage2();
     finishRound(h, 3);
-    const waiting34 = isVisible(win, 'screen-round-transition') && textOf(win, 'transition-title') === P.transition.names[4] && !isVisible(win, 'screen-calculating');
+    const waiting34 = isVisible(win, 'screen-round-transition') && textOf(win, 'transition-title') === P.transition.done[4] && !isVisible(win, 'screen-calculating');
     await sleep(400);
     d.getElementById('transition-continue').click();
     const reached = await waitForResults(win);
@@ -609,41 +548,38 @@ run('play', async (t) => {
     win.close();
   }
   {
-    // The line-up by the lead, and for a player: one banter line each
+    // The line-up says the same in every mode, whoever leads
     const { win, h } = await page();
-    const P = copy(win);
     const cands = ['A', 'B', 'C', 'D'].map((id) => ({ id, s1: 0.2 }));
-    const lineFor = (activation, gaming, audience) => {
-      h.state.activationSorted = activation; h.state.gamingFamiliar = gaming; h.state.audience = audience; h.state.refinementAnswers = [{ choice: 'W' }];
+    const lineFor = (activation, gaming, audience, refined = true) => {
+      h.state.activationSorted = activation; h.state.gamingFamiliar = gaming; h.state.audience = audience; h.state.refinementAnswers = refined ? [{ choice: 'W' }] : [];
       win.showInterstitial(cands);
-      return textOf(win, 'inter-banter');
+      return win.document.querySelector('#screen-interstitial h2').textContent + ' / ' + textOf(win, 'inter-line') + ' / ' + textOf(win, 'inter-continue');
     };
     const spread = (c) => [[c, 0.8], ...['W', 'U', 'B', 'R', 'G'].filter((x) => x !== c).map((x) => [x, 0.3])];
-    const got = ['W', 'U', 'B', 'R', 'G'].map((c) => lineFor(spread(c), false, 'consumer'));
-    const wantLines = ["Whoever's left, you'll give them a fair hearing.", "You'll want to read up on them first. No such luck.", "One of them is the way out. You'll spot it.",
-      "You'd like to just pick one. Nearly.", "They'll keep. Take your time."];
-    const balanced = lineFor([['W', 0.5], ['U', 0.48], ['B', 0.47], ['R', 0.46], ['G', 0.45]], false, 'consumer');
-    const player = lineFor(spread('W'), true, 'consumer');
-    const work = lineFor(spread('W'), true, 'workplace');
-    ok('P5w the line-up speaks to the trait in the lead (five lines), "No favourite yet. Good: nor have we." when none leads, and a player gets "We know who they are."',
-      got.join('|') === wantLines.join('|') && balanced === 'No favourite yet. Good: nor have we.' && player === "We know who they are. You don't. That's the game." && work === wantLines[0],
-      `${got.join(' | ')} | ${balanced} | ${player} | ${work}`);
-    // The banter takes exactly one random draw, as it always did (even from a pool of one line):
-    // the seeded respondents share one random stream with Round 3's shuffles, so a draw more
-    // or fewer here would move every golden path.
+    const got = [
+      ...['W', 'U', 'B', 'R', 'G'].map((c) => lineFor(spread(c), false, 'consumer')),
+      lineFor([['W', 0.5], ['U', 0.48], ['B', 0.47], ['R', 0.46], ['G', 0.45]], false, 'consumer'),
+      lineFor(spread('W'), true, 'consumer'), lineFor(spread('W'), true, 'workplace'),
+      lineFor(spread('W'), false, 'consumer', false), // Round 2 asked nothing
+    ];
+    const want = "Round 3 / Four results are still in the running. You'll compare them two at a time. / Start Round 3";
+    ok('P5w the line-up reads the same in plain, player and workplace modes, whoever leads, and after a Round 2 with nothing to ask',
+      got.every((x) => x === want), [...new Set(got)].join(' | '));
+    // The line-up used to draw one line of banter, and the draw stays (the page takes it and shows
+    // nothing): the seeded respondents share one random stream with Round 3's shuffles, so a draw
+    // more or fewer here would move every golden path.
     let draws = 0;
     const realRandom = win.Math.random;
     win.Math.random = () => { draws++; return realRandom(); };
     lineFor(spread('W'), false, 'consumer');
     win.Math.random = realRandom;
-    ok('P5w2 the line-up takes exactly one random draw for its banter, so the seeded Round 3 shuffles after it do not move', draws === 1, `draws=${draws}`);
+    ok('P5w2 the line-up still takes exactly one random draw, so the seeded Round 3 shuffles after it do not move', draws === 1, `draws=${draws}`);
     h.state.activationSorted = spread('W');
-    const counts = [2, 3].map((n) => { win.showInterstitial(cands.slice(0, n)); return textOf(win, 'inter-suspects-caption') + ' / ' + textOf(win, 'inter-caption'); });
-    win.showInterstitial(cands.slice(0, 1));
-    const lone = textOf(win, 'inter-suspects-caption') + ' / ' + (win.document.getElementById('inter-caption').classList.contains('hidden') ? 'caption hidden' : textOf(win, 'inter-caption'));
-    ok('P5x fewer suspects (the old engine): the caption counts them and the questions, and a lone suspect has no head-to-heads to announce',
-      counts[0] === 'Two suspects remain. / About 1 question, two suspects at a time.' && counts[1] === 'Three suspects remain. / About 3 questions, two suspects at a time.'
-        && lone === 'One suspect remains. / caption hidden', counts.concat(lone).join(' | '));
+    const counts = [1, 2, 3].map((n) => { win.showInterstitial(cands.slice(0, n)); return textOf(win, 'inter-line') + ' (' + win.document.querySelectorAll('#inter-suspects .mc-cardback').length + ')'; });
+    ok('P5x fewer results (the old engine): the line counts them in words, and one result is just "still in the running"',
+      counts.join(' | ') === "One result is still in the running. (1) | Two results are still in the running. You'll compare them two at a time. (2) | Three results are still in the running. You'll compare them two at a time. (3)",
+      counts.join(' | '));
     win.close();
   }
 
@@ -658,8 +594,8 @@ run('play', async (t) => {
     const note = d.getElementById('mulligan-note');
     const box = d.getElementById('mulligan-confirm');
     const undo = () => { btn.click(); d.getElementById('mulligan-yes').click(); };
-    ok('P6a Round 1 starts with nothing to undo: "Undo last answer", disabled, with "One per round." under it',
-      btn.disabled && btn.textContent === 'Undo last answer' && note.textContent === 'One per round.' && note.dataset.kind === 'hint' && box.classList.contains('hidden'), btn.dataset.state);
+    ok('P6a Round 1 starts with nothing to undo: "Undo", disabled, with "One per round." under it',
+      btn.disabled && btn.textContent === 'Undo' && note.textContent === 'One per round.' && note.dataset.kind === 'hint' && box.classList.contains('hidden'), btn.dataset.state);
     answerOne(h);
     const afterQ1 = { pairwise: clone(s().pairwise), colorScores: clone(s().colorScores), flags: clone(s().qualityFlags), n: s().responses.length };
     ok('P6b after an answer the undo is ready', !btn.disabled && btn.dataset.state === 'ready', btn.dataset.state);
@@ -785,9 +721,9 @@ run('play', async (t) => {
     begin(work.h, { gaming: true, audience: 'workplace' });
     const P = copy(player.win);
     const labels = [...Object.values(P.mulligan.player), ...Object.values(P.mulligan.plain)];
-    ok('P6o player mode says "Free mulligan" (and "Just the one, like Commander."), workplace mode "Undo last answer" even for players, and no line names a colour',
-      textOf(player.win, 'mulligan-btn') === 'Free mulligan' && textOf(player.win, 'mulligan-note') === 'Just the one, like Commander.'
-        && textOf(work.win, 'mulligan-btn') === 'Undo last answer' && textOf(work.win, 'mulligan-note') === 'One per round.' && labels.every((x) => !COLOUR_WORDS.test(x)),
+    ok('P6o player mode says "Free mulligan" (with "One per round." under it), workplace mode "Undo" even for players, and no line names a colour',
+      textOf(player.win, 'mulligan-btn') === 'Free mulligan' && textOf(player.win, 'mulligan-note') === 'One per round.'
+        && textOf(work.win, 'mulligan-btn') === 'Undo' && textOf(work.win, 'mulligan-note') === 'One per round.' && labels.every((x) => !COLOUR_WORDS.test(x)),
       `${textOf(player.win, 'mulligan-btn')} / ${textOf(work.win, 'mulligan-btn')}`);
     // The whole player flow: ask, the confirm in its words, the line on the question that comes back, then "used up"
     const pd = player.win.document, ph = player.h;
@@ -800,9 +736,9 @@ run('play', async (t) => {
     answerOne(ph);
     answerOne(ph);
     const spent = textOf(player.win, 'mulligan-note');
-    ok('P6p the player confirm reads "Mulligan your last answer? It\'s free, once a round." (Mulligan / Keep), then "Mulligan taken. Same question, new answer.", then the used-up line',
-      ask === "Mulligan your last answer? It's free, once a round." && yes === 'Mulligan' && no === 'Keep'
-        && taken === 'Mulligan taken. Same question, new answer.' && spent === "Mulligan used for this round. Keep what you've got.", `${ask} | ${yes}/${no} | ${taken} | ${spent}`);
+    ok('P6p the player confirm reads as the plain one, "Undo your last answer? You get one per round." (Undo / Keep it), then "Undone. Answer that one again.", then "Mulligan used for this round."',
+      ask === 'Undo your last answer? You get one per round.' && yes === 'Undo' && no === 'Keep it'
+        && taken === 'Undone. Answer that one again.' && spent === 'Mulligan used for this round.', `${ask} | ${yes}/${no} | ${taken} | ${spent}`);
     answerOne(work.h); // the same flow in the plain wording, as workplace mode shows it
     answerOne(work.h);
     work.win.document.getElementById('mulligan-btn').click();
@@ -840,7 +776,7 @@ run('play', async (t) => {
     await tick(); await tick();
     await win.shareResult(d.getElementById('share-result-btn'));
     ok('P7b it reuses the share action: the same dare and link as the main share button',
-      copied.length === 2 && copied[0] === copied[1] && copied[0].includes(h.buildResultURL()) && share.textContent === '✓ Link copied!', JSON.stringify(copied));
+      copied.length === 2 && copied[0] === copied[1] && copied[0].includes(h.buildResultURL()) && share.textContent === '✓ Link copied', JSON.stringify(copied));
     ok('P7c no errors on the results page', errors.length === 0, errors.slice(0, 2).join(' | '));
     win.close();
   }
@@ -998,25 +934,26 @@ run('play', async (t) => {
   }
 
   // ---------- 10: the instrument version ----------
-  // The items and screens changed (the Phase 3 copy, then the Round 1 and 2 copy),
-  // so a result built now is instrument 3 and its link says i=3; a link without i
-  // still means 1 (tests/seed.test.js).
+  // The items and screens changed (the Phase 3 copy, then the Round 1 and 2 copy,
+  // then the plain screens seen while answering), so a result built now is
+  // instrument 4 and its link says i=4; a link without i still means 1
+  // (tests/seed.test.js).
   {
     const { win, h, errors } = await page();
     begin(h);
     playThrough(h, win, () => {});
     await waitForResults(win);
     const url = h.buildResultURL();
-    ok('P10a INSTRUMENT_VERSION is 3, a finished quiz carries it, and its link ends s=2&i=3',
-      win.eval('INSTRUMENT_VERSION') === 3 && !!h.state.result && h.state.result.instrumentVersion === 3 && /\/r\/[A-Z0-9-]+\.html\?p=[\d,]+&c=\w+&a=consumer&s=2&i=3$/.test(url), url);
+    ok('P10a INSTRUMENT_VERSION is 4, a finished quiz carries it, and its link ends s=2&i=4',
+      win.eval('INSTRUMENT_VERSION') === 4 && !!h.state.result && h.state.result.instrumentVersion === 4 && /\/r\/[A-Z0-9-]+\.html\?p=[\d,]+&c=\w+&a=consumer&s=2&i=4$/.test(url), url);
     // An early result (the offer taken) carries it as well
     h.restart();
     begin(h);
     h.state.activationSorted = [['U', 0.82], ['B', 0.7], ['G', 0.3], ['W', 0.2], ['R', 0.1]];
     win.earlyConfidenceData = { identity: 'DIMIR', confidence: 0.95 };
     win.showResultsEarly();
-    ok('P10b an early result is instrument 3 too, and its link says i=3',
-      h.state.result.earlyTermination === true && h.state.result.instrumentVersion === 3 && /&s=2&i=3$/.test(h.buildResultURL()), h.buildResultURL());
+    ok('P10b an early result is instrument 4 too, and its link says i=4',
+      h.state.result.earlyTermination === true && h.state.result.instrumentVersion === 4 && /&s=2&i=4$/.test(h.buildResultURL()), h.buildResultURL());
     ok('P10c no errors', errors.length === 0, errors.slice(0, 3).join(' | '));
     win.close();
   }

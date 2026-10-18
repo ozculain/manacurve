@@ -11,8 +11,9 @@
 //     whose bars come to W55 U52 B38 R60 G39. On the build before the rule,
 //     engine 2 played MONO-U, IZZET, JESKAI and WUBRG in Round 3, and the
 //     player's loop gave Mono-Blue. Now Round 3 plays only identities the bars
-//     allow, and all 64 ways Round 3 can go, on both engines, end on one; the
-//     loop explanation says the bars broke the loop only when they did
+//     allow, and all 64 ways Round 3 can go, on both engines, end on one; and
+//     round3Data.loopBrokenByBars is true only when the bars did break a loop
+//     (engine 1's re-rank; never engine 2, whose posterior decides)
 //  C  that old Round 3 (those four, the player's six answers) finished on this
 //     build, as a session saved mid-Round 3 before the change would be
 //  D  simulated respondents of all three populations (ideal, misspecified,
@@ -97,11 +98,19 @@ function playRound3(win, prefer) {
   return h.state.result;
 }
 
-// The confidence explanation the results screen shows for the current result.
-function confidenceText(win) {
+// The results screen's text for the current result.
+function resultsText(win) {
   win.__h.showResults();
-  const el = win.document.getElementById('conf-exp');
+  const el = win.document.getElementById('screen-results');
   return el ? el.textContent : '';
+}
+
+// The bars broke a loop when the reported identity is a loop member with the
+// highest mean bar over its colours (engine 1's re-rank, poolFit).
+function isBarsPickOfLoop(win, cycle, id) {
+  const act = Object.fromEntries(win.__h.state.activationSorted);
+  const fit = (x) => { const cols = win.__h.PROFILES[x].colors; return cols.reduce((s, c) => s + act[c], 0) / cols.length; };
+  return cycle.includes(id) && fit(id) >= Math.max(...cycle.map(fit)) - 1e-12;
 }
 
 run('bars', async ({ ok, note }) => {
@@ -112,7 +121,6 @@ run('bars', async ({ ok, note }) => {
   };
   const win2 = pages[2].win;
   const tolerance = win2.eval('BARS_TOLERANCE');
-  const loopSentence = win2.eval('RESULT_COPY.barsPointer.loop.plain');
 
   // ---------- A: the rule on the player's bars ----------
   const allow = (id) => win2.barsAllow(id, PLAYER_BARS);
@@ -139,7 +147,7 @@ run('bars', async ({ ok, note }) => {
     const pairs = [];
     for (let i = 0; i < four.length; i++) for (let j = i + 1; j < four.length; j++) pairs.push([four[i], four[j]]);
     const outcomes = {}, bad = [];
-    let loops = 0, broken = 0, said = 0, saidWrongly = 0;
+    let loops = 0, broken = 0, wrongFlag = 0;
     for (let mask = 0; mask < (1 << pairs.length); mask++) {
       playRounds12(win);
       const r = playRound3(win, (a, b) => {
@@ -150,21 +158,21 @@ run('bars', async ({ ok, note }) => {
       outcomes[id] = (outcomes[id] || 0) + 1;
       if (!r || id === 'MONO-U' || !win.barsAllow(id)) bad.push(`${mask}: ${id}`);
       const rd = (r && r.round3Data) || {};
-      if (r && r.confidence === 'LOW' && rd.cycle) {
-        loops++;
-        const says = confidenceText(win).includes(loopSentence);
-        if (rd.loopBrokenByBars) { broken++; if (says) said++; } else if (says) saidWrongly++;
+      if (rd.cycle) loops++;
+      if (rd.loopBrokenByBars) {
+        broken++;
+        if (!rd.cycle || !isBarsPickOfLoop(win, rd.cycle, id)) wrongFlag++;
       }
     }
     ok(`B${engine}.4 engine ${engine}: all ${1 << pairs.length} Round 3 outcomes end on an identity the bars allow, never Mono-Blue`,
       bad.length === 0, bad.slice(0, 3).join('; '));
     note(`engine ${engine} results: ${Object.entries(outcomes).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v}`).join(', ')}`);
     if (engine === 2) {
-      ok(`B2.5 engine 2: no loop explanation says the bars broke the loop (${loops} LOW results with a loop; the posterior decides)`,
-        loops > 0 && broken === 0 && saidWrongly === 0, `broken ${broken}, said ${saidWrongly}`);
+      ok(`B2.5 engine 2: no result records that the bars broke its loop (${loops} with a loop; the posterior decides)`,
+        loops > 0 && broken === 0, `${broken} flagged`);
     } else {
-      ok(`B1.5 engine 1: the sentence appears exactly when the bars re-ranked the loop (${broken} of ${loops} LOW results with a loop)`,
-        broken > 0 && said === broken && saidWrongly === 0, `said ${said} of ${broken}, wrongly ${saidWrongly}`);
+      ok(`B1.5 engine 1: a result records that the bars broke its loop only when it is the loop's best member by the bars (${broken} of ${loops} loops)`,
+        broken > 0 && wrongFlag === 0, `${wrongFlag} of ${broken} flagged wrongly`);
     }
   }
 
@@ -185,8 +193,9 @@ run('bars', async ({ ok, note }) => {
     ok('C3 ...a loop runs through it, so it is still LOW, and the runner-up is one the bars allow',
       r.confidence === 'LOW' && !!rd.cycle && rd.cycle.includes(r.identity) && !!rd.runnerUp && win.barsAllow(rd.runnerUp.id),
       `${r.confidence} cycle ${(rd.cycle || []).join('>')} runner-up ${rd.runnerUp && rd.runnerUp.id}`);
-    const text = confidenceText(win);
-    ok('C4 the explanation names the loop and no longer says the bars broke it', /formed a loop/.test(text) && !text.includes(loopSentence), text.slice(0, 160));
+    const text = resultsText(win);
+    ok('C4 ...recorded as decided by the posterior, and the results screen names the result without crediting the bars',
+      rd.loopBrokenByBars === false && text.includes(h.PROFILES[r.identity].name) && !/broke the loop/i.test(text), text.slice(0, 120));
     note(`old Round 3 on this build: ${r.identity} ${r.confidence}, runner-up ${rd.runnerUp && rd.runnerUp.id}`);
   }
   const errors = Object.values(pages).flatMap((p) => p.errors);
