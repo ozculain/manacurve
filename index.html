@@ -5497,6 +5497,51 @@ window.addEventListener('DOMContentLoaded', function() {
 const SCORING_VERSION = 2;
 const INSTRUMENT_VERSION = 3; // the current items and screens (2: before the Round 1 and 2 copy rewrite; 1: before the Phase 3 copy and flow, and links without i)
 
+// THE NAME MATCHES THE BARS (both engines). The results screen names an
+// identity and draws five bars (state.activationSorted: each colour's Round 1
+// and 2 activation). They must tell one story: the identity's colours are the
+// top bars. barsMargin() is how far an identity is from that, in bar units
+// (0..1): the strongest colour it leaves out minus the weakest colour it
+// holds, or, when it holds all five, 50% (the line next door draws for five
+// colours) minus the weakest. An identity may be the result only when that
+// margin is at most BARS_TOLERANCE (barsAllow). The likelihood engine reads
+// each colour pair on its own, the bars average each colour over all its
+// pairs, and the two can disagree: on a flat profile the posterior favours
+// identities that predict coin flips, and Round 3 between nested candidates
+// can carry the narrowest one further (a player got Mono-Blue, its one colour
+// third, under bars of W56 U52 B38 R60 G39). So engine 2 plays Round 3 between
+// the four identities the bars allow that its posterior rates highest, and
+// engine 1's tournament winner and the early offer are held to the same test.
+// Half an answer: an answer moves a bar by about a twelfth
+// (ONE_ANSWER_BY_VERSION), so two colours within half an answer are a near
+// tie, and either may be the one the identity holds.
+const BARS_TOLERANCE = 1 / 24;
+
+function barsMargin(id, activationSorted) {
+  const lit = (PROFILES[id] && PROFILES[id].colors) || [];
+  if (!lit.length) return Infinity;
+  const act = Object.fromEntries(activationSorted || []);
+  const bar = (c) => act[c] || 0;
+  const out = ['W', 'U', 'B', 'R', 'G'].filter(c => !lit.includes(c));
+  const weakestIn = Math.min(...lit.map(bar));
+  return out.length ? Math.max(...out.map(bar)) - weakestIn : 0.5 - weakestIn;
+}
+
+function barsAllow(id, activationSorted = state.activationSorted) {
+  return barsMargin(id, activationSorted) <= BARS_TOLERANCE + 1e-9;
+}
+
+// The identity holding the top k bars (ties go to WUBRG order).
+function topBarsIdentity(k, activationSorted = state.activationSorted) {
+  const act = Object.fromEntries(activationSorted || []);
+  const order = ['W', 'U', 'B', 'R', 'G'];
+  const top = [...order].sort((a, b) => ((act[b] || 0) - (act[a] || 0)) || (order.indexOf(a) - order.indexOf(b))).slice(0, k);
+  return Object.keys(PROFILES).find(id => {
+    const cols = PROFILES[id].colors || [];
+    return cols.length === top.length && top.every(c => cols.includes(c));
+  }) || null;
+}
+
 // Read once, at load: restart() strips the query string, and a page must not
 // switch engine between one assessment and the next.
 const SCORING_ENGINE_OVERRIDE = (function () {
@@ -5655,9 +5700,10 @@ function rankPosterior(posterior) {
 }
 
 // The top n identities by posterior, in the candidate shape Round 3, its guards
-// and the results screen read (s1 and combinedScore carry the posterior).
-function posteriorCandidates(posterior, n = ROUND3_CANDIDATE_COUNT) {
-  return rankPosterior(posterior).slice(0, n).map(([id, prob], i) => ({
+// and the results screen read (s1 and combinedScore carry the posterior). With
+// allow, only the identities it accepts (Round 3: those the bars allow).
+function posteriorCandidates(posterior, n = ROUND3_CANDIDATE_COUNT, allow = null) {
+  return rankPosterior(posterior).filter(([id]) => !allow || allow(id)).slice(0, n).map(([id, prob], i) => ({
     id,
     s1: prob,
     combinedScore: prob,
@@ -7683,8 +7729,9 @@ function round1Activation() {
 
 // Engine 2 after Round 1: the candidates are the top four identities by
 // posterior, and the early-result offer needs the top posterior to reach
-// EARLY_OFFER_POSTERIOR, with the decisive pairs well answered and no one
-// colour pair carrying it (offerSurvivesPairHoldout).
+// EARLY_OFFER_POSTERIOR, with the decisive pairs well answered, no one colour
+// pair carrying it (offerSurvivesPairHoldout), and the Round 1 bars, which an
+// early result shows, allowing it (barsAllow).
 function finishS1Likelihood() {
   // Round 2 still picks its ally pairs from the win-rate analysis.
   const analysis = analyseGapBasedPatterns();
@@ -7699,7 +7746,7 @@ function finishS1Likelihood() {
 
   const top = candidates[0];
   if (top.s1 >= EARLY_OFFER_POSTERIOR && decisivePairsWellAnswered(top.colors)
-      && offerSurvivesPairHoldout(evidence, top.id)) {
+      && offerSurvivesPairHoldout(evidence, top.id) && barsAllow(top.id)) {
     state.pendingCandidates = candidates;
     const prof = PROFILES[top.id];
     showEarlyTerminationOffer({
@@ -7755,7 +7802,9 @@ function finishS1() {
   state.round1Candidates = candidates;
   
   const topColors = topCandidate.colors || getIdentityColors(topCandidate.id) || [];
-  if (confidence === 'HIGH' && candidates.length === 1 && decisivePairsWellAnswered(topColors)) {
+  // An early result shows the Round 1 bars, so they must allow it (barsAllow).
+  if (confidence === 'HIGH' && candidates.length === 1 && decisivePairsWellAnswered(topColors)
+      && barsAllow(topCandidate.id)) {
     // Clear result - offer early termination
     state.pendingCandidates = candidates;
     const confidenceCheck = {
@@ -8250,9 +8299,10 @@ function finishRefinement() {
   const adjustedActivation = calculateRefinedActivation();
   
   // Recalculate candidates with refined data. Engine 2: the top four
-  // identities by the Round 1 + Round 2 posterior.
+  // identities by the Round 1 + Round 2 posterior among those the bars,
+  // final from here on, allow (barsAllow).
   const refinedCandidates = scoringEngine() === 2
-    ? posteriorCandidates(updateLikelihood('round2').posterior)
+    ? posteriorCandidates(updateLikelihood('round2').posterior, ROUND3_CANDIDATE_COUNT, id => barsAllow(id))
     : recalculateCandidates(adjustedActivation);
   
   state.pendingCandidates = refinedCandidates;
@@ -8658,6 +8708,7 @@ function getTournamentWinner(tournament) {
   const cycle = detectTournamentCycle(tournament);
 
   let leader, confidence, gap = 0, runnerUp;
+  let loopBrokenByBars = false; // the cycle's members re-ranked by the bars, below
 
   if (cycle) {
     // A loop proves the scenario answers cannot rank these candidates — any
@@ -8686,6 +8737,7 @@ function getTournamentWinner(tournament) {
         .sort((a, b) => poolFit(b) - poolFit(a));
       leader = cyclers[0];
       runnerUp = cyclers[1] || runnerUp;
+      loopBrokenByBars = true;
     }
     confidence = 'LOW';
     gap = leader.wins - (runnerUp?.wins || 0);
@@ -8726,6 +8778,7 @@ function getTournamentWinner(tournament) {
     confidence: confidence,
     gap: gap,
     cycle: cycle,
+    loopBrokenByBars: loopBrokenByBars,
     totalQuestions: tournament.questionCount,
     matchHistory: tournament.matchHistory
   };
@@ -8775,10 +8828,14 @@ function combinedPosterior(tournament) {
   return { evidence, logLik, round3LogLik, posterior: posteriorFromLogLik(total) };
 }
 
-// The tournament candidates by combined posterior, best first (ties keep the
-// Round 1 + Round 2 order they were seeded in).
+// The tournament candidates by combined posterior, best first, those the bars
+// allow (barsAllow) ahead of any they do not (ties keep the Round 1 + Round 2
+// order they were seeded in). Engine 2 seeds Round 3 with identities the bars
+// allow, so the split only matters for a session that reached Round 3 on an
+// older build.
 function rankCandidatesByPosterior(tournament, posterior) {
-  return [...tournament.candidates].sort((a, b) => posterior[b.id] - posterior[a.id]);
+  const ok = (c) => (barsAllow(c.id) ? 1 : 0);
+  return [...tournament.candidates].sort((a, b) => (ok(b) - ok(a)) || (posterior[b.id] - posterior[a.id]));
 }
 
 // The candidates by posterior, except that a leader the person chose against
@@ -8801,9 +8858,10 @@ function round3RecordRanking(ranked, posterior) {
 // Engine 2's Round 3 decision. The Round 1 + Round 2 likelihood and the Round 3
 // choices combine into the final posterior over all 31 identities, which is
 // what result.posterior reports. The reported identity is the tournament
-// candidate it rates highest (the candidates are the ones the person actually
-// compared), unless that candidate has a losing Round 3 record without a clear
-// margin (round3RecordRanking); result.runnerUp is the next in that order,
+// candidate the bars allow (barsAllow) that it rates highest (the candidates
+// are the ones the person actually compared), unless that candidate has a
+// losing Round 3 record without a clear margin (round3RecordRanking, among the
+// candidates the bars allow); result.runnerUp is the next in that order,
 // result.gap the difference in their win-loss records, and result.confidence
 // the reported identity's posterior read against the thresholds. Measured on
 // simulated respondents, deciding by posterior beat crowning the tournament's
@@ -8811,13 +8869,21 @@ function round3RecordRanking(ranked, posterior) {
 // because it keeps what Rounds 1 and 2 said. The guards may still lower the
 // confidence: here, a Condorcet cycle through the reported identity makes it
 // LOW; afterwards, the scenario-contradiction and context-agreement guards cap
-// HIGH.
+// HIGH. The posterior, not the bars, decides inside a cycle.
 function applyPosteriorDecision(result, tournament) {
   const combined = combinedPosterior(tournament);
   const { posterior } = combined;
   state.likelihood = { stage: 'round3', ...combined };
 
-  const ranked = round3RecordRanking(rankCandidatesByPosterior(tournament, posterior), posterior);
+  const byPosterior = rankCandidatesByPosterior(tournament, posterior);
+  const allowed = byPosterior.filter(c => barsAllow(c.id));
+  let ranked = [...round3RecordRanking(allowed, posterior), ...byPosterior.filter(c => !barsAllow(c.id))];
+  if (!allowed.length) {
+    // No candidate the bars allow (a session that reached Round 3 on an older
+    // build): the identity they allow that the posterior rates highest.
+    const id = rankPosterior(posterior).map(([k]) => k).find(k => barsAllow(k));
+    if (id) ranked = [{ ...posteriorCandidates({ [id]: posterior[id] }, 1)[0], wins: 0, losses: 0, opponents: [] }, ...ranked];
+  }
   const winner = ranked[0];
   const runnerUp = ranked[1] || null;
   result.winner = winner;
@@ -8825,7 +8891,43 @@ function applyPosteriorDecision(result, tournament) {
   result.gap = runnerUp ? (winner.wins - winner.losses) - (runnerUp.wins - runnerUp.losses) : 0;
   result.confidence = confidenceFromPosterior(posterior[winner.id]);
   if (result.cycle && result.cycle.includes(winner.id)) result.confidence = 'LOW';
+  result.loopBrokenByBars = false;
   return { posterior, ranked };
+}
+
+// Engine 1's standings: win-loss difference, then win rate, then the Round 1-2 score.
+function engine1Standings(candidates) {
+  return [...candidates].sort((a, b) => {
+    const aDiff = a.wins - a.losses;
+    const bDiff = b.wins - b.losses;
+    if (bDiff !== aDiff) return bDiff - aDiff;
+    const aRate = a.wins / Math.max(1, a.wins + a.losses);
+    const bRate = b.wins / Math.max(1, b.wins + b.losses);
+    if (bRate !== aRate) return bRate - aRate;
+    return (b.combinedScore || 0) - (a.combinedScore || 0);
+  });
+}
+
+// Engine 1's tournament can crown an identity the bars do not allow
+// (barsAllow). Then the result is the best candidate they allow, in engine 1's
+// standings, or, when they allow none, the identity holding the top bars with
+// as many colours as the winner (fewer, for five, until the bars allow it);
+// the tournament's pick becomes the runner-up and the confidence LOW.
+function holdWinnerToBars(result, tournament) {
+  if (!result.winner || barsAllow(result.winner.id)) return false;
+  let alt = engine1Standings(tournament.candidates).find(c => barsAllow(c.id));
+  if (!alt) {
+    let k = ((PROFILES[result.winner.id] || {}).colors || []).length || 1;
+    let id = topBarsIdentity(k);
+    while (k > 1 && !(id && barsAllow(id))) id = topBarsIdentity(--k);
+    alt = { id, colors: [...PROFILES[id].colors], wins: 0, losses: 0, opponents: [], s1: 0, combinedScore: 0, type: getCandidateType(id) };
+  }
+  result.runnerUp = result.winner;
+  result.winner = alt;
+  result.gap = (alt.wins - alt.losses) - (result.runnerUp.wins - result.runnerUp.losses);
+  result.confidence = 'LOW';
+  result.loopBrokenByBars = false;
+  return true;
 }
 
 function startRound3(candidates) {
@@ -9059,7 +9161,7 @@ function finishRound3Tournament() {
       const post = combinedPosterior(tournament).posterior;
       const ranked = rankCandidatesByPosterior(tournament, post);
       provisional = { winner: ranked[0], runnerUp: ranked[1] };
-      wantTiebreak = !!ranked[1] && post[ranked[0].id] < CONFIDENCE_HIGH_POSTERIOR;
+      wantTiebreak = !!ranked[1] && barsAllow(ranked[1].id) && post[ranked[0].id] < CONFIDENCE_HIGH_POSTERIOR;
     } else {
       provisional = getTournamentWinner(tournament);
       wantTiebreak = !provisional.cycle && provisional.runnerUp && provisional.gap <= 1;
@@ -9094,25 +9196,18 @@ function finishRound3Tournament() {
   const result = getTournamentWinner(state.tournament);
   // Engine 2: the final posterior picks the identity and sets the confidence.
   const decision = scoringEngine() === 2 ? applyPosteriorDecision(result, state.tournament) : null;
+  // Engine 1: the tournament winner, held to the bars (engine 2 already is).
+  const heldToBars = !decision && holdWinnerToBars(result, state.tournament);
 
   // Cap confidence when the scenario winner contradicts the item-round leader.
   const scenarioContradiction = applyScenarioContradictionGuard(result, state.activationSorted);
   const contextDisagreement = applyContextAgreementGuard(result);
 
   // Build allResults from tournament candidates, sorted by performance
-  // (engine 2: the reported identity first, then the rest by final posterior)
-  const sortedCandidates = decision ? decision.ranked : [...state.tournament.candidates].sort((a, b) => {
-    // Primary: win-loss differential
-    const aDiff = a.wins - a.losses;
-    const bDiff = b.wins - b.losses;
-    if (bDiff !== aDiff) return bDiff - aDiff;
-    // Secondary: win rate
-    const aRate = a.wins / Math.max(1, a.wins + a.losses);
-    const bRate = b.wins / Math.max(1, b.wins + b.losses);
-    if (bRate !== aRate) return bRate - aRate;
-    // Tertiary: original combined score
-    return (b.combinedScore || 0) - (a.combinedScore || 0);
-  });
+  // (engine 2: the reported identity first, then the rest by final posterior;
+  // engine 1: its standings, led by the reported identity if the bars moved it)
+  let sortedCandidates = decision ? decision.ranked : engine1Standings(state.tournament.candidates);
+  if (heldToBars) sortedCandidates = [result.winner, ...sortedCandidates.filter(c => c.id !== result.winner.id)];
   
   const allResults = sortedCandidates.map(c => [c.id, {
     s1: c.combinedScore || 0,
@@ -9130,6 +9225,11 @@ function finishRound3Tournament() {
     losses: c.losses,
     combinedScore: c.combinedScore
   }));
+  // A reported identity that played no match (the bars allowed no candidate)
+  // joins the standings at 0-0.
+  if (!allScores.some(s => s.id === result.winner.id)) {
+    allScores.push({ id: result.winner.id, wins: 0, losses: 0, combinedScore: result.winner.combinedScore || 0 });
+  }
   if (decision) {
     // Engine 2 ranks the standings like allResults: the reported identity, then by final posterior.
     const rank = Object.fromEntries(decision.ranked.map((c, i) => [c.id, i]));
@@ -9159,6 +9259,9 @@ function finishRound3Tournament() {
       terminated: state.tournament.terminated,
       termReason: state.tournament.termReason,
       cycle: result.cycle,
+      // true only when the bars re-ranked a cycle's members and that pick stood
+      // (engine 1); engine 2's posterior decides inside a cycle
+      loopBrokenByBars: !!result.loopBrokenByBars,
       scenarioContradiction: scenarioContradiction,
       contextDisagreement: contextDisagreement,
       isTournament: true
