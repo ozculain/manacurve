@@ -2572,7 +2572,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
             <p class="mc-body" style="color:var(--ink);font-size:15px;line-height:1.7;" id="roles">Roles</p>
           </div>
           <div>
-            <div class="mc-result__col-title">Commander</div>
+            <div class="mc-result__col-title" id="cmd-title-aside">Commander</div>
             <p class="mc-flavor" style="font-size:15px;">
               <strong style="color:var(--ink);font-style:normal;font-family:var(--f-display);letter-spacing:.1em;" id="cmd-name-aside">…</strong>
               <span id="cmd-desc-aside" style="display:block;margin-top:6px;"></span>
@@ -2639,13 +2639,14 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
                 <image class="rel-vertex-img" href="images/symbols/G.svg" x="48" y="132" width="56" height="56"/>
               </g>
             </svg>
+            <!-- Each line shows only when the diagram draws its kind of line (renderRelations). -->
             <div class="mc-relations-legend">
-              <span><span class="mc-rel-legend-mark mc-rel-legend-mark--ally"></span> Ally edge (within you)</span>
-              <span><span class="mc-rel-legend-mark mc-rel-legend-mark--enemy"></span> Tension to what you lack</span>
+              <div id="rel-legend-ally"><span class="mc-rel-legend-mark mc-rel-legend-mark--ally"></span> A solid line joins two of your colours that work well together.</div>
+              <div id="rel-legend-enemy"><span class="mc-rel-legend-mark mc-rel-legend-mark--enemy"></span> A dashed line joins one of your colours to a colour it clashes with.</div>
             </div>
           </div>
           <div class="mc-relations-detail" id="relations-detail">
-            <!-- Populated by renderRelations() with gap cards per missing colour -->
+            <!-- Populated by renderRelations(): who to bring in, one card per missing colour -->
           </div>
         </div>
 
@@ -3106,7 +3107,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
             </svg>
           </div>
 
-          <!-- What's Missing — populated from COLOR_GAPS by the JS below -->
+          <!-- Who to bring in: the colleague cards, from COLOR_GAPS (renderExplorerRelations) -->
           <div class="mc-relations-detail" id="explorer-relations-detail" style="margin-bottom: 24px;"></div>
 
           <!-- Philosophy -->
@@ -4264,8 +4265,8 @@ function restoreSession(snapshot) {
 // Renders a WUBRG pentagon diagram showing your colours filled, missing
 // colours hollow, ally edges within identity lit gold, and pentagram-enemy
 // edges from your colours to missing colours lit dashed red. Beside the
-// diagram, per-colour callouts: strength for colours you have, gap +
-// "find this colleague" for colours you lack.
+// diagram, one card per colour you lack: what a colleague strong in it
+// brings, and when to bring them in.
 
 const COLOR_ALLIES = { W:['U','G'], U:['W','B'], B:['U','R'], R:['B','G'], G:['R','W'] };
 const COLOR_ENEMIES = { W:['B','R'], U:['R','G'], B:['W','G'], R:['W','U'], G:['U','B'] };
@@ -4281,32 +4282,96 @@ const COLOR_STRENGTHS = {
   G: "You can tell when an existing process has wisdom baked in even if no one can articulate why. You restrain the impulse to rebuild what's working. Institutional knowledge survives in you because you didn't discard it as 'legacy'. Pattern recognition across years."
 };
 
-// For each colour you LACK: the specific cognitive function that's absent and
-// what that creates, plus a named complementary colleague. Goal: psychological
-// precision over generic personality observations. The gap should describe a
-// *mechanism* (what process is missing in your head), not just a deficit.
+// For each colour a result lacks: what a colleague strong in it brings
+// (`brings`, written under the card's "White colleague" head, so it has no
+// subject of its own), and when to bring them in (`when`). Neither line says
+// what the reader is like: their own result does that, and a line here once
+// told careful, rule-loving results that they move on instinct. `when` is
+// keyed by one of the reader's colours (gapPartner): the one the missing
+// colour pulls against most, so two results lacking the same colour can read
+// differently.
 const COLOR_GAPS = {
   W: {
-    gap: "You don't experience the team as something you owe care to. The group is the environment you operate in. Decisions get made for you and the task. The social cost lands as a surprise three weeks later, in someone's resignation letter or a quiet refusal to help.",
-    complement: "A White colleague feels the temperature of the room as live data. They'll tell you when your plan is technically fine but will cost trust. That's them seeing a bill you're about to be handed and don't yet know about."
+    brings: "Notices who a plan is unfair to, and who will quietly stop helping because of it.",
+    when: {
+      B: "Ask them before a plan reaches the people it affects.",
+      R: "Ask them before you announce a change, while it is still easy to adjust.",
+      U: "Ask them when a plan is sound on paper and is about to be explained to the team.",
+      G: "Ask them when a team is changing shape, to keep it fair to the people in it."
+    }
   },
   U: {
-    gap: "You move on instinct. You'll do the thing, then learn what the thing meant. The same kinds of mistakes recur because you don't pause long enough to recognise them as a pattern. Each one feels like its own situation.",
-    complement: "A Blue colleague will model the second-order consequences you wouldn't have thought to ask about. Bring them in before the decision. Their 'what about…' is the cheapest insurance you'll ever buy."
+    brings: "Asks what happens next, and what happens after that, before anyone commits.",
+    when: {
+      R: "Bring them in the day before you start, for an hour.",
+      G: "Bring them in when the usual way of doing something stops giving the usual results.",
+      W: "Bring them in when a new rule is being drafted, to check what it will do in practice.",
+      B: "Bring them in when a deal looks good, to read the small print."
+    }
   },
   B: {
-    gap: "You take people's stated motives as their real ones. You give away leverage you didn't know you were holding. When the politics shift, you're the person holding the bill. You weren't watching the table while everyone else was.",
-    complement: "A Black colleague reads the incentives in the room. They'll tell you who benefits if your project quietly fails, and who's already routing around you. Listen to them even when their take feels uncharitable."
+    brings: "Can tell you who gains if your project fails, and who has already worked that out.",
+    when: {
+      W: "Talk to them before a negotiation, so you know what the other side wants.",
+      G: "Talk to them when a reorganisation is coming, to see where it leaves you.",
+      U: "Talk to them when the analysis is right and the room still won't agree to it.",
+      R: "Talk to them before a big move, to find out who it will annoy."
+    }
   },
   R: {
-    gap: "You don't generate the heat that gets things moving. Decisions defer. The window closes while you collect one more data point. Things you cared about don't happen, and to others you read as flat or strategically aloof.",
-    complement: "A Red colleague will start the fire that gets you moving. Their 'why are we still talking about this' is the social pressure that converts your analysis into a decision. You don't need to match their pitch; just don't dismiss the urgency as drama."
+    brings: "Turns a decision that has been discussed into one that has been made.",
+    when: {
+      W: "Call on them when a decision has been through every proper step and is still waiting.",
+      U: "Call on them when the analysis is finished and nobody has said go.",
+      B: "Call on them when a plan needs people to care about it as well as agree to it.",
+      G: "Call on them when something needs to change this week and the usual pace would take a season."
+    }
   },
   G: {
-    gap: "You distrust existing systems on principle and find rebuilding more satisfying than maintaining. Things that were working get torn down because the rebuilt version is more interesting to you. Your team's institutional knowledge gets discarded as 'legacy' and has to be relearned the expensive way.",
-    complement: "A Green colleague has watched more cycles than you have. When they say 'we tried that in 2019, here's what happened,' they're saving you the cost of relearning it from scratch. Their reluctance to change is pattern recognition across years that you don't yet have. Override them sparingly and only when you can name what's different this time."
+    brings: "Remembers what was tried last time, and why it stopped.",
+    when: {
+      U: "Check with them before replacing something that works, to hear why it was built that way.",
+      B: "Check with them when a quick win would cost something that took years to build.",
+      R: "Check with them before you start again from scratch.",
+      W: "Check with them when a new process replaces an old one, to keep what the old one did well."
+    }
   }
 };
+
+// The copy around the colleague cards, on the result and in the explorer.
+const COLOR_GAPS_COPY = {
+  heading: 'Who to bring in',
+  sub: { result: 'Colleagues strong in the colours outside yours.', explorer: "Colleagues strong in the colours this type doesn't hold." },
+  five: {
+    result: 'All five colours are in your result, so none is missing. When a choice needs one approach argued for hard, bring in a colleague with one strong colour.',
+    explorer: 'All five colours are in this type, so none is missing.'
+  }
+};
+
+// The reader's colour that `when` is keyed by, for a missing colour: the
+// colour it clashes with (COLOR_ENEMIES) before an ally, and of those the one
+// with the higher bar, or the first in the identity's own order without bars.
+function gapPartner(missing, colours, act) {
+  const rank = (list) => [...list].sort((a, b) => (act ? (act[b] || 0) - (act[a] || 0) : 0) || (colours.indexOf(a) - colours.indexOf(b)));
+  const enemies = rank(colours.filter(c => COLOR_ENEMIES[missing].includes(c)));
+  return enemies[0] || rank(colours.filter(c => COLOR_ALLIES[missing].includes(c)))[0];
+}
+
+// One card per missing colour: the head, what they bring, when to bring them in.
+function gapCardsHTML(missing, colours, act) {
+  return missing.map(c => {
+    const g = COLOR_GAPS[c];
+    const when = g.when[gapPartner(c, colours, act)] || '';
+    return `<div class="mc-gap-card" data-color="${c}">
+        <span class="mc-pip is-lit mc-gap-card__pip" data-color="${c}" aria-label="${c}"></span>
+        <div class="mc-gap-card__body">
+          <div class="mc-gap-card__head"><span class="mc-gap-card__plus">+</span>${COLOR_DISPLAY[c]} colleague</div>
+          <div class="mc-gap-card__gap">${g.brings}</div>
+          <div class="mc-gap-card__complement">→ ${when}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
 
 function renderRelations() {
   if (!state.result || !state.result.identity) return;
@@ -4331,33 +4396,24 @@ function renderRelations() {
     const [a, b] = e.getAttribute('data-pair').split('-');
     e.classList.toggle('is-lit-enemy', identitySet.has(a) !== identitySet.has(b));
   });
+  // The legend names only the kinds of line the diagram draws: no solid line
+  // for one colour or a pair that clashes, no dashed one for five colours.
+  const legendAlly = document.getElementById('rel-legend-ally');
+  if (legendAlly) legendAlly.classList.toggle('hidden', !document.querySelector('#screen-results .rel-edge-ally.is-lit-ally'));
+  const legendEnemy = document.getElementById('rel-legend-enemy');
+  if (legendEnemy) legendEnemy.classList.toggle('hidden', !document.querySelector('#screen-results .rel-edge-enemy.is-lit-enemy'));
 
-  // Build the right-column detail. Lead with a "What's Missing" heading,
-  // then one card per missing colour. Five-colour identities get a special
-  // celebratory empty state.
+  // The right-column detail: who to bring in, one card per missing colour,
+  // or for five colours one plain paragraph.
   const el = document.getElementById('relations-detail');
   if (!el) return;
-  let html;
+  const G = COLOR_GAPS_COPY;
+  let html = `<div class="mc-relations-detail__heading">${G.heading}</div>`;
   if (missing.length === 0) {
-    html = `<div class="mc-relations-detail__heading">Five-Colour Identity</div>
-      <div class="mc-relations-detail__sub">There's nothing missing to compensate for. The difficulty is holding all five tensions at once.</div>
-      <div class="mc-relations-detail__empty">No single colour completes you, because no single colour is absent. The friction is internal: your different colours pull against each other. Your work is choosing which voice leads when.</div>`;
+    html += `<div class="mc-relations-detail__empty">${G.five.result}</div>`;
   } else {
-    const subtitle = 'The colours you lack, and what a colleague strong in each one brings.';
-    const cards = missing.map(c => {
-      const g = COLOR_GAPS[c];
-      return `<div class="mc-gap-card" data-color="${c}">
-        <span class="mc-pip is-lit mc-gap-card__pip" data-color="${c}" aria-label="${c}"></span>
-        <div class="mc-gap-card__body">
-          <div class="mc-gap-card__head"><span class="mc-gap-card__plus">+</span>${COLOR_DISPLAY[c]} colleague</div>
-          <div class="mc-gap-card__gap">${g.gap}</div>
-          <div class="mc-gap-card__complement">→ ${g.complement}</div>
-        </div>
-      </div>`;
-    }).join('');
-    html = `<div class="mc-relations-detail__heading">What's Missing</div>
-      <div class="mc-relations-detail__sub">${subtitle}</div>
-      ${cards}`;
+    html += `<div class="mc-relations-detail__sub">${G.sub.result}</div>
+      ${gapCardsHTML(missing, p.colors, activationMap())}`;
   }
   el.innerHTML = html;
   bindRelationsInteractivity();
@@ -5794,12 +5850,13 @@ const PLAY_COPY = {
     showNow: 'Show my result',
   },
 
-  // PROVISIONAL: the results page's share button and table switcher
+  // PROVISIONAL: the results page's share button and table switcher. The
+  // label and the note make sense without the three buttons beside them.
   results: {
     share: '⚜ Share',
-    themeLabel: 'Table',
+    themeLabel: 'Page style',
     themes: { gilded: 'Gilded Hall', frames: 'Card Frames', borderless: 'Borderless' },
-    themeNote: 'Card Frames keeps the colours hidden until your result.',
+    themeNote: 'The Card Frames style keeps the page plain during the quiz and colours it to match your result.',
   },
 };
 
@@ -10933,7 +10990,9 @@ function revealResults() {
 // Bump when the next-door or appeal wording changes; every appeal records it.
 // 1: the first drafts. 2: revision 2 (17 October 2026). 3: Plain screens
 // (18 October 2026): no jokes in the next-door reasons, no question headings.
-const RESULT_COPY_VERSION = 3;
+// 4: Result screens rewritten from naive readers (18 October 2026): the plain
+// prompt says what the rows are, and the line under the label reads the bars.
+const RESULT_COPY_VERSION = 4;
 
 const RESULT_COPY = {
   // One sentence-case name per identity, for use inside sentences. [3]
@@ -10995,32 +11054,74 @@ const RESULT_COPY = {
   collector: 'MC{s} • EN • {n}/{total}',
   versionNote: 'Scoring version {s}',
 
-  // [4] Confidence labels and the one line under each, the same in both modes
-  // (links keep c=high|moderate|low). The line is all the confidence block
-  // says: nothing about how the result was reached is stacked under it. No
-  // numbers until real data exists (editor's decision 3), so `line` is what
-  // prints.
+  // [4] Confidence labels, the same in both modes (links keep
+  // c=high|moderate|low). The label and the one line under it (`confidence`
+  // below) are all the confidence block says: nothing about how the result
+  // was reached is stacked under them.
   // PHASE 5, UNUSED: `phase5` (and phase5SmallPrint under it) waits for
   // recalibrated figures: {pct} is the share of results like this that held up,
   // {date} when that was measured. Nothing reads them before Phase 5.
   labels: {
     HIGH: {
       word: 'Locked in',
-      line: 'A clear result.',
       phase5: 'About {pct}% of results like this held up when tested.'
     },
     MODERATE: {
       word: 'Leaning',
-      line: 'Fairly clear. Your nearest neighbour is next door.',
       phase5: 'About {pct}% of results like this held up when tested.'
     },
     LOW: {
       word: 'Still shuffling',
-      line: 'Your answers were split between a few results. Have a look next door.',
       phase5: 'About {pct}% of results like this held up when tested, so read next door too.'
     }
   },
   phase5SmallPrint: '(Tested on second visits and appeals, {date}.)', // PHASE 5, UNUSED
+
+  // The line under the label: one sentence about this result's own bars, the
+  // same in both modes (confidenceLine). It reads the five bars alone, so a
+  // shared link reads as it did when it was shared, and it says what the
+  // next-door rows say in other words. How far apart two colours are is
+  // counted in answers (oneAnswer()), in words, never as a number. Colours
+  // are filled in lower case ({a}) or capitalised to open the sentence ({A}).
+  // {a}: your one colour, or your top colour; {b}: the colour after it.
+  // {w}: the lowest of your colours; {o}: the highest colour outside yours,
+  // {p} the next one. {t} and {m}: five colours' highest and lowest.
+  // {n}: how many answers apart, from `answers`.
+  confidence: {
+    answers: { under: 'less than an answer', one: 'about one answer', two: 'one or two answers', three: 'two or three answers' },
+    mono: {
+      well: '{A} was well ahead of every other colour.',
+      close: '{A} led, with {b} {n} behind.',
+      level: '{A} and {b} finished level.',
+      above: '{B} edged ahead of {a}, though {a} is the colour in your result.'
+    },
+    well: {
+      2: '{A} and {b} were well clear of the other three colours.',
+      3: '{O} and {p} were well behind your three colours.',
+      4: '{O} was well behind your four colours.'
+    },
+    close: {
+      2: 'The nearest colour outside yours was {o}, {n} behind {w}.',
+      3: 'The nearest colour outside yours was {o}, {n} behind {w}.',
+      4: '{O}, the one colour outside yours, finished {n} behind {w}.'
+    },
+    level: {
+      2: '{O} tied with {w}, the lower of your two colours.',
+      3: '{O} tied with {w}, the lowest of your three colours.',
+      4: '{O}, the one colour outside yours, tied with {w}.'
+    },
+    // The bars of an old link can put a colour outside the result above one in it.
+    above: '{O} edged ahead of {w}, though {w} is the one in your result.',
+    five: {
+      level: 'All five colours finished level.',
+      close: '{T} was your highest colour and {m} your lowest, {n} apart.',
+      well: '{T} was your highest colour and {m} your lowest, more than three answers apart.'
+    },
+    // "Still shuffling" on bars that were clear: the doubt is about the result.
+    lowWell: '{line}, but your answers fitted more than one result.',
+    // A shared link with no bars in it.
+    noBars: 'This link shows {identity} without the answers behind it.'
+  },
 
   // Under the confidence line, at most one of these, and only when its flag
   // fires (renderQualityWarning; the flags count Round 1's answers): answers
@@ -11038,12 +11139,15 @@ const RESULT_COPY = {
 
   // [2] Rules-text strip, player mode only, one line per identity.
   // Bracketed reminder text prints in italics, as on a card; mana is in braces.
+  // A joke that borrows the commander's own ability keeps its numbers (Elesh
+  // Norn's +2/+2, Omnath's green mana); one that nearly repeated the card
+  // below it (Jund, Mardu, four-colour without black) now does something else.
   rules: {
-    'MONO-W': "Vigilance. Other creatures you control get +1/+1. When this creature leaves the battlefield, its rules don't.",
+    'MONO-W': "Vigilance. Other creatures you control get +2/+2. When this creature leaves the battlefield, its rules don't.",
     'MONO-U': 'Flash. Hexproof from feedback. At the beginning of your upkeep, you may reconsider.',
     'MONO-B': 'Menace, lifelink. You may pay life rather than mana. Goodwill you gain lasts until end of turn.',
     'MONO-R': 'Trample, haste. At the beginning of the end step, sacrifice this creature.',
-    'MONO-G': "Reach. You don't lose unspent mana as steps and phases end. Spells that change things have suspend 7.",
+    'MONO-G': "Reach. You don't lose unspent green mana as steps and phases end. Spells that change things have suspend 7.",
     AZORIUS: 'Spells your opponents cast cost {1} more to cast and need a countersignature.',
     DIMIR: 'Whenever a player says something, surveil 1. You have shroud.',
     RAKDOS: 'Unleash. At the beginning of your upkeep, if nothing went wrong last turn, something does.',
@@ -11057,19 +11161,28 @@ const RESULT_COPY = {
     BANT: 'Exalted. If you would attack, you may draw a card instead.',
     ESPER: 'Flying. Creatures you control are artifacts in addition to their other types.',
     GRIXIS: 'Haste. Creatures you control get +2/+0. At the beginning of your end step, one of them leaves for a calmer deck.',
-    JUND: 'Trample. Sacrifice another creature: This creature gets +1/+0 until end of turn.',
+    JUND: 'Trample. At the beginning of each quarter, sacrifice your weakest creature.',
     NAYA: 'Battle cry. Other creatures you control have haste.',
     ABZAN: "Vigilance. Outlast {1}{W}. Creatures you control get +1/+1 for each year they've been with you.",
     JESKAI: 'Prowess. Mentor. Every other creature has lesser power than this one.',
     SULTAI: "Exploit. Whenever another player's idea resolves, you may gain control of it. At the beginning of next year, they notice.",
-    MARDU: 'Haste. Whenever this creature attacks, return a creature card from your graveyard to the battlefield tapped and attacking.',
+    MARDU: "Haste. Creatures you control don't untap until the deadline has passed.",
     TEMUR: "Trample. This spell can't be countered. At the beginning of your upkeep, shuffle your plan into your library.",
     WITCH: "Vigilance, deathtouch, lifelink. This creature can't have or gain haste.",
     YORE: 'Flying. Whenever an artifact you control works, sacrifice it and build a better one.',
     GLINT: "Trample, cascade. Phasing (When the bill arrives, treat this creature as though it doesn't exist.)",
     DUNE: "Vigilance, haste. You can't scry.",
-    INK: 'Vigilance. At the beginning of your end step, each player draws a card. Opponents draw two.',
+    INK: 'Vigilance. Whenever an opponent would lose life, you may lose that life instead.',
     WUBRG: 'Changeling. You have every ability. Each works at a fifth of its strength.'
+  },
+
+  // The commander block beside Natural Roles. Player mode: "Commander", the
+  // card's name and what the card does (PROFILES cmdDesc). Everyone else gets
+  // the card's name and one plain line in its place, since card text means
+  // nothing to someone who doesn't play. (Not in the drafts.)
+  commander: {
+    title: { player: 'Commander', plain: 'Your card' },
+    plain: 'The Magic: The Gathering card matched to {identity}. The art at the top of the page is from it.'
   },
 
   // [10] Commander mana base, player mode only, at the foot of the commander
@@ -11139,8 +11252,9 @@ const RESULT_COPY = {
   // identity marked "(on appeal)" and the link gains &f=<ID> (not in
   // workplace mode, where the appeal stays private).
   appeal: {
-    // The line that leads into the rows (the drafts' "Button" row).
-    prompt: { player: 'Appeal this ruling', plain: "If this isn't you, look next door." },
+    // The line that leads into the rows (the drafts' "Button" row). The plain
+    // one says what the rows are, so it reads on its own.
+    prompt: { player: 'Appeal this ruling', plain: 'The results one colour away from yours.' },
     peekHeading: 'Next door: {identity}',
     peekNote: {
       player: 'The ruling stands unless you appeal.',
@@ -11311,8 +11425,8 @@ function collectorNumber(id) {
 }
 
 // The label words replace "High/Moderate/Low Confidence"; scoring still owns
-// result.confidence and the links keep c=high|moderate|low. The base-rate
-// sentence carries no number until Phase 5 (see RESULT_COPY.labels).
+// result.confidence and the links keep c=high|moderate|low. The line under the
+// label is confidenceLine(): no number until Phase 5 (see RESULT_COPY.labels).
 function renderConfidenceLabel() {
   const level = confidenceLevel();
   const label = RESULT_COPY.labels[level];
@@ -11320,7 +11434,49 @@ function renderConfidenceLabel() {
   badge.dataset.level = level.toLowerCase();
   badge.innerHTML = '<span class="mc-confidence__dot"></span><span class="mc-confidence__word"></span>';
   badge.querySelector('.mc-confidence__word').textContent = label.word;
-  document.getElementById('conf-base-rate').textContent = label.line;
+  document.getElementById('conf-base-rate').textContent = confidenceLine(resultShownId(), activationMap(), level);
+}
+
+// One sentence about the bars behind this result (RESULT_COPY.confidence):
+// how far your colours stood from the nearest one outside them, or, for one
+// colour, from the colour after it, and for five, how far apart the highest
+// and lowest were. The gap is counted in answers on the bars' own values, as
+// next door counts it; a tie is a tie as printed.
+function confidenceLine(id, act, level) {
+  const C = RESULT_COPY.confidence;
+  const prof = PROFILES[id];
+  if (!prof || !prof.colors) return '';
+  const raw = (c) => (act && act[c]) || 0;
+  const shown = (c) => Math.round(raw(c) * 100);
+  if (WUBRG_ORDER.every(c => shown(c) === 0)) return fillCopy(C.noBars, { identity: identityName(id) });
+  const byBar = (list) => [...list].sort((a, b) => (raw(b) - raw(a)) || (WUBRG_ORDER.indexOf(a) - WUBRG_ORDER.indexOf(b)));
+  const inside = byBar(prof.colors);
+  const outside = byBar(WUBRG_ORDER.filter(c => !prof.colors.includes(c)));
+  const word = (c) => RESULT_COPY.colourWords[c] || '';
+  const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+  const vars = {};
+  const put = (key, c) => { if (c) { vars[key] = word(c); vars[key.toUpperCase()] = cap(word(c)); } };
+  // How many answers apart, in words; null when they are more than three apart.
+  const apart = (hi, lo) => {
+    const answers = (raw(hi) - raw(lo)) / oneAnswer();
+    if (answers > NEXT_DOOR_MARGINS.few + 1e-9) return null;
+    if (answers > 2 + 1e-9) return C.answers.three;
+    if (answers > NEXT_DOOR_MARGINS.one + 1e-9) return C.answers.two;
+    return answers >= 0.5 ? C.answers.one : C.answers.under;
+  };
+  // The two bars compared: your lowest colour and the highest one outside it
+  // (for one colour, the colour after yours; for five, your highest).
+  let hi, lo;
+  if (!outside.length) { hi = inside[0]; lo = inside[inside.length - 1]; put('t', hi); put('m', lo); }
+  else { hi = inside[inside.length - 1]; lo = outside[0]; put('a', inside[0]); put('b', inside[1] || lo); put('w', hi); put('o', lo); put('p', outside[1]); }
+  vars.n = apart(hi, lo);
+  const kind = shown(lo) > shown(hi) ? 'above' : shown(lo) === shown(hi) ? 'level' : vars.n ? 'close' : 'well';
+  const k = inside.length;
+  const template = !outside.length ? C.five[kind === 'above' ? 'level' : kind]
+    : k === 1 ? C.mono[kind]
+    : kind === 'above' ? C.above : C[kind][k];
+  const line = fillCopy(template, vars);
+  return level === 'LOW' && kind === 'well' && outside.length ? fillCopy(C.lowWell, { line: line.replace(/\.$/, '') }) : line;
 }
 
 // Scoring engine 2 picks the identity on the weight of all the answers, not
@@ -11880,10 +12036,17 @@ function showResults() {
   // + commander aside.
   const typelineName = document.getElementById('res-typeline-name');
   if (typelineName) typelineName.textContent = identityName(shownId);
+  // The commander aside: what the card does in player mode, one plain line
+  // in its place otherwise (RESULT_COPY.commander).
+  const cmdTitleAside = document.getElementById('cmd-title-aside');
+  if (cmdTitleAside) cmdTitleAside.textContent = copyVariant(RESULT_COPY.commander.title);
   const cmdNameAside = document.getElementById('cmd-name-aside');
   if (cmdNameAside) cmdNameAside.textContent = p.cmd || '';
   const cmdDescAside = document.getElementById('cmd-desc-aside');
-  if (cmdDescAside) cmdDescAside.textContent = p.cmdDesc || '';
+  if (cmdDescAside) {
+    cmdDescAside.textContent = isPlayerMode() ? (p.cmdDesc || '')
+      : fillCopy(RESULT_COPY.commander.plain, { identity: identityName(shownId) });
+  }
   renderManaBase(shownId);
 
   // 5-color profile bars (the "psychometric receipt"). Pulls from state.activationSorted —
@@ -12681,28 +12844,16 @@ function renderExplorerRelations(identityKey) {
   const el = document.getElementById('explorer-relations-detail');
   if (!el) return;
 
+  const G = COLOR_GAPS_COPY;
   if (missing.length === 0) {
-    el.innerHTML = `<div class="mc-relations-detail__heading">Five-Colour</div>
-      <div class="mc-relations-detail__sub">No single colour completes this type because no single colour is absent. The friction is internal: different colours pull against each other.</div>`;
+    el.innerHTML = `<div class="mc-relations-detail__heading">${G.heading}</div>
+      <div class="mc-relations-detail__sub">${G.five.explorer}</div>`;
     return;
   }
 
-  const subtitle = `The colours this type lacks, and what a colleague strong in each one brings.`;
-  const cards = missing.map(c => {
-    const g = COLOR_GAPS[c];
-    return `<div class="mc-gap-card" data-color="${c}">
-      <span class="mc-pip is-lit mc-gap-card__pip" data-color="${c}" aria-label="${c}"></span>
-      <div class="mc-gap-card__body">
-        <div class="mc-gap-card__head"><span class="mc-gap-card__plus">+</span>${COLOR_DISPLAY[c]} colleague</div>
-        <div class="mc-gap-card__gap">${g.gap}</div>
-        <div class="mc-gap-card__complement">→ ${g.complement}</div>
-      </div>
-    </div>`;
-  }).join('');
-
-  el.innerHTML = `<div class="mc-relations-detail__heading">What this type lacks</div>
-    <div class="mc-relations-detail__sub">${subtitle}</div>
-    ${cards}`;
+  el.innerHTML = `<div class="mc-relations-detail__heading">${G.heading}</div>
+    <div class="mc-relations-detail__sub">${G.sub.explorer}</div>
+    ${gapCardsHTML(missing, p.colors, null)}`;
 }
 
 // ============================================================================

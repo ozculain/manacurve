@@ -23,8 +23,22 @@
 //   - an exclamation mark, a question mark (the screens ask the player
 //     nothing), "not X, it's Y", a US spelling, an unfilled {placeholder}
 //   - a sentence over 20 words
-//   - a confidence block of more than the label and two sentences, more than
+//   - a confidence block of more than the label and its one line, more than
 //     one quality line under it, or anything else between it and the bars.
+// The line under the label (sections 6 and 9; CHANGELOG, "Result screens
+// rewritten from naive readers") is one sentence about the result's own bars:
+// a check fails when it carries a number, is one of the old lines every result
+// printed, names none of the result's colours (or, with no bars, the
+// identity), or says what the bars do not ("well" clear by three answers or
+// fewer, "level" for bars printed apart, a count of answers the gap does not
+// fit); on all 31 identities, seven bar shapes and the three labels, and as
+// rendered in plain and player modes. Section 9 also renders the commander
+// block (the card text only in player mode) and the colleague cards under
+// Working With Others for all 31, on the result and in the explorer: one card
+// per missing colour saying what it brings and when to bring it in, none of
+// the traits and jargon readers caught ("You move on instinct", "Decisions
+// defer", "second-order consequences"), no sentence opening on "You", and a
+// legend naming only the lines the diagram draws.
 // Sections 10 to 15 (CHANGELOG, "Plain profiles and pages") read what a
 // player reads about an identity and the pages around the result, rendered
 // for real: the profile blocks on the result screen for all 31 identities
@@ -147,6 +161,74 @@ function contentProblems(text, { PROFILES, scoring = true, codes = false } = {})
   return out;
 }
 
+// ---------- the line under the label (sections 6 and 9) ----------
+// One sentence about this result's own bars (CHANGELOG, "Result screens
+// rewritten from naive readers"). It fails when it is empty, more than one
+// sentence, carries a number, is one of the old lines every result printed
+// ("Fairly clear. Your nearest neighbour is next door."), names no colour of
+// the result (its own colours, the nearest one outside them, or for five
+// colours "all five colours") and not the identity either, or says something
+// the bars do not: "well" for a gap of
+// three answers or less, "level" or "tied" for bars that print apart, or a
+// count of answers the gap does not fit. One answer is a twelfth of a bar, as
+// next door counts it.
+const OLD_LABEL_LINES = ['A clear result.', 'Fairly clear. Your nearest neighbour is next door.',
+  'Your answers were split between a few results. Have a look next door.'];
+const COLOUR_WORD = { W: 'white', U: 'blue', B: 'black', R: 'red', G: 'green' };
+const ANSWER_RANGES = [
+  ['less than an answer', 0, 0.5], ['about one answer', 0.5, 1], ['one or two answers', 1, 2],
+  ['two or three answers', 2, 3], ['more than three answers', 3, Infinity],
+];
+function lineProblems(line, id, act, PROFILES, name) {
+  const out = [];
+  if (!line) return ['no line'];
+  if (sentences(line).length !== 1) out.push(`${sentences(line).length} sentences`);
+  if (/\d|%/.test(line)) out.push('a number');
+  if (OLD_LABEL_LINES.includes(line)) out.push('an old line every result printed');
+  const colours = PROFILES[id].colors;
+  const bar = (c) => act[c] || 0;
+  const shown = (c) => Math.round(bar(c) * 100);
+  const outside = ['W', 'U', 'B', 'R', 'G'].filter((c) => !colours.includes(c)).sort((a, b) => bar(b) - bar(a));
+  const inside = [...colours].sort((a, b) => bar(b) - bar(a));
+  const lower = line.toLowerCase();
+  const named = [...colours, ...outside.slice(0, 1)].filter((c) => new RegExp(`\\b${COLOUR_WORD[c]}\\b`).test(lower));
+  const allFive = colours.length === 5 && /\ball five colours\b/.test(lower);
+  if (!named.length && !allFive && !(name && line.includes(name))) out.push('names no colour of this result');
+  // The two bars the line compares: your lowest colour and the highest one
+  // outside it, or for five colours the highest and the lowest.
+  const [hi, lo] = outside.length ? [inside[inside.length - 1], outside[0]] : [inside[0], inside[inside.length - 1]];
+  const answers = (bar(hi) - bar(lo)) * 12;
+  if (/\bwell\b/.test(lower) && !(answers > 3)) out.push(`"well" for ${answers.toFixed(2)} answers`);
+  if (/\b(?:level|tied)\b/.test(lower) && shown(hi) !== shown(lo)) out.push(`"level" for bars of ${shown(hi)} and ${shown(lo)}`);
+  for (const [words, min, max] of ANSWER_RANGES) {
+    if (lower.includes(words) && !(answers >= min - 1e-9 && answers <= max + 1e-9)) out.push(`"${words}" for ${answers.toFixed(2)} answers`);
+  }
+  return out;
+}
+
+// ---------- the colleague cards (section 9) ----------
+// What a colleague strong in each missing colour brings, and when to bring
+// them in. The cards once claimed traits of the reader that their own result
+// contradicted ("You move on instinct" to Mono-White, "Decisions defer" to
+// Mono-Black); readers also caught the jargon in them. None of these may come
+// back, no sentence on them may open on "You" or "Your", and the stray legend
+// labels and the old heading stay gone.
+const GAP_TRAITS = [
+  'move on instinct', 'do the thing, then learn', "don't pause long enough", "don't experience the team",
+  'something you owe care to', 'decisions get made for you', 'stated motives as their real ones', 'give away leverage',
+  'holding the bill', "weren't watching the table", "don't generate the heat", 'decisions defer', 'one more data point',
+  'flat or strategically aloof', 'distrust existing systems', 'rebuilding more satisfying', "discarded as 'legacy'",
+  'relearned the expensive way', 'temperature of the room', 'live data', 'second-order consequences', 'cheapest insurance',
+  'psychologically safe', 'name trade-offs', 'stakeholder', 'no single colour completes you', 'all five tensions',
+  'which voice leads when', "what's missing", 'ally edge', 'tension to what you lack',
+];
+function gapProblems(text) {
+  const lower = text.toLowerCase();
+  const out = GAP_TRAITS.filter((p) => lower.includes(p)).map((p) => `"${p}"`);
+  for (const s of sentences(text)) if (/^(?:you|your)\b/i.test(s)) out.push(`opens on "You": "${s.slice(0, 50)}"`);
+  return out;
+}
+
 // ---------- rhythm (section 16) ----------
 // One passage is { id, part, items, list, prose }: a paragraph is one item,
 // a list (strengths, shadows) one item per line, read top to bottom as one
@@ -190,14 +272,15 @@ const RHYTHM_RULES = [
 // The lists that stay. Each item of a colour list stands for one of the
 // identity's own colours (Bant: civilisation, knowledge, patience), three of
 // them or more; a card's modes are the modes it prints.
+// The four that only listed colours ("Holds analysis, fairness, and timing in
+// one mental model", "Sees the same situation from analysis, ambition,
+// structure, instinct, and patience") are gone: readers took them for
+// machine-written.
 const COLOUR_LISTS = {
-  BANT: ['civilisation, knowledge, and patience', 'analysis, fairness, and timing'],
+  BANT: ['civilisation, knowledge, and patience'],
   ESPER: ['fair systems, deep analysis, and the willingness to make the call'],
-  GRIXIS: ['intelligence, ambition, and aggression'],
   ABZAN: ['patience, pragmatism, and community'],
-  WITCH: ['patience, analysis, and quiet positioning', 'analysis, fairness, ambition, and patience'],
-  INK: ['community, ideas, energy and growth'],
-  WUBRG: ['analysis, ambition, structure, instinct, and patience'],
+  WITCH: ['patience, analysis, and quiet positioning'],
 };
 const CARD_MODES = {
   YORE: ['3 damage to a player or planeswalker, -4/-4 to a creature, or gain 5 life'],
@@ -502,9 +585,11 @@ run('visible-copy', async (t) => {
     const R = h.RESULT_COPY;
     const screen = d.getElementById('screen-results');
     checkScreen(`result: ${st.name}`, win, screen, h.PROFILES);
-    // The confidence block: the label and its line (two sentences at most),
-    // then at most one quality line, and nothing else before the bars.
+    // The confidence block: the label and its line (one sentence about this
+    // result's own bars, naming one of its colours), then at most one quality
+    // line, and nothing else before the bars.
     const label = R.labels[st.confidence];
+    const line = win.confidenceLine(st.id, st.act, st.confidence);
     const block = visibleBlocks(win, d.querySelector('.mc-verdict-status'));
     const between = [];
     for (let n = d.querySelector('.mc-verdict-status').nextElementSibling; n && !n.contains(d.getElementById('res-bars-title')); n = n.nextElementSibling) {
@@ -513,11 +598,12 @@ run('visible-copy', async (t) => {
     const quality = between.filter((x) => x.id === 'quality-warning').map((x) => x.b);
     const others = between.filter((x) => x.id !== 'quality-warning');
     const wantQuality = st.quality ? [(R.quality || {})[st.quality]] : [];
-    ok(`result: ${st.name}: the confidence block is "${label.word}" and its line, ${st.quality ? 'then the ' + st.quality + ' line' : 'with no quality line'}, and nothing else`,
-      !threw && errors.length === 0 && JSON.stringify(block) === JSON.stringify([label.word, label.line])
-        && sentences(block[1] || '').length <= 2 && JSON.stringify(quality) === JSON.stringify(wantQuality)
+    const specific = lineProblems(line, st.id, st.act, h.PROFILES);
+    ok(`result: ${st.name}: the confidence block is "${label.word}" and one sentence about these bars, ${st.quality ? 'then the ' + st.quality + ' line' : 'with no quality line'}, and nothing else`,
+      !threw && errors.length === 0 && JSON.stringify(block) === JSON.stringify([label.word, line]) && specific.length === 0
+        && JSON.stringify(quality) === JSON.stringify(wantQuality)
         && quality.every((q) => sentences(q).length <= 2) && others.length === 0 && !d.getElementById('conf-exp'),
-      `${threw || errors[0] || ''} block=${JSON.stringify(block)} quality=${JSON.stringify(quality)} others=${JSON.stringify(others)}`);
+      `${threw || errors[0] || ''} block=${JSON.stringify(block)} ${specific.join(', ')} quality=${JSON.stringify(quality)} others=${JSON.stringify(others)}`);
     win.close();
   }
 
@@ -558,6 +644,117 @@ run('visible-copy', async (t) => {
     const { win, h } = await renderResult({ id: 'DIMIR', confidence: 'HIGH', act: DIMIR_ACT, r3: DIMIR_R3, mode: 'plain' });
     const sub = (win.document.querySelector('#relations-detail .mc-relations-detail__sub') || {}).textContent || '';
     ok('Working With Others: the line over the colour cards is plain', !!sub && problemsIn(sub, { PROFILES: h.PROFILES }).length === 0, sub);
+    win.close();
+  }
+
+  // ---------- 9. the line under the label, the commander and the colleague cards, all 31 ----------
+  // The line from confidenceLine on bars of every shape it has words for (a
+  // colour outside the result printed above one in it, level, under an
+  // answer, about one, one or two, two or three, well clear) under each
+  // label; then every identity rendered for real in plain and player modes:
+  // the line on the page, the commander block (no card text in plain mode),
+  // the colleague cards and the legend; then the explorer's cards for all 31.
+  // Bars: the result's colours from 75 down by two, the nearest colour
+  // outside them `gap` below the lowest, the rest near 10; five colours from
+  // 60, spread over `gap`.
+  const barsFor = (colours, gap) => {
+    const act = {};
+    const out = ['W', 'U', 'B', 'R', 'G'].filter((c) => !colours.includes(c));
+    if (!out.length) { colours.forEach((c, i) => { act[c] = 0.6 - (gap / 4) * i; }); return act; }
+    colours.forEach((c, i) => { act[c] = 0.75 - 0.02 * i; });
+    out.forEach((c, i) => { act[c] = i === 0 ? 0.75 - 0.02 * (colours.length - 1) - gap : 0.12 - 0.01 * i; });
+    return act;
+  };
+  {
+    const { win, h, errors } = await page();
+    const P = h.PROFILES, R = h.RESULT_COPY;
+    const issues = [], lines = new Set();
+    for (const id of Object.keys(P)) {
+      for (const gap of [-0.05, 0, 0.02, 0.06, 0.12, 0.2, 0.4]) {
+        const act = barsFor(P[id].colors, gap);
+        for (const level of ['HIGH', 'MODERATE', 'LOW']) {
+          const line = win.confidenceLine(id, act, level);
+          lines.add(line);
+          const where = `${id} ${level} gap ${gap}`;
+          issues.push(...lineProblems(line, id, act, P, R.names[id]).map((p) => `${where}: ${p} in "${line}"`));
+          issues.push(...problemsIn(line, { PROFILES: P }).map((p) => `${where}: ${p} in "${line}"`));
+        }
+      }
+    }
+    // A shared link with no bars names the identity instead.
+    const bare = win.confidenceLine('DIMIR', { W: 0, U: 0, B: 0, R: 0, G: 0 }, 'MODERATE');
+    issues.push(...lineProblems(bare, 'DIMIR', { W: 0, U: 0, B: 0, R: 0, G: 0 }, P, R.names.DIMIR).map((p) => `no bars: ${p} in "${bare}"`));
+    ok(`the line under the label: one plain sentence that names this result's colours and is true to its bars (all 31, seven bar shapes, three labels: ${lines.size} lines)`,
+      issues.length === 0 && errors.length === 0 && lines.size > 31, issues.slice(0, 4).join(' | ') || errors.slice(0, 2).join(' | '));
+    win.close();
+  }
+  for (const [modeName, gaming] of [['plain', false], ['player', true]]) {
+    const { win, h, errors } = await page();
+    const d = win.document, P = h.PROFILES, R = h.RESULT_COPY;
+    h.selectAudience('consumer');
+    const s = h.state;
+    s.gamingFamiliar = gaming;
+    const text = (sel) => ((d.querySelector(sel) || {}).textContent || '').replace(/\s+/g, ' ').trim();
+    const shown = (sel) => !!d.querySelector(sel) && !hidden(win, d.querySelector(sel));
+    const lineIssues = [], cmdIssues = [], gapIssues = [], legendIssues = [];
+    for (const id of Object.keys(P)) {
+      for (const gap of [0.06, 0.4]) {
+        const act = barsFor(P[id].colors, gap);
+        s.result = { identity: id, confidence: 'MODERATE', allResults: [], scoringVersion: 2, instrumentVersion: 4, round3Data: {} };
+        s.activationSorted = sorted(act);
+        s.responses = new Array(30).fill({ c: P[id].colors[0] });
+        s.neitherCount = 1;
+        s.qualityFlags = CLEAN_FLAGS;
+        s.disclaimerAcknowledged = true;
+        h.showResults();
+        const line = text('#conf-base-rate');
+        if (line !== win.confidenceLine(id, act, 'MODERATE')) lineIssues.push(`${id}: the page shows "${line}"`);
+        lineIssues.push(...lineProblems(line, id, act, P, R.names[id]).map((p) => `${id} gap ${gap}: ${p} in "${line}"`));
+      }
+      // The commander block: the card text in player mode, one plain line in its place otherwise.
+      const desc = text('#cmd-desc-aside'), title = text('#cmd-title-aside');
+      const want = gaming ? P[id].cmdDesc : R.commander.plain.replace('{identity}', R.names[id]);
+      if (desc !== want || title !== (gaming ? 'Commander' : 'Your card') || text('#cmd-name-aside') !== P[id].cmd) cmdIssues.push(`${id}: "${title}" / "${desc}"`);
+      if (!gaming && /\b(?:mana|graveyard|battlefield|creature|library|token|counter|upkeep|combat)\b/i.test(desc + ' ' + text('#res-idcard'))) cmdIssues.push(`${id}: card words in plain mode`);
+      // The colleague cards: one per missing colour, each saying what they bring and when to bring them in.
+      const missing = ['W', 'U', 'B', 'R', 'G'].filter((c) => !P[id].colors.includes(c));
+      const cards = [...d.querySelectorAll('#relations-detail .mc-gap-card')];
+      const filled = cards.every((card) => (card.querySelector('.mc-gap-card__gap') || {}).textContent.trim()
+        && (card.querySelector('.mc-gap-card__complement') || {}).textContent.replace('→', '').trim());
+      if (cards.length !== missing.length || !filled) gapIssues.push(`${id}: ${cards.length} cards for ${missing.length} colours`);
+      for (const b of visibleBlocks(win, d.getElementById('relations-detail'), { exclude: [] })) {
+        gapIssues.push(...gapProblems(b).map((p) => `${id}: ${p}`), ...contentProblems(b, { PROFILES: P }).map((p) => `${id}: ${p}`));
+      }
+      // The legend names only the kinds of line the diagram draws.
+      const ally = !!d.querySelector('#screen-results .rel-edge-ally.is-lit-ally'), enemy = !!d.querySelector('#screen-results .rel-edge-enemy.is-lit-enemy');
+      if (shown('#rel-legend-ally') !== ally || shown('#rel-legend-enemy') !== enemy) legendIssues.push(`${id}: legend ally ${shown('#rel-legend-ally')}/${ally}, enemy ${shown('#rel-legend-enemy')}/${enemy}`);
+      legendIssues.push(...gapProblems(text('.mc-relations-legend')).map((p) => `${id} legend: ${p}`));
+    }
+    const sw = [text('#theme-switch-label'), text('.mc-theme-switch__note')];
+    if (sw[0] === 'Table' || /keeps the colours hidden until your result/.test(sw[1])) legendIssues.push(`theme switcher "${sw.join(' / ')}"`);
+    ok(`result (${modeName}): the line under the label is confidenceLine's, true to the bars, for all 31`, lineIssues.length === 0 && errors.length === 0,
+      lineIssues.slice(0, 4).join(' | ') || errors.slice(0, 2).join(' | '));
+    ok(`result (${modeName}): the commander block is ${gaming ? 'the card text' : 'the card\'s name and one plain line, no card text'}, for all 31`, cmdIssues.length === 0, cmdIssues.slice(0, 4).join(' | '));
+    ok(`result (${modeName}): the colleague cards say what each missing colour brings and when to bring it in, with none of the traits readers caught and no sentence on "You", for all 31`,
+      gapIssues.length === 0, gapIssues.slice(0, 4).join(' | '));
+    ok(`result (${modeName}): the legend names only the lines drawn, and the theme switcher reads on its own`, legendIssues.length === 0, legendIssues.slice(0, 4).join(' | '));
+    win.close();
+  }
+  for (const audience of ['consumer', 'workplace']) {
+    const { win, h, errors } = await page();
+    const d = win.document, P = h.PROFILES;
+    h.selectAudience(audience);
+    win.showExplorer();
+    const issues = [];
+    for (const id of Object.keys(P)) {
+      win.showDetail(id);
+      const detail = d.getElementById('explorer-relations-detail');
+      const cards = detail.querySelectorAll('.mc-gap-card').length;
+      if (cards !== 5 - P[id].colors.length) issues.push(`${id}: ${cards} cards`);
+      for (const b of visibleBlocks(win, detail, { exclude: [] })) issues.push(...gapProblems(b).map((p) => `${id}: ${p}`));
+    }
+    ok(`explorer (${audience}): the colleague cards for all 31 carry none of the traits readers caught`, issues.length === 0 && errors.length === 0,
+      issues.slice(0, 4).join(' | ') || errors.slice(0, 2).join(' | '));
     win.close();
   }
 
@@ -822,7 +1019,7 @@ run('visible-copy', async (t) => {
     ];
     const missed = samples.filter(([text, flag]) => !problemsIn(text, { PROFILES: P }).join(' | ').includes(flag)).map(([text]) => text);
     ok('the checker flags each rule on a made-up line', missed.length === 0, missed.join(' | '));
-    const clean = ['Fairly clear. Your nearest neighbour is next door.', "Four results are still in the running. You'll compare them two at a time.",
+    const clean = ['The nearest colour outside yours was green, one or two answers behind black.', "Four results are still in the running. You'll compare them two at a time.",
       'Ages 6–12.', 'Colour, colours, coloured.', 'Do not use this for hiring, firing or any other decision about a person.'];
     const flagged = clean.filter((x) => problemsIn(x, { PROFILES: P }).length).map((x) => `${x}: ${problemsIn(x, { PROFILES: P })}`);
     ok('the checker passes plain lines (an en dash in a range, British spellings, a long list in one short sentence)', flagged.length === 0, flagged.join(' | '));
@@ -892,6 +1089,42 @@ run('visible-copy', async (t) => {
     const rhythmFlagged = rhythmClean.filter((x) => rulesOf(x).length).map((x) => `${x.id} ${x.part}: ${rhythmProblems(x).map((f) => f.detail).join('; ')}`);
     ok('the rhythm checker passes two openings or two short sentences in a row, a lead-in, an identity\'s colours, a card\'s modes and a list of jobs',
       rhythmFlagged.length === 0, rhythmFlagged.join(' | '));
+
+    // The line checker (sections 6 and 9), on Dimir's bars (blue 78, black 64,
+    // green 31: black well clear of green), and on a close pair.
+    const dimir = { U: 0.78, B: 0.64, G: 0.31, W: 0.22, R: 0.11 }, close = { U: 0.7, B: 0.6, G: 0.5, W: 0.2, R: 0.1 };
+    const lineSamples = [
+      ['Fairly clear. Your nearest neighbour is next door.', dimir, ['2 sentences', 'an old line', 'names no colour']],
+      ['Blue was 14 points ahead of black.', dimir, ['a number']],
+      ['Red and white were well behind your colours.', dimir, ['names no colour']],
+      ['The nearest colour outside yours was green, well behind black.', close, ['"well" for']],
+      ['Green tied with black, the lower of your two colours.', close, ['"level" for']],
+      ['The nearest colour outside yours was green, about one answer behind black.', dimir, ['"about one answer" for']],
+    ];
+    const lineMissed = lineSamples.filter(([line, act, want]) => !want.every((w) => lineProblems(line, 'DIMIR', act, P, 'Dimir').join(' | ').includes(w)))
+      .map(([line, act]) => `${line}: ${lineProblems(line, 'DIMIR', act, P, 'Dimir')}`);
+    ok('the line checker flags an old line, a number, no colour of the result, and a gap the bars do not show', lineMissed.length === 0, lineMissed.join(' | '));
+    const lineClean = [
+      ['Blue and black were well clear of the other three colours.', dimir],
+      ['The nearest colour outside yours was green, one or two answers behind black.', close],
+      ['This link shows Dimir without the answers behind it.', { W: 0, U: 0, B: 0, R: 0, G: 0 }],
+    ].filter(([line, act]) => lineProblems(line, 'DIMIR', act, P, 'Dimir').length).map(([line, act]) => `${line}: ${lineProblems(line, 'DIMIR', act, P, 'Dimir')}`);
+    ok('the line checker passes a line true to its bars, and a bare link\'s line naming the identity', lineClean.length === 0, lineClean.join(' | '));
+
+    // The colleague-card checker (section 9), on the paragraphs and labels
+    // readers caught, and on the cards that replaced them.
+    const gapSamples = [
+      "You don't experience the team as something you owe care to. Decisions get made for you and the task.",
+      'You move on instinct. You\'ll do the thing, then learn what the thing meant.',
+      "Your team's institutional knowledge gets discarded as 'legacy' and has to be relearned the expensive way.",
+      'A White colleague feels the temperature of the room as live data.',
+      'Can create a psychologically safe space where people feel supported.',
+      'Ally edge (within you) Tension to what you lack',
+    ].filter((x) => !gapProblems(x).length);
+    ok('the colleague-card checker flags the traits, jargon and labels readers caught', gapSamples.length === 0, gapSamples.join(' | '));
+    const gapClean = ['Notices who a plan is unfair to, and who will quietly stop helping because of it. → Ask them before a plan reaches the people it affects.',
+      'All five colours are in your result, so none is missing.'].filter((x) => gapProblems(x).length);
+    ok('the colleague-card checker passes the cards that replaced them', gapClean.length === 0, gapClean.join(' | '));
     win.close();
   }
 });

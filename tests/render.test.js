@@ -30,6 +30,7 @@ const CASES = [
   {
     id: 'MONO-R', type: 'mono', confidence: 'HIGH',
     activation: { R: 0.86, B: 0.52, G: 0.44, W: 0.21, U: 0.12 },
+    line: 'Red was well ahead of every other colour.',
     typeline: 'Legendary Creature — Goblin Warrior',
     rules: 'Trample, haste. At the beginning of the end step, sacrifice this creature.',
     rolesForFun: 'Startups, Sales, Crisis Response, Creative Industries, Frontline Operations, Live Events',
@@ -44,6 +45,7 @@ const CASES = [
   {
     id: 'DIMIR', type: 'guild', confidence: 'MODERATE',
     activation: { U: 0.78, B: 0.64, G: 0.31, W: 0.22, R: 0.11 },
+    line: 'Blue and black were well clear of the other three colours.',
     typeline: 'Legendary Creature — Human Ninja',
     rules: 'Whenever a player says something, surveil 1. You have shroud.',
     rolesForFun: 'Strategic Planning, Competitive Intelligence, Investigative Journalism',
@@ -71,8 +73,9 @@ const CASES = [
   {
     id: 'JUND', type: 'three', confidence: 'LOW',
     activation: { R: 0.71, G: 0.69, B: 0.66, W: 0.24, U: 0.18 },
+    line: 'White and blue were well behind your three colours, but your answers fitted more than one result.',
     typeline: 'Legendary Creature — Dragon',
-    rules: 'Trample. Sacrifice another creature: This creature gets +1/+0 until end of turn.',
+    rules: 'Trample. At the beginning of each quarter, sacrifice your weakest creature.',
     rolesForFun: 'Aggressive Sales, Competitive Industries, Startups, Sports, Private Equity',
     share: { consumer: "I'm Jund. What are you?", workplace: "I'm Jund. What are you?" },
     manaBase: "37 lands: Command Tower, Ziatora's Proving Ground, Blood Crypt, Stomping Ground, Overgrown Tomb, 11 Mountain, 11 Forest, 10 Swamp.",
@@ -94,9 +97,10 @@ const CASES = [
   {
     id: 'GLINT', type: 'four', confidence: 'MODERATE',
     activation: { U: 0.66, B: 0.63, R: 0.6, G: 0.58, W: 0.2 },
+    line: 'White was well behind your four colours.',
     typeline: 'Legendary Creature — Ogre Wizard',
     rules: "Trample, cascade. Phasing (When the bill arrives, treat this creature as though it doesn't exist.)",
-    rolesForFun: 'Disruption, High-Risk Ventures, Competitive Industries, Activist Investing',
+    rolesForFun: 'High-Risk Ventures, Competitive Industries, Activist Investing',
     share: { consumer: "I'm Four-colour (no white). What are you?", workplace: "I'm Four-colour (no white). What are you?" },
     manaBase: '37 lands: Command Tower, Mana Confluence, City of Brass, Exotic Orchard, six shocks, four Triomes, 6 Island, 6 Swamp, 6 Mountain, 5 Forest.',
     nextDoor: {
@@ -115,9 +119,10 @@ const CASES = [
   {
     id: 'WUBRG', type: 'five', confidence: 'LOW',
     activation: { W: 0.55, U: 0.53, B: 0.52, R: 0.5, G: 0.49 },
+    line: 'White was your highest colour and green your lowest, about one answer apart.',
     typeline: 'Legendary Creature — Human Noble',
     rules: 'Changeling. You have every ability. Each works at a fifth of its strength.',
-    rolesForFun: 'Consulting, General Tazri, Generalist Leadership, Facilitation',
+    rolesForFun: 'Consulting, Chief of Staff, Generalist Leadership, Facilitation',
     share: { consumer: "I'm Five-colour. What are you?", workplace: "I'm Five-colour. What are you?" },
     manaBase: '37 lands: Command Tower, Mana Confluence, City of Brass, Exotic Orchard, all ten shocks, all ten Triomes, and 13 basics.',
     nextDoor: {
@@ -172,14 +177,17 @@ function offIdentityLands(line, colours, map) {
   return [...map].filter(([name, cols]) => deck.includes(name) && ![...cols].every((c) => colours.includes(c))).map(([name]) => name);
 }
 
-// [4] Label words and the one line under each: the same in both modes, plain,
-// and with no number until Phase 5 measures real results. Nothing else is
-// stacked under them (tests/visible-copy.test.js holds the block to that).
+// [4] Label words, the same in both modes. The line under each is one sentence
+// about the result's own bars (each case's `line`), with no number until
+// Phase 5 measures real results. Nothing else is stacked under them
+// (tests/visible-copy.test.js holds the block to that, and the line to its bars).
 const LABELS = {
-  HIGH: { word: 'Locked in', line: 'A clear result.' },
-  MODERATE: { word: 'Leaning', line: 'Fairly clear. Your nearest neighbour is next door.' },
-  LOW: { word: 'Still shuffling', line: 'Your answers were split between a few results. Have a look next door.' },
+  HIGH: { word: 'Locked in' },
+  MODERATE: { word: 'Leaning' },
+  LOW: { word: 'Still shuffling' },
 };
+// The commander block's plain line, in place of the card text.
+const PLAIN_COMMANDER = (name) => `The Magic: The Gathering card matched to ${name}. The art at the top of the page is from it.`;
 // [4] The bars' title by mode; the caption is the same in both.
 const BARS_TITLE = { player: 'Your Mana Pool', plain: 'Your colours' };
 
@@ -206,7 +214,10 @@ function checkRender(win, h, c, audience, player, threw, errors) {
   need(text('res-tag') === p.tag.trim(), 'res-tag');
   need(text('res-typeline-name') === h.RESULT_COPY.names[c.id], 'res-typeline-name');
   need(text('cmd-name-aside') === (p.cmd || '').trim() && text('cmd-name-aside') !== '', 'cmd-name-aside');
-  need(text('cmd-desc-aside') === (p.cmdDesc || '').trim() && text('cmd-desc-aside') !== '', 'cmd-desc-aside');
+  // The card text in player mode; one plain line in its place otherwise.
+  const wantCmdDesc = playerCopy ? (p.cmdDesc || '').trim() : PLAIN_COMMANDER(h.RESULT_COPY.names[c.id]);
+  need(text('cmd-desc-aside') === wantCmdDesc && text('cmd-desc-aside') !== '', `cmd-desc-aside "${text('cmd-desc-aside')}"`);
+  need(text('cmd-title-aside') === (playerCopy ? 'Commander' : 'Your card'), `commander title "${text('cmd-title-aside')}"`);
   need(d.querySelectorAll('#strengths li').length === p.str.length && p.str.length > 0, 'strengths list');
   need(d.querySelectorAll('#weaknesses li').length === p.weak.length && p.weak.length > 0, 'shadows list');
   for (const id of ['roles', 'res-desc', 'identity-exp', 'share-preview']) real(id);
@@ -289,14 +300,15 @@ function checkRender(win, h, c, audience, player, threw, errors) {
       && panel.classList.contains('hidden') && chip.getAttribute('aria-expanded') === 'false';
   });
   need(ownPanels, 'each next-door row should have its own closed panel');
-  need(text('next-door-prompt') === (playerCopy ? 'Appeal this ruling' : "If this isn't you, look next door."), `next-door prompt "${text('next-door-prompt')}"`);
+  need(text('next-door-prompt') === (playerCopy ? 'Appeal this ruling' : 'The results one colour away from yours.'), `next-door prompt "${text('next-door-prompt')}"`);
   need(text('next-door-all') === 'None of these. Show me all 31.', `all-31 link "${text('next-door-all')}"`);
 
-  // 3. Label words in both modes, one base-rate sentence per label (the same
-  //    in both modes, no number, no small print before Phase 5), no rarity mark.
+  // 3. Label words in both modes, and under each one sentence about this
+  //    result's bars (the same in both modes, no number, no small print
+  //    before Phase 5), no rarity mark.
   const label = LABELS[c.confidence];
   need(text('conf-badge') === label.word, `label "${text('conf-badge')}" != "${label.word}"`);
-  need(text('conf-base-rate') === label.line, `base rate "${text('conf-base-rate')}" != "${label.line}"`);
+  need(text('conf-base-rate') === c.line, `line under the label "${text('conf-base-rate')}" != "${c.line}"`);
   need(!/\d|%/.test(text('conf-base-rate')) && !el('conf-small-print'), 'a number or small print in the base rate before Phase 5');
   need(before(win, el('identity-exp'), el('conf-base-rate')), 'base rate should follow the philosophy');
   need(!/confidence|mythic|rare|uncommon|sleeve|proxy/i.test(text('conf-badge') + ' ' + text('conf-base-rate')), 'old confidence wording, a rarity word or a cut tail in the label');
@@ -388,9 +400,36 @@ run('render', async (t) => {
     const waiting = ['HIGH', 'MODERATE', 'LOW'].every((k) => /\{pct\}%/.test(L[k].phase5)) && /\{date\}/.test(h.RESULT_COPY.phase5SmallPrint);
     const page = win.document.getElementById('screen-results').textContent;
     t.ok('base rate: scoring version 2 in player mode prints the sentence with no number; the Phase 5 lines wait unused',
-      !threw && errors.length === 0 && text(win, 'conf-base-rate') === LABELS.MODERATE.line && waiting && !/held up when tested|\{pct\}/.test(page),
+      !threw && errors.length === 0 && text(win, 'conf-base-rate') === DIMIR.line && waiting && !/held up when tested|\{pct\}/.test(page),
       `${threw || ''} ${text(win, 'conf-base-rate')}`);
     win.close();
+  }
+
+  // The line under the label reads the bars: the closest call, by how many
+  // answers, on Dimir with green one, a few and well short, tied, and above
+  // black (an old link's bars); Mono-Red close to black; five colours level;
+  // and a link with no bars. Plain mode, so nothing else differs.
+  {
+    const LINES = [
+      ['DIMIR', 'MODERATE', { U: 0.78, B: 0.64, G: 0.6, W: 0.22, R: 0.11 }, 'The nearest colour outside yours was green, less than an answer behind black.'],
+      ['DIMIR', 'MODERATE', { U: 0.78, B: 0.64, G: 0.57, W: 0.22, R: 0.11 }, 'The nearest colour outside yours was green, about one answer behind black.'],
+      ['DIMIR', 'HIGH', { U: 0.78, B: 0.64, G: 0.5, W: 0.22, R: 0.11 }, 'The nearest colour outside yours was green, one or two answers behind black.'],
+      ['DIMIR', 'LOW', { U: 0.78, B: 0.64, G: 0.42, W: 0.22, R: 0.11 }, 'The nearest colour outside yours was green, two or three answers behind black.'],
+      ['DIMIR', 'LOW', { U: 0.78, B: 0.64, G: 0.641, W: 0.22, R: 0.11 }, 'Green tied with black, the lower of your two colours.'],
+      ['DIMIR', 'LOW', { U: 0.78, B: 0.6, G: 0.64, W: 0.22, R: 0.11 }, 'Green edged ahead of black, though black is the one in your result.'],
+      ['MONO-R', 'MODERATE', { R: 0.7, B: 0.6, G: 0.44, W: 0.21, U: 0.12 }, 'Red led, with black one or two answers behind.'],
+      ['WUBRG', 'MODERATE', { W: 0.5, U: 0.5, B: 0.5, R: 0.5, G: 0.5 }, 'All five colours finished level.'],
+      ['DIMIR', 'MODERATE', { U: 0, B: 0, G: 0, W: 0, R: 0 }, 'This link shows Dimir without the answers behind it.'],
+    ];
+    const problems = [];
+    for (const [id, confidence, activation, want] of LINES) {
+      const c = { id, confidence, activation, result: { allResults: [], round3Data: {} } };
+      const { win, errors, threw } = await renderCase(c, 'consumer', false, seed++);
+      const got = text(win, 'conf-base-rate');
+      if (threw || errors.length || got !== want) problems.push(`${id} ${JSON.stringify(activation)}: "${got}" ${threw || errors[0] || ''}`);
+      win.close();
+    }
+    t.ok('the line under the label: the closest call in the bars, by how many answers, tied, above, five level and no bars', problems.length === 0, problems.join('; '));
   }
 
   // [8] The typeline is the commander's own printed type line: the drafts'
@@ -571,7 +610,7 @@ run('render', async (t) => {
       const { win, errors, threw } = await renderCase({ ...DIMIR, result }, 'consumer', false, seed++, { scoringVersion: version });
       const got = text(win, 'round3-testing-explanation');
       const block = win.document.querySelector('.mc-verdict-status').textContent.replace(/\s+/g, ' ').trim();
-      t.ok(`what decided it: ${what}`, !threw && errors.length === 0 && got === want && block === `${LABELS.MODERATE.word} ${LABELS.MODERATE.line}`,
+      t.ok(`what decided it: ${what}`, !threw && errors.length === 0 && got === want && block === `${LABELS.MODERATE.word} ${DIMIR.line}`,
         `${threw || ''} "${got}" | "${block}"`);
       win.close();
     }
@@ -636,7 +675,7 @@ run('render', async (t) => {
     el('appeal-btn').click();
     const a = h.state.result.appeal || {};
     need(h.state.result.identity === 'DIMIR', 'the verdict was overwritten');
-    need(a.chosen === 'SULTAI' && JSON.stringify(a.shown) === '["SULTAI","MONO-U"]' && a.copyVersion === 3
+    need(a.chosen === 'SULTAI' && JSON.stringify(a.shown) === '["SULTAI","MONO-U"]' && a.copyVersion === 4
       && a.labelShown === 'Leaning' && Number.isFinite(a.timeToAppealMs) && a.timeToAppealMs >= 0, 'appeal record ' + JSON.stringify(a));
     need(text(win, 'res-id') === P.SULTAI.name && text(win, 'res-tag') === P.SULTAI.tag && text(win, 'identity-exp') === P.SULTAI.philosophy.trim(), 'appealed identity not on screen');
     need(!playerCopy || (text(win, 'res-typeline') === 'Legendary Creature — Snake Shaman' && text(win, 'res-rules') === h.RESULT_COPY.rules.SULTAI),

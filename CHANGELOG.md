@@ -76,6 +76,88 @@ same themes.
   stems show a hint; it is outside this change. About a fifth of Round 1 and
   2 items still sit at work, and the twenty Magic items still lean on the
   game's words, which non-players flag.
+### Result screens rewritten from naive readers
+
+All 31 result screens, rendered to text as a player and as a non-player sees
+them, went to three readers who knew nothing about the quiz: 93 readings.
+They liked the philosophy lines, the specific strengths and shadows and the
+joke rules text, and flagged the frame around them: "makes no sense" 153
+times, "vague" 98, "corporate jargon" 57, "contradicts itself" 54, "repeats
+itself" 48, "insulting" 48. Every page said "Fairly clear. Your nearest
+neighbour is next door.", the five-colour page included; the same What's
+Missing paragraph told Mono-White it moves on instinct and Mono-Black that its
+decisions defer; and many closing lines were insults ("You're slimy",
+"Apparently rules are for suckers", the kidneys, the spreadsheet).
+
+- The line under the label (`confidenceLine`, `RESULT_COPY.confidence`) is one
+  sentence about this result's own bars, the same in both modes and read from
+  the bars alone, so a shared link reads as it did: "Blue and black were well
+  clear of the other three colours."; "The nearest colour outside yours was
+  green, one or two answers behind black."; "Red led, with black about one
+  answer behind."; "White was your highest colour and green your lowest, about
+  one answer apart."; a tie, and an old link whose bars put a colour outside
+  the result above one in it, have their own lines. Answers are counted as
+  next door counts them (a twelfth of a bar), in words, never as a number.
+  "Still shuffling" on bars that were clear adds "but your answers fitted more
+  than one result". The labels themselves are unchanged.
+- Working With Others. What's Missing is now "Who to bring in": each card says
+  what a colleague strong in the missing colour brings and when to bring them
+  in, and says nothing about the reader. The when-line (20 of them) is picked
+  by the reader's colour that the missing one clashes with, or failing that an
+  ally, the higher bar first: a result led by white calls on a red colleague
+  "when a decision has been through every proper step and is still waiting",
+  one led by blue "when the analysis is finished and nobody has said go". The
+  five-colour paragraph is plain. The legend's "Ally edge (within you)" and
+  "Tension to what you lack" are full sentences ("A dashed line joins one of
+  your colours to a colour it clashes with."), and each shows only when the
+  diagram draws that kind of line. The explorer uses the same cards.
+- Non-players: the commander block is "Your card", the card's name and "The
+  Magic: The Gathering card matched to Mono-Green. The art at the top of the
+  page is from it." in place of the card text; the banner keeps "Commander ·
+  Omnath, Locus of Mana". The next-door prompt is "The results one colour away
+  from yours." (`RESULT_COPY_VERSION` 4). The theme switcher's "Table" is
+  "Page style", and its note says what Card Frames does.
+- Profiles (`data.js`). 27 of the 31 closing lines are new, each a joke with
+  no insult in it ("Your out-of-office has an escalation path."); the four
+  kept were already jokes (Naya's marching band, the surprise party, Dimir's
+  three attempts, Golgari's cycles of life). The 22 insults readers flagged
+  are gone: twelve closing lines, five taglines
+  (Power Without Morality is Power Without Permission, Growth Through
+  Exploitation is Growth Through Positioning, Action Without Analysis is Action
+  Before Analysis, Altruism Without Pragmatism is Altruism Without an Angle,
+  Perfection Without Passion is Perfection Without Haste), Witch's "You don't
+  see what passion adds", the What's Missing paragraph and three shadows.
+  Put-downs filed under Strengths moved or went. "Mistakes X for Y" and
+  "Confuses X with Y" are left once each (Mono-Blue, Azorius). Esper, Bant,
+  Grixis and Five-colour, the pages readers called generic or corporate, have
+  new strengths and shadows. Strengths and shadows went from 300 to 255: 45
+  cut, 55 rewritten. 11 philosophies were edited, 8 in their first sentence,
+  so with the five taglines 13 link previews in `r/` are rebuilt.
+- Glitches: "General Tazri" is no longer a Five-colour role (Chief of Staff);
+  Elesh Norn's rules joke said +1/+1 where the card (Scryfall) gives +2/+2 and
+  -2/-2; Orzhov's shadows no longer slip into "your performance review" and
+  "the favour you accepted"; roles readers called jargon are cut (Master of
+  Ceremonies, Innovation Labs, Culture & Values, Mission-Driven Leadership,
+  Disruption, FinTech).
+- Commander descriptions: 22 were checked against Scryfall and corrected or
+  made plainer: Obzedat's "ETB", Urza's "impulse-draw", Yuriko and Yidris
+  shortened, Breya's "various effects", Kenrith's "Five colours at once",
+  Nekusar's missing first ability, Narset casting noncreature spells where it
+  said playing cards, Karador once during each of your turns, Meren, Trostani,
+  Rakdos, Saskia, Samut and Alesha. Three rules jokes that nearly repeated the
+  card below them (Jund, Mardu, four-colour without black) are new jokes.
+- Not changed: identity names, ids, colours, data keys, the label words,
+  scoring and the question pools; the golden fixture does not move.
+- Tests: `tests/visible-copy.test.js` (126 checks, 15 new) holds the line
+  under the label to the bars on all 31 identities, seven bar shapes and three
+  labels and as rendered in both modes (one sentence, no number, not an old
+  line, naming one of the result's colours, "well" only past three answers,
+  "level" only for bars printed alike, a count of answers the gap fits);
+  renders the commander block and the colleague cards for all 31, on the
+  result and in the explorer, and fails on any of the traits and jargon
+  readers caught or a sentence opening on "You"; and tests its new checkers.
+  `tests/render.test.js` checks each case's line, nine more lines by bar
+  shape, the plain commander block and the new prompt.
 
 ### Profile rhythm
 
