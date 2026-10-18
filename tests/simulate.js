@@ -369,8 +369,10 @@ function neighbourhood(resultId, activation, colorsOf, idOfColors) {
 // How far a result is from the story its bars tell, in bar units (0..1): the
 // strongest colour it leaves out minus the weakest colour it holds, or, when
 // it holds all five, 50% (the line next door draws for five) minus the
-// weakest. Written out here, not read from the page. With shown, on the bars
-// as the results screen prints them (whole percentages).
+// weakest. Written out here, not read from the page, so the check does not
+// lean on the code it checks. With shown, on the bars as the results screen
+// prints them (whole percentages).
+const BARS_TOLERANCE = 1 / 24; // the page's BARS_TOLERANCE: half an answer
 const ONE_ANSWER = 1 / 12;     // the page's ONE_ANSWER_BY_VERSION
 const BARS_ROUNDING = 0.001;   // finalActivation is recorded to 3 dp
 function barsMargin(resultId, activation, colorsOf, shown = false) {
@@ -383,8 +385,9 @@ function barsMargin(resultId, activation, colorsOf, shown = false) {
   return out.length ? Math.max(...out.map(bar)) - weakestIn : 0.5 - weakestIn;
 }
 
-// state.result must carry the contract's fields (docs/SCORING_CONTRACT.md).
-function contractProblems(r, engine) {
+// state.result must carry the contract's fields (docs/SCORING_CONTRACT.md),
+// and the bars must allow its identity.
+function contractProblems(r, engine, colorsOf) {
   const bad = [];
   if (!r.recovered) bad.push('no identity');
   if (!LABELS.includes(r.confidence)) bad.push('confidence ' + r.confidence);
@@ -393,6 +396,13 @@ function contractProblems(r, engine) {
   if (engine >= 2) {
     if (r.posteriorIds !== 31) bad.push('posterior over ' + r.posteriorIds + ' identities');
     else if (Math.abs(r.posteriorSum - 1) > 1e-9) bad.push('posterior sums to ' + r.posteriorSum);
+  }
+  if (r.recovered) {
+    const m = barsMargin(r.recovered, r.finalActivation, colorsOf);
+    if (m > BARS_TOLERANCE + BARS_ROUNDING) {
+      const bars = WUBRG.map((c) => c + Math.round(100 * (Object.fromEntries(r.finalActivation || [])[c] || 0))).join(' ');
+      bad.push(`${r.recovered} under bars ${bars} (${(100 * m).toFixed(1)} points from them; the bars allow ${(100 * BARS_TOLERANCE).toFixed(1)})`);
+    }
   }
   return bad;
 }
@@ -448,7 +458,7 @@ function summarise({ config, opts, ids, colorsOf, runs, meta }) {
     .map(([k, count]) => { const [from, to] = k.split('\t'); return { true: from, recovered: to, count, shareOfTrue: count / perTrue }; });
   const contract = { violations: 0, examples: [] };
   for (const r of runs) {
-    const bad = contractProblems(r, config.engine);
+    const bad = contractProblems(r, config.engine, colorsOf);
     if (bad.length) { contract.violations++; if (contract.examples.length < 5) contract.examples.push(`${r.trueId} #${r.idx}: ${bad.join(', ')}`); }
   }
   // The result against its own bars: more than one answer or half an answer
