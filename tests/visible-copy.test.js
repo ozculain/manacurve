@@ -42,9 +42,19 @@
 // sentences. Left as they are, because they are data or quoted: the
 // identity names (MONO-WHITE, FOUR-COLOR (No Red)), the commander's printed
 // type line ("Legendary Creature — Human Ninja") and the card's rules text.
-// Jokes, tricolons and dramatic colons cannot be caught by a pattern; they
-// are left to review. The checker itself is tested last, on the paragraph a
-// player saw on a phone before this rule existed.
+// Section 16 (CHANGELOG, "Profile rhythm") holds the 31 profiles' own
+// passages, as the result screen and the explorer render them, to rhythm
+// rules: no three sentences in a row on the same opening word, no run of
+// three short sentences of the same shape, no antithesis ("rather than",
+// "You'd rather X than Y", "not X but Y", "X, not Y", "the bigger the X, the
+// calmer the Y"), no list of three outside an identity's own colours or a
+// card's modes, no closing line in the formulas the profiles leaned on ("The
+// card rewards ...", "... worth it", "The team finds you ..."), and the same
+// em dash, rhetorical question and banned words; the rules are spelt out
+// above rhythmProblems. Jokes, dramatic colons and a neat closing line in
+// other words cannot be caught by a pattern; they are left to review. The
+// checkers themselves are tested last, on the paragraph a player saw on a
+// phone before these rules existed and on the profiles' old passages.
 // Usage: node tests/visible-copy.test.js [--dump] [path/to/index.html]
 const { bootPage, pageArgs, whenReady, isVisible, EXPOSE } = require('./_lib/load');
 const { run } = require('./_lib/report');
@@ -136,6 +146,128 @@ function contentProblems(text, { PROFILES, scoring = true, codes = false } = {})
   for (const s of sentences(t)) if (words(s).length > MAX_CONTENT_WORDS) out.push(`${words(s).length} words: "${s.slice(0, 60)}..."`);
   return out;
 }
+
+// ---------- rhythm (section 16) ----------
+// One passage is { id, part, items, list, prose }: a paragraph is one item,
+// a list (strengths, shadows) one item per line, read top to bottom as one
+// run of sentences. A check fails on:
+//   - openings: three or more sentences in a row that open on the same word
+//     ("You read ... You ask ... You'd rather ..."; "Can ... Can ... Can" down
+//     a list). A contraction counts as its word: You'd and You're are "you".
+//   - short: three or more short sentences in a row (SHORT_SENTENCE words or
+//     fewer) with the same shape: each opens straight on its subject (in a
+//     list, on its verb), or each opens on a lead-in ("When ...", "If ...",
+//     "Months on, ...": a lead-in word, or a comma in the first four words).
+//   - antithesis: "rather than", "would rather" (the "You'd rather X than Y"
+//     ending), "not X but Y" (up to six words between), "X, not Y", and "the
+//     bigger the X, the calmer the Y".
+//   - lists: a list of three or more items of one to four words, with a comma
+//     before the "and" or "or" ("X, Y, and Z"), or of four items or more,
+//     unless it is kept: COLOUR_LISTS (an identity's own colours, three to as
+//     many items as it has colours) or CARD_MODES (a commander's modes as the
+//     card prints them). "X, Y and Z" without that comma is left to review.
+//   - closers: the last sentence of a paragraph of two or more in a formula
+//     the profiles leaned on: "The card rewards ...", "The whole point ...",
+//     "The trick is ...", "Most people ...", "... worth it", "The team finds
+//     you ..." or "The team that follows you is ...", "You've decided ...".
+//   - banned: an em dash, a question mark outside a quotation (a rhetorical
+//     question), "actually", "genuinely", "simply", "truly", "the real".
+// The tagline and the roles are a name and a list of jobs (`prose: false`):
+// only the last rule applies to them.
+const SHORT_SENTENCE = 10;
+const LEAD_INS = new Set(['when', 'whenever', 'if', 'once', 'as', 'after', 'before', 'because', 'since', 'until', 'while',
+  'though', 'although', 'unless', 'by', 'in', 'on', 'at', 'for', 'with', 'without', 'during', 'from', 'over', 'under',
+  'sometimes', 'often', 'then', 'so', 'and', 'but', 'or', 'yet', 'still', 'now', 'later', 'also', 'even', 'only',
+  'whatever', 'where', 'yeah', 'look', 'please']);
+const RHYTHM_RULES = [
+  ['openings', 'no three sentences in a row open on the same word'],
+  ['short', `no run of three short sentences (${SHORT_SENTENCE} words or fewer) with the same shape`],
+  ['antithesis', 'no "rather than", "would rather", "not X but Y", "X, not Y" or "the bigger the X, the calmer the Y"'],
+  ['lists', 'no list of three outside the identity\'s own colours or a card\'s modes'],
+  ['closers', 'no closing line in the old formulas ("The card rewards ...", "... worth it", "The team finds you ...")'],
+  ['banned', 'no em dash, rhetorical question, "actually", "genuinely", "simply", "truly" or "the real"'],
+];
+// The lists that stay. Each item of a colour list stands for one of the
+// identity's own colours (Bant: civilisation, knowledge, patience), three of
+// them or more; a card's modes are the modes it prints.
+const COLOUR_LISTS = {
+  BANT: ['civilisation, knowledge, and patience', 'analysis, fairness, and timing'],
+  ESPER: ['fair systems, deep analysis, and the willingness to make the call'],
+  GRIXIS: ['intelligence, ambition, and aggression'],
+  ABZAN: ['patience, pragmatism, and community'],
+  WITCH: ['patience, analysis, and quiet positioning', 'analysis, fairness, ambition, and patience'],
+  INK: ['community, ideas, energy and growth'],
+  WUBRG: ['analysis, ambition, structure, instinct, and patience'],
+};
+const CARD_MODES = {
+  YORE: ['3 damage to a player or planeswalker, -4/-4 to a creature, or gain 5 life'],
+};
+const RHYTHM_ANTITHESIS = [
+  [/\brather than\b/i, '"rather than"'],
+  [/\b(?:would|'d|’d) rather\b/i, '"would rather"'],
+  [/\b(?:not|isn['’]t|aren['’]t|wasn['’]t|weren['’]t|don['’]t|doesn['’]t|didn['’]t)(?:\s+[\w'’-]+){1,6},?\s+but\b/i, '"not X but Y"'],
+  [/,\s+not\b/i, '"X, not Y"'],
+  [/\bthe (?:more|less|fewer|\w+er) (?:the|you|they|it|we|he|she|i)\b[^.!?;]*,\s*the (?:more|less|fewer|\w+er)\b/i, '"the bigger the X, the calmer the Y"'],
+  [/,\s*the (?:more|less|fewer) \w+ (?:you|they|it|we|he|she|i)\b/i, '"the more X you have"'],
+];
+const LIST_ITEM = String.raw`[\w'’/{}+-]+(?: [\w'’/{}+-]+){0,3}`;
+const LIST_OF_THREE = new RegExp(String.raw`(?<![\w'’/{}+-])${LIST_ITEM}(?:(?:, ${LIST_ITEM})+, (?:and|or) ${LIST_ITEM}|(?:, ${LIST_ITEM}){2,} (?:and|or) ${LIST_ITEM})`, 'gi');
+const RHYTHM_CLOSERS = [
+  /^the (?:card|whole|point|trick|mechanic|result|lesson)\b/i,
+  /^most people\b/i,
+  /\bworth it\b/i,
+  /^the (?:team|room)\b(?: that \w+(?: around)? you)? (?:finds|is)\b/i,
+  /^you['’]ve (?:decided|learned)\b/i,
+];
+const RHYTHM_BANNED = [
+  [/—/, 'em dash'], [/\?(?!['"’”])/, 'rhetorical question'], [/\b(?:actually|genuinely|simply|truly)\b/i, 'banned word'], [/\bthe real\b/i, '"the real"'],
+];
+// The word a sentence opens on, in lower case, a contraction read as its word.
+function opener(sentence) {
+  const m = /^[^A-Za-z0-9]*([A-Za-z0-9][\w'’-]*)/.exec(sentence);
+  if (!m) return '';
+  return m[1].toLowerCase().replace(/’/g, "'").replace(/^(?:can't|cannot)$/, 'can').replace(/^won't$/, 'will')
+    .replace(/n't$/, '').replace(/'(?:s|d|re|ve|ll|m)$/, '');
+}
+const shapeOf = (sentence) => (LEAD_INS.has(opener(sentence)) || sentence.split(/\s+/).slice(0, 4).join(' ').includes(',') ? 'lead-in' : 'direct');
+// Runs of three or more sentences in a row with the same key (null breaks a run).
+function runsOf(list, key) {
+  const out = [];
+  for (let i = 0; i < list.length;) {
+    const k = key(list[i]);
+    let j = i + 1;
+    if (k !== null) while (j < list.length && key(list[j]) === k) j++;
+    if (k !== null && j - i >= 3) out.push(list.slice(i, j));
+    i = j;
+  }
+  return out;
+}
+function rhythmProblems({ id, part, items, list = false, prose = true }) {
+  const out = [];
+  const add = (rule, detail) => out.push({ rule, at: `${id} ${part}`, detail });
+  const all = items.join(' ');
+  for (const [re, name] of RHYTHM_BANNED) { const m = re.exec(all); if (m) add('banned', `${name} in "${all.slice(Math.max(0, m.index - 30), m.index + 30)}"`); }
+  if (!prose) return out;
+  const seq = items.flatMap(sentences);
+  for (const r of runsOf(seq, (s) => opener(s) || null)) add('openings', `${r.length} open on "${opener(r[0])}": ${r.join(' / ')}`);
+  for (const r of runsOf(seq, (s) => (words(s).length <= SHORT_SENTENCE ? shapeOf(s) : null))) add('short', `${r.length} short, ${shapeOf(r[0])}: ${r.join(' / ')}`);
+  const kept = [...(COLOUR_LISTS[id] || []), ...(CARD_MODES[id] || [])];
+  for (const s of seq) {
+    for (const [re, name] of RHYTHM_ANTITHESIS) if (re.test(s)) add('antithesis', `${name}: "${s}"`);
+    const keep = kept.map((k) => [s.indexOf(k), k.length]).filter(([i]) => i >= 0);
+    for (const m of s.matchAll(LIST_OF_THREE)) {
+      if (!keep.some(([i, n]) => m.index < i + n && i < m.index + m[0].length)) add('lists', `"${m[0]}" in "${s}"`);
+    }
+  }
+  if (!list) {
+    const ss = sentences(all);
+    const last = ss[ss.length - 1];
+    if (ss.length > 1 && RHYTHM_CLOSERS.some((re) => re.test(last))) add('closers', `"${last}"`);
+  }
+  return out;
+}
+// The items of a kept list: "a, b, and c" is three.
+const listItems = (text) => text.split(/,\s*(?:(?:and|or)\s+)?|\s+(?:and|or)\s+/).filter(Boolean);
 
 // ---------- collecting what is on screen ----------
 // Not prose for these rules: the identity's own content, the commander block
@@ -608,7 +740,66 @@ run('visible-copy', async (t) => {
     win.close();
   }
 
-  // ---------- 16. the checkers themselves ----------
+  // ---------- 16. rhythm: the 31 profiles as rendered ----------
+  // Each identity's result screen in player mode for a consumer (so the card
+  // and the banter show): the tagline, philosophy, strengths, shadows, banter,
+  // roles and commander description as the page writes them; then its
+  // description, which the explorer shows. Eight passages for each of 31.
+  {
+    const { win, h, errors } = await page();
+    const d = win.document, P = h.PROFILES;
+    h.selectAudience('consumer');
+    const s = h.state;
+    s.gamingFamiliar = true;
+    const text = (sel) => ((d.querySelector(sel) || {}).textContent || '').replace(/\s+/g, ' ').trim();
+    const lines = (sel) => [...d.querySelectorAll(sel)].map((el) => el.textContent.replace(/\s+/g, ' ').trim());
+    const passages = [];
+    for (const id of Object.keys(P)) {
+      s.result = { identity: id, confidence: 'MODERATE', allResults: [], scoringVersion: 2, instrumentVersion: 4, round3Data: {} };
+      s.activationSorted = sorted(actFor(P[id].colors));
+      s.responses = new Array(30).fill({ c: P[id].colors[0] });
+      s.neitherCount = 1;
+      s.qualityFlags = CLEAN_FLAGS;
+      s.disclaimerAcknowledged = true;
+      h.showResults();
+      passages.push(
+        { id, part: 'tagline', items: [text('#res-tag')], prose: false },
+        { id, part: 'philosophy', items: [text('#identity-exp')] },
+        { id, part: 'strengths', items: lines('#strengths li'), list: true },
+        { id, part: 'shadows', items: lines('#weaknesses li'), list: true },
+        { id, part: 'banter', items: [text('#res-counter')] },
+        { id, part: 'roles', items: [text('#roles')], prose: false },
+        { id, part: 'commander description', items: [text('#cmd-desc-aside')] },
+      );
+    }
+    win.showExplorer();
+    for (const id of Object.keys(P)) {
+      win.showDetail(id);
+      passages.push({ id, part: 'description', items: [text('#detail-desc')] });
+    }
+    dump('rhythm: the 31 profiles', passages.map((x) => `${x.id} ${x.part}: ${x.items.join(' || ')}`));
+    const unread = passages.filter((x) => !x.items.length || x.items.some((i) => !i)).map((x) => `${x.id} ${x.part}`);
+    ok('rhythm: all eight passages of all 31 profiles are read as rendered',
+      passages.length === 31 * 8 && unread.length === 0 && errors.length === 0, `${passages.length} passages; empty: ${unread.join(', ')} ${errors.slice(0, 2).join(' | ')}`);
+    const found = passages.flatMap(rhythmProblems);
+    t.note('rhythm, problems per rule: ' + RHYTHM_RULES.map(([rule]) => `${rule} ${found.filter((f) => f.rule === rule).length}`).join(', '));
+    for (const [rule, label] of RHYTHM_RULES) {
+      const hits = found.filter((f) => f.rule === rule);
+      ok(`rhythm: ${label} (all 31 profiles)`, hits.length === 0, `${hits.length} found: ` + hits.slice(0, 4).map((f) => `${f.at}: ${f.detail}`).join(' | '));
+    }
+    // A kept list is still in the text it was kept for, and a colour list has
+    // three items or more, and no more than the identity has colours.
+    const textOf = (id) => passages.filter((x) => x.id === id).flatMap((x) => x.items).join(' ');
+    const stale = [...Object.entries(COLOUR_LISTS), ...Object.entries(CARD_MODES)]
+      .flatMap(([id, ls]) => ls.filter((l) => !P[id] || !textOf(id).includes(l)).map((l) => `${id}: "${l}"`));
+    const miscounted = Object.entries(COLOUR_LISTS)
+      .flatMap(([id, ls]) => ls.filter((l) => P[id] && (listItems(l).length < 3 || listItems(l).length > P[id].colors.length)).map((l) => `${id}: "${l}"`));
+    ok('rhythm: every list kept is in its profile, and each colour list has three items to as many as the identity has colours',
+      stale.length === 0 && miscounted.length === 0, [...stale.map((x) => 'not found ' + x), ...miscounted.map((x) => 'miscounted ' + x)].join(' | '));
+    win.close();
+  }
+
+  // ---------- 17. the checkers themselves ----------
   {
     const { win, h } = await page();
     const P = h.PROFILES;
@@ -666,6 +857,41 @@ run('visible-copy', async (t) => {
       .filter(([, found]) => found.length).map(([x, found]) => `${x}: ${found}`);
     ok('the content checker passes a quoted question, mana symbols, an identity name, the methodology\'s own words and a 25-word sentence',
       contentFlagged.length === 0 && TYPE_LINE.test('Legendary Creature — Human Ninja') && !TYPE_LINE.test('Personality — Dimir'), contentFlagged.join(' | '));
+
+    // The rhythm checker (section 16), on passages the profiles carried before
+    // it, and on made-up ones.
+    const rulesOf = (passage) => rhythmProblems(passage).map((f) => f.rule);
+    const rhythmSamples = [
+      [{ id: 'MONO-U', part: 'philosophy', items: ["You believe most decisions get better with more information. You read the whole document, sometimes twice. You ask the third question that nobody else thought to ask. You'd rather be the last person to commit than the first one to be wrong."] }, ['openings', 'antithesis']],
+      [{ id: 'GOLGARI', part: 'philosophy', items: ["You believe nothing is wasted. What dies feeds what comes next. Failure teaches; success teaches differently. The cycle continues whether you act or don't."] }, ['short']],
+      [{ id: 'BANT', part: 'shadows', list: true, items: ['Can prioritise team cohesion and accuracy over results.', 'Believes a well-run process can prevent conflict.', 'Can struggle in a crisis, or when things are needed fast and no good option exists.', 'Can mistake "the data supports it and we agreed" for "this is going to work".', 'Can struggle to have difficult conversations.'] }, ['openings']],
+      [{ id: 'GLINT', part: 'strengths', list: true, items: ['Treats new constraints as features of the terrain rather than moral statements, and routes around them.', 'Knows which rules can be broken, by whom, and at what cost.'] }, ['antithesis', 'lists']],
+      [{ id: 'MARDU', part: 'strengths', list: true, items: ['The bigger the stakes, the calmer the voice.'] }, ['antithesis']],
+      [{ id: 'ABZAN', part: 'commander description', items: ['Costs {1} less for each creature card in your graveyard. May cast a creature from graveyard each turn. Karador gets cheaper, and more capable, the more history you have.'] }, ['antithesis']],
+      [{ id: 'TEMUR', part: 'commander description', items: ["Can't be countered. Your creatures can't be countered. Your other creatures have trample. Once you've committed to the play, nothing stops it landing."] }, ['short']],
+      [{ id: 'MONO-G', part: 'commander description', items: ["Omnath doesn't lose green mana as steps and phases end, and grows +1/+1 for each unspent green mana you have. The card rewards patience and accumulation."] }, ['closers']],
+      [{ id: 'BANT', part: 'philosophy', items: ["You believe civilisation, knowledge, and patience all matter, and that most people pick one and pretend the other two are nice-to-haves. The trade-off is time. You've decided the time is worth it."] }, ['closers']],
+      [{ id: 'GLINT', part: 'description', items: ['You combine intelligence, ambition, urgency and adaptability, without the group-level loyalty that would keep you inside the lines. The team finds you brilliant and untrustworthy in roughly equal measure.'] }, ['lists', 'closers']],
+      [{ id: 'X', part: 'banter', items: ['Treats being wrong as new information, not a personal injury. Is that fair? It was the real reason — genuinely.'] }, ['antithesis', 'banned']],
+    ];
+    const rhythmMissed = rhythmSamples.filter(([x, want]) => !want.every((r) => rulesOf(x).includes(r))).map(([x, want]) => `${x.id} ${x.part}: wanted ${want}, got ${rulesOf(x)}`);
+    ok('the rhythm checker flags each rule on a profile\'s old passage or a made-up one', rhythmMissed.length === 0, rhythmMissed.join(' | '));
+    const rhythmClean = [
+      // two sentences in a row on the same word, and two short ones
+      { id: 'X', part: 'philosophy', items: ['You believe every approach has its place. You read the situation first and pick the approach that fits it.'] },
+      { id: 'X', part: 'commander description', items: ['Your creatures have haste. Tap: untap another creature.'] },
+      // a lead-in breaks a run of short sentences
+      { id: 'X', part: 'banter', items: ['You treat quarterly planning like D-Day. Months on, the intensity is exhausting. Relax for one minute and stop talking.'] },
+      // an identity's own colours, and a card's modes
+      { id: 'BANT', part: 'philosophy', items: ['You believe civilisation, knowledge, and patience all matter.'] },
+      { id: 'YORE', part: 'commander description', items: ['When Breya enters, create two 1/1 thopter tokens. Then pay {2} and sacrifice two artifacts for various effects: 3 damage to a player or planeswalker, -4/-4 to a creature, or gain 5 life.'] },
+      // "but" far from a negative is no antithesis; a list of jobs is no rhythm
+      { id: 'X', part: 'shadows', list: true, items: ["Treats people who haven't put in their hours as a regrettable but tolerable feature of the workplace.", 'Adapts slowly, and is surprised when the world has changed.', 'Will apply the letter of a rule in an emergency it was never written for.'] },
+      { id: 'X', part: 'roles', prose: false, items: ['Strategy, Research, Analytics, Architecture, Policy Analysis, Forecasting'] },
+    ];
+    const rhythmFlagged = rhythmClean.filter((x) => rulesOf(x).length).map((x) => `${x.id} ${x.part}: ${rhythmProblems(x).map((f) => f.detail).join('; ')}`);
+    ok('the rhythm checker passes two openings or two short sentences in a row, a lead-in, an identity\'s colours, a card\'s modes and a list of jobs',
+      rhythmFlagged.length === 0, rhythmFlagged.join(' | '));
     win.close();
   }
 });
