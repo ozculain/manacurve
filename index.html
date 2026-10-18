@@ -2255,7 +2255,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
           <!-- One counter for the whole quiz (renderQuizCounter), and the free
                mulligan: one undo per round (useMulligan). -->
           <div class="mc-q__count-row">
-            <div class="mc-q__count">Question <span id="q-num">1</span> of <span id="q-tot">45</span></div>
+            <div class="mc-q__count">Question <span id="q-num">1</span> of up to <span id="q-tot">45</span></div>
             <button type="button" class="mc-mulligan" id="mulligan-btn" onclick="askMulligan()" disabled>Undo</button>
           </div>
           <!-- Under the button: the hint, then "taken" and "used" (updateMulliganControl). The
@@ -5836,12 +5836,15 @@ function updateLikelihood(stage) {
 
 // How long the quiz is. Round 1 is fixed; Rounds 2 and 3 count for real as
 // soon as they are built and use these estimates before then. Simulated
-// respondents: Round 2 is usually 9 questions (6 to 10); Round 3 plays four
-// candidates, six head-to-heads, which a clinch can cut short and a tiebreak
-// can lengthen by up to two. 30 + 9 + 6 = 45, about 8 minutes: the claims on
-// the welcome and preflight say "up to" that, because a clinch can end the
-// quiz early. The minutes are 8 until they are measured (Phase 5); the early
-// offer's minutes come from the same figure.
+// respondents: Round 2 is 9 questions for about three in four, 7 or 8 for the
+// rest (6 to 10 in all), and 6 or 7 for someone with no close enemy pair, so no
+// one estimate fits everyone; Round 3 plays four candidates, six
+// head-to-heads, which a clinch can cut short and a tiebreak can lengthen by
+// up to two. 30 + 9 + 6 = 45, about 8 minutes: the claims on the welcome and
+// preflight say "up to" that, because the quiz can end sooner, and the counter
+// says "of up to 45" all the way through (renderQuizCounter). The minutes are
+// 8 until they are measured (Phase 5); the early offer's minutes come from the
+// same figure.
 const QUIZ_LENGTH = { round1: 30, round2: 9, round3: 6, minutes: 8 };
 
 const PLAY_COPY = {
@@ -6007,10 +6010,15 @@ function applyPlayCopy() {
 }
 
 // ─── The one counter ────────────────────────────────────────────────────────
-// Question x of the whole quiz, never reset between rounds. Each round counts
-// its real length once it is built (Round 2's questions, Round 3's matches,
-// tiebreaks included) and its QUIZ_LENGTH estimate before that, so the total
-// can move at a round boundary.
+// "Question x of up to y" for the whole quiz, never reset between rounds. y is
+// the quiz's stated length, the figure the welcome and preflight give
+// (quizEstimate), unless the real length known so far is longer; then y is
+// that. Each round counts its real length once it is built (Round 2's
+// questions, Round 3's matches, tiebreaks included) and its QUIZ_LENGTH
+// estimate before that (quizLengths). A shorter real length leaves y alone, so
+// it never drops at a round boundary: the quiz ends sooner, as "up to" says.
+// Only a longer Round 2 or a Round 3 tiebreak can raise it. The progress line
+// counts what is left by the real length.
 
 // The round on screen: 1, 2 (stage 'refinement') or 3.
 function quizRound() {
@@ -6034,8 +6042,13 @@ function quizAnswered() {
   return Math.min(state.qNum || 0, r1);
 }
 
+// The y of "Question x of up to y".
+function counterTotal() {
+  return Math.max(quizLengths().total, quizEstimate());
+}
+
 function renderQuizCounter() {
-  const { total } = quizLengths();
+  const total = counterTotal();
   const qNum = document.getElementById('q-num');
   const qTot = document.getElementById('q-tot');
   if (qNum) qNum.textContent = String(Math.min(quizAnswered() + 1, total));
@@ -6044,8 +6057,9 @@ function renderQuizCounter() {
 
 // ─── The every-ten progress line ────────────────────────────────────────────
 // After answers 10, 20 and 40, one line above the next question: how many are
-// answered and how many are left, by the one counter's own total (so it moves
-// with the counter when a round's real length becomes known). Not after 30,
+// answered and how many are left, by the quiz's real length as far as it is
+// known (quizLengths: the counter's own total in Round 1, and from Round 2 the
+// rounds' real lengths, which the counter's "up to" figure may exceed). Not after 30,
 // which ends Round 1, and not when any round ends on the answer: a transition
 // follows instead, so the line is skipped when the question is the first of
 // its round. It is worked out from the counter each time, so a re-render, a
