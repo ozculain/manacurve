@@ -10,7 +10,7 @@ check and exits non-zero if anything failed. They need jsdom in the repo's
 | `render.test.js` | `showResults()` on a fake mono, guild, three-, four- and five-colour result, in both audience modes with player mode off and on: every key element is populated with that identity's data, the bars match the activation, the workplace mode hides the banter, and the Phase 2 pieces appear or stay away as specified, in the final copy (reveal order, the player-mode card of typeline, rules text and collector number, next door below the commander block, label words and their one line each, with no number and nothing stacked under them, bar titles and caption, mana base); plus the drafts' typeline, next-door and mana base examples, every identity's mana base (37 lands, nothing outside its colours in the deck, a maybeboard line only when a neighbour qualifies), the per-row peek and appeal flow, the all-31 path, shares after an appeal, the Round 3 "what decided it" line under each engine, and the share Card's export in the gilded and frames themes (html-to-image stubbed; the test checks the node it is handed) |
 | `journey.test.js` | 43 checks over full journeys: the Round 2 gaming gate, weighted ally answers, session save and resume at every stage, the Round 3 clinch rule, Neither-neutral Round 1 ranking, the early-offer evidence floor, a context disagreement that the result page no longer spells out |
 | `seed.test.js` | share links, which point at the preview pages (`<site root>/r/<ID>.html?p=...`): `siteRootURL()` on GitHub Pages, a localhost preview and a subfolder; `buildResultURL()` on each; the round trip through the preview page's forward to `parseSeedURL()` (with `s`, `i` and `f`); the ten old-form links and the two preview-page links in `fixtures/seed-urls.json` (recorded from the live build) open onto their result and its next-door row, and re-share as preview-page links; the share text, Web Share, clipboard and Copy Link carry the new form; all 31 identities link to a page that exists |
-| `bars.test.js` | the name matches the bars (`barsAllow`): on the player's bars (W56 U52 B38 R60 G39) Mono-Blue and Five-colour are not allowed and exactly seven identities are; a recorded Round 1 and 2 pattern with those bars (W55 U52 B38 R60 G39), which on 638cfe3 put Mono-Blue, Izzet, Jeskai and Five-colour into Round 3 and gave the player's Mono-Blue, now plays only identities the bars allow, and all 64 Round 3 outcomes on both engines end on one; the old four with the player's six answers, finished on this build as a session saved before the change would be, do too, and the results screen does not credit the bars; `round3Data.loopBrokenByBars` is set only when engine 1's re-rank by the bars picked the result, never on engine 2; and `simulate.js` over all three populations at p 0.65 and 0.8 on both engines (4 per identity) finds no result its bars do not allow |
+| `bars.test.js` | the bars and the name (`barsFromTallies`, `barsAllow`): the bars are the answers counted once each, by weight, Round 2's enemy re-tests included and Neither in neither, held against the answer records on recorded patterns and on simulated respondents of all three populations on both engines, so a Round 2 answer moves a bar as far as a Round 1 answer; on the player's bars (W56 U52 B38 R60 G39) exactly the top bars one to four deep are allowed, not Mono-Blue, not Five-colour, nor the near ties the old half-answer rule let through; on 4,000 random bars (ties at the half point included) an identity is allowed exactly when no colour it leaves out prints above one it holds, the rule reads the numbers the results screen and a shared link print, and every width from one to four colours always has one; Five-colour is allowed exactly when the five print within `FIVE_COLOUR_BAND` (20 points), and a seeded five-colour respondent with flat bars is told Five-colour while one with wider bars gets an identity they allow, on both engines; a Round 1 and 2 pattern whose even bars print W56 U52 B38 R61 G39 plays only identities the bars allow, and all 64 Round 3 outcomes on both engines end on one, never Mono-Blue; the pattern recorded for the player's old bars now prints W48 U64 B43 R56 G42; the old four with the player's six answers, finished on this build with the bars the old build saved, end on one those bars allow, and the results screen does not credit the bars; `round3Data.loopBrokenByBars` is set only when engine 1's re-rank by the bars picked the result, never on engine 2; and `simulate.js` over all three populations at p 0.65 and 0.8 on both engines (4 per identity) finds no result, and no early offer, its printed bars do not allow |
 | `golden.test.js` | 186 seeded paths through the real Rounds 1-3 (every identity: one respondent at p = 1, five at p = 0.8, the simulator's ideal model) match `fixtures/golden.json`: Round 1 candidates and s1, Round 1 and final activation, early offer, identity, confidence, Round 3 matchups in order, and the result link's `r`, `p`, `c` and `a` (for a preview-page link, `r` is read from the page name and the fixture keeps its `?r=` shape) |
 | `round3-copy.test.js` | the rules the Round 3 stems and options were written to, held on the live files (`ROUND2_SCENARIOS` in `data.js`, `POOL_B` and `POOL_C` in `index.html`): every option is 15 words or fewer, no stem or option outside MTG_STALL names a colour, a basic land or an identity, and each of the 48 scenarios still has exactly its original identity keys (`fixtures/round3-keys.json`); then the same guards on made-up sources, and `tools/apply-round3-copy.js` on a made-up drafts file (it refuses a stale, over-long or colour-naming draft, keeps each source's quoting, and changes nothing the second time) |
 | `round12-copy.test.js` | the rules the Round 1 and 2 questions were rewritten to, held on the live files (`POOL_A`, `POOL_ALLY`, `CONTEXT_HINTS` and `getContextHint` in `index.html`, read by `tools/check-round12-copy.js`): the same 111 items in the same order, each with its pair, weight and answer colours (`fixtures/round12-keys.json`, written before the rewrite), so the same counts per pool and per pair; stems 25 words or fewer, answers 20, labels 4, no two items with the same stem; no colour, basic land, identity, guild, tagline, mana or colour named in a stem, answer, label or hint; no em dash, exclamation mark, asterisk, capitals or question mark in an answer, British spelling, none of the brief's banned words; every item rewritten or listed as kept after review; which two items show a hint (none on a Magic item) and every hint shown somewhere in Rounds 1 to 3; Round 1's and Round 2's renderers on all 111 items, and a real Round 1 and 2 with Magic items off and on, showing each label, stem, hint and answer as written; then the same guards on made-up sources |
@@ -58,7 +58,7 @@ build's `index.html`, with its `data.js` beside it:
 
 # Respondent simulation
 
-`node tests/simulate.js [--n 200] [--p 0.8] [--neither 0.05] [--seed 1] [--model ideal] [--engine 2] [--r3 variants] [--gaming] [--workers auto] [--out file] [path/to/index.html]`
+`node tests/simulate.js [--n 200] [--p 0.8] [--neither 0.05] [--seed 1] [--model ideal] [--engine 2] [--r3 variants] [--gaming] [--workers auto] [--out file] [--rows] [--five-band 20] [path/to/index.html]`
 (or `npm run simulate`). Needs jsdom in the repo's `node_modules`.
 
 It boots `index.html` with `data.js` in jsdom (one page per worker thread and
@@ -84,6 +84,12 @@ live in `_lib/respondent.js`, which the golden test shares.
 - `--gaming` turns the gaming toggle on for every respondent, which lets the
   Magic-flavoured items into Rounds 1 and 2.
 - `--out` writes the JSON somewhere other than `tests/out/simulation.json`.
+- `--rows` adds each respondent's seed, true identity, index and result to the
+  JSON, so two builds run on the same respondents can be compared pair by
+  pair.
+- `--five-band N` sets the Five-colour band the checks and the report assume
+  (the page's `FIVE_COLOUR_BAND`, 20 points), to measure a build that uses
+  another.
 - A path to another build's `index.html` (its `data.js` beside it) simulates
   that build, as the page tests do.
 
@@ -135,20 +141,31 @@ the result, the result plus its strongest unlit colour, or the result minus its
 weakest lit colour, read from the final activation as the results screen does),
 each confidence label's share and accuracy, how often the early-result offer
 appears and how often the identity it offers is the true one (simulated
-respondents always decline it), the result against its own bars, and the top
-confusions. "Against its bars" reads the final activation as the results screen
-draws it: a result's distance from its bars is the strongest colour it leaves
-out minus the weakest colour it holds (for all five colours, 50% minus the
-weakest), and the report gives how often that is over one answer (1/12 of a
-bar), over half an answer, and above zero on the bars as printed (whole
-percentages: a colour shown out of order).
+respondents always decline it), the result against its own bars, Five-colour,
+and the top confusions. "Against its bars" reads the final activation as the
+results screen draws it: a result's distance from its bars is the strongest
+colour it leaves out minus the weakest colour it holds (for all five colours,
+the spread of the five, strongest minus weakest, minus the Five-colour band),
+and the report gives how often that is over one answer (1/12 of a bar) and
+over half an answer on the bars behind the screen, and above zero on the bars
+as printed (whole percentages, recorded on the page as it prints them: a
+colour it leaves out printed above one it holds, or five colours printed
+further apart than the band). "Five-colour" gives its recall (true
+Five-colour respondents told Five-colour), precision (Five-colour results that
+are right), how often it is given, where the true Five-colour respondents go
+otherwise, and how often the printed bars sit within the band, of everyone and
+of the true Five-colour respondents (the JSON keeps the spread of each, 0 to
+100 points, so another band can be read off). The band is the page's
+`FIVE_COLOUR_BAND`, which the simulator holds its own copy of (20 points);
+`--five-band N` measures a build that uses another.
 
 The run exits with status 1 if the page logs an error or any result breaks the
 `state.result` contract in `docs/SCORING_CONTRACT.md`: an identity, a
 confidence label, `scoringVersion` equal to the engine, `instrumentVersion` 5,
-under engine 2 a posterior over all 31 identities that sums to 1, and an
-identity its bars allow (a distance of at most half an answer, the page's
-`BARS_TOLERANCE`, which the simulator holds its own copy of).
+under engine 2 a posterior over all 31 identities that sums to 1, an identity
+its bars allow as printed (no colour it leaves out printed above one it holds;
+for Five-colour, the five printed within the band), and an early offer the
+Round 1 bars allow the same way.
 
 **Ideal model.** For each identity in `PROFILES`, with colour set C:
 
