@@ -776,7 +776,7 @@ run('play', async (t) => {
     await tick(); await tick();
     await win.shareResult(d.getElementById('share-result-btn'));
     ok('P7b it reuses the share action: the same dare and link as the main share button',
-      copied.length === 2 && copied[0] === copied[1] && copied[0].includes(h.buildResultURL()) && share.textContent === '✓ Link copied!', JSON.stringify(copied));
+      copied.length === 2 && copied[0] === copied[1] && copied[0].includes(h.buildResultURL()) && share.textContent === '✓ Link copied', JSON.stringify(copied));
     ok('P7c no errors on the results page', errors.length === 0, errors.slice(0, 2).join(' | '));
     win.close();
   }

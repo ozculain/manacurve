@@ -2165,25 +2165,25 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
           <div class="mc-how__num">I</div>
           <div>
             <div class="mc-how__title"><span id="how-name-1"></span></div>
-            <div class="mc-how__desc">Thirty forced choices between opposing philosophies/colours. Through this process we will, regrettably, learn things about you.</div>
+            <div class="mc-how__desc">Thirty choices between two answers.</div>
           </div>
 
           <div class="mc-how__num">II</div>
           <div>
             <div class="mc-how__title"><span id="how-name-2"></span></div>
-            <div class="mc-how__desc">The second round is harder, and tests pairs of colours which are closer to each other, to help us discriminate between similar types.</div>
+            <div class="mc-how__desc">Closer choices, to tell similar results apart.</div>
           </div>
 
           <div class="mc-how__num">III</div>
           <div>
             <div class="mc-how__title"><span id="how-name-3"></span></div>
-            <div class="mc-how__desc">In step III we have a few candidate options, and we put them Head-to-head until all but one wizard admits defeat.</div>
+            <div class="mc-how__desc">The last few results, compared two at a time.</div>
           </div>
 
           <div class="mc-how__num">✦</div>
           <div>
             <div class="mc-how__title">Results</div>
-            <div class="mc-how__desc">Discover your mana identity. Judge yourself accordingly.</div>
+            <div class="mc-how__desc">Your colour identity, one of 31.</div>
           </div>
         </div>
       </div>
@@ -2191,9 +2191,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
       <!-- Warning seal -->
       <div class="mc-warning">
         <div class="mc-warning__label">⚠ Not For Official Use</div>
-        <p style="font-family: var(--f-body); font-size: 13px; line-height: 1.6; color: var(--ink-muted); margin-bottom: 6px;">Do not use this for hiring, firing, promoting, demoting, or any decision affecting actual humans.</p>
-        <p style="font-family: var(--f-body); font-size: 13px; line-height: 1.6; color: var(--ink-muted); margin-bottom: 6px;">This is a personality framework based on a trading card game about wizards fighting each other.</p>
-        <p style="font-family: var(--f-flavor); font-style: italic; font-size: 13px; line-height: 1.6; color: var(--ink-faded);">Is this a joke? Unclear. We keep updating it, which worries us too.</p>
+        <p style="font-family: var(--f-body); font-size: 13px; line-height: 1.6; color: var(--ink-muted); margin-bottom: 0;">Do not use this for hiring, firing or any other decision about a person.</p>
       </div>
 
       <!-- Secondary actions (the explorer sits beside the start button now) -->
@@ -2477,14 +2475,14 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
 
       <!-- Seed banner: shown only when the result was loaded via a shared seed URL -->
       <div id="seed-banner" class="mc-seed-banner hidden">
-        <span class="mc-seed-banner__text">You're viewing someone else's result. Curious what yours is?</span>
+        <span class="mc-seed-banner__text">You're viewing someone else's result.</span>
         <button onclick="restart()" class="mc-btn mc-btn--primary mc-seed-banner__cta">Take the test yourself ›</button>
       </div>
 
       <!-- Workplace disclaimer banner (audience-aware) -->
       <div id="workplace-disclaimer" style="display: none; margin-bottom: 28px; padding: 18px 22px; background: var(--inset); border: 1px dashed var(--gilt-soft); font-family: var(--f-body); font-size: 14px; color: var(--ink-muted); line-height: 1.6;">
         <span class="mc-eyebrow mc-eyebrow--gilt" style="display: inline-block; margin-bottom: 6px;">⚠ Work mode</span><br>
-        This profile has no reliability or validity data behind it. Use it as a bit of fun and to start a conversation about working styles — not as a basis for hiring, promotion, or any decision affecting actual humans, please. If it also starts someone on a thirty-year-old card game about wizards, that's between them and their disposable income.
+        This profile has no reliability or validity data behind it. Use it for fun and to start a conversation about working styles. Do not use it for hiring, promotion or any other decision about a person.
       </div>
 
       <!-- Hidden compat anchors (legacy IDs that JS still writes to but are now redundant — banner above carries the visible values). -->
@@ -2539,9 +2537,9 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
           <div class="mc-profile" id="res-profile-bars"></div>
         </div>
 
-        <!-- Type-line divider: "Personality — <NAME>" in plain mode; in player
+        <!-- Type-line divider: "Personality · <Name>" in plain mode; in player
              mode the card's typeline above replaces its text. -->
-        <div class="mc-typeline"><span class="mc-typeline__diamond"></span><span class="mc-typeline__label" id="res-personality">Personality <span style="opacity:0.6;">—</span> <span id="res-typeline-name">…</span></span><span class="mc-typeline__diamond"></span></div>
+        <div class="mc-typeline"><span class="mc-typeline__diamond"></span><span class="mc-typeline__label" id="res-personality">Personality <span style="opacity:0.6;">·</span> <span id="res-typeline-name">…</span></span><span class="mc-typeline__diamond"></span></div>
 
         <!-- Strengths / Shadows grid (Claude Design's mc-result__grid) -->
         <div class="mc-result__grid" id="res-traits">
@@ -2864,9 +2862,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
 
       <div class="mc-warning" style="margin-top: 32px;">
         <div class="mc-warning__label">⚠ Not For Official Use</div>
-        <p style="font-family: var(--f-body); font-size: 13px; line-height: 1.6; color: var(--ink-muted); margin-bottom: 6px;">Do not use this for hiring, firing, promoting, demoting, or any decision affecting actual humans.</p>
-        <p style="font-family: var(--f-body); font-size: 13px; line-height: 1.6; color: var(--ink-muted); margin-bottom: 6px;">This is a personality framework based on a trading card game about wizards fighting each other.</p>
-        <p style="font-family: var(--f-flavor); font-style: italic; font-size: 13px; line-height: 1.6; color: var(--ink-faded);">Is this a joke? Unclear. We keep updating it, which worries us too.</p>
+        <p style="font-family: var(--f-body); font-size: 13px; line-height: 1.6; color: var(--ink-muted); margin-bottom: 0;">Do not use this for hiring, firing or any other decision about a person.</p>
       </div>
       <!-- Footer, plain mode: the scoring version (player mode prints it as the card's collector number) -->
       <p class="mc-result__version hidden" id="res-version"></p>
@@ -4362,9 +4358,7 @@ function renderRelations() {
       <div class="mc-relations-detail__sub">You contain everything. There's nothing missing to compensate for; the difficulty isn't a gap but holding all five tensions at once.</div>
       <div class="mc-relations-detail__empty">No single colour completes you, because no single colour is absent. The friction is internal: your different colours pull against each other. Your work is choosing which voice leads when.</div>`;
   } else {
-    const subtitle = missing.length >= 3
-      ? "These are the cognitive functions your blend doesn't naturally run. Each is a real colleague worth keeping close."
-      : "These are the cognitive functions your blend doesn't naturally run. Each is a real colleague worth keeping close.";
+    const subtitle = 'The colours you lack, and what a colleague strong in each one brings.';
     const cards = missing.map(c => {
       const g = COLOR_GAPS[c];
       return `<div class="mc-gap-card" data-color="${c}">
@@ -5185,7 +5179,7 @@ function loadFromSeed(seed) {
 
 // Primary share action. Uses the Web Share API (system share sheet on mobile,
 // some desktop browsers); falls back to clipboard with button feedback. The
-// text dares a friend: "I'm Dimir. Sultai lives next door. What are you?"
+// text asks a friend: "I'm Dimir. What are you?"
 async function shareResult(btn) {
   if (!state.result || !state.result.identity) return;
   const p = PROFILES[state.result.identity];
@@ -5209,7 +5203,7 @@ async function shareResult(btn) {
   try {
     await navigator.clipboard.writeText(text ? `${text} ${url}` : url);
     if (btn) {
-      btn.textContent = '✓ Link copied!';
+      btn.textContent = '✓ Link copied';
       setTimeout(() => { btn.textContent = restore; }, 2200);
     }
   } catch (e) {
@@ -5707,7 +5701,7 @@ const PLAY_COPY = {
     share: '⚜ Share',
     themeLabel: 'Table',
     themes: { gilded: 'Gilded Hall', frames: 'Card Frames', borderless: 'Borderless' },
-    themeNote: 'Card Frames deals your next quiz face-down and turns your colours over with the result.',
+    themeNote: 'Card Frames keeps the colours hidden until your result.',
   },
 };
 
@@ -10889,8 +10883,9 @@ function revealResults() {
 // ════════════════════════════════════════════════════════════════════════════
 
 // Bump when the next-door or appeal wording changes; every appeal records it.
-// 1: the first drafts. 2: revision 2 (17 October 2026).
-const RESULT_COPY_VERSION = 2;
+// 1: the first drafts. 2: revision 2 (17 October 2026). 3: Plain screens
+// (18 October 2026): no jokes in the next-door reasons, no question headings.
+const RESULT_COPY_VERSION = 3;
 
 const RESULT_COPY = {
   // One sentence-case name per identity, for use inside sentences. [3]
@@ -11063,20 +11058,17 @@ const RESULT_COPY = {
   // adds the strongest colour you don't run, "down" drops the weakest one you
   // do; mono has no down row, five-colour no up row. The margin (one / few /
   // well) says how far that colour sat from the line between in and out; see
-  // NEXT_DOOR_MARGINS. A "well" short up row asks its headline as a question
-  // (headWell), so it sits with a mana base that has no maybeboard line.
+  // NEXT_DOOR_MARGINS. One plain reason per row.
   nextDoor: {
     up: {
       player: {
         head: 'Splash {colour}: {identity}.',
-        headWell: 'Splash {colour}? {identity}.',
-        one: 'Your {colour} was one answer short of moving in.',
-        few: "Your {colour} was a few answers short. It's been round for a viewing.",
-        well: 'Your {colour} was well short. On nodding terms, no more.'
+        one: 'Your {colour} was one answer short.',
+        few: 'Your {colour} was a few answers short.',
+        well: 'Your {colour} was well short.'
       },
       plain: {
         head: 'Add {colour}: {identity}.',
-        headWell: 'Add {colour}? {identity}.',
         one: '{Colour} came in one answer short.',
         few: '{Colour} was a few answers short.',
         well: '{Colour} was well short.'
@@ -11086,8 +11078,8 @@ const RESULT_COPY = {
       player: {
         head: 'Cut the {lands}: {identity}.',
         one: '{Colour} only just made the cut.',
-        few: '{Colour} made the cut by a few answers. It would be missed.',
-        well: "{Colour} made the cut easily. Without it, it's a different deck."
+        few: '{Colour} made the cut by a few answers.',
+        well: '{Colour} made the cut easily.'
       },
       plain: {
         head: 'Drop {colour}: {identity}.',
@@ -11106,11 +11098,11 @@ const RESULT_COPY = {
   // workplace mode, where the appeal stays private).
   appeal: {
     // The line that leads into the rows (the drafts' "Button" row).
-    prompt: { player: 'Appeal this ruling', plain: 'Not quite you? Look next door.' },
+    prompt: { player: 'Appeal this ruling', plain: "If this isn't you, look next door." },
     peekHeading: 'Next door: {identity}',
     peekNote: {
-      player: 'Just looking. The ruling stands unless you appeal.',
-      plain: 'Just a look. Your result stays put unless you appeal.'
+      player: 'The ruling stands unless you appeal.',
+      plain: 'Your result stays the same unless you appeal.'
     },
     button: "Appeal: I'm {identity}",
     after: {
@@ -11132,16 +11124,15 @@ const RESULT_COPY = {
     pickCancel: 'Back to my result'
   },
 
-  // [11] Share text that dares a friend: the Web Share text, the clipboard
+  // [11] Share text that asks a friend: the Web Share text, the clipboard
   // fallback and the first line of #share-preview, one line in every mode.
-  // {neighbour} is the nearer next-door row of the identity named (mono has
-  // only an up row, five-colour only a down row). After an appeal, consumer
-  // shares name the identity on the page, marked with appeal.mark ({mark}),
-  // and the link carries both; workplace shares keep the appeal private and
-  // name the verdict. Share images keep the verdict until the release-2 mark.
+  // After an appeal, consumer shares name the identity on the page, marked
+  // with appeal.mark ({mark}), and the link carries both; workplace shares
+  // keep the appeal private and name the verdict. Share images keep the
+  // verdict until the release-2 mark.
   share: {
-    line: "I'm {identity}. {neighbour} lives next door. What are you?",
-    appealed: "I'm {identity} {mark}. {neighbour} lives next door. What are you?",
+    line: "I'm {identity}. What are you?",
+    appealed: "I'm {identity} {mark}. What are you?",
     // Approved for player mode as an alternative, not shipped; nothing reads
     // it. {commander} is the name before the comma: Yuriko, Kenrith, Kynaios
     // and Tiro of Meletis.
@@ -11248,20 +11239,14 @@ function shareIdentityId() {
   return (state.audience || 'consumer') === 'workplace' ? r.identity : resultShownId();
 }
 
-// "I'm Azorius. Esper lives next door. What are you?", or after an appeal
-// "I'm Sultai (on appeal). Four-colour (no red) lives next door. What are
-// you?". The neighbour is the named identity's own: both next-door rows sit
-// the same gap from the line, so the nearer one is the up row; mono has only
-// up, five-colour only down.
+// "I'm Azorius. What are you?", or after an appeal "I'm Sultai (on appeal).
+// What are you?".
 function shareDareText() {
   const r = state.result;
   const id = shareIdentityId();
   if (!r || !PROFILES[id]) return '';
-  const near = nextDoorFor(id, activationMap())[0];
   const S = RESULT_COPY.share;
-  return fillCopy(id === r.identity ? S.line : S.appealed, {
-    identity: identityName(id), mark: RESULT_COPY.appeal.mark, neighbour: near ? identityName(near.id) : ''
-  });
+  return fillCopy(id === r.identity ? S.line : S.appealed, { identity: identityName(id), mark: RESULT_COPY.appeal.mark });
 }
 
 // The identity's roles, less the corporate jargon in consumer mode.
@@ -11381,8 +11366,7 @@ function nextDoorLine(row, player) {
     colour, Colour: colour.charAt(0).toUpperCase() + colour.slice(1),
     lands: RESULT_COPY.landWords[row.colour], identity: identityName(row.id)
   };
-  const head = row.margin === 'well' && t.headWell ? t.headWell : t.head;
-  return { head: fillCopy(head, vars), why: fillCopy(t[row.margin], vars) };
+  return { head: fillCopy(t.head, vars), why: fillCopy(t[row.margin], vars) };
 }
 
 // Ids of the next-door rows last rendered, in order (an appeal records them).
@@ -11850,9 +11834,10 @@ function showResults() {
   if (bannerCmd) bannerCmd.textContent = p.cmd ? `Commander · ${p.cmd}` : '';
   renderAppealMark();
 
-  // Claude Design plinth: typeline name + commander aside.
+  // Claude Design plinth: typeline name (its sentence-case name, as in prose)
+  // + commander aside.
   const typelineName = document.getElementById('res-typeline-name');
-  if (typelineName) typelineName.textContent = p.name;
+  if (typelineName) typelineName.textContent = identityName(shownId);
   const cmdNameAside = document.getElementById('cmd-name-aside');
   if (cmdNameAside) cmdNameAside.textContent = p.cmd || '';
   const cmdDescAside = document.getElementById('cmd-desc-aside');
