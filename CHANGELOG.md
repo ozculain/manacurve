@@ -4,6 +4,38 @@ Newest first. Dates are when the work was committed.
 
 ## 2026-10-19
 
+### Round 1 and 2 questions: the lines readers flagged, and the thumb on the scale
+
+Four fresh readers (a Commander player, a GP who has never played, a
+copywriter and a manager) read runs of Round 1 questions as plain text. They
+rated the questions the best part of the quiz, and flagged thirteen lines that
+read like a film, a greeting card, a fortune cookie or a careers coach. The GP
+added that the warm answer usually read nicer than the sensible one.
+
+- The thirteen lines are rewritten: eleven answers and two stems, in twelve
+  items. Each answer keeps its colour and its stakes, and gives a verdict and
+  at most a short reason of its own. "It's my way up" is now "I need it to get
+  promoted". "I'm not giving up on love for a rule" is "Ask them out. My
+  friend hears it from me first." The gallery wants seascapes like the two
+  that sold, and you've moved on to portraits. The old village builder is the
+  builder your grandparents always used.
+- Twelve more items leaned one way: one answer was written to be liked and
+  the other was merely sensible. Five were Black against Green, where Green
+  had the home, the woodland "for whoever comes after me", the garden and
+  family, peace over money and the drummer "at our own pace". Each liked
+  answer now says what it costs ("Our drummer stays. We'll do without the
+  label", "Leave the tree be. I'll pay the extra"), or both answers are
+  equally plain ("No sale. It stays woodland" against "Take the money, and
+  invest it"). In two items Red was the selfish or the dreamy answer (leaving
+  an unwell mother "for the fresh start I've longed for", crossing an ocean
+  "while I still can"), and it now says what going costs.
+- 25 lines changed: 23 answers and 2 stems, in 24 items, with no label
+  changed. Ids, pairs, weights, answer colours and order are as they were, so
+  `tests/fixtures/golden.json` and `tests/fixtures/round12-keys.json` do not
+  move.
+- Not measured: whether real players now split differently between the warm
+  answers and the plain ones.
+
 ### Red answers: conviction, not impulse
 
 A classification test had a model play the live quiz, with no colours and no
