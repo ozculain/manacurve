@@ -64,10 +64,12 @@ seeds the page's `Math.random`, and drives synthetic respondents through all
 three rounds with the real handlers and scoring code. The respondent models
 live in `_lib/respondent.js`, which the golden test shares.
 
-- `--model ideal|misspecified` picks the respondent model (default `ideal`).
-- `--models both` runs both models on the same respondents (same seeds, so the
-  same item order and shuffles) and prints them side by side, per identity and
-  per type, with the gap: ideal minus misspecified, in percentage points.
+- `--model ideal|misspecified|mixed` picks the respondent model (default `ideal`).
+- `--models both` runs the ideal and misspecified models on the same
+  respondents (same seeds, so the same item order and shuffles) and prints them
+  side by side, per identity and per type, with the gap: ideal minus each
+  other model, in percentage points. `--models all` adds the mixed model, and
+  `--models a,b` runs any list.
 - `--p` takes a comma list (`--p 0.6,0.8,1`): each value gets its own report,
   followed by a table of exact recovery by type across the values.
 - `--engine 1|2` picks the scoring engine: 2, the likelihood engine, is the
@@ -130,7 +132,13 @@ the result, the result plus its strongest unlit colour, or the result minus its
 weakest lit colour, read from the final activation as the results screen does),
 each confidence label's share and accuracy, how often the early-result offer
 appears and how often the identity it offers is the true one (simulated
-respondents always decline it), and the top confusions.
+respondents always decline it), the result against its own bars, and the top
+confusions. "Against its bars" reads the final activation as the results screen
+draws it: a result's distance from its bars is the strongest colour it leaves
+out minus the weakest colour it holds (for all five colours, 50% minus the
+weakest), and the report gives how often that is over one answer (1/12 of a
+bar), over half an answer, and above zero on the bars as printed (whole
+percentages: a colour shown out of order).
 
 The run exits with status 1 if the page logs an error or any result breaks the
 `state.result` contract in `docs/SCORING_CONTRACT.md`: an identity, a
@@ -181,9 +189,23 @@ assumes:
   drift across the quiz, and "Neither" depending on how well the options fit.
   The gaming toggle is off unless `--gaming` is given.
 
+**Mixed model.** Real people rarely hold a clean colour set: their colour
+weights are continuous and fairly flat. The mixed respondent is the
+misspecified one (the same person, items, leans and disengaged share, and the
+same k and k3, calibrated at p for the misspecified model) with flatter
+weights: each colour in the identity from 0.5 to 0.8, each outside it from 0.2
+to 0.5. The identity is still exactly the colours weighted above 0.5, but the
+weakest colour held and the strongest not held are often only a little apart,
+so the answers carry less signal than the misspecified model's at the same p:
+an engaged mixed respondent picks the in-identity option of a one-in, one-out
+item, and the true identity over a one-colour neighbour in Round 3, with
+average probability 0.57 at p = 0.65 and 0.66 at p = 0.8 (the calibration line
+of the report prints these). Their bars are flatter too, as a real player's
+often are.
+
 Defaults: 200 respondents per identity, p = 0.8, neither = 0.05, seed = 1,
 model ideal, engine 2. The default run takes about 30 seconds on 8 cores;
-`--models both` or `--engine 1,2` about twice that.
+`--models both` or `--engine 1,2` about twice that, `--models all` three times.
 
 Output: a plain-text report and the same data in `tests/out/simulation.json`
 (an object with a `runs` array when more than one model, engine or p is run).
