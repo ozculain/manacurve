@@ -3603,7 +3603,7 @@ const POOL_A = [
   // PSYCHOLOGY JOKE: W-B
   {w:0.8,id:'A-WB-PSY',pair:'W-B',ctx:'Redundancies',sc:'Your firm is cutting jobs. Your boss asks each of you, privately, who in your group adds the least.',r:[{t:'Refuse. I won\'t help pick off the people I work with.',c:'W'},{t:'Give a name. Someone will be giving mine otherwise.',c:'B'}]},
   // REVERSE-KEY: W-B (tests individual accountability vs group blame - should correlate with W-B pattern)
-  {w:0.7,id:'A-WB-REV',pair:'W-B',ctx:'What Went Wrong',sc:'A project you worked on has lost your firm its biggest client. Everyone involved must write down what went wrong.',r:[{t:'Write that we all signed it off, so we all share it.',c:'W'},{t:'Set out which calls were mine and which weren\'t.',c:'B'}]},
+  {w:0.7,id:'A-WB-REV',pair:'W-B',ctx:'Group Project',sc:'Your group project counts for a third of your degree, and it has gone badly. Each of you may write who did what.',r:[{t:'Write nothing. We were a group, so we share the mark.',c:'W'},{t:'Set out which parts were mine, so I\'m marked on my own work.',c:'B'}]},
 
   // BLUE vs RED (U-R) - Analysis vs action
   {id:'A-UR-W01',pair:'U-R',ctx:'The Scan',sc:'A scan finds a small lump your doctor thinks is harmless. They can take it out now or watch it for six months.',r:[{t:'Ask for the evidence on both, and decide once I understand the odds.',c:'U'},{t:'Have it removed now. I\'m not carrying that round for six months.',c:'R'}]},
@@ -3721,7 +3721,7 @@ const POOL_ALLY = [
 
   // BLUE vs BLACK (U-B) - Knowledge for understanding vs knowledge for leverage
   {id:'AL-UB-01',pair:'U-B',ctx:'Survey',sc:'Your survey shows the flat you\'re buying needs £15,000 of work. The seller doesn\'t know yet.',r:[{t:'Send them the survey, so we\'re working from the same facts.',c:'U'},{t:'Keep the survey to myself, and offer £20,000 less.',c:'B'}]},
-  {id:'AL-UB-02',pair:'U-B',ctx:'Paid Course',sc:'Your employer will pay for one serious course this year. One fascinates you; the other would speed up your promotion.',r:[{t:'The fascinating one. I\'d learn far more from it.',c:'U'},{t:'The one that gets me promoted. Interest can wait.',c:'B'}]},
+  {id:'AL-UB-02',pair:'U-B',ctx:'Final Year',sc:'You\'re choosing your final-year options. One fascinates you; the other bores you, but employers rate it highly.',r:[{t:'The fascinating one. I\'ll learn far more from it.',c:'U'},{t:'The one employers rate. Interest can wait.',c:'B'}]},
   {id:'AL-UB-03',pair:'U-B',ctx:'Your Method',sc:'You\'ve worked out a method that makes your small business twice as efficient. A trade magazine wants to write about it.',r:[{t:'Let them. Ideas get better when other people pick at them.',c:'U'},{t:'Turn it down. It\'s why I\'m ahead of my rivals.',c:'B'}]},
   {id:'AL-UB-04',pair:'U-B',ctx:'Pay Rise',sc:'You\'re about to ask for a pay rise.',r:[{t:'Find out what the job pays elsewhere, so I know exactly what I\'m worth.',c:'U'},{t:'Work out how much they need me, and ask with that in mind.',c:'B'}]},
   {id:'AL-UB-05',pair:'U-B',ctx:'Old Mistake',sc:'You find a mistake in figures you gave your boss for a board report last month. Nobody has noticed.',r:[{t:'Tell my boss, so the board isn\'t working from wrong numbers.',c:'U'},{t:'Correct it in the next report, without drawing attention to it.',c:'B'}]},
@@ -3735,7 +3735,7 @@ const POOL_ALLY = [
   // BLACK vs RED (B-R) - Calculated self-interest vs impulsive self-expression
   {id:'AL-BR-01',pair:'B-R',ctx:'Restaurant',sc:'A friend is opening a restaurant and wants you as an equal partner. You\'d be putting in £30,000.',r:[{t:'Only if the contract gives me control of the money.',c:'B'},{t:'Go in. I believe in them, and I\'m excited.',c:'R'}]},
   {id:'AL-BR-02',pair:'B-R',ctx:'Stolen Idea',sc:'A colleague presents your idea in a meeting as if it were their own.',r:[{t:'Say nothing now, then tell the right people whose idea it was.',c:'B'},{t:'Speak up in the meeting: "That was my idea."',c:'R'}]},
-  {id:'AL-BR-03',pair:'B-R',ctx:'Rude Client',sc:'A big client you\'ve spent months winning is rude to the people who work for you, in front of them.',r:[{t:'Sign the contract, and remember it for later.',c:'B'},{t:'Tell them that\'s not on, contract or no contract.',c:'R'}]},
+  {id:'AL-BR-03',pair:'B-R',ctx:'Family Party',sc:'At a family party, your partner\'s father makes a cruel joke about you in front of everyone.',r:[{t:'Laugh it off, and remember it for later.',c:'B'},{t:'Tell him, there and then, that it\'s not on.',c:'R'}]},
   {id:'AL-BR-04',pair:'B-R',ctx:'Falling for a Friend',sc:'You\'ve fallen for a friend, and you think they might feel the same. Getting it wrong could cost you the friendship.',r:[{t:'Test the water first, so I only ask when I know the answer.',c:'B'},{t:'Tell them how I feel, and take my chances.',c:'R'}]},
   {id:'AL-BR-05',pair:'B-R',ctx:'Promotion Move',sc:'You\'re offered a big promotion, but it means moving to a city you\'ve never liked.',r:[{t:'Take it. Two years there would set me up.',c:'B'},{t:'Turn it down. I\'d be miserable, and it would show.',c:'R'}]},
   {id:'AL-BR-06',pair:'B-R',ctx:'Wrong Call',sc:'Your manager makes a decision you think is wrong.',r:[{t:'Go along with it for now. I\'ll raise it when the timing suits me.',c:'B'},{t:'Tell them straight away that I think it\'s wrong.',c:'R'}]},
