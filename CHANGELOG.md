@@ -2,6 +2,83 @@
 
 Newest first. Dates are when the work was committed.
 
+## 2026-10-19
+
+### Round 3: short situations for the matchups players meet
+
+Round 3 plays the top four candidates against each other, and for each match
+the page first looks for a short situation written for that pair, falling
+back to one of the eight situations with an answer for each of the 31
+identities. Naive readers have taken the short ones for a person's writing
+and the lists for slot-filling, yet only 18% of the Round 3 questions
+simulated players met were short ones. The reason is the line-up: the bars
+allow only their top colours, so the four candidates are nearly always a
+chain, one colour inside two inside three inside four (Mono-White, Selesnya,
+Bant, four-colour without red). The 40 short situations covered one link of
+that chain, two colours against three, and pairs that never meet, such as
+two guilds.
+
+- Measured first: `tools/round3-coverage.js` runs simulated players (the
+  ideal, misspecified and mixed models at p 0.65 and 0.8, four per identity
+  each, 744 in all) through the real rounds and counts the Round 3 questions
+  a short situation covered, per model and p, with the pairs left to the
+  lists, most frequent first. Before: 18.2% of 4,166 questions (17.0% to
+  19.5% by model and p). After: 96.9% (95.2% to 99.1%). On three other seeds
+  with two to three times the players, every model and p stays between 94.8%
+  and 99.3%. What is left is mostly five colours against the rest, which
+  keeps the lists.
+- 45 new short situations, 165 answers, cover the other links: each guild
+  against its two single colours (10, the third entry of each guild in
+  `POOL_B`), each three-colour identity against its three (10, the third in
+  `POOL_C`), and each four-colour identity against the single colours, guilds
+  and three-colour identities inside it (25, five each, new `POOL_C`
+  owners). They are set at home, in money, family, friends, neighbours,
+  health and clubs: a mother who can't manage the stairs, a boiler dead in
+  January, a builder's leaks, a friend on the sofa, an allotment plot at
+  risk, a wall a foot over the boundary, a premium bond. No stem puts the player in charge
+  of anything.
+- Neighbours do different things: where an answer and its rival differ by
+  one colour, they choose different courses, never the same course for
+  another reason or the first step of the other's plan (the dead boiler:
+  have a go yourself tonight, order the part the engineer will need, ring
+  round until an engineer comes today). The four-colour answers carry what
+  they lack and one more of their colours: without red waits, without green
+  starts again, without white goes ahead without permission, without blue
+  acts before it plans, without black gives with nothing in it for itself.
+- Scoring unchanged: each new pair has exactly one situation, and no two
+  answers in one situation can meet in the same chain, so every match finds
+  its situation unused and the tiebreak, which needs a second unused
+  situation on its pair, fires exactly as before. `tests/fixtures/golden.json`
+  does not move, and `tests/simulate.js` (12 per identity, all three models,
+  p 0.65 and 0.8, both engines) gives every one of 4,464 players the same
+  result and prints the same report. The comment above
+  `getPoolScenarioForMatchup` says why a second situation on one of these
+  pairs would change scoring.
+- Checked as it was written: three rounds, each with a fresh naive reader
+  who met each pair as a player does and a blind step that matched each
+  answer to the five colours. Situations read as written by a person went
+  from 30 of 45 to 42, then to 38 once the four-colour answers were pushed
+  to carry a second colour; that round's flags (an architect on £12,000,
+  suing a firm in administration, a safety worry the stem never named, a
+  backstory handed to the player) are fixed, and the fixed text has not
+  had a read of its own. In the blind matches 85% to 93% of answers read
+  inside their own colours, and the pairs where the narrower identity's
+  answer stays inside its colours while the wider one shows a colour the
+  narrower lacks went from 73% to 63% to 76% (one reader a round, so the
+  figures are rough).
+- Instrument version 9: `INSTRUMENT_VERSION` is 9 and a result built now
+  writes `i=9`. The contract line, the simulator's constant,
+  `tests/play.test.js` and the tests README say so.
+- Tests: `tests/fixtures/round3-keys.json` gains the new scenarios' keys, in
+  its own commit; `tests/round3-copy.test.js` counts 93 scenarios and 543
+  options, and every rule still holds; `tests/play.test.js` renders all 93
+  stems. The tests README describes `tools/round3-coverage.js`.
+- Not done: five colours' matches (about 2% of questions) and the old engine
+  (`?engine=1`, whose line-up is not a chain: 44% short before, 67% after)
+  still meet the lists. The four-colour answers still often read as their
+  loudest colour alone, and five of the 45 stems are set in a club or a
+  band, which some readers find narrower than home or money.
+
 ## 2026-10-18
 
 ### Questions: second naive-reader round
