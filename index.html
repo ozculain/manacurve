@@ -3002,7 +3002,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
         <span style="min-width: 80px;"></span>
       </div>
       <p class="mc-flavor" style="font-size: 15px; color: var(--ink-muted); text-align: center; margin: 14px 0 0;">
-        Click an identity to see which colours it runs, which it lacks, and the kind of colleague that completes it.
+        Click an identity to see which colours it runs and which it lacks.
       </p>
     </div>
 
@@ -3017,7 +3017,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
           <svg class="mc-corner mc-corner--bl"><use href="#fleuron"/></svg>
           <svg class="mc-corner mc-corner--br"><use href="#fleuron"/></svg>
           <div class="mc-eyebrow mc-eyebrow--gilt">Mono-Colour · 5</div>
-          <p class="mc-flavor" style="font-size: 13px; color: var(--ink-faded); margin: 4px 0 14px;">Pure, focused, uncompromising.</p>
+          <p class="mc-flavor" style="font-size: 13px; color: var(--ink-faded); margin: 4px 0 14px;">Pure and focused.</p>
           <div style="display: grid; gap: 10px;" id="explorer-mono"></div>
         </div>
 
@@ -3876,79 +3876,79 @@ const RANDOM_TAGLINES = [
 const ARCHETYPE_EXAMPLES = [
   {id: 'DIMIR', name: 'DIMIR', colors: ['U', 'B'],
     normal: "They're strategic and focused on positioning for advantage.",
-    banter: "Why do they know everything about everyone and never share what they know? They're playing a different game. The game involves us. They are also, apparently, winning it."},
+    banter: "They know everything about everyone and never share what they know. They're playing a different game, and the game involves us."},
   {id: 'RAKDOS', name: 'RAKDOS', colors: ['B', 'R'], 
     normal: "They're bold and not afraid to shake things up to get results.", 
-    banter: "They'll burn down the whole project for the drama, then laugh while we put out the fires. The fires get put out, somehow, and the project is somehow further along than it was. We are still annoyed."},
+    banter: "They'll burn down the whole project for the drama, then laugh while we put out the fires."},
   {id: 'GRUUL', name: 'GRUUL', colors: ['R', 'G'], 
     normal: "They're direct and rely on proven strength to solve problems head-on.", 
-    banter: "Subtlety? Strategy? Never heard of them. They smash through everything and ignore feedback. They also smash through walls we'd been politely waiting at for six months."},
+    banter: "They smash through everything and ignore feedback."},
   {id: 'SELESNYA', name: 'SELESNYA', colors: ['W', 'G'], 
     normal: "They're really focused on team harmony and making sure everyone feels included.", 
-    banter: "We cannot make a single decision without a team-building exercise. Everything has to be consensus and it takes forever. The team, in fairness, has been together for three years and still likes each other. This is not normal."},
+    banter: "We cannot make a single decision without a team-building exercise. Everything has to be consensus and it takes forever."},
   {id: 'ORZHOV', name: 'ORZHOV', colors: ['W', 'B'], 
     normal: "They're good at navigating organisational politics while maintaining fairness.", 
-    banter: "Every favour comes with interest, later. They keep score on everything and weaponise policy the second it benefits them. They are also the person we ask when we need to know who's actually owed what. The answer is always correct."},
+    banter: "Every favour comes with interest, later. They keep score on everything and weaponise policy the second it benefits them."},
   {id: 'IZZET', name: 'IZZET', colors: ['U', 'R'], 
     normal: "They're innovative and like to experiment with new approaches rapidly.", 
-    banter: "Did they test this? No. They experimented on production again. They're now yelling SCIENCE while everything's broken. Tomorrow morning the thing will be better than it was on Monday, which is why we tolerate this."},
+    banter: "They experimented on production again. They're now yelling SCIENCE while everything's broken."},
   {id: 'GOLGARI', name: 'GOLGARI', colors: ['B', 'G'], 
     normal: "They're good at extracting value from situations and working with long cycles.", 
-    banter: "Why do they hoard every failed project? The workspace is a graveyard of ideas that died three years ago and won't stay buried. About once a quarter, one of the dead ideas turns out to be exactly what we needed."},
+    banter: "They hoard every failed project. The workspace is a graveyard of ideas that died three years ago and won't stay buried."},
   {id: 'SIMIC', name: 'SIMIC', colors: ['G', 'U'], 
     normal: "They're thoughtful about improving existing systems without disrupting what works.", 
-    banter: "They optimise everything to death. Six months to improve a two-week process. The new process is, technically, worse. The next iteration will be better. The next iteration is always better."},
+    banter: "They optimise everything to death. Six months to improve a two-week process."},
   {id: 'BOROS', name: 'BOROS', colors: ['R', 'W'], 
     normal: "They're passionate about team goals and rally people around shared missions.", 
-    banter: "Not everything is a crusade, but they treat quarterly planning like D-Day. The intensity is a lot. We will also, however, be the team that hits the target in September while everyone else is still negotiating which target."},
+    banter: "They treat quarterly planning like D-Day, and the intensity is a lot."},
   {id: 'BANT', name: 'BANT', colors: ['W', 'U', 'G'], 
     normal: "They're balanced and strategic about building sustainable team outcomes.", 
-    banter: "Another two-hour planning session for a ten-minute task. Yes, we all need to weigh in, for the good of the team, apparently. The team is, in fact, still functioning. We resent the meeting and rely on the team."},
+    banter: "Another two-hour planning session for a ten-minute task. Yes, we all need to weigh in, for the good of the team, apparently."},
   {id: 'ESPER', name: 'ESPER', colors: ['W', 'U', 'B'], 
     normal: "They're systematic and effective at creating well-designed processes.", 
-    banter: "Do they feel anything? Every conversation is like talking to a spreadsheet. The spreadsheet, however, has been right about three significant calls this year. We don't want to be in a room with the spreadsheet. We want the spreadsheet on the team."},
+    banter: "Every conversation with them is like talking to a spreadsheet."},
   {id: 'GRIXIS', name: 'GRIXIS', colors: ['U', 'B', 'R'], 
     normal: "They're strategically decisive and comfortable making bold moves.", 
-    banter: "Pretty sure they create half the crises just so they can solve them dramatically. The evil laugh in the break room is not helping their case. The crises do, in fairness, also get resolved."},
+    banter: "Pretty sure they create half the crises just so they can solve them dramatically. The evil laugh in the break room is not helping their case."},
   {id: 'JUND', name: 'JUND', colors: ['B', 'R', 'G'], 
     normal: "They're competitive and trust their proven instincts in high-stakes situations.", 
-    banter: "Everything is a competition. They turn meetings into cage matches and dominate every conversation. Exhausting to be in the room with. Also useful to have on the team the day the actual fight starts."},
+    banter: "Everything is a competition. They turn meetings into cage matches and dominate every conversation."},
   {id: 'NAYA', name: 'NAYA', colors: ['R', 'G', 'W'], 
     normal: "They're enthusiastic team builders who bring a lot of energy to initiatives.", 
-    banter: "Why does every task need pep talks and a literal marching band? We just needed to update a spreadsheet, not plan a parade. The spreadsheet, somehow, will be updated by Wednesday. We will, somehow, also be at the parade."},
+    banter: "Every task needs pep talks and a marching band. We just needed to update a spreadsheet."},
   {id: 'ABZAN', name: 'ABZAN', colors: ['W', 'B', 'G'], 
     normal: "They're traditional and good at building enduring organisational structures.", 
-    banter: "They block every new idea with 'we've always done it this way.' Also: they definitely keep a ledger of who owes them what. The ledger is part of the reason 'this way' is still standing."},
+    banter: "They block every new idea with 'we've always done it this way.' They keep a ledger of who owes them what."},
   {id: 'JESKAI', name: 'JESKAI', colors: ['U', 'R', 'W'], 
     normal: "They're skilled and pursue excellence through disciplined practice.", 
-    banter: "So smug about their technique. Everything you do is basic and they make sure you feel it. Working with them is like being in a seminar you didn't sign up for, taught by someone who, irritatingly, does know more than you."},
+    banter: "So smug about their technique. Everything you do is basic and they make sure you feel it. Working with them is like being in a seminar you didn't sign up for."},
   {id: 'SULTAI', name: 'SULTAI', colors: ['B', 'G', 'U'], 
     normal: "They're patient strategists who build influence methodically over time.", 
-    banter: "They co-opt your work and somehow it becomes part of their little empire. Very smooth about it. Very slimy. The empire is also, somehow, the reason your team gets resourced."},
+    banter: "They co-opt your work, very smoothly, and somehow it becomes part of their little empire."},
   {id: 'MARDU', name: 'MARDU', colors: ['R', 'W', 'B'], 
     normal: "They're intense about execution and will push hard to meet goals.", 
-    banter: "Every deadline is life or death. They glorify burnout as dedication. They will flip tables if things aren't moving fast enough. The thing will, on balance, ship. The cost will be billed to a future quarter."},
+    banter: "Every deadline is life or death. They glorify burnout as dedication. They will flip tables if things aren't moving fast enough."},
   {id: 'TEMUR', name: 'TEMUR', colors: ['G', 'U', 'R'], 
     normal: "They're adaptive and combine creative thinking with strong instincts.", 
-    banter: "Hold on tight: they'll pivot the entire strategy three times this week and you'll have to deal with the whiplash. Two of the three pivots will turn out to have been right, which is part of the problem."},
+    banter: "They'll pivot the entire strategy three times this week and you'll have to deal with the whiplash."},
   {id: 'WITCH', name: 'FOUR-COLOR (No Red)', colors: ['W', 'U', 'B', 'G'], 
     normal: "They're comprehensive thinkers who approach things methodically without getting emotional.", 
-    banter: "It's like they're running a simulation. Zero passion, zero urgency, just spreadsheets making Monday last all week. The simulation is, however, eerily accurate. We keep deferring to it."},
+    banter: "It's like they're running a simulation, with zero passion and zero urgency."},
   {id: 'YORE', name: 'FOUR-COLOR (No Green)', colors: ['W', 'U', 'B', 'R'], 
     normal: "They're innovative and like to redesign things rather than use traditional approaches.", 
-    banter: "They over-engineer everything. Simple solution? No: seventeen moving parts that'll need emergency fixes in two weeks. The seventeen parts then keep working for another four years."},
+    banter: "They over-engineer everything, with seventeen moving parts that'll need emergency fixes in two weeks."},
   {id: 'GLINT', name: 'FOUR-COLOR (No White)', colors: ['U', 'B', 'R', 'G'], 
     normal: "They're creative and willing to work outside conventional boundaries.", 
-    banter: "Rules are for suckers, apparently. They hijack projects for fun and leave smoking wreckage of what used to be a plan. The plan, in fairness, was already on fire. They just made it visible."},
+    banter: "Rules are for suckers, apparently. They hijack projects for fun and leave smoking wreckage of what used to be a plan."},
   {id: 'DUNE', name: 'FOUR-COLOR (No Blue)', colors: ['W', 'B', 'R', 'G'], 
     normal: "They're action-oriented and trust their gut feelings over extended analysis.", 
-    banter: "They charge in on impulse every time. Planning never happens. Already yelling NO TIME NEXT while you're picking up the pieces. Then it's Tuesday and the thing is done. We never figured out how."},
+    banter: "They charge in on impulse every time, and planning never happens."},
   {id: 'INK', name: 'FOUR-COLOR (No Black)', colors: ['W', 'U', 'R', 'G'], 
-    normal: "They're idealistic and genuinely want everyone to succeed.", 
-    banter: "They're trying to help everyone at once and it's a circus. Unintended confetti explosions everywhere. They mean well, which is the part nobody knows how to push back against."},
+    normal: "They're idealistic and want everyone to succeed.", 
+    banter: "They're trying to help everyone at once and it's a circus. They mean well, which is the part nobody knows how to push back against."},
   {id: 'WUBRG', name: 'FIVE-COLOR', colors: ['W', 'U', 'B', 'R', 'G'], 
     normal: "They're versatile and can work with pretty much any approach or person.", 
-    banter: "They want everything at once. Kitchen sink in every project. I'm taking bets on which spinning plate crashes first. Last time I took bets, none of them crashed, which is why I'm only taking small bets this time."}
+    banter: "They want everything at once, with the kitchen sink in every project. I'm taking bets on which spinning plate crashes first."}
 ];
 
 // ============================================================================
@@ -4302,24 +4302,24 @@ const COLOR_STRENGTHS = {
 // *mechanism* (what process is missing in your head), not just a deficit.
 const COLOR_GAPS = {
   W: {
-    gap: "You don't experience the team as something you owe care to. The group is the environment you operate in, not an entity that deserves attention. Decisions get made for you and the task; the social cost lands as a surprise three weeks later in someone's resignation letter or a quiet refusal to help.",
-    complement: "A White colleague feels the temperature of the room as live data. They'll tell you when your plan is technically fine but will cost trust. That isn't them being slow or risk-averse — that's them seeing a bill you're about to be handed and don't yet know about."
+    gap: "You don't experience the team as something you owe care to. The group is the environment you operate in. Decisions get made for you and the task. The social cost lands as a surprise three weeks later, in someone's resignation letter or a quiet refusal to help.",
+    complement: "A White colleague feels the temperature of the room as live data. They'll tell you when your plan is technically fine but will cost trust. That's them seeing a bill you're about to be handed and don't yet know about."
   },
   U: {
-    gap: "You move on instinct, momentum, or feeling. You'll do the thing, then learn — sometimes expensively — what the thing actually meant. The same kinds of mistakes recur because you don't pause long enough to recognise them as a pattern; each one feels like its own situation.",
-    complement: "A Blue colleague will model the second-order consequences you wouldn't have thought to ask about. Bring them in before the decision, not after. Their 'what about…' is the cheapest insurance you'll ever buy, and the version of you that resists it is the version that ends up explaining the same kind of mistake to a different audience next quarter."
+    gap: "You move on instinct. You'll do the thing, then learn what the thing meant. The same kinds of mistakes recur because you don't pause long enough to recognise them as a pattern. Each one feels like its own situation.",
+    complement: "A Blue colleague will model the second-order consequences you wouldn't have thought to ask about. Bring them in before the decision. Their 'what about…' is the cheapest insurance you'll ever buy."
   },
   B: {
-    gap: "You take people's stated motives as their real ones. You give away leverage you didn't know you were holding. When the politics shift, you're the person holding the bill — not because anyone targeted you, but because you weren't watching the table while everyone else was.",
-    complement: "A Black colleague reads the actual incentives in the room, not the polite ones. They'll tell you who benefits if your project quietly fails, and who's already routing around you. Their take will sometimes feel uncharitable — listen anyway. They're keeping you off a list you didn't know was being kept."
+    gap: "You take people's stated motives as their real ones. You give away leverage you didn't know you were holding. When the politics shift, you're the person holding the bill. You weren't watching the table while everyone else was.",
+    complement: "A Black colleague reads the incentives in the room. They'll tell you who benefits if your project quietly fails, and who's already routing around you. Listen to them even when their take feels uncharitable."
   },
   R: {
-    gap: "You don't generate the heat that gets things moving. Decisions defer. The window closes while you collect one more data point, refine one more spec, run one more pass. The result: things you cared about don't happen, and to others you read as flat or strategically aloof even when neither describes how you actually feel.",
-    complement: "A Red colleague will start the fire that gets you moving. Their 'why are we still talking about this' is doing you a favour — it's the social pressure that converts your analysis into a decision. You don't need to match their pitch; just don't dismiss the urgency as drama. Their impatience is often correctly calibrated."
+    gap: "You don't generate the heat that gets things moving. Decisions defer. The window closes while you collect one more data point. Things you cared about don't happen, and to others you read as flat or strategically aloof.",
+    complement: "A Red colleague will start the fire that gets you moving. Their 'why are we still talking about this' is the social pressure that converts your analysis into a decision. You don't need to match their pitch; just don't dismiss the urgency as drama."
   },
   G: {
-    gap: "You distrust existing systems on principle and find rebuilding more satisfying than maintaining. Things that were working get torn down because the rebuilt version is more interesting to you. Your team's institutional knowledge — the *why* behind the how — gets discarded as 'legacy' and has to be relearned the expensive way.",
-    complement: "A Green colleague has watched more cycles than you have. When they say 'we tried that in 2019, here's what happened,' they're saving you the cost of relearning it from scratch. Their reluctance to change isn't conservatism or fear; it's pattern recognition across years that you don't yet have. Override them sparingly and only when you can name what's actually different this time."
+    gap: "You distrust existing systems on principle and find rebuilding more satisfying than maintaining. Things that were working get torn down because the rebuilt version is more interesting to you. Your team's institutional knowledge gets discarded as 'legacy' and has to be relearned the expensive way.",
+    complement: "A Green colleague has watched more cycles than you have. When they say 'we tried that in 2019, here's what happened,' they're saving you the cost of relearning it from scratch. Their reluctance to change is pattern recognition across years that you don't yet have. Override them sparingly and only when you can name what's different this time."
   }
 };
 
@@ -4355,7 +4355,7 @@ function renderRelations() {
   let html;
   if (missing.length === 0) {
     html = `<div class="mc-relations-detail__heading">Five-Colour Identity</div>
-      <div class="mc-relations-detail__sub">You contain everything. There's nothing missing to compensate for; the difficulty isn't a gap but holding all five tensions at once.</div>
+      <div class="mc-relations-detail__sub">There's nothing missing to compensate for. The difficulty is holding all five tensions at once.</div>
       <div class="mc-relations-detail__empty">No single colour completes you, because no single colour is absent. The friction is internal: your different colours pull against each other. Your work is choosing which voice leads when.</div>`;
   } else {
     const subtitle = 'The colours you lack, and what a colleague strong in each one brings.';
@@ -12635,11 +12635,11 @@ function renderExplorerRelations(identityKey) {
 
   if (missing.length === 0) {
     el.innerHTML = `<div class="mc-relations-detail__heading">Five-Colour</div>
-      <div class="mc-relations-detail__sub">No single colour completes this type because no single colour is absent. The friction is internal — different colours pull against each other.</div>`;
+      <div class="mc-relations-detail__sub">No single colour completes this type because no single colour is absent. The friction is internal: different colours pull against each other.</div>`;
     return;
   }
 
-  const subtitle = `What this type doesn't naturally run. Each missing colour is a colleague worth keeping close.`;
+  const subtitle = `The colours this type lacks, and what a colleague strong in each one brings.`;
   const cards = missing.map(c => {
     const g = COLOR_GAPS[c];
     return `<div class="mc-gap-card" data-color="${c}">
