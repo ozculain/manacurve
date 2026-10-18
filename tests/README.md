@@ -10,6 +10,7 @@ check and exits non-zero if anything failed. They need jsdom in the repo's
 | `render.test.js` | `showResults()` on a fake mono, guild, three-, four- and five-colour result, in both audience modes with player mode off and on: every key element is populated with that identity's data, the bars match the activation, the workplace mode hides the banter, and the Phase 2 pieces appear or stay away as specified, in the final copy (reveal order, the player-mode card of typeline, rules text and collector number, next door below the commander block, label words and their one line each, with no number and nothing stacked under them, bar titles and caption, mana base); plus the drafts' typeline, next-door and mana base examples, every identity's mana base (37 lands, nothing outside its colours in the deck, a maybeboard line only when a neighbour qualifies), the per-row peek and appeal flow, the all-31 path, shares after an appeal, the Round 3 "what decided it" line under each engine, and the share Card's export in the gilded and frames themes (html-to-image stubbed; the test checks the node it is handed) |
 | `journey.test.js` | 43 checks over full journeys: the Round 2 gaming gate, weighted ally answers, session save and resume at every stage, the Round 3 clinch rule, Neither-neutral Round 1 ranking, the early-offer evidence floor, a context disagreement that the result page no longer spells out |
 | `seed.test.js` | share links, which point at the preview pages (`<site root>/r/<ID>.html?p=...`): `siteRootURL()` on GitHub Pages, a localhost preview and a subfolder; `buildResultURL()` on each; the round trip through the preview page's forward to `parseSeedURL()` (with `s`, `i` and `f`); the ten old-form links and the two preview-page links in `fixtures/seed-urls.json` (recorded from the live build) open onto their result and its next-door row, and re-share as preview-page links; the share text, Web Share, clipboard and Copy Link carry the new form; all 31 identities link to a page that exists |
+| `bars.test.js` | the name matches the bars (`barsAllow`): on the player's bars (W56 U52 B38 R60 G39) Mono-Blue and Five-colour are not allowed and exactly seven identities are; a recorded Round 1 and 2 pattern with those bars (W55 U52 B38 R60 G39), which on 638cfe3 put Mono-Blue, Izzet, Jeskai and Five-colour into Round 3 and gave the player's Mono-Blue, now plays only identities the bars allow, and all 64 Round 3 outcomes on both engines end on one; the old four with the player's six answers, finished on this build as a session saved before the change would be, do too, and the results screen does not credit the bars; `round3Data.loopBrokenByBars` is set only when engine 1's re-rank by the bars picked the result, never on engine 2; and `simulate.js` over all three populations at p 0.65 and 0.8 on both engines (4 per identity) finds no result its bars do not allow |
 | `golden.test.js` | 186 seeded paths through the real Rounds 1-3 (every identity: one respondent at p = 1, five at p = 0.8, the simulator's ideal model) match `fixtures/golden.json`: Round 1 candidates and s1, Round 1 and final activation, early offer, identity, confidence, Round 3 matchups in order, and the result link's `r`, `p`, `c` and `a` (for a preview-page link, `r` is read from the page name and the fixture keeps its `?r=` shape) |
 | `round3-copy.test.js` | the rules the Round 3 stems and options were written to, held on the live files (`ROUND2_SCENARIOS` in `data.js`, `POOL_B` and `POOL_C` in `index.html`): every option is 15 words or fewer, no stem or option outside MTG_STALL names a colour, a basic land or an identity, and each of the 48 scenarios still has exactly its original identity keys (`fixtures/round3-keys.json`); then the same guards on made-up sources, and `tools/apply-round3-copy.js` on a made-up drafts file (it refuses a stale, over-long or colour-naming draft, keeps each source's quoting, and changes nothing the second time) |
 | `round12-copy.test.js` | the rules the Round 1 and 2 questions were rewritten to, held on the live files (`POOL_A`, `POOL_ALLY`, `CONTEXT_HINTS` and `getContextHint` in `index.html`, read by `tools/check-round12-copy.js`): the same 111 items in the same order, each with its pair, weight and answer colours (`fixtures/round12-keys.json`, written before the rewrite), so the same counts per pool and per pair; stems 25 words or fewer, answers 20, labels 4, no two items with the same stem; no colour, basic land, identity, guild, tagline, mana or colour named in a stem, answer, label or hint; no em dash, exclamation mark, asterisk, capitals or question mark in an answer, British spelling, none of the brief's banned words; every item rewritten or listed as kept after review; which six items show a hint (none on a Magic item) and every hint shown somewhere in Rounds 1 to 3; Round 1's and Round 2's renderers on all 111 items, and a real Round 1 and 2 with Magic items off and on, showing each label, stem, hint and answer as written; then the same guards on made-up sources |
@@ -66,10 +67,12 @@ seeds the page's `Math.random`, and drives synthetic respondents through all
 three rounds with the real handlers and scoring code. The respondent models
 live in `_lib/respondent.js`, which the golden test shares.
 
-- `--model ideal|misspecified` picks the respondent model (default `ideal`).
-- `--models both` runs both models on the same respondents (same seeds, so the
-  same item order and shuffles) and prints them side by side, per identity and
-  per type, with the gap: ideal minus misspecified, in percentage points.
+- `--model ideal|misspecified|mixed` picks the respondent model (default `ideal`).
+- `--models both` runs the ideal and misspecified models on the same
+  respondents (same seeds, so the same item order and shuffles) and prints them
+  side by side, per identity and per type, with the gap: ideal minus each
+  other model, in percentage points. `--models all` adds the mixed model, and
+  `--models a,b` runs any list.
 - `--p` takes a comma list (`--p 0.6,0.8,1`): each value gets its own report,
   followed by a table of exact recovery by type across the values.
 - `--engine 1|2` picks the scoring engine: 2, the likelihood engine, is the
@@ -132,12 +135,20 @@ the result, the result plus its strongest unlit colour, or the result minus its
 weakest lit colour, read from the final activation as the results screen does),
 each confidence label's share and accuracy, how often the early-result offer
 appears and how often the identity it offers is the true one (simulated
-respondents always decline it), and the top confusions.
+respondents always decline it), the result against its own bars, and the top
+confusions. "Against its bars" reads the final activation as the results screen
+draws it: a result's distance from its bars is the strongest colour it leaves
+out minus the weakest colour it holds (for all five colours, 50% minus the
+weakest), and the report gives how often that is over one answer (1/12 of a
+bar), over half an answer, and above zero on the bars as printed (whole
+percentages: a colour shown out of order).
 
 The run exits with status 1 if the page logs an error or any result breaks the
 `state.result` contract in `docs/SCORING_CONTRACT.md`: an identity, a
 confidence label, `scoringVersion` equal to the engine, `instrumentVersion` 4,
-and under engine 2 a posterior over all 31 identities that sums to 1.
+under engine 2 a posterior over all 31 identities that sums to 1, and an
+identity its bars allow (a distance of at most half an answer, the page's
+`BARS_TOLERANCE`, which the simulator holds its own copy of).
 
 **Ideal model.** For each identity in `PROFILES`, with colour set C:
 
@@ -183,9 +194,23 @@ assumes:
   drift across the quiz, and "Neither" depending on how well the options fit.
   The gaming toggle is off unless `--gaming` is given.
 
+**Mixed model.** Real people rarely hold a clean colour set: their colour
+weights are continuous and fairly flat. The mixed respondent is the
+misspecified one (the same person, items, leans and disengaged share, and the
+same k and k3, calibrated at p for the misspecified model) with flatter
+weights: each colour in the identity from 0.5 to 0.8, each outside it from 0.2
+to 0.5. The identity is still exactly the colours weighted above 0.5, but the
+weakest colour held and the strongest not held are often only a little apart,
+so the answers carry less signal than the misspecified model's at the same p:
+an engaged mixed respondent picks the in-identity option of a one-in, one-out
+item, and the true identity over a one-colour neighbour in Round 3, with
+average probability 0.57 at p = 0.65 and 0.66 at p = 0.8 (the calibration line
+of the report prints these). Their bars are flatter too, as a real player's
+often are.
+
 Defaults: 200 respondents per identity, p = 0.8, neither = 0.05, seed = 1,
 model ideal, engine 2. The default run takes about 30 seconds on 8 cores;
-`--models both` or `--engine 1,2` about twice that.
+`--models both` or `--engine 1,2` about twice that, `--models all` three times.
 
 Output: a plain-text report and the same data in `tests/out/simulation.json`
 (an object with a `runs` array when more than one model, engine or p is run).

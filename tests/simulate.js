@@ -5,7 +5,7 @@
 // handlers and scoring code (unchanged). The respondent models live in
 // tests/_lib/respondent.js.
 // Usage: node tests/simulate.js [--n 200] [--p 0.8[,0.9,...]] [--neither 0.05] [--seed 1[,2,...]]
-//          [--model ideal|misspecified | --models both] [--engine 2 | --engine 1,2]
+//          [--model ideal|misspecified|mixed | --models both|all|a,b] [--engine 2 | --engine 1,2]
 //          [--r3 page,q=0.85,tour,...] [--gaming] [--workers auto] [--out tests/out/simulation.json]
 //          [path/to/another/index.html]
 'use strict';
@@ -16,7 +16,7 @@ const { Worker, isMainThread, parentPort, workerData } = require('worker_threads
 
 const ROOT = path.resolve(__dirname, '..');
 const { bootPage } = require('./_lib/load');
-const { runRespondent, calibrateMisspecified, MODEL_NAMES } = require('./_lib/respondent');
+const { runRespondent, calibrateMisspecified, signalAt, MIXED, MODEL_NAMES } = require('./_lib/respondent');
 
 // The page's default engine; ?engine=1 selects the win-rate engine for one release.
 const ENGINES = [1, 2];
@@ -44,13 +44,13 @@ function parseArgs(argv) {
     else if (k === 'seed' || k === 'seeds') o.seeds = String(v).split(',').map((x) => num('seed', x));
     else if (k === 'p') o.p = String(v).split(',').map((x) => num('p', x));
     else if (k === 'model') o.models = [String(v)];
-    else if (k === 'models') o.models = v === 'both' ? ['ideal', 'misspecified'] : String(v).split(',');
+    else if (k === 'models') o.models = v === 'both' ? ['ideal', 'misspecified'] : v === 'all' ? [...MODEL_NAMES] : String(v).split(',');
     else if (k === 'engine' || k === 'engines') o.engines = v === 'both' ? [...ENGINES] : String(v).split(',').map((x) => num('engine', x));
     else if (k === 'r3') { if (!v) fail('Bad value for --r3'); o.r3 = String(v).split(',').map(parseVariant); }
     else if (k === 'out') { if (!v) fail('Bad value for --out'); o.out = path.resolve(v); }
     else fail('Unknown option ' + argv[i - 1]);
   }
-  for (const m of o.models) if (!MODEL_NAMES.includes(m)) fail(`Unknown model "${m}"; expected ${MODEL_NAMES.join(' or ')}, or --models both`);
+  for (const m of o.models) if (!MODEL_NAMES.includes(m)) fail(`Unknown model "${m}"; expected ${MODEL_NAMES.join(', ')}, or --models both or all`);
   for (const e of o.engines) if (!ENGINES.includes(e)) fail(`Unknown engine "${e}"; expected ${ENGINES.join(' or ')}, or --engine 1,2`);
   for (const p of o.p) if (p < 0 || p > 1) fail('--p values must lie between 0 and 1');
   if (o.r3 && o.engines.some((e) => e !== 2)) fail('--r3 varies engine 2 only; drop --engine 1');
@@ -257,7 +257,8 @@ async function main(opts) {
   for (const p of opts.p) for (const model of opts.models) for (const engine of opts.engines) for (const q of qs) for (const seed of opts.seeds) {
     const c = { model, p, neither: opts.neither, seed, engine, gaming: opts.gaming };
     if (opts.r3) Object.assign(c, { r3: true, q });
-    if (model === 'misspecified') c.calibration = calibrateMisspecified(p);
+    // The mixed model is the misspecified one with flatter weights, at the same sharpness.
+    if (model !== 'ideal') c.calibration = calibrateMisspecified(p);
     configs.push(c);
   }
   const tasks = [];
@@ -366,8 +367,28 @@ function neighbourhood(resultId, activation, colorsOf, idOfColors) {
   return set.filter(Boolean);
 }
 
-// state.result must carry the contract's fields (docs/SCORING_CONTRACT.md).
-function contractProblems(r, engine) {
+// How far a result is from the story its bars tell, in bar units (0..1): the
+// strongest colour it leaves out minus the weakest colour it holds, or, when
+// it holds all five, 50% (the line next door draws for five) minus the
+// weakest. Written out here, not read from the page, so the check does not
+// lean on the code it checks. With shown, on the bars as the results screen
+// prints them (whole percentages).
+const BARS_TOLERANCE = 1 / 24; // the page's BARS_TOLERANCE: half an answer
+const ONE_ANSWER = 1 / 12;     // the page's ONE_ANSWER_BY_VERSION
+const BARS_ROUNDING = 0.001;   // finalActivation is recorded to 3 dp
+function barsMargin(resultId, activation, colorsOf, shown = false) {
+  const lit = colorsOf[resultId];
+  if (!lit) return Infinity;
+  const act = Object.fromEntries(activation || []);
+  const bar = (c) => (shown ? Math.round(100 * (act[c] || 0)) / 100 : act[c] || 0);
+  const out = WUBRG.filter((c) => !lit.includes(c));
+  const weakestIn = Math.min(...lit.map(bar));
+  return out.length ? Math.max(...out.map(bar)) - weakestIn : 0.5 - weakestIn;
+}
+
+// state.result must carry the contract's fields (docs/SCORING_CONTRACT.md),
+// and the bars must allow its identity.
+function contractProblems(r, engine, colorsOf) {
   const bad = [];
   if (!r.recovered) bad.push('no identity');
   if (!LABELS.includes(r.confidence)) bad.push('confidence ' + r.confidence);
@@ -376,6 +397,13 @@ function contractProblems(r, engine) {
   if (engine >= 2) {
     if (r.posteriorIds !== 31) bad.push('posterior over ' + r.posteriorIds + ' identities');
     else if (Math.abs(r.posteriorSum - 1) > 1e-9) bad.push('posterior sums to ' + r.posteriorSum);
+  }
+  if (r.recovered) {
+    const m = barsMargin(r.recovered, r.finalActivation, colorsOf);
+    if (m > BARS_TOLERANCE + BARS_ROUNDING) {
+      const bars = WUBRG.map((c) => c + Math.round(100 * (Object.fromEntries(r.finalActivation || [])[c] || 0))).join(' ');
+      bad.push(`${r.recovered} under bars ${bars} (${(100 * m).toFixed(1)} points from them; the bars allow ${(100 * BARS_TOLERANCE).toFixed(1)})`);
+    }
   }
   return bad;
 }
@@ -431,12 +459,22 @@ function summarise({ config, opts, ids, colorsOf, runs, meta }) {
     .map(([k, count]) => { const [from, to] = k.split('\t'); return { true: from, recovered: to, count, shareOfTrue: count / perTrue }; });
   const contract = { violations: 0, examples: [] };
   for (const r of runs) {
-    const bad = contractProblems(r, config.engine);
+    const bad = contractProblems(r, config.engine, colorsOf);
     if (bad.length) { contract.violations++; if (contract.examples.length < 5) contract.examples.push(`${r.trueId} #${r.idx}: ${bad.join(', ')}`); }
   }
+  // The result against its own bars: more than one answer or half an answer
+  // from the story they tell, or any colour shown out of order (an unlit bar
+  // printed above a lit one, or a lit bar below 50% when all five are lit).
+  const margins = runs.map((r) => barsMargin(r.recovered, r.finalActivation, colorsOf));
+  const bars = {
+    overOneAnswer: share(margins.filter((m) => m > ONE_ANSWER + BARS_ROUNDING).length, runs.length),
+    overHalfAnswer: share(margins.filter((m) => m > ONE_ANSWER / 2 + BARS_ROUNDING).length, runs.length),
+    shownOutOfOrder: share(runs.filter((r) => barsMargin(r.recovered, r.finalActivation, colorsOf, true) > 1e-9).length, runs.length),
+  };
   const params = { model: config.model, engine: config.engine, n: opts.n, p: config.p, neither: config.neither, seed: config.seed, gaming: config.gaming };
   if (config.r3) params.round3Q = config.q === null ? 'page' : config.q;
   if (config.calibration) params.calibration = config.calibration;
+  if (config.model === 'mixed' && config.calibration) params.mixedSignal = signalAt(config.calibration, MIXED);
   return {
     params,
     respondents: runs.length,
@@ -449,6 +487,7 @@ function summarise({ config, opts, ids, colorsOf, runs, meta }) {
     neighbourhoodCoverage: share(runs.filter(covered).length, runs.length),
     earlyOfferShare: earlyOffer.share,
     earlyOffer,
+    bars,
     byType, guilds, perIdentity, topConfusions, confidence, contract,
     pageErrorCount: meta.errors.length,
     pageErrors: meta.errors.slice(0, 20),
@@ -511,8 +550,10 @@ function round3Summary(runs) {
 function calibrationLine(r) {
   const c = r.params.calibration;
   if (!c) return null;
+  const s = r.params.mixedSignal;
   return `Misspecified calibration: item sharpness k=${c.k.toFixed(2)}, Round 3 sharpness k3=${c.k3.toFixed(2)}` +
-    (c.target !== r.params.p ? ` (p capped at ${c.target})` : '');
+    (c.target !== r.params.p ? ` (p capped at ${c.target})` : '') +
+    (s ? `; mixed respondents at that sharpness: items ${s.items.toFixed(2)}, Round 3 ${s.round3.toFixed(2)}` : '');
 }
 const runLabel = (r) => `model=${r.params.model}  engine=${r.params.engine}`;
 const gamingNote = (r) => (r.params.gaming ? '  gaming=on' : '');
@@ -537,6 +578,7 @@ function textReport(report, ids, meta) {
   L.push(`Round 1 alone (candidate #1):  ${pct(report.round1AloneExact)}`);
   L.push(`Enemy-pair guilds / allied:    ${pct(report.guilds.enemy.exact)} / ${pct(report.guilds.allied.exact).trim()}`);
   L.push(`Neighbourhood coverage:        ${pct(report.neighbourhoodCoverage)}   (truth is the result, +strongest unlit or -weakest lit colour)`);
+  L.push(`Result against its bars:       ${pct(report.bars.overOneAnswer)} over one answer, ${pct(report.bars.overHalfAnswer).trim()} over half an answer, ${pct(report.bars.shownOutOfOrder).trim()} shown out of order`);
   L.push(`Early-result offer shown:      ${pct(report.earlyOffer.share)}   precision ${pct(report.earlyOffer.precision).trim()} (${report.earlyOffer.correct}/${report.earlyOffer.count} offered identities right)`);
   L.push('');
   L.push('Confidence labels       count   share   accuracy');
@@ -561,7 +603,7 @@ function textReport(report, ids, meta) {
 function textComparison(reports, ids, meta, opts) {
   const multiEngine = new Set(reports.map(r => r.params.engine)).size > 1;
   const multiModel = new Set(reports.map(r => r.params.model)).size > 1;
-  const short = { ideal: 'ideal', misspecified: 'misspec' };
+  const short = { ideal: 'ideal', misspecified: 'misspec', mixed: 'mixed' };
   const label = (r) => (multiEngine ? (multiModel ? `${short[r.params.model] || r.params.model} e${r.params.engine}` : `engine ${r.params.engine}`) : r.params.model);
   const deltas = [];
   if (multiEngine) {
@@ -608,6 +650,11 @@ function textComparison(reports, ids, meta, opts) {
   for (const t of TYPES) L.push(row(`  ${t.toUpperCase()} (type average)`, r => r.byType[t].neighbourhood));
   L.push(row('  OVERALL', r => r.neighbourhoodCoverage));
   L.push('');
+  L.push(head('Result against its bars'));
+  L.push(row('  over one answer', r => r.bars.overOneAnswer));
+  L.push(row('  over half an answer', r => r.bars.overHalfAnswer));
+  L.push(row('  shown out of order', r => r.bars.shownOutOfOrder));
+  L.push('');
   L.push(head('Confidence labels'));
   for (const k of LABELS) L.push(row(`  ${k} share`, r => (r.confidence[k] || { share: 0 }).share));
   for (const k of LABELS) L.push(row(`  ${k} accuracy`, r => (r.confidence[k] ? r.confidence[k].accuracy : null)));
@@ -632,13 +679,13 @@ function textComparison(reports, ids, meta, opts) {
 // ---------- Text: summary across p ----------
 function textAcrossP(reports, opts) {
   const L = ['Exact recovery by p (type averages)'];
-  L.push('  ' + 'p'.padEnd(6) + 'model'.padEnd(14) + 'engine'.padEnd(8) + TYPES.map(t => t.toUpperCase().padStart(8)).join('') + 'OVERALL'.padStart(10) + 'HIGH'.padStart(8) + 'MOD'.padStart(8) + 'LOW'.padStart(8));
+  L.push('  ' + 'p'.padEnd(6) + 'model'.padEnd(14) + 'engine'.padEnd(8) + TYPES.map(t => t.toUpperCase().padStart(8)).join('') + 'OVERALL'.padStart(10) + 'HIGH'.padStart(8) + 'MOD'.padStart(8) + 'LOW'.padStart(8) + 'BARS'.padStart(8));
   const acc = (r, k) => (r.confidence[k] ? r.confidence[k].accuracy : null);
   for (const p of opts.p) for (const r of reports.filter(x => x.params.p === p)) {
     L.push('  ' + String(p).padEnd(6) + r.params.model.padEnd(14) + String(r.params.engine).padEnd(8) + TYPES.map(t => pct(r.byType[t].exact).padStart(8)).join('') + pct(r.overallExact).padStart(10)
-      + LABELS.map(k => pct(acc(r, k)).padStart(8)).join(''));
+      + LABELS.map(k => pct(acc(r, k)).padStart(8)).join('') + pct(r.bars.overHalfAnswer).padStart(8));
   }
-  L.push('  (HIGH / MOD / LOW: accuracy of each confidence label)');
+  L.push('  (HIGH / MOD / LOW: accuracy of each confidence label; BARS: results over half an answer from their bars)');
   return L.join('\n');
 }
 
