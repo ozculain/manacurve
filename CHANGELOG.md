@@ -4,6 +4,170 @@ Newest first. Dates are when the work was committed.
 
 ## 2026-10-18
 
+### Even bars and Five-colour
+
+The results screen draws five bars under "How often you picked each colour
+when it was offered", and since Result matches the bars the name follows
+them, give or take half an answer. On the player's result three things were
+still wrong.
+
+- The bars were not what you said. Each colour's bar averaged its enemy-pair
+  rate (about twelve Round 1 answers) with its ally-pair rate (two or three
+  Round 2 answers), each smoothed with Beta(1, 1), and a Round 1 item weighted
+  below 1 still counted whole in the denominator. Two Round 2 answers counted
+  as much as ten Round 1 answers. The answers recorded for the player's case
+  in `tests/bars.test.js` show it: after Round 1 the bars read U73 B45 R44 G36
+  W32, and two Round 2 answers for White over Blue and two for Red over Black
+  took them to W55 U52 B38 R60 G39. Counted evenly, the same answers print
+  W48 U64 B43 R56 G42: Blue first, Red second.
+- Five-colour could not be the result. It needed its weakest bar within half
+  an answer of 50%, and a five-colour respondent, who meets every pair at a
+  coin flip, leaves the weakest bar near a third.
+- Near ties printed out of order. Half an answer either way let a colour the
+  name holds print below one it leaves out, on 6.5 to 14.7% of engine 2's
+  results and 3.6 to 5.4% of engine 1's (below).
+
+The change:
+
+- The bars (`barsFromTallies`, both engines). Every answered Round 1 and
+  Round 2 item, Round 2's enemy re-tests included, counts its weight once for
+  the colour chosen and once in the denominator of both colours in its pair;
+  Neither counts in neither. A Round 2 answer now moves a bar as far as a
+  Round 1 answer of the same weight. A bar counts about fifteen answers (11.4
+  from Round 1 and 3.6 from Round 2 on average in simulation, 13 to 17 for
+  most respondents). No smoothing: no colour's count is small enough to need
+  it, and a colour never answered (Neither throughout) shows 50%. The Round 1
+  bars, which the early offer reads and an early result shows, count Round 1
+  alone. The caption is now what the bars count, an item of weight 0.7 or
+  0.8 counting that much. Round 1 and Round 2 are still read apart, smoothed
+  as before, for the context-agreement guard only.
+- The name matches the bars as printed (`barsAllow`, both engines). An
+  identity of one to four colours may be the result only when no colour it
+  leaves out prints above a colour it holds, ties allowed, on the whole
+  percentages the screen and a shared link print (`barsShown`). This replaces
+  half an answer either way (`BARS_TOLERANCE` is gone). On any bars the top
+  bars one to four deep are allowed, so Round 3 still plays four. Engine 2's
+  Round 3 filter and final pick, engine 1's hold on its tournament winner and
+  the early offer all apply it.
+- Five-colour (`FIVE_COLOUR_BAND`, 20 points). Allowed when all five bars print
+  within 20 points of each other, about three answers a bar. The posterior,
+  which on even answers favours the identities that predict the most coin
+  flips, then decides among the identities the bars allow, as for any
+  result. Bars wider than the band leave the identity they allow that the
+  posterior rates highest; for a five-colour respondent that is a four-colour
+  identity (the top four bars) 27 to 64% of the time. Flat answers do not
+  make flat bars: with about fifteen answers to a colour, each a coin flip, a
+  five-colour respondent's bars print a median 36 to 40 points apart, within
+  20 for 6 to 12% of them and for 0.7 to 9% of everyone else. The band, on
+  the same respondents (engine 2, seed 1, 3,100 per cell; recall and
+  precision of Five-colour, the share of results it is given, and overall
+  exact recovery against no Five-colour at all, in percent):
+
+  | band          | recall  | precision, ideal p = 0.8 | precision, elsewhere | given to   | overall      |
+  | ------------- | ------- | ------------------------ | -------------------- | ---------- | ------------ |
+  | 10            | 0 to 3  | 100 (3 of 3)             | 0 to 20              | 0.1 to 0.3 | 0.0 to +0.1  |
+  | 15            | 1 to 5  | 83 (5 of 6)              | 3 to 20              | 0.2 to 1.1 | -0.1 to +0.2 |
+  | 20 (taken)    | 3 to 11 | 79 (11 of 14)            | 5 to 27              | 0.5 to 2.7 | -0.2 to +0.4 |
+
+  20 points doubles 15's reach at much the same precision, and costs no
+  overall recovery. Wider bands were not run: 25 points would let
+  Five-colour through for 12 to 19% of everyone else at p = 0.65, against 6 to
+  9% at 20, and for the player's bars, 22 points apart (on the answers
+  recorded for them the posterior alone ranks Five-colour third). Five-colour
+  results are LOW: in a separate run of 4,650 respondents at this band, all 69
+  had a posterior under 0.3.
+- What else reads the bars, checked. Engine 1's Round 3 candidates after
+  Round 2 come from them (`recalculateCandidates`, same shape); its Round 1
+  candidates still come from its own win rates. The scenario-contradiction
+  guard needs the top bar 20 points clear of the result's colours, which the
+  rule now rules out, so it still cannot fire. The context-agreement guard
+  reads Round 1 and Round 2 apart, as above. The early offer is held to the
+  Round 1 bars as printed. A shared link's `p` is the printed numbers, so a
+  link's name and bars agree; old links carry their own and render as before
+  (`tests/seed.test.js`, the ten recorded links). Next door and the mana base
+  read the five values as before, and next door still draws Five-colour's
+  line at 50%, so a Five-colour result's weakest colour reads as "only just
+  made it in". `ONE_ANSWER_BY_VERSION` stays a twelfth of a bar, though an
+  answer is now nearer a fifteenth, so links shared before read as they did.
+  The results screen's fallback for missing bars counts them the same way.
+- Measured on this build after merging the persona check (which changed no
+  scoring: the golden fixture rewritten before the merge holds after it)
+  against 0579763, with `tests/simulate.js`: n = 100 per identity, seeds 1 and
+  2, 6,200 respondents per cell, all three populations, both engines;
+  changes on the same respondents, with two paired standard errors.
+
+  Against the bars as printed (a colour left out printed above one held), in
+  percent, p = 0.65 / 0.8:
+
+  | population   | engine 2 before | engine 1 before | after, both engines |
+  | ------------ | --------------- | --------------- | ------------------- |
+  | ideal        | 13.2 / 6.5      | 4.8 / 3.6       | 0 / 0               |
+  | misspecified | 12.6 / 6.7      | 5.3 / 4.4       | 0 / 0               |
+  | mixed        | 14.7 / 11.8     | 5.4 / 5.3       | 0 / 0               |
+
+  No result is over half an answer from its bars, and none of the 74,400
+  breaks the contract, early offers included. Exact recovery, in percent,
+  p = 0.65 / 0.8:
+
+  | population   | engine 2 before | engine 2 after                     | engine 1 before | engine 1 after                      |
+  | ------------ | --------------- | ---------------------------------- | --------------- | ----------------------------------- |
+  | ideal        | 24.0 / 66.5     | 24.1 / 66.4 (0.0 ±0.8 / 0.0 ±0.8)  | 17.4 / 44.6     | 19.0 / 48.9 (+1.6 ±1.0 / +4.2 ±1.2) |
+  | misspecified | 23.2 / 57.9     | 24.4 / 57.6 (+1.2 ±0.8 / -0.3 ±0.8) | 17.4 / 42.8    | 19.1 / 45.0 (+1.7 ±1.0 / +2.2 ±1.2) |
+  | mixed        | 9.2 / 23.0      | 9.5 / 23.5 (+0.2 ±0.6 / +0.6 ±0.8) | 8.0 / 18.9      | 8.9 / 19.9 (+0.9 ±0.8 / +1.0 ±1.0)  |
+
+  By type, engine 2: monos gain 1.0 to 3.3 points, Five-colour goes from 0
+  to 3.5 to 8.0% recall, four-colour identities move -0.9 to +2.6, guilds
+  -1.5 to +0.3 and three-colour identities -1.9 to +0.4. Inside the guilds,
+  the enemy-pair guilds (Orzhov, Izzet, Golgari, Simic, Boros) lose and the
+  allied guilds gain: 25.5 to 21.5 and 66.7 to 61.7 against 24.8 to 26.0 and
+  75.1 to 79.1 (ideal), 22.0 to 18.2 and 58.3 to 52.9 against 22.3 to 26.7
+  and 64.6 to 67.1 (misspecified), 7.6 to 5.5 and 21.6 to 18.2 against 6.9 to
+  8.5 and 21.4 to 25.4 (mixed). An enemy-pair guild's two colours meet in
+  six Round 1 items that are coin flips for it, which now count in both
+  bars as fully as the rest; the old average lifted them with the ally pairs
+  they win. Five-colour, engine 2 (engine 1), p = 0.65 / 0.8: recall 5.5 / 8.0
+  (3.0 / 5.0) ideal, 3.5 / 5.5 (1.5 / 4.0) misspecified, 3.5 / 5.0 (1.5 /
+  2.0) mixed; precision 7.2 / 80.0 (9.7 / 83.3), 6.5 / 23.9 (7.5 / 38.1),
+  3.7 / 10.0 (4.3 / 10.0); given to 0.3 to 3.0% of results; before, never.
+  Next door, engine 2: 40.7 to 42.6 / 81.7 to 83.4 (ideal), 39.1 to 41.5 /
+  76.1 to 77.3, 19.9 to 20.2 / 40.3 to 43.0; engine 1 up 1.3 to 4.1 points.
+  Label accuracy at p = 0.8, engine 2, ideal / misspecified: HIGH 90.8 to
+  92.4 / 81.7 to 81.7, MODERATE 83.6 to 83.8 / 73.7 to 72.8, LOW 54.4 to 54.0
+  / 42.4 to 41.1. The early offer is unchanged (3 of 3 right for ideal and for
+  misspecified respondents at p = 0.8, none at p = 0.65).
+- `tests/fixtures/golden.json` is rewritten in its own commit: every path's
+  bars move; 115 of 186 paths play a different four and 26 end elsewhere; the
+  true identity is reported on 146 paths against 138 (31 of 31 at p = 1,
+  where Dune and Five-colour had missed; 115 of 155 at p = 0.8 against 109),
+  and Five-colour twice, both right.
+- Tests: `tests/bars.test.js` holds the bars to the answer records (each
+  answered item once, by weight; a Round 2 answer moves a bar as far as a
+  Round 1 answer) on recorded patterns and on simulated respondents of all
+  three populations on both engines; the rule on the player's bars (exactly
+  the top bars one to four deep) and on 4,000 random bars with ties at the
+  half point (allowed exactly when no colour left out prints above one held,
+  on the numbers the screen and a link print); Five-colour within and outside
+  the band, end to end on both engines; a re-recorded player's case whose even
+  bars print W56 U52 B38 R61 G39, where all 64 Round 3 outcomes on both
+  engines end on an identity the bars allow and never Mono-Blue; the old
+  pattern counted evenly; and the old Round 3 finished on the bars that build
+  saved (Jeskai, LOW). `tests/simulate.js` records the bars as printed, fails
+  a result or early offer they do not allow, and reports Five-colour's recall
+  and precision (`--five-band`, `--rows` for paired comparisons).
+  `docs/SCORING_CONTRACT.md` says so, in its own commit.
+- Not reached. Five-colour stays rare and, outside the cleanest population,
+  usually wrong: flat answers rarely give flat bars over fifteen answers a
+  colour. Enemy-pair guilds lose 2 to 5 points to the even count; more Round 2
+  ally items for the top colours would help them, and the bars cannot without
+  misreporting what was said. Next door still reads Five-colour against 50%,
+  and an answer is still a twelfth of a bar there. Results and links saved
+  before this build keep their identity and bars.
+- Commands: `node tests/simulate.js --n 100 --seed 1,2 --models all --p
+  0.65,0.8 --engine 1,2 --rows [0579763's index.html]` and the same on this
+  build; the bands, `--n 100 --seed 1` with the same models, p and engines,
+  on this build with `FIVE_COLOUR_BAND` set to 0, 10 and 15 and `--five-band`
+  to match.
+
 ### Persona check of all questions
 
 The real-stakes rewrite below had checked itself. This is a second reader's
