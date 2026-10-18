@@ -12369,7 +12369,12 @@ function showResults() {
       : allAnswers ? fillCopy(RESULT_COPY.decided.clear, { n: confComparisons })
       : `Decided by a clear margin across ${confComparisons} head-to-head comparisons.`;
   } else if (state.result.confidence === 'LOW' && r3ForConf.cycle) {
-    confBasis = `Your final-round preferences formed a loop (${r3ForConf.cycle.join(' beat ')}, who beat ${r3ForConf.cycle[0]}), so the scenarios couldn't decide this. ${copyVariant(RESULT_COPY.barsPointer.loop)} Treat this as a soft read.`;
+    // The bars broke the loop only when engine 1 re-ranked its members by them
+    // and that pick stood (loopBrokenByBars). Engine 2's posterior decides
+    // inside a loop, so a result saved without the flag keeps the sentence
+    // only on engine 1.
+    const loopByBars = r3ForConf.loopBrokenByBars !== undefined ? r3ForConf.loopBrokenByBars : !allAnswers;
+    confBasis = `Your final-round preferences formed a loop (${r3ForConf.cycle.join(' beat ')}, who beat ${r3ForConf.cycle[0]}), so the scenarios couldn't decide this. ${loopByBars ? copyVariant(RESULT_COPY.barsPointer.loop) + ' ' : ''}Treat this as a soft read.`;
   } else if (state.result.confidence === 'LOW') {
     confBasis = 'The margins stayed thin throughout. Treat this as a soft read.';
   } else {
