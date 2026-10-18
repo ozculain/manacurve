@@ -4,6 +4,82 @@ Newest first. Dates are when the work was committed.
 
 ## 2026-10-18
 
+### Questions: second naive-reader round
+
+Fresh naive readers on three models read the plain text of every question
+again, with no colours and no key, and a blind step matched the people they
+described to the five colours. Against the first round, obvious answers fell
+from 26 to 12, low stakes from 13 to 5, lopsided or one-sided splits from 10
+to 2 and flagged Round 3 answers from 35 to 14, but 62 of the 111 Round 1
+and 2 questions still failed. 21 of them, and 22 of the 48 Round 3
+situations, assumed a job, a business or a work team, which strands anyone
+without one now that the hint lines are gone. Readers recognised each
+answer's colour a little less often (86%, from 88%), because many answers
+had lost their reasons: Red read as Green or Black, Green as Red, White or
+Blue, and Blue as Black or White. The template still showed: "do X, and do
+Y", an action and a reason, answers opening on Keep, Stay or Leave, rules
+against gut and data against feeling again and again, and in Round 3 "X,
+then Y" and "Keep it simple".
+
+- Work: the 21 Round 1 and 2 questions that needed a job are set elsewhere:
+  a hip operation on the waiting list, a council flat, a plot next door, a
+  rent strike, a degree and a band on tour, a town council seat, a
+  scholarship, a wealthy aunt's offer, a sixteen-year-old who wants to be a
+  chef, a doorbell camera, a painting in the attic, a charity carnival. Four
+  of the 91 non-Magic questions still sit at work, all choices open to
+  someone without a job (a choice between two job offers, starting a
+  business, a careers test, a placement before law school). In Round 3 all
+  22 work stems moved to a town festival, a club's savings, a booking gone
+  wrong, a friend who broke a confidence, a bank, a wedding marquee, a house
+  move, a choir, a local team, a volunteer café and the like; the one stem
+  left that mentions a job is the Spanish a job in Madrid needs. No hint
+  line came back.
+- Colour: each of the 31 answers readers did not recognise (on 29
+  questions) carries its colour's motive in the action or a short, specific
+  reason. Red acts now on feeling or conviction ("Have it out now. My gut
+  says don't wait", the classic car that makes you grin, speaking at the
+  funeral whatever is planned). Green waits, belongs or lets things grow
+  (the tree stays, the band gets there at its own pace, the novel finds
+  readers by word of mouth). Blue finds out, checks or studies. Black says
+  plainly what it wants (ambitions, a step up, a better deal for me). White
+  goes by the rule, the vote, the turn or the promise.
+- Obvious, low stakes, lopsided, both at once: all 19 questions flagged for
+  these are rewritten. The pairs readers would have done together now
+  exclude each other: the board meeting is a painting sold this week or
+  researched for a year, the first home is a flat you have researched or one
+  going cheap, the apprentice is a tree or solar panels, draft practice is
+  the old way or the ratings.
+- The template: answers opening on Keep, Stay or Leave fall from 32 to 17,
+  "X, and Y" answers from 61 to 51 and "then" from 7 to 2; reasons come
+  first, follow "because" or "so", or are left out where the action says it.
+  In Round 3, "then" is gone from all 378 options (32 before), ", and" joins
+  fall from 70 to 51, and "Keep it simple" is gone.
+- Round 3: 29 of the 48 stems and 283 of the 378 options changed, the 14
+  flagged answers among them. In the eight lists of 31, neighbouring
+  identities, the ones a match usually pits against each other, now say
+  different things (Dimir keeps quiet where Sultai repositions, Mono-Blue
+  finds out where Azorius writes the rule), the near-duplicates and repeated
+  phrases ("whichever works", "find out quietly", "from now on") are split
+  up, and the five-colour answers no longer open on "Depends". The vague
+  stems are concrete: a storm that cuts off a village, a footbridge, a
+  library.
+- Checked before handing over: three rounds of two naive readers each (and
+  one Round 3 reader each) read the rewrite as it went, a blind step matched
+  two of those rounds' descriptions to the colours, and every round's flags
+  were fixed. In the last round the blind match recognised 91% of answers;
+  those were working checks, not the full measurement, and the final version
+  has not had a read of its own.
+- Unchanged: every id, pair, weight, answer colour, identity key and order,
+  so the seeded draws and `tests/fixtures/golden.json` do not move, and both
+  key fixtures are untouched.
+- Instrument version 8: `INSTRUMENT_VERSION` is 8 and a result built now
+  writes `i=8`. The contract line, the simulator's constant,
+  `tests/play.test.js` and the tests README say so.
+- Not done: the comment in `showTournamentQuestion` still says 15 of the 48
+  stems show a hint; it is outside this change. The twenty Magic items still
+  lean on the game's words, which non-players flag, and readers still see a
+  shared shape (a short action and its reason) across the set.
+
 ### Result screens: third naive-reader round
 
 The 31 result screens went back to three naive readers, as a player and as a
