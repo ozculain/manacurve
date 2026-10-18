@@ -770,13 +770,16 @@ run('play', async (t) => {
     ok('P7a a share button sits in the banner meta, next to the identity',
       !!share && d.querySelector('.mc-result__banner-meta').contains(share) && row.contains(share) && row.classList.contains('mc-result__name-row') && /Share/.test(share.textContent),
       share ? share.textContent : 'missing');
+    // The one Share on the page: the action row's "Share my result" read to
+    // naive readers as a duplicate and is gone ("Make an image" stays).
+    const shares = [...d.querySelectorAll('#screen-results button')].filter((b) => /\bshare\b/i.test(b.textContent) && !b.closest('.hidden'));
     const copied = [];
     Object.defineProperty(win.navigator, 'clipboard', { configurable: true, value: { writeText: async (x) => { copied.push(x); } } });
     share.click();
     await tick(); await tick();
-    await win.shareResult(d.getElementById('share-result-btn'));
-    ok('P7b it reuses the share action: the same dare and link as the main share button',
-      copied.length === 2 && copied[0] === copied[1] && copied[0].includes(h.buildResultURL()) && share.textContent === '✓ Link copied', JSON.stringify(copied));
+    ok('P7b it is the only Share on the result screen, and it sends the dare and the link',
+      copied.length === 1 && copied[0] === `${win.shareDareText()} ${h.buildResultURL()}` && share.textContent === '✓ Link copied'
+        && shares.length === 1 && shares[0] === share && !d.getElementById('share-result-btn'), `${JSON.stringify(copied)} shares=${shares.length}`);
     ok('P7c no errors on the results page', errors.length === 0, errors.slice(0, 2).join(' | '));
     win.close();
   }

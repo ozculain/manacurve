@@ -383,14 +383,14 @@ run('seed', async ({ ok }) => {
     win.copyResult();
     if (copied !== preview) problems.push('copyResult copied ' + JSON.stringify(copied));
 
-    // Share my result: Web Share, then the clipboard fallback.
+    // Share, beside the identity: Web Share, then the clipboard fallback.
     let shared = null;
     Object.defineProperty(win.navigator, 'share', { configurable: true, value: async (data) => { shared = data; } });
     await win.shareResult(null);
     if (!shared || shared.url !== want) problems.push('Web Share ' + JSON.stringify(shared));
     delete win.navigator.share;
     copied = null;
-    await win.shareResult(d.getElementById('share-result-btn'));
+    await win.shareResult(d.getElementById('res-banner-share'));
     if (!copied || !copied.endsWith(' ' + want)) problems.push('share clipboard ' + JSON.stringify(copied));
 
     // The share screen: Copy Link, and the footers of the three images.
