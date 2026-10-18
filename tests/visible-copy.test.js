@@ -6,13 +6,13 @@
 // Round 3 line-up, the early offer, the calculating and pre-result screens,
 // the question screen's own lines, and the result screen in several states (a
 // clean HIGH result; LOW with a Round 3 cycle; LOW with a context
-// disagreement; the other old caveats; each quality flag and two at once;
-// workplace; Magic off; an early result; a shared link; a peek and an
-// appeal). The visible text is collected, leaving out the identity's own
-// content (name, tagline, philosophy, strengths, shadows, banter, roles, the
-// player-mode card), the commander block (commander, description, mana base)
-// and the colour cards under Working With Others, which are a separate
-// decision. A check fails on:
+// disagreement; the other old caveats; each quality flag and all three at
+// once; workplace; Magic off; an early result; five colours; a shared link; a
+// peek and an appeal). The visible text is collected, leaving out the
+// identity's own content (name, tagline, philosophy, strengths, shadows,
+// banter, roles, the player-mode card), the commander block (commander,
+// description, mana base) and the colour cards under Working With Others,
+// which are a separate decision. A check fails on:
 //   - an em dash, or an en dash used as a dash
 //   - a banned phrase ("caveat", "treat this as", "soft read", "softer than
 //     they look", "secondary lean", "That's the game", "We know who they
