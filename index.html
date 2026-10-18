@@ -5364,38 +5364,102 @@ window.addEventListener('DOMContentLoaded', function() {
 const SCORING_VERSION = 2;
 const INSTRUMENT_VERSION = 5; // the current items and screens (4: before the Round 1 and 2 real-stakes items; 3: before the Plain screens copy; 2: before the Round 1 and 2 copy rewrite; 1: before the Phase 3 copy and flow, and links without i)
 
+// THE BARS (both engines). The results screen draws five bars
+// (state.activationSorted), captioned "How often you picked each colour when it
+// was offered", and that is what they count: every answered Round 1 and Round 2
+// item, Round 2's enemy re-tests included, counts its weight q.w once for the
+// colour chosen and once in the denominator of both colours in its pair, and
+// "Neither" counts in neither. A Round 2 answer weighs what a Round 1 answer
+// weighs. (Until "Even bars and Five-colour" the bars averaged each colour's
+// enemy-pair rate, about twelve answers, with its ally-pair rate, often two,
+// so two Round 2 answers counted as much as ten Round 1 answers.) The tallies
+// already hold these sums: state.pairwise (the enemy pairs, re-tests included)
+// and state.refinementPairwise (the ally pairs) add each answer's weight to
+// the colour chosen, so a pair's two tallies add up to its answered weight.
+// Every colour is offered in twelve Round 1 items, so the counts are never
+// small enough to need smoothing; a colour never answered at all (Neither
+// throughout) shows 50%.
+function pickCounts(tallies) {
+  const picked = { W: 0, U: 0, B: 0, R: 0, G: 0 };
+  const offered = { W: 0, U: 0, B: 0, R: 0, G: 0 };
+  (tallies || []).forEach(t => Object.entries(t || {}).forEach(([pair, s]) => {
+    const [a, b] = pair.split('-');
+    const na = Number(s[a]) || 0, nb = Number(s[b]) || 0;
+    picked[a] += na; picked[b] += nb;
+    offered[a] += na + nb; offered[b] += na + nb;
+  }));
+  return { picked, offered };
+}
+
+// { colour: 0..1 } from the tallies of the rounds given (Round 1: [state.pairwise];
+// after Round 2: [state.pairwise, state.refinementPairwise]).
+function barsFromTallies(tallies) {
+  const { picked, offered } = pickCounts(tallies);
+  const bars = {};
+  Object.keys(picked).forEach(c => { bars[c] = offered[c] > 0 ? picked[c] / offered[c] : 0.5; });
+  return bars;
+}
+
 // THE NAME MATCHES THE BARS (both engines). The results screen names an
-// identity and draws five bars (state.activationSorted: each colour's Round 1
-// and 2 activation). They must tell one story: the identity's colours are the
-// top bars. barsMargin() is how far an identity is from that, in bar units
-// (0..1): the strongest colour it leaves out minus the weakest colour it
-// holds, or, when it holds all five, 50% (the line next door draws for five
-// colours) minus the weakest. An identity may be the result only when that
-// margin is at most BARS_TOLERANCE (barsAllow). The likelihood engine reads
-// each colour pair on its own, the bars average each colour over all its
-// pairs, and the two can disagree: on a flat profile the posterior favours
-// identities that predict coin flips, and Round 3 between nested candidates
-// can carry the narrowest one further (a player got Mono-Blue, its one colour
-// third, under bars of W56 U52 B38 R60 G39). So engine 2 plays Round 3 between
-// the four identities the bars allow that its posterior rates highest, and
-// engine 1's tournament winner and the early offer are held to the same test.
-// Half an answer: an answer moves a bar by about a twelfth
-// (ONE_ANSWER_BY_VERSION), so two colours within half an answer are a near
-// tie, and either may be the one the identity holds.
-const BARS_TOLERANCE = 1 / 24;
+// identity and prints the five bars as whole percentages (barsShown: showResults
+// prints Math.round(bar * 100), and a shared link carries the same numbers in
+// p=). They must tell one story: the identity's colours are the top bars as
+// printed, ties allowed, so no colour it leaves out prints above a colour it
+// holds. barsMargin() is how far an identity is from that, in printed points:
+// the strongest colour it leaves out minus the weakest colour it holds, or,
+// when it holds all five, the spread of the five (strongest minus weakest)
+// minus FIVE_COLOUR_BAND. An identity may be the result only when that margin
+// is at most 0 (barsAllow). The likelihood engine reads each colour pair on its
+// own and the bars pool each colour over its pairs, so the two can disagree: on
+// a flat profile the posterior favours identities that predict coin flips, and
+// Round 3 between nested candidates can carry the narrowest one further (a
+// player got Mono-Blue, its one colour third, under bars of W56 U52 B38 R60
+// G39). So engine 2 plays Round 3 between the four identities the bars allow
+// that its posterior rates highest and reports the best of them, and engine
+// 1's tournament winner and the early offer are held to the same test. The
+// test reads the printed numbers, not the bars behind them: until "Even bars
+// and Five-colour" it allowed half an answer either way, and a lit colour
+// printed below an unlit one on 6 to 15% of engine 2's results, which a
+// player reads as the name contradicting the bars.
+//
+// Five-colour leaves no colour out, so it is held to the bars by how flat they
+// are: allowed when all five print within FIVE_COLOUR_BAND points of each
+// other, about three answers a bar. The posterior, which favours the
+// identities that predict the most coin flips when the answers are even, then
+// decides among the identities the bars allow, as it does for every result;
+// bars wider than the band leave the one of them it rates highest, for a
+// five-colour respondent most often the four-colour identity of the top four
+// bars. Even answers do not make flat bars: with about fifteen answers to a
+// colour, a simulated five-colour respondent's bars print a median 36 to 40
+// points apart, and within 20 for 6 to 12% of them, against 0.7 to 9% of
+// everyone else (1% or less of the ideal and misspecified respondents at
+// p = 0.8). So Five-colour is given rarely, and LOW. A band of 10 or 15 points
+// gave it to almost no five-colour respondent (0 to 5%); one of 25 would let
+// it through for 12 to 19% of everyone else at p = 0.65. Measured in the
+// CHANGELOG, "Even bars and Five-colour".
+const FIVE_COLOUR_BAND = 20;
+
+// The bars as the results screen prints them, { colour: whole percent }.
+function barsShown(activationSorted) {
+  const act = Object.fromEntries(activationSorted || []);
+  const shown = {};
+  ['W', 'U', 'B', 'R', 'G'].forEach(c => { shown[c] = Math.round((act[c] || 0) * 100); });
+  return shown;
+}
 
 function barsMargin(id, activationSorted) {
   const lit = (PROFILES[id] && PROFILES[id].colors) || [];
   if (!lit.length) return Infinity;
-  const act = Object.fromEntries(activationSorted || []);
-  const bar = (c) => act[c] || 0;
+  const shown = barsShown(activationSorted);
   const out = ['W', 'U', 'B', 'R', 'G'].filter(c => !lit.includes(c));
-  const weakestIn = Math.min(...lit.map(bar));
-  return out.length ? Math.max(...out.map(bar)) - weakestIn : 0.5 - weakestIn;
+  const weakestIn = Math.min(...lit.map(c => shown[c]));
+  return out.length
+    ? Math.max(...out.map(c => shown[c])) - weakestIn
+    : Math.max(...lit.map(c => shown[c])) - weakestIn - FIVE_COLOUR_BAND;
 }
 
 function barsAllow(id, activationSorted = state.activationSorted) {
-  return barsMargin(id, activationSorted) <= BARS_TOLERANCE + 1e-9;
+  return barsMargin(id, activationSorted) <= 0;
 }
 
 // The identity holding the top k bars (ties go to WUBRG order).
@@ -7478,17 +7542,11 @@ function generateCandidatesGapBased(analysis) {
   return final;
 }
 
-// Round 1 activation for the bars: each colour's mean win rate over its two
-// enemy pairs ("Neither" answers shrink the denominator). Both engines show it.
+// The Round 1 bars, which the early offer is held to and an early result
+// shows: how often each colour was picked when it was offered in Round 1
+// (barsFromTallies). Both engines show them.
 function round1Activation() {
-  const rate = (pair, c) => state.pairwise[pair][c] / pairDenom(pair);
-  return {
-    W: (rate('W-B', 'W') + rate('W-R', 'W')) / 2,
-    U: (rate('U-R', 'U') + rate('G-U', 'U')) / 2,
-    B: (rate('W-B', 'B') + rate('B-G', 'B')) / 2,
-    R: (rate('U-R', 'R') + rate('W-R', 'R')) / 2,
-    G: (rate('G-U', 'G') + rate('B-G', 'G')) / 2
-  };
+  return barsFromTallies([state.pairwise]);
 }
 
 // Engine 2 after Round 1: the candidates are the top four identities by
@@ -7535,16 +7593,10 @@ function finishS1() {
   // NEW: Use gap-based analysis
   const analysis = analyseGapBasedPatterns();
   const candidates = generateCandidatesGapBased(analysis);
-  
-  // Calculate activation strength for display
-  const activation = {
-    W: (state.pairwise['W-B'].W / pairDenom('W-B') + state.pairwise['W-R'].W / pairDenom('W-R')) / 2,
-    U: (state.pairwise['U-R'].U / pairDenom('U-R') + state.pairwise['G-U'].U / pairDenom('G-U')) / 2,
-    B: (state.pairwise['W-B'].B / pairDenom('W-B') + state.pairwise['B-G'].B / pairDenom('B-G')) / 2,
-    R: (state.pairwise['U-R'].R / pairDenom('U-R') + state.pairwise['W-R'].R / pairDenom('W-R')) / 2,
-    G: (state.pairwise['G-U'].G / pairDenom('G-U') + state.pairwise['B-G'].G / pairDenom('B-G')) / 2
-  };
-  
+
+  // The Round 1 bars, for display (the same count as engine 2's)
+  const activation = round1Activation();
+
   const sorted = Object.entries(activation).sort((a,b) => b[1] - a[1]);
   state.activationSorted = sorted;
   
@@ -8077,59 +8129,33 @@ function finishRefinement() {
   });
 }
 
+// The bars after Round 2 (both engines): every answered item of Rounds 1 and 2
+// counted once, by its weight, whichever round asked it (barsFromTallies).
+// Round 1 (enemy pairs) and Round 2 (ally pairs) still ask different questions
+// about a colour, so the two kinds are also read apart, for the
+// context-agreement guard only (applyContextAgreementGuard): each colour's pick
+// rate in its enemy pairs and in its ally pairs, Beta(1,1) smoothed because
+// Round 2 offers a colour only a few ally items. A wide gap on any colour means
+// the person answered the two kinds differently, which lowers the confidence;
+// it no longer moves the bars.
 function calculateRefinedActivation() {
+  const activation = barsFromTallies([state.pairwise, state.refinementPairwise]);
+  const enemy = pickCounts([state.pairwise]);
+  const ally = pickCounts([state.refinementPairwise]);
 
-  // Round 1 (enemy pairs) and Round 2 (ally pairs) ask DIFFERENT questions about a colour.
-  // R1 asks "do you pick White when it's pitted against Black?" — a contrast between
-  // opposed worldviews. R2 asks "do you pick White when it's pitted against Blue?" — a
-  // contrast between adjacent worldviews. Pooling these as if they were the same Bernoulli
-  // sample treats two different latent variables as one. Fix: compute them separately,
-  // average with equal weight at the end, and surface disagreement as a confidence signal.
-
-  const enemyWins  = {W:0,U:0,B:0,R:0,G:0};
-  const enemyTotal = {W:0,U:0,B:0,R:0,G:0};
-  const allyWins   = {W:0,U:0,B:0,R:0,G:0};
-  const allyTotal  = {W:0,U:0,B:0,R:0,G:0};
-
-  // R1 enemy-pair tally (uses actual answered count, not the floored pairDenom)
-  Object.entries(state.pairwise).forEach(([pair, scores]) => {
-    const [c1, c2] = pair.split('-');
-    const neithers = (state.pairwiseNeither && state.pairwiseNeither[pair]) || 0;
-    const boost = (state.pairwiseBoostCount && state.pairwiseBoostCount[pair]) || 0;
-    const denom = 6 - neithers + boost;
-    if (denom <= 0) return;
-    enemyWins[c1]  += scores[c1]; enemyTotal[c1] += denom;
-    enemyWins[c2]  += scores[c2]; enemyTotal[c2] += denom;
-  });
-
-  // R2 ally-pair tally
-  Object.entries(state.refinementPairwise || {}).forEach(([pair, scores]) => {
-    const [c1, c2] = pair.split('-');
-    const t = scores[c1] + scores[c2];
-    if (t === 0) return;
-    allyWins[c1]  += scores[c1]; allyTotal[c1] += t;
-    allyWins[c2]  += scores[c2]; allyTotal[c2] += t;
-  });
-
-  // Per-colour: Beta(1,1) posterior mean on each tally separately, then equal-weight
-  // average. If a colour has no ally data (R2 didn't test it), use the enemy posterior
-  // alone. Disagreement between the two halves is tracked for downstream confidence.
-  const activation = {};
   const agreement  = {};
   const enemyPost  = {};
   const allyPost   = {};
   ['W','U','B','R','G'].forEach(c => {
-    enemyPost[c] = (enemyWins[c] + 1) / (enemyTotal[c] + 2);
-    if (allyTotal[c] > 0) {
-      allyPost[c]  = (allyWins[c] + 1) / (allyTotal[c] + 2);
-      activation[c] = (enemyPost[c] + allyPost[c]) / 2;
+    enemyPost[c] = (enemy.picked[c] + 1) / (enemy.offered[c] + 2);
+    if (ally.offered[c] > 0) {
+      allyPost[c]  = (ally.picked[c] + 1) / (ally.offered[c] + 2);
       // Agreement: 1.0 means enemy and ally both say the same thing; 0.0 would be
       // total contradiction. Below ~0.65 (= 35pp gap between the two halves) suggests
       // the user was inconsistent across contexts and the result should be flagged.
       agreement[c] = 1 - Math.abs(enemyPost[c] - allyPost[c]);
     } else {
       allyPost[c]  = null;
-      activation[c] = enemyPost[c];
       agreement[c]  = 1; // no ally data to disagree with
     }
   });
@@ -8494,11 +8520,11 @@ function applyScenarioContradictionGuard(result, activationSorted) {
   return { color: topAct[0], gap: gap };
 }
 
-// Round 1 (enemy pairs) and Round 2 (ally pairs) are tallied separately and
-// averaged. When the two halves disagree sharply on some colour (agreement
-// below 0.65, i.e. a 35-point gap), the person answered differently across
-// contexts and the margins are softer than they look: cap HIGH to MODERATE and
-// record which colour disagreed so the results screen can say so.
+// Round 1 (enemy pairs) and Round 2 (ally pairs) are also read apart
+// (calculateRefinedActivation). When the two halves disagree sharply on some
+// colour (agreement below 0.65, i.e. a 35-point gap), the person answered
+// differently across contexts and the margins are softer than they look: cap
+// HIGH to MODERATE and record which colour disagreed.
 function applyContextAgreementGuard(result) {
   const ca = state.contextAgreement;
   if (!ca || typeof ca.overall !== 'number' || ca.overall >= 0.65) return null;
@@ -11193,6 +11219,9 @@ const ROLES_HIDDEN_FOR_FUN = [
 // answer. Next-door margins and the mana base's equal counts use this. [3]
 // The conversion is set once per scoring version, so a link renders the
 // reasons it was shared with; both engines so far draw the same Round 1-2 bars.
+// Since "Even bars and Five-colour" a bar also counts the colour's Round 2
+// answers, three or four more, so an answer is nearer a fifteenth; the twelfth
+// stays, so links shared before then still read as they did.
 const ONE_ANSWER_BY_VERSION = { 1: 1 / 12, 2: 1 / 12 };
 // [3] Margin cut-offs, in answers: up to one answer is "one", up to three
 // (two or three answers) is "few", anything wider is "well".
@@ -11805,13 +11834,10 @@ function showResults() {
     && state.activationSorted.some(([, v]) => typeof v === 'number' && v > 0);
   if (!_hasUsableActivation) {
     console.warn('activationSorted missing or all-zero; recalculating from pairwise counts');
-    const activation = {
-      W: (state.pairwise['W-B'].W / pairDenom('W-B') + state.pairwise['W-R'].W / pairDenom('W-R')) / 2,
-      U: (state.pairwise['U-R'].U / pairDenom('U-R') + state.pairwise['G-U'].U / pairDenom('G-U')) / 2,
-      B: (state.pairwise['W-B'].B / pairDenom('W-B') + state.pairwise['B-G'].B / pairDenom('B-G')) / 2,
-      R: (state.pairwise['U-R'].R / pairDenom('U-R') + state.pairwise['W-R'].R / pairDenom('W-R')) / 2,
-      G: (state.pairwise['G-U'].G / pairDenom('G-U') + state.pairwise['B-G'].G / pairDenom('B-G')) / 2
-    };
+    // With no answers to count (a shared link without p=), every bar stays at 0.
+    const tallies = [state.pairwise, state.refinementPairwise];
+    const answered = Object.values(pickCounts(tallies).offered).some(v => v > 0);
+    const activation = answered ? barsFromTallies(tallies) : { W: 0, U: 0, B: 0, R: 0, G: 0 };
     state.activationSorted = Object.entries(activation).sort((a,b) => b[1] - a[1]);
   }
   
