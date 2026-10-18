@@ -4,6 +4,98 @@ Newest first. Dates are when the work was committed.
 
 ## 2026-10-18
 
+### Result screens: second naive-reader round
+
+The 31 result screens, rendered to text as a player and as a non-player sees
+them, went back to three naive readers on three models. Pages read as
+written by a person rose from 26 to 70 of 93 and "makes no sense" fell from
+153 flags to 6, but "sounds machine-written" rose from 23 to 120, and 93 of
+those were three lines on every plain page: the bare next-door rows ("Add
+white: Selesnya."), the commander block's stand-in ("The Magic: The
+Gathering card matched to Mono-Green. The art at the top of the page is from
+it.") and the footer's "Scoring version 1". Readers also caught the same
+colleague blurbs on page after page, the diagram's legend, the page-style
+note, two Share buttons, one gap counted as "less than an answer behind" in
+one line and "one answer short" in the next, Five-colour "Locked in" beside
+"Green only just made the cut", a sudden "we" in the closing lines, and joke
+shapes that recur from page to page (the room, quietly, exact years, acting
+while everyone else is still at something, a closing line turning on ", and").
+
+- Next door (`RESULT_COPY.nextDoor`, `RESULT_COPY_VERSION` 5). Plain mode
+  says each row as a sentence: "With white as well, you'd be Selesnya.",
+  "Without red, you'd be Simic."; player mode keeps "Splash white:
+  Selesnya.". Each reason reads the same two bars as the line under the
+  label (`barGap`): the up row counts the gap in that line's words ("Your
+  white was less than an answer short." under "less than an answer
+  behind"), and the down row says only "Red was your lowest colour.", so the
+  count is said twice on a page, not three times. A tie and an old link's
+  inverted bars are said as they are ("Your green finished above black."),
+  where both used to print "one answer short". Five colours' one row says
+  "Green was your lowest colour.".
+- The line under the label: within about one answer, "Blue nearly made it
+  in, less than an answer behind black."; further off, "Green came next, one
+  or two answers behind black."; one colour, "Black led white by about one
+  answer."; five colours, "All five colours finished within two answers of
+  each other.", which is the reason for that result, where it had named the
+  highest and lowest colour.
+- The commander block is player mode only. Everyone else gets "Card art:
+  Omnath, Locus of Mana" in the banner, where "Commander ·" stood, and
+  Natural Roles at full width.
+- "Scoring version 2." closes the methodology under "View Full Breakdown",
+  in every mode, and is gone from the footer.
+- One Share, the one beside the identity: the action row's "⚜ Share my
+  result" is gone and "Make an image" leads the row. The page-style switcher
+  is its label and three names; its note about Card Frames is gone, as the
+  note before it went.
+- Working With Others. The legend is a key: "Solid line: two of your colours
+  that get on.", "Dashed line: one of your colours against one you lack.".
+  Who to bring in has one line per card, written for the identity
+  (`COLOR_GAPS`, 75 lines), in place of a shared "what they bring" blurb and
+  20 lines keyed by colour pair: no two pages print the same card, and none
+  echoes its own page word for word. The mono pages keep 16 of the 20 old
+  lines. The card's plus is drawn by CSS, its arrow gone. Five colours: "None
+  of the five colours is missing from your result. Before a big decision,
+  ask someone who will argue hard for one side."
+- Profiles (`data.js`). Every line readers flagged as insulting, jargon, a
+  forced joke, vague, too long, contradictory or repeated is cut or
+  rewritten. 17 closing lines are new, among them the three with "we" or
+  "us" (the surprise party, Dune's email, Boros's watches) and the stingers
+  (Dimir's three attempts, Golgari's cycles of life, Glint's expenses
+  policy). 13 philosophies changed, 8 in their first sentence: the four that
+  opened on a list of their colours (Bant, Esper, Abzan, Four-colour without
+  red), Rakdos's "too afraid to live", Boros's "some things are worth
+  fighting for", Sultai's "strategic positioning" and Glint's "ethics".
+  Power Through Ruthless Action is Power Through Pressure, and Innovation
+  Without Nature is Innovation Without Nostalgia. Strengths and shadows went
+  from 255 to 218: 132 word for word, 86 new or rewritten, 37 cut. Profiles
+  using "the room" went from 12 to 2, "quietly" from 6 to 0, "everyone else"
+  from 13 to 5, acting before or while others finish from 5 to 0, a year
+  written out from 4 to 0, "we", "us" or "our" from 5 to 0, and closing
+  lines turning on ", and" from 13 to 4. Ten roles lists lost jargon and
+  repeats ("Mission Nonprofits", Dune's "Operations" twice). Rules text:
+  Mono-Blue has "Hexproof from small talk" (feedback contradicted its
+  "Updates their position when the evidence updates"), and Jeskai attacks
+  "exactly as rehearsed". 10 link previews in `r/` are rebuilt.
+- Not changed: ids, data keys, identity names, colours, commanders and their
+  descriptions, the label words, scoring and the question pools; the golden
+  fixture does not move.
+- Tests: `tests/visible-copy.test.js` (138 checks, 12 new) renders all 31 in
+  plain and player modes on seven bar shapes and holds next door to the line
+  under the label (the sentence or colon headline by mode, the up row's
+  count, a down row that never counts again, five colours' one row), each
+  colleague card to one page, the whole page to none of the lines the second
+  readers flagged (`ROUND2_FLAGGED`), the scoring version to the methodology
+  and Share to one button; and the 31 profiles to one voice (no "we", "us"
+  or "our", no strength or shadow opening on "You", no year, and limits on
+  the recurring shapes). The colour lists the rhythm rules kept are gone,
+  and the checkers are tested on the pages the second readers saw. Run
+  against the previous build it fails 13 of its 138 checks. `render.test.js`,
+  `play.test.js` and `seed.test.js` follow the new copy and the one Share.
+- Not done: readers saw only the result screen, so the explorer, the dossier
+  and the share studio, which print the same profiles, were checked by the
+  tests alone. Natural Roles are still lists of jobs. This version has not
+  had a reader of its own.
+
 ### Questions rewritten from naive readers
 
 Five naive readers on three models read the plain text of every question,
