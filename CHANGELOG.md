@@ -4,6 +4,61 @@ Newest first. Dates are when the work was committed.
 
 ## 2026-10-18
 
+### Round 1 and 2 items: real stakes
+
+The author, who plays Black-Blue-Red, took the live quiz and came out White 56,
+Blue 52, Black 38, Red 60, Green 39. Their reading of the questions: most put
+little or nothing at stake for the person answering. At a friend's leaving do a
+strategic Black player does not take the food first, because looking generous
+is worth more to them than the food, so "get in early" scored them as White.
+Offered £30 or £50 of a windfall, they do not care which. And a friend who has
+played the same twenty albums for fifteen years matters to nobody but the
+friend; the honest answer, "I don't care", was not on offer. Items like these
+made Black petty, Blue fussy, Red reckless, White nice and Green lazy.
+
+- An audit of the 111 items in `POOL_A` and `POOL_ALLY` rated the stakes for
+  "you": 21 had none and 57 were trivial, against 24 moderate and 9 major.
+- 101 items are rewritten so that "you" have something real at stake: a job or
+  a promotion, money that matters, a home, health, a partner or family, creative
+  work, a say over a group you belong to, or, in the Magic items, a tournament
+  place, a prize, a valuable card or standing in a playgroup. 72 now have major
+  stakes and 39 moderate. Both answers are what a capable, successful person of
+  that colour would do at those stakes. Black takes positions and plays the long
+  game; Blue finds out and gets it right where it counts; Red acts on conviction
+  and takes the risk; White keeps its word and the agreed rules at a cost to
+  itself; Green keeps its roots and lets things grow.
+- Kept as they were, after the same checks: A-UR-W05 (builders), A-UR-L03
+  (second-hand car), A-BG-L04 (drummer), A-BG-PSY (counselling), A-BG-PSY2 (job
+  offer), AL-UB-04 (pay rise), AL-BR-02 (stolen idea), AL-BR-06 (wrong call),
+  AL-RG-03 (year abroad) and AL-RG-06 (restless).
+- The opinion items ("Which of these do you agree with more?") are now
+  situations with a cost on both sides. They keep their weights and keys.
+- Every item was read as fifteen people would read it: a strategic, successful
+  person of each colour and of each guild. An item went back if the keyed
+  colour's person would not choose their answer, if anyone would choose an
+  answer for a reason outside its colour, or if a person of that colour would
+  shrug. 21 items failed the first pass, 16 the second and 1 the third; the
+  fourth found none. The usual fault was a White or Green answer that was also
+  the safe or easy one, which Blue and Black readers take for their own reasons. A strategic Black-Blue-Red reader was checked on every item: none
+  should now push them towards a White or Green answer.
+- Settings: about 35 of the 91 ordinary items are at work or in a business,
+  against 16 before, because careers carry real stakes. The rest are homes,
+  money, family, health, friends, clubs, study and creative work.
+- Hints: the rewritten work items say "your boss" or "someone you work with",
+  so only the two kept work items still show a hint (COLLEAGUE on AL-BR-02,
+  MANAGER on AL-BR-06). TEAM is still shown under Round 3 stems.
+  `tests/round12-copy.test.js` and the tests README say so.
+- Scoring is unchanged. Every id, pair, weight and answer colour, and the order
+  of the items, are as they were, so the seeded draws and the golden fixture do
+  not move, and `tests/fixtures/round12-keys.json` is untouched.
+- Instrument version 5: `INSTRUMENT_VERSION` is 5 and a result built now
+  writes `i=5`. The contract line, the simulator's check, `tests/play.test.js`
+  and the tests README say so.
+- Not measured: whether players now land closer to how they see themselves. The
+  simulator answers by colour keys, not by reading the words, so it cannot tell.
+  The working audit, with every item's stakes and persona results, is kept out
+  of the repository.
+
 ### Plain profiles and pages
 
 The site still read as AI writing everywhere Plain screens had not been,
