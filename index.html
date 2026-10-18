@@ -2778,7 +2778,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
 
           <div style="background: var(--inset); padding: 22px 26px; border: 1px solid var(--gilt-line);">
             <p class="mc-body" style="font-size: 14px; color: var(--ink); margin-bottom: 18px; line-height: 1.75;">
-              We tested five enemy colour pairs — White/Black, Blue/Red, Green/Blue, White/Red, Black/Green. Each question forced you to choose between competing philosophies, revealing which colours genuinely resonate.
+              We tested five enemy colour pairs: White/Black, Blue/Red, Green/Blue, White/Red and Black/Green. Each question made you choose between competing philosophies.
             </p>
             <div id="stage1-explanation-content"></div>
           </div>
@@ -2910,7 +2910,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
             </div>
             <div class="mc-tcg__art" id="tcg-art"></div>
             <div class="mc-tcg__typeline">
-              <span>Personality — <span id="tcg-typeline-name">…</span></span>
+              <span>Personality · <span id="tcg-typeline-name">…</span></span>
               <span class="mc-tcg__set" id="tcg-conf"></span>
             </div>
             <div class="mc-tcg__text">
@@ -3002,7 +3002,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
         <span style="min-width: 80px;"></span>
       </div>
       <p class="mc-flavor" style="font-size: 15px; color: var(--ink-muted); text-align: center; margin: 14px 0 0;">
-        Click an identity to see which colours it runs, which it lacks, and the kind of colleague that completes it.
+        Click an identity to see which colours it runs and which it lacks.
       </p>
     </div>
 
@@ -3017,7 +3017,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
           <svg class="mc-corner mc-corner--bl"><use href="#fleuron"/></svg>
           <svg class="mc-corner mc-corner--br"><use href="#fleuron"/></svg>
           <div class="mc-eyebrow mc-eyebrow--gilt">Mono-Colour · 5</div>
-          <p class="mc-flavor" style="font-size: 13px; color: var(--ink-faded); margin: 4px 0 14px;">Pure, focused, uncompromising.</p>
+          <p class="mc-flavor" style="font-size: 13px; color: var(--ink-faded); margin: 4px 0 14px;">Pure and focused.</p>
           <div style="display: grid; gap: 10px;" id="explorer-mono"></div>
         </div>
 
@@ -3177,7 +3177,6 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
         </div>
         <span style="min-width: 80px;"></span>
       </div>
-      <p class="mc-flavor" style="font-size: 15px; color: var(--ink-muted); margin: 14px 0 0;">Communication, conflict, and de-escalation.</p>
     </div>
 
     <!-- YOUR COLORS (personalized, shown when user has results) -->
@@ -3360,7 +3359,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
             <span class="mc-pip is-lit" data-color="B" aria-label="B"></span>
             <h4 class="mc-heading-md">Community vs. Self-Interest</h4>
           </div>
-          <p style="font-size: 13.5px; color: var(--ink-muted); font-family: var(--f-body); line-height: 1.6; margin: 8px 0 4px;"><strong style="color: var(--gilt); font-family: var(--f-display); letter-spacing: 0.12em; text-transform: uppercase; font-size: 11px;">Source:</strong> White prioritizes team, Black prioritizes self</p>
+          <p style="font-size: 13.5px; color: var(--ink-muted); font-family: var(--f-body); line-height: 1.6; margin: 8px 0 4px;"><strong style="color: var(--gilt); font-family: var(--f-display); letter-spacing: 0.12em; text-transform: uppercase; font-size: 11px;">Source:</strong> White prioritises team, Black prioritises self</p>
           <p style="font-size: 13.5px; color: var(--ink); font-family: var(--f-body); line-height: 1.6; margin: 4px 0 0;"><strong style="color: var(--gilt); font-family: var(--f-display); letter-spacing: 0.12em; text-transform: uppercase; font-size: 11px;">Resolution:</strong> Clarify when each value applies ("our people first" = Black's tribe, broader community = White's fairness)</p>
         </div>
         
@@ -3372,7 +3371,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
             <h4 class="mc-heading-md">Planning vs. Action</h4>
           </div>
           <p style="font-size: 13.5px; color: var(--ink-muted); font-family: var(--f-body); line-height: 1.6; margin: 8px 0 4px;"><strong style="color: var(--gilt); font-family: var(--f-display); letter-spacing: 0.12em; text-transform: uppercase; font-size: 11px;">Source:</strong> Blue wants more analysis, Red wants to act now</p>
-          <p style="font-size: 13.5px; color: var(--ink); font-family: var(--f-body); line-height: 1.6; margin: 4px 0 0;"><strong style="color: var(--gilt); font-family: var(--f-display); letter-spacing: 0.12em; text-transform: uppercase; font-size: 11px;">Resolution:</strong> Time-box planning phase, then execute with learning loops</p>
+          <p style="font-size: 13.5px; color: var(--ink); font-family: var(--f-body); line-height: 1.6; margin: 4px 0 0;"><strong style="color: var(--gilt); font-family: var(--f-display); letter-spacing: 0.12em; text-transform: uppercase; font-size: 11px;">Resolution:</strong> Time-box planning, then execute and adjust as you go</p>
         </div>
         
         <div style="background: var(--inset); padding: 18px 22px; border: 1px solid var(--gilt-line);">
@@ -3876,79 +3875,79 @@ const RANDOM_TAGLINES = [
 const ARCHETYPE_EXAMPLES = [
   {id: 'DIMIR', name: 'DIMIR', colors: ['U', 'B'],
     normal: "They're strategic and focused on positioning for advantage.",
-    banter: "Why do they know everything about everyone and never share what they know? They're playing a different game. The game involves us. They are also, apparently, winning it."},
+    banter: "They know everything about everyone and never share what they know. They're playing a different game, and the game involves us."},
   {id: 'RAKDOS', name: 'RAKDOS', colors: ['B', 'R'], 
     normal: "They're bold and not afraid to shake things up to get results.", 
-    banter: "They'll burn down the whole project for the drama, then laugh while we put out the fires. The fires get put out, somehow, and the project is somehow further along than it was. We are still annoyed."},
+    banter: "They'll burn down the whole project for the drama, then laugh while we put out the fires."},
   {id: 'GRUUL', name: 'GRUUL', colors: ['R', 'G'], 
     normal: "They're direct and rely on proven strength to solve problems head-on.", 
-    banter: "Subtlety? Strategy? Never heard of them. They smash through everything and ignore feedback. They also smash through walls we'd been politely waiting at for six months."},
+    banter: "They smash through everything and ignore feedback."},
   {id: 'SELESNYA', name: 'SELESNYA', colors: ['W', 'G'], 
     normal: "They're really focused on team harmony and making sure everyone feels included.", 
-    banter: "We cannot make a single decision without a team-building exercise. Everything has to be consensus and it takes forever. The team, in fairness, has been together for three years and still likes each other. This is not normal."},
+    banter: "We cannot make a single decision without a team-building exercise. Everything has to be consensus and it takes forever."},
   {id: 'ORZHOV', name: 'ORZHOV', colors: ['W', 'B'], 
     normal: "They're good at navigating organisational politics while maintaining fairness.", 
-    banter: "Every favour comes with interest, later. They keep score on everything and weaponise policy the second it benefits them. They are also the person we ask when we need to know who's actually owed what. The answer is always correct."},
+    banter: "Every favour comes with interest, later. They keep score on everything and weaponise policy the second it benefits them."},
   {id: 'IZZET', name: 'IZZET', colors: ['U', 'R'], 
     normal: "They're innovative and like to experiment with new approaches rapidly.", 
-    banter: "Did they test this? No. They experimented on production again. They're now yelling SCIENCE while everything's broken. Tomorrow morning the thing will be better than it was on Monday, which is why we tolerate this."},
+    banter: "They experimented on production again. They're now yelling SCIENCE while everything's broken."},
   {id: 'GOLGARI', name: 'GOLGARI', colors: ['B', 'G'], 
     normal: "They're good at extracting value from situations and working with long cycles.", 
-    banter: "Why do they hoard every failed project? The workspace is a graveyard of ideas that died three years ago and won't stay buried. About once a quarter, one of the dead ideas turns out to be exactly what we needed."},
+    banter: "They hoard every failed project. The workspace is a graveyard of ideas that died three years ago and won't stay buried."},
   {id: 'SIMIC', name: 'SIMIC', colors: ['G', 'U'], 
     normal: "They're thoughtful about improving existing systems without disrupting what works.", 
-    banter: "They optimise everything to death. Six months to improve a two-week process. The new process is, technically, worse. The next iteration will be better. The next iteration is always better."},
+    banter: "They optimise everything to death. Six months to improve a two-week process."},
   {id: 'BOROS', name: 'BOROS', colors: ['R', 'W'], 
     normal: "They're passionate about team goals and rally people around shared missions.", 
-    banter: "Not everything is a crusade, but they treat quarterly planning like D-Day. The intensity is a lot. We will also, however, be the team that hits the target in September while everyone else is still negotiating which target."},
+    banter: "They treat quarterly planning like D-Day, and the intensity is a lot."},
   {id: 'BANT', name: 'BANT', colors: ['W', 'U', 'G'], 
     normal: "They're balanced and strategic about building sustainable team outcomes.", 
-    banter: "Another two-hour planning session for a ten-minute task. Yes, we all need to weigh in, for the good of the team, apparently. The team is, in fact, still functioning. We resent the meeting and rely on the team."},
+    banter: "Another two-hour planning session for a ten-minute task. Yes, we all need to weigh in, for the good of the team, apparently."},
   {id: 'ESPER', name: 'ESPER', colors: ['W', 'U', 'B'], 
     normal: "They're systematic and effective at creating well-designed processes.", 
-    banter: "Do they feel anything? Every conversation is like talking to a spreadsheet. The spreadsheet, however, has been right about three significant calls this year. We don't want to be in a room with the spreadsheet. We want the spreadsheet on the team."},
+    banter: "Every conversation with them is like talking to a spreadsheet."},
   {id: 'GRIXIS', name: 'GRIXIS', colors: ['U', 'B', 'R'], 
     normal: "They're strategically decisive and comfortable making bold moves.", 
-    banter: "Pretty sure they create half the crises just so they can solve them dramatically. The evil laugh in the break room is not helping their case. The crises do, in fairness, also get resolved."},
+    banter: "Pretty sure they create half the crises just so they can solve them dramatically. The evil laugh in the break room is not helping their case."},
   {id: 'JUND', name: 'JUND', colors: ['B', 'R', 'G'], 
     normal: "They're competitive and trust their proven instincts in high-stakes situations.", 
-    banter: "Everything is a competition. They turn meetings into cage matches and dominate every conversation. Exhausting to be in the room with. Also useful to have on the team the day the actual fight starts."},
+    banter: "Everything is a competition. They turn meetings into cage matches and dominate every conversation."},
   {id: 'NAYA', name: 'NAYA', colors: ['R', 'G', 'W'], 
     normal: "They're enthusiastic team builders who bring a lot of energy to initiatives.", 
-    banter: "Why does every task need pep talks and a literal marching band? We just needed to update a spreadsheet, not plan a parade. The spreadsheet, somehow, will be updated by Wednesday. We will, somehow, also be at the parade."},
+    banter: "Every task needs pep talks and a marching band. We just needed to update a spreadsheet."},
   {id: 'ABZAN', name: 'ABZAN', colors: ['W', 'B', 'G'], 
     normal: "They're traditional and good at building enduring organisational structures.", 
-    banter: "They block every new idea with 'we've always done it this way.' Also: they definitely keep a ledger of who owes them what. The ledger is part of the reason 'this way' is still standing."},
+    banter: "They block every new idea with 'we've always done it this way.' They keep a ledger of who owes them what."},
   {id: 'JESKAI', name: 'JESKAI', colors: ['U', 'R', 'W'], 
     normal: "They're skilled and pursue excellence through disciplined practice.", 
-    banter: "So smug about their technique. Everything you do is basic and they make sure you feel it. Working with them is like being in a seminar you didn't sign up for, taught by someone who, irritatingly, does know more than you."},
+    banter: "So smug about their technique. Everything you do is basic and they make sure you feel it. Working with them is like being in a seminar you didn't sign up for."},
   {id: 'SULTAI', name: 'SULTAI', colors: ['B', 'G', 'U'], 
     normal: "They're patient strategists who build influence methodically over time.", 
-    banter: "They co-opt your work and somehow it becomes part of their little empire. Very smooth about it. Very slimy. The empire is also, somehow, the reason your team gets resourced."},
+    banter: "They co-opt your work, very smoothly, and somehow it becomes part of their little empire."},
   {id: 'MARDU', name: 'MARDU', colors: ['R', 'W', 'B'], 
     normal: "They're intense about execution and will push hard to meet goals.", 
-    banter: "Every deadline is life or death. They glorify burnout as dedication. They will flip tables if things aren't moving fast enough. The thing will, on balance, ship. The cost will be billed to a future quarter."},
+    banter: "Every deadline is life or death. They glorify burnout as dedication. They will flip tables if things aren't moving fast enough."},
   {id: 'TEMUR', name: 'TEMUR', colors: ['G', 'U', 'R'], 
     normal: "They're adaptive and combine creative thinking with strong instincts.", 
-    banter: "Hold on tight: they'll pivot the entire strategy three times this week and you'll have to deal with the whiplash. Two of the three pivots will turn out to have been right, which is part of the problem."},
+    banter: "They'll pivot the entire strategy three times this week and you'll have to deal with the whiplash."},
   {id: 'WITCH', name: 'FOUR-COLOR (No Red)', colors: ['W', 'U', 'B', 'G'], 
     normal: "They're comprehensive thinkers who approach things methodically without getting emotional.", 
-    banter: "It's like they're running a simulation. Zero passion, zero urgency, just spreadsheets making Monday last all week. The simulation is, however, eerily accurate. We keep deferring to it."},
+    banter: "It's like they're running a simulation, with zero passion and zero urgency."},
   {id: 'YORE', name: 'FOUR-COLOR (No Green)', colors: ['W', 'U', 'B', 'R'], 
     normal: "They're innovative and like to redesign things rather than use traditional approaches.", 
-    banter: "They over-engineer everything. Simple solution? No: seventeen moving parts that'll need emergency fixes in two weeks. The seventeen parts then keep working for another four years."},
+    banter: "They over-engineer everything, with seventeen moving parts that'll need emergency fixes in two weeks."},
   {id: 'GLINT', name: 'FOUR-COLOR (No White)', colors: ['U', 'B', 'R', 'G'], 
     normal: "They're creative and willing to work outside conventional boundaries.", 
-    banter: "Rules are for suckers, apparently. They hijack projects for fun and leave smoking wreckage of what used to be a plan. The plan, in fairness, was already on fire. They just made it visible."},
+    banter: "Rules are for suckers, apparently. They hijack projects for fun and leave smoking wreckage of what used to be a plan."},
   {id: 'DUNE', name: 'FOUR-COLOR (No Blue)', colors: ['W', 'B', 'R', 'G'], 
     normal: "They're action-oriented and trust their gut feelings over extended analysis.", 
-    banter: "They charge in on impulse every time. Planning never happens. Already yelling NO TIME NEXT while you're picking up the pieces. Then it's Tuesday and the thing is done. We never figured out how."},
+    banter: "They charge in on impulse every time, and planning never happens."},
   {id: 'INK', name: 'FOUR-COLOR (No Black)', colors: ['W', 'U', 'R', 'G'], 
-    normal: "They're idealistic and genuinely want everyone to succeed.", 
-    banter: "They're trying to help everyone at once and it's a circus. Unintended confetti explosions everywhere. They mean well, which is the part nobody knows how to push back against."},
+    normal: "They're idealistic and want everyone to succeed.", 
+    banter: "They're trying to help everyone at once and it's a circus. They mean well, which is the part nobody knows how to push back against."},
   {id: 'WUBRG', name: 'FIVE-COLOR', colors: ['W', 'U', 'B', 'R', 'G'], 
     normal: "They're versatile and can work with pretty much any approach or person.", 
-    banter: "They want everything at once. Kitchen sink in every project. I'm taking bets on which spinning plate crashes first. Last time I took bets, none of them crashed, which is why I'm only taking small bets this time."}
+    banter: "They want everything at once, with the kitchen sink in every project. I'm taking bets on which spinning plate crashes first."}
 ];
 
 // ============================================================================
@@ -4302,24 +4301,24 @@ const COLOR_STRENGTHS = {
 // *mechanism* (what process is missing in your head), not just a deficit.
 const COLOR_GAPS = {
   W: {
-    gap: "You don't experience the team as something you owe care to. The group is the environment you operate in, not an entity that deserves attention. Decisions get made for you and the task; the social cost lands as a surprise three weeks later in someone's resignation letter or a quiet refusal to help.",
-    complement: "A White colleague feels the temperature of the room as live data. They'll tell you when your plan is technically fine but will cost trust. That isn't them being slow or risk-averse — that's them seeing a bill you're about to be handed and don't yet know about."
+    gap: "You don't experience the team as something you owe care to. The group is the environment you operate in. Decisions get made for you and the task. The social cost lands as a surprise three weeks later, in someone's resignation letter or a quiet refusal to help.",
+    complement: "A White colleague feels the temperature of the room as live data. They'll tell you when your plan is technically fine but will cost trust. That's them seeing a bill you're about to be handed and don't yet know about."
   },
   U: {
-    gap: "You move on instinct, momentum, or feeling. You'll do the thing, then learn — sometimes expensively — what the thing actually meant. The same kinds of mistakes recur because you don't pause long enough to recognise them as a pattern; each one feels like its own situation.",
-    complement: "A Blue colleague will model the second-order consequences you wouldn't have thought to ask about. Bring them in before the decision, not after. Their 'what about…' is the cheapest insurance you'll ever buy, and the version of you that resists it is the version that ends up explaining the same kind of mistake to a different audience next quarter."
+    gap: "You move on instinct. You'll do the thing, then learn what the thing meant. The same kinds of mistakes recur because you don't pause long enough to recognise them as a pattern. Each one feels like its own situation.",
+    complement: "A Blue colleague will model the second-order consequences you wouldn't have thought to ask about. Bring them in before the decision. Their 'what about…' is the cheapest insurance you'll ever buy."
   },
   B: {
-    gap: "You take people's stated motives as their real ones. You give away leverage you didn't know you were holding. When the politics shift, you're the person holding the bill — not because anyone targeted you, but because you weren't watching the table while everyone else was.",
-    complement: "A Black colleague reads the actual incentives in the room, not the polite ones. They'll tell you who benefits if your project quietly fails, and who's already routing around you. Their take will sometimes feel uncharitable — listen anyway. They're keeping you off a list you didn't know was being kept."
+    gap: "You take people's stated motives as their real ones. You give away leverage you didn't know you were holding. When the politics shift, you're the person holding the bill. You weren't watching the table while everyone else was.",
+    complement: "A Black colleague reads the incentives in the room. They'll tell you who benefits if your project quietly fails, and who's already routing around you. Listen to them even when their take feels uncharitable."
   },
   R: {
-    gap: "You don't generate the heat that gets things moving. Decisions defer. The window closes while you collect one more data point, refine one more spec, run one more pass. The result: things you cared about don't happen, and to others you read as flat or strategically aloof even when neither describes how you actually feel.",
-    complement: "A Red colleague will start the fire that gets you moving. Their 'why are we still talking about this' is doing you a favour — it's the social pressure that converts your analysis into a decision. You don't need to match their pitch; just don't dismiss the urgency as drama. Their impatience is often correctly calibrated."
+    gap: "You don't generate the heat that gets things moving. Decisions defer. The window closes while you collect one more data point. Things you cared about don't happen, and to others you read as flat or strategically aloof.",
+    complement: "A Red colleague will start the fire that gets you moving. Their 'why are we still talking about this' is the social pressure that converts your analysis into a decision. You don't need to match their pitch; just don't dismiss the urgency as drama."
   },
   G: {
-    gap: "You distrust existing systems on principle and find rebuilding more satisfying than maintaining. Things that were working get torn down because the rebuilt version is more interesting to you. Your team's institutional knowledge — the *why* behind the how — gets discarded as 'legacy' and has to be relearned the expensive way.",
-    complement: "A Green colleague has watched more cycles than you have. When they say 'we tried that in 2019, here's what happened,' they're saving you the cost of relearning it from scratch. Their reluctance to change isn't conservatism or fear; it's pattern recognition across years that you don't yet have. Override them sparingly and only when you can name what's actually different this time."
+    gap: "You distrust existing systems on principle and find rebuilding more satisfying than maintaining. Things that were working get torn down because the rebuilt version is more interesting to you. Your team's institutional knowledge gets discarded as 'legacy' and has to be relearned the expensive way.",
+    complement: "A Green colleague has watched more cycles than you have. When they say 'we tried that in 2019, here's what happened,' they're saving you the cost of relearning it from scratch. Their reluctance to change is pattern recognition across years that you don't yet have. Override them sparingly and only when you can name what's different this time."
   }
 };
 
@@ -4355,7 +4354,7 @@ function renderRelations() {
   let html;
   if (missing.length === 0) {
     html = `<div class="mc-relations-detail__heading">Five-Colour Identity</div>
-      <div class="mc-relations-detail__sub">You contain everything. There's nothing missing to compensate for; the difficulty isn't a gap but holding all five tensions at once.</div>
+      <div class="mc-relations-detail__sub">There's nothing missing to compensate for. The difficulty is holding all five tensions at once.</div>
       <div class="mc-relations-detail__empty">No single colour completes you, because no single colour is absent. The friction is internal: your different colours pull against each other. Your work is choosing which voice leads when.</div>`;
   } else {
     const subtitle = 'The colours you lack, and what a colleague strong in each one brings.';
@@ -5365,6 +5364,51 @@ window.addEventListener('DOMContentLoaded', function() {
 const SCORING_VERSION = 2;
 const INSTRUMENT_VERSION = 4; // the current items and screens (3: before the Plain screens copy; 2: before the Round 1 and 2 copy rewrite; 1: before the Phase 3 copy and flow, and links without i)
 
+// THE NAME MATCHES THE BARS (both engines). The results screen names an
+// identity and draws five bars (state.activationSorted: each colour's Round 1
+// and 2 activation). They must tell one story: the identity's colours are the
+// top bars. barsMargin() is how far an identity is from that, in bar units
+// (0..1): the strongest colour it leaves out minus the weakest colour it
+// holds, or, when it holds all five, 50% (the line next door draws for five
+// colours) minus the weakest. An identity may be the result only when that
+// margin is at most BARS_TOLERANCE (barsAllow). The likelihood engine reads
+// each colour pair on its own, the bars average each colour over all its
+// pairs, and the two can disagree: on a flat profile the posterior favours
+// identities that predict coin flips, and Round 3 between nested candidates
+// can carry the narrowest one further (a player got Mono-Blue, its one colour
+// third, under bars of W56 U52 B38 R60 G39). So engine 2 plays Round 3 between
+// the four identities the bars allow that its posterior rates highest, and
+// engine 1's tournament winner and the early offer are held to the same test.
+// Half an answer: an answer moves a bar by about a twelfth
+// (ONE_ANSWER_BY_VERSION), so two colours within half an answer are a near
+// tie, and either may be the one the identity holds.
+const BARS_TOLERANCE = 1 / 24;
+
+function barsMargin(id, activationSorted) {
+  const lit = (PROFILES[id] && PROFILES[id].colors) || [];
+  if (!lit.length) return Infinity;
+  const act = Object.fromEntries(activationSorted || []);
+  const bar = (c) => act[c] || 0;
+  const out = ['W', 'U', 'B', 'R', 'G'].filter(c => !lit.includes(c));
+  const weakestIn = Math.min(...lit.map(bar));
+  return out.length ? Math.max(...out.map(bar)) - weakestIn : 0.5 - weakestIn;
+}
+
+function barsAllow(id, activationSorted = state.activationSorted) {
+  return barsMargin(id, activationSorted) <= BARS_TOLERANCE + 1e-9;
+}
+
+// The identity holding the top k bars (ties go to WUBRG order).
+function topBarsIdentity(k, activationSorted = state.activationSorted) {
+  const act = Object.fromEntries(activationSorted || []);
+  const order = ['W', 'U', 'B', 'R', 'G'];
+  const top = [...order].sort((a, b) => ((act[b] || 0) - (act[a] || 0)) || (order.indexOf(a) - order.indexOf(b))).slice(0, k);
+  return Object.keys(PROFILES).find(id => {
+    const cols = PROFILES[id].colors || [];
+    return cols.length === top.length && top.every(c => cols.includes(c));
+  }) || null;
+}
+
 // Read once, at load: restart() strips the query string, and a page must not
 // switch engine between one assessment and the next.
 const SCORING_ENGINE_OVERRIDE = (function () {
@@ -5523,9 +5567,10 @@ function rankPosterior(posterior) {
 }
 
 // The top n identities by posterior, in the candidate shape Round 3, its guards
-// and the results screen read (s1 and combinedScore carry the posterior).
-function posteriorCandidates(posterior, n = ROUND3_CANDIDATE_COUNT) {
-  return rankPosterior(posterior).slice(0, n).map(([id, prob], i) => ({
+// and the results screen read (s1 and combinedScore carry the posterior). With
+// allow, only the identities it accepts (Round 3: those the bars allow).
+function posteriorCandidates(posterior, n = ROUND3_CANDIDATE_COUNT, allow = null) {
+  return rankPosterior(posterior).filter(([id]) => !allow || allow(id)).slice(0, n).map(([id, prob], i) => ({
     id,
     s1: prob,
     combinedScore: prob,
@@ -7448,8 +7493,9 @@ function round1Activation() {
 
 // Engine 2 after Round 1: the candidates are the top four identities by
 // posterior, and the early-result offer needs the top posterior to reach
-// EARLY_OFFER_POSTERIOR, with the decisive pairs well answered and no one
-// colour pair carrying it (offerSurvivesPairHoldout).
+// EARLY_OFFER_POSTERIOR, with the decisive pairs well answered, no one colour
+// pair carrying it (offerSurvivesPairHoldout), and the Round 1 bars, which an
+// early result shows, allowing it (barsAllow).
 function finishS1Likelihood() {
   // Round 2 still picks its ally pairs from the win-rate analysis.
   const analysis = analyseGapBasedPatterns();
@@ -7464,7 +7510,7 @@ function finishS1Likelihood() {
 
   const top = candidates[0];
   if (top.s1 >= EARLY_OFFER_POSTERIOR && decisivePairsWellAnswered(top.colors)
-      && offerSurvivesPairHoldout(evidence, top.id)) {
+      && offerSurvivesPairHoldout(evidence, top.id) && barsAllow(top.id)) {
     state.pendingCandidates = candidates;
     const prof = PROFILES[top.id];
     showEarlyTerminationOffer({
@@ -7520,7 +7566,9 @@ function finishS1() {
   state.round1Candidates = candidates;
   
   const topColors = topCandidate.colors || getIdentityColors(topCandidate.id) || [];
-  if (confidence === 'HIGH' && candidates.length === 1 && decisivePairsWellAnswered(topColors)) {
+  // An early result shows the Round 1 bars, so they must allow it (barsAllow).
+  if (confidence === 'HIGH' && candidates.length === 1 && decisivePairsWellAnswered(topColors)
+      && barsAllow(topCandidate.id)) {
     // Clear result - offer early termination
     state.pendingCandidates = candidates;
     const confidenceCheck = {
@@ -8015,9 +8063,10 @@ function finishRefinement() {
   const adjustedActivation = calculateRefinedActivation();
   
   // Recalculate candidates with refined data. Engine 2: the top four
-  // identities by the Round 1 + Round 2 posterior.
+  // identities by the Round 1 + Round 2 posterior among those the bars,
+  // final from here on, allow (barsAllow).
   const refinedCandidates = scoringEngine() === 2
-    ? posteriorCandidates(updateLikelihood('round2').posterior)
+    ? posteriorCandidates(updateLikelihood('round2').posterior, ROUND3_CANDIDATE_COUNT, id => barsAllow(id))
     : recalculateCandidates(adjustedActivation);
   
   state.pendingCandidates = refinedCandidates;
@@ -8348,6 +8397,7 @@ function getTournamentWinner(tournament) {
   const cycle = detectTournamentCycle(tournament);
 
   let leader, confidence, gap = 0, runnerUp;
+  let loopBrokenByBars = false; // the cycle's members re-ranked by the bars, below
 
   if (cycle) {
     // A loop proves the scenario answers cannot rank these candidates — any
@@ -8376,6 +8426,7 @@ function getTournamentWinner(tournament) {
         .sort((a, b) => poolFit(b) - poolFit(a));
       leader = cyclers[0];
       runnerUp = cyclers[1] || runnerUp;
+      loopBrokenByBars = true;
     }
     confidence = 'LOW';
     gap = leader.wins - (runnerUp?.wins || 0);
@@ -8416,6 +8467,7 @@ function getTournamentWinner(tournament) {
     confidence: confidence,
     gap: gap,
     cycle: cycle,
+    loopBrokenByBars: loopBrokenByBars,
     totalQuestions: tournament.questionCount,
     matchHistory: tournament.matchHistory
   };
@@ -8465,10 +8517,14 @@ function combinedPosterior(tournament) {
   return { evidence, logLik, round3LogLik, posterior: posteriorFromLogLik(total) };
 }
 
-// The tournament candidates by combined posterior, best first (ties keep the
-// Round 1 + Round 2 order they were seeded in).
+// The tournament candidates by combined posterior, best first, those the bars
+// allow (barsAllow) ahead of any they do not (ties keep the Round 1 + Round 2
+// order they were seeded in). Engine 2 seeds Round 3 with identities the bars
+// allow, so the split only matters for a session that reached Round 3 on an
+// older build.
 function rankCandidatesByPosterior(tournament, posterior) {
-  return [...tournament.candidates].sort((a, b) => posterior[b.id] - posterior[a.id]);
+  const ok = (c) => (barsAllow(c.id) ? 1 : 0);
+  return [...tournament.candidates].sort((a, b) => (ok(b) - ok(a)) || (posterior[b.id] - posterior[a.id]));
 }
 
 // The candidates by posterior, except that a leader the person chose against
@@ -8491,9 +8547,10 @@ function round3RecordRanking(ranked, posterior) {
 // Engine 2's Round 3 decision. The Round 1 + Round 2 likelihood and the Round 3
 // choices combine into the final posterior over all 31 identities, which is
 // what result.posterior reports. The reported identity is the tournament
-// candidate it rates highest (the candidates are the ones the person actually
-// compared), unless that candidate has a losing Round 3 record without a clear
-// margin (round3RecordRanking); result.runnerUp is the next in that order,
+// candidate the bars allow (barsAllow) that it rates highest (the candidates
+// are the ones the person actually compared), unless that candidate has a
+// losing Round 3 record without a clear margin (round3RecordRanking, among the
+// candidates the bars allow); result.runnerUp is the next in that order,
 // result.gap the difference in their win-loss records, and result.confidence
 // the reported identity's posterior read against the thresholds. Measured on
 // simulated respondents, deciding by posterior beat crowning the tournament's
@@ -8501,13 +8558,21 @@ function round3RecordRanking(ranked, posterior) {
 // because it keeps what Rounds 1 and 2 said. The guards may still lower the
 // confidence: here, a Condorcet cycle through the reported identity makes it
 // LOW; afterwards, the scenario-contradiction and context-agreement guards cap
-// HIGH.
+// HIGH. The posterior, not the bars, decides inside a cycle.
 function applyPosteriorDecision(result, tournament) {
   const combined = combinedPosterior(tournament);
   const { posterior } = combined;
   state.likelihood = { stage: 'round3', ...combined };
 
-  const ranked = round3RecordRanking(rankCandidatesByPosterior(tournament, posterior), posterior);
+  const byPosterior = rankCandidatesByPosterior(tournament, posterior);
+  const allowed = byPosterior.filter(c => barsAllow(c.id));
+  let ranked = [...round3RecordRanking(allowed, posterior), ...byPosterior.filter(c => !barsAllow(c.id))];
+  if (!allowed.length) {
+    // No candidate the bars allow (a session that reached Round 3 on an older
+    // build): the identity they allow that the posterior rates highest.
+    const id = rankPosterior(posterior).map(([k]) => k).find(k => barsAllow(k));
+    if (id) ranked = [{ ...posteriorCandidates({ [id]: posterior[id] }, 1)[0], wins: 0, losses: 0, opponents: [] }, ...ranked];
+  }
   const winner = ranked[0];
   const runnerUp = ranked[1] || null;
   result.winner = winner;
@@ -8515,7 +8580,43 @@ function applyPosteriorDecision(result, tournament) {
   result.gap = runnerUp ? (winner.wins - winner.losses) - (runnerUp.wins - runnerUp.losses) : 0;
   result.confidence = confidenceFromPosterior(posterior[winner.id]);
   if (result.cycle && result.cycle.includes(winner.id)) result.confidence = 'LOW';
+  result.loopBrokenByBars = false;
   return { posterior, ranked };
+}
+
+// Engine 1's standings: win-loss difference, then win rate, then the Round 1-2 score.
+function engine1Standings(candidates) {
+  return [...candidates].sort((a, b) => {
+    const aDiff = a.wins - a.losses;
+    const bDiff = b.wins - b.losses;
+    if (bDiff !== aDiff) return bDiff - aDiff;
+    const aRate = a.wins / Math.max(1, a.wins + a.losses);
+    const bRate = b.wins / Math.max(1, b.wins + b.losses);
+    if (bRate !== aRate) return bRate - aRate;
+    return (b.combinedScore || 0) - (a.combinedScore || 0);
+  });
+}
+
+// Engine 1's tournament can crown an identity the bars do not allow
+// (barsAllow). Then the result is the best candidate they allow, in engine 1's
+// standings, or, when they allow none, the identity holding the top bars with
+// as many colours as the winner (fewer, for five, until the bars allow it);
+// the tournament's pick becomes the runner-up and the confidence LOW.
+function holdWinnerToBars(result, tournament) {
+  if (!result.winner || barsAllow(result.winner.id)) return false;
+  let alt = engine1Standings(tournament.candidates).find(c => barsAllow(c.id));
+  if (!alt) {
+    let k = ((PROFILES[result.winner.id] || {}).colors || []).length || 1;
+    let id = topBarsIdentity(k);
+    while (k > 1 && !(id && barsAllow(id))) id = topBarsIdentity(--k);
+    alt = { id, colors: [...PROFILES[id].colors], wins: 0, losses: 0, opponents: [], s1: 0, combinedScore: 0, type: getCandidateType(id) };
+  }
+  result.runnerUp = result.winner;
+  result.winner = alt;
+  result.gap = (alt.wins - alt.losses) - (result.runnerUp.wins - result.runnerUp.losses);
+  result.confidence = 'LOW';
+  result.loopBrokenByBars = false;
+  return true;
 }
 
 function startRound3(candidates) {
@@ -8749,7 +8850,7 @@ function finishRound3Tournament() {
       const post = combinedPosterior(tournament).posterior;
       const ranked = rankCandidatesByPosterior(tournament, post);
       provisional = { winner: ranked[0], runnerUp: ranked[1] };
-      wantTiebreak = !!ranked[1] && post[ranked[0].id] < CONFIDENCE_HIGH_POSTERIOR;
+      wantTiebreak = !!ranked[1] && barsAllow(ranked[1].id) && post[ranked[0].id] < CONFIDENCE_HIGH_POSTERIOR;
     } else {
       provisional = getTournamentWinner(tournament);
       wantTiebreak = !provisional.cycle && provisional.runnerUp && provisional.gap <= 1;
@@ -8784,25 +8885,18 @@ function finishRound3Tournament() {
   const result = getTournamentWinner(state.tournament);
   // Engine 2: the final posterior picks the identity and sets the confidence.
   const decision = scoringEngine() === 2 ? applyPosteriorDecision(result, state.tournament) : null;
+  // Engine 1: the tournament winner, held to the bars (engine 2 already is).
+  const heldToBars = !decision && holdWinnerToBars(result, state.tournament);
 
   // Cap confidence when the scenario winner contradicts the item-round leader.
   const scenarioContradiction = applyScenarioContradictionGuard(result, state.activationSorted);
   const contextDisagreement = applyContextAgreementGuard(result);
 
   // Build allResults from tournament candidates, sorted by performance
-  // (engine 2: the reported identity first, then the rest by final posterior)
-  const sortedCandidates = decision ? decision.ranked : [...state.tournament.candidates].sort((a, b) => {
-    // Primary: win-loss differential
-    const aDiff = a.wins - a.losses;
-    const bDiff = b.wins - b.losses;
-    if (bDiff !== aDiff) return bDiff - aDiff;
-    // Secondary: win rate
-    const aRate = a.wins / Math.max(1, a.wins + a.losses);
-    const bRate = b.wins / Math.max(1, b.wins + b.losses);
-    if (bRate !== aRate) return bRate - aRate;
-    // Tertiary: original combined score
-    return (b.combinedScore || 0) - (a.combinedScore || 0);
-  });
+  // (engine 2: the reported identity first, then the rest by final posterior;
+  // engine 1: its standings, led by the reported identity if the bars moved it)
+  let sortedCandidates = decision ? decision.ranked : engine1Standings(state.tournament.candidates);
+  if (heldToBars) sortedCandidates = [result.winner, ...sortedCandidates.filter(c => c.id !== result.winner.id)];
   
   const allResults = sortedCandidates.map(c => [c.id, {
     s1: c.combinedScore || 0,
@@ -8820,6 +8914,11 @@ function finishRound3Tournament() {
     losses: c.losses,
     combinedScore: c.combinedScore
   }));
+  // A reported identity that played no match (the bars allowed no candidate)
+  // joins the standings at 0-0.
+  if (!allScores.some(s => s.id === result.winner.id)) {
+    allScores.push({ id: result.winner.id, wins: 0, losses: 0, combinedScore: result.winner.combinedScore || 0 });
+  }
   if (decision) {
     // Engine 2 ranks the standings like allResults: the reported identity, then by final posterior.
     const rank = Object.fromEntries(decision.ranked.map((c, i) => [c.id, i]));
@@ -8849,6 +8948,9 @@ function finishRound3Tournament() {
       terminated: state.tournament.terminated,
       termReason: state.tournament.termReason,
       cycle: result.cycle,
+      // true only when the bars re-ranked a cycle's members and that pick stood
+      // (engine 1); engine 2's posterior decides inside a cycle
+      loopBrokenByBars: !!result.loopBrokenByBars,
       scenarioContradiction: scenarioContradiction,
       contextDisagreement: contextDisagreement,
       isTournament: true
@@ -9623,7 +9725,7 @@ function displayPairwiseMatchups(container) {
   const barColors = {W:'#FDE047', U:'#93C5FD', B:'#D1D5DB', R:'#FCA5A5', G:'#6EE7B7'};
   
   let html = '<div style="font-size: 14px; font-weight: 600; color: #e0e0e0; margin-bottom: 12px;">Head-to-Head Matchups</div>';
-  html += '<div style="font-size: 13px; color: #a0a0b0; margin-bottom: 16px;">Your choices in each enemy-color pairing:</div>';
+  html += '<div style="font-size: 13px; color: #a0a0b0; margin-bottom: 16px;">Your choices in each enemy colour pair:</div>';
   
   const pairs = [
     {name: 'W-B', colors: ['W', 'B']},
@@ -9786,8 +9888,8 @@ function displayRefinementResults() {
   
   // Explain why refinement was done
   let introHTML = '<p class="mb-12">';
-  introHTML += 'Round 1 only tested <strong>enemy pairs</strong> (colors that oppose each other). ';
-  introHTML += 'Round 2 tested <strong>ally pairs</strong> — the ones Round 1 never saw — to sharpen your estimate.';
+  introHTML += 'Round 1 tested only <strong>enemy pairs</strong>, colours that oppose each other. ';
+  introHTML += 'Round 2 tested the <strong>ally pairs</strong> that Round 1 never saw, to sharpen the estimate.';
   introHTML += '</p>';
   introText.innerHTML = introHTML;
   
@@ -10300,7 +10402,7 @@ function getOverviewContent(id) {
   </div>`;
   
   html += `<p style="font-size: 13px; color: #808090; text-align: center; margin-top: 32px; font-style: italic;">
-    Click the tabs above to explore philosophy, workplace patterns, stress responses, and development paths.
+    More in the tabs above.
   </p>`;
   
   return html;
@@ -10321,18 +10423,18 @@ function getQuickFacts(id, profile, type) {
     
     html += `<div class="quick-fact">
       <strong>Partnership:</strong>
-      <p style="margin: 0; color: #d0d0d0;">${colorNames[colors[0]]} + ${colorNames[colors[1]]} combine for unique synergy.</p>
+      <p style="margin: 0; color: #d0d0d0;">${colorNames[colors[0]]} and ${colorNames[colors[1]]}.</p>
     </div>`;
     
     html += `<div class="quick-fact">
       <strong>What's Absent:</strong>
-      <p style="margin: 0; color: #d0d0d0;">No ${absent.map(c => colorNames[c]).join(', ')}. This shapes your approach as much as what you have.</p>
+      <p style="margin: 0; color: #d0d0d0;">No ${absent.map(c => colorNames[c]).join(', ')}.</p>
     </div>`;
     
     const isAllied = isAlliedPair(colors);
     html += `<div class="quick-fact">
       <strong>${isAllied ? 'Allied Pair' : 'Enemy Pair'}:</strong>
-      <p style="margin: 0; color: #d0d0d0;">${isAllied ? 'Colors reinforce each other smoothly' : 'Productive tension between opposing values'}.</p>
+      <p style="margin: 0; color: #d0d0d0;">${isAllied ? 'The two colours reinforce each other' : 'The two colours pull against each other'}.</p>
     </div>`;
     
   } else if (type === 'THREE') {
@@ -10341,12 +10443,12 @@ function getQuickFacts(id, profile, type) {
     
     html += `<div class="quick-fact">
       <strong>Three-Colour Identity:</strong>
-      <p style="margin: 0; color: #d0d0d0;">Versatile and complete—only lacks 2 colors instead of 3 or 4.</p>
+      <p style="margin: 0; color: #d0d0d0;">Lacks two colours instead of three or four.</p>
     </div>`;
     
     html += `<div class="quick-fact">
-      <strong>Common Enemies:</strong>
-      <p style="margin: 0; color: #d0d0d0;">${absent.map(c => colorNames[c]).join(' and ')}. Your identity is defined by lacking these two.</p>
+      <strong>What's Absent:</strong>
+      <p style="margin: 0; color: #d0d0d0;">No ${absent.map(c => colorNames[c]).join(' or ')}.</p>
     </div>`;
   }
   
@@ -10392,43 +10494,6 @@ function getGuildPhilosophy(id, profile) {
   
   let html = '';
   
-  html += `<div class="info-box">
-    <div class="box-header">
-      <span class="text-20">🤝</span>
-      <h4>What ${colorNames[colors[0]]} & ${colorNames[colors[1]]} Share</h4>
-    </div>
-    <div class="box-content">
-      <p>Both colors value certain approaches, and when combined, these shared values get <strong>EMPHASIZED</strong>.</p>
-      <p style="margin-top: 16px; padding: 16px; background: rgba(139,92,246,0.1); border-radius: 8px;">
-        <strong class="text-accent">Together:</strong> They reinforce each other's core philosophy, creating something stronger than either alone.
-      </p>
-    </div>
-  </div>`;
-  
-  html += `<div class="info-box">
-    <div class="box-header">
-      <span class="text-20">⚖️</span>
-      <h4>The Productive Tension</h4>
-    </div>
-    <div class="box-content">
-      <p>While ${colorNames[colors[0]]} and ${colorNames[colors[1]]} share core values, they <strong>DISAGREE</strong> on key points.</p>
-      <p style="margin-top: 16px; font-style: italic; color: #d0d0d0;">
-        This tension creates the unique character of ${profile.name}—you balance two different perspectives.
-      </p>
-    </div>
-  </div>`;
-  
-  html += `<div class="info-box">
-    <div class="box-header">
-      <span class="text-20">✨</span>
-      <h4>What Emerges Uniquely</h4>
-    </div>
-    <div class="box-content">
-      <p>${profile.name} creates patterns that <strong>neither color alone produces</strong>.</p>
-      <p class="mt-12">This isn't just "${colorNames[colors[0]]} AND ${colorNames[colors[1]]}"—it's a genuine fusion with emergent properties.</p>
-    </div>
-  </div>`;
-  
   html += `<div class="info-box shadow">
     <div class="box-header">
       <span class="text-20">🚫</span>
@@ -10439,11 +10504,11 @@ function getGuildPhilosophy(id, profile) {
       <ul class="mt-12">`;
   
   const absentMeanings = {
-    W: {impact: 'No community focus or moral framework', result: 'Must work through efficiency, self-interest, or natural patterns'},
-    U: {impact: 'No analytical depth or strategic planning', result: 'Must rely on instinct, tradition, passion, or pragmatism'},
-    B: {impact: 'No self-interest or ruthless pragmatism', result: 'Naive about power dynamics, struggles with tough calls'},
-    R: {impact: 'No passion, urgency, or emotional authenticity', result: 'Everything calm, measured, potentially too slow'},
-    G: {impact: 'No patience, organic growth, or respect for tradition', result: 'Everything active, engineered, potentially unsustainable'}
+    W: {impact: 'No community focus or moral framework', result: 'Must work through efficiency or self-interest'},
+    U: {impact: 'No analytical depth or strategic planning', result: 'Must rely on instinct and tradition'},
+    B: {impact: 'No self-interest or ruthless pragmatism', result: 'Naive about power, and struggles with tough calls'},
+    R: {impact: 'No passion or urgency', result: 'Calm and measured, sometimes too slow'},
+    G: {impact: 'No patience or respect for tradition', result: 'Active and engineered, sometimes unsustainable'}
   };
   
   absent.forEach(c => {
@@ -10454,9 +10519,6 @@ function getGuildPhilosophy(id, profile) {
   });
   
   html += `</ul>
-      <p style="margin-top: 16px; padding: 12px; background: rgba(239,68,68,0.1); border-radius: 8px; border-left: 3px solid #EF4444;">
-        <strong style="color: #EF4444;">Key insight:</strong> Your approach is defined by what you CAN'T do as much as what you can.
-      </p>
     </div>
   </div>`;
   
@@ -10470,35 +10532,22 @@ function getThreeColorPhilosophy(id, profile) {
   
   let html = '';
   
-  html += `<div class="info-box">
-    <div class="box-header">
-      <span class="text-20">🎯</span>
-      <h4>What All Three Colors Seek</h4>
-    </div>
-    <div class="box-content">
-      <p>${colorNames[colors[0]]}, ${colorNames[colors[1]]}, and ${colorNames[colors[2]]} all share philosophical common ground.</p>
-      <p style="margin-top: 16px; padding: 16px; background: rgba(139,92,246,0.1); border-radius: 8px;">
-        When three colors align, they create a <strong class="text-accent">complete and versatile identity</strong> with only minor blind spots (just 2 absent colors).
-      </p>
-    </div>
-  </div>`;
-  
   html += `<div class="info-box shadow">
     <div class="box-header">
       <span class="text-20">⚔️</span>
-      <h4>Common Enemies</h4>
+      <h4>What's Absent</h4>
     </div>
     <div class="box-content">
-      <p><strong>${absent.map(c => colorNames[c]).join(' and ')}:</strong> All three of your colors oppose these two.</p>
-      <p class="mt-12">This shared opposition defines your blind spots:</p>
+      <p><strong>No ${absent.map(c => colorNames[c]).join(' or ')}.</strong></p>
+      <p class="mt-12">That shapes your blind spots:</p>
       <ul class="mt-12">`;
   
   const absentMeanings = {
-    W: 'No community focus—individual or collective but not "fair for all"',
-    U: 'No analytical optimization—instinct and tradition guide you',
-    B: 'No self-interest—everything serves collective or natural order',
-    R: 'No passion or urgency—calm, measured, patient',
-    G: 'No organic patience—everything active and engineered'
+    W: 'No community focus',
+    U: 'No analytical optimisation; instinct and tradition guide you',
+    B: 'No self-interest; everything serves the group or the natural order',
+    R: 'No passion or urgency',
+    G: 'No organic patience; everything is active and engineered'
   };
   
   absent.forEach(c => {
@@ -10506,22 +10555,6 @@ function getThreeColorPhilosophy(id, profile) {
   });
   
   html += `</ul>
-    </div>
-  </div>`;
-  
-  html += `<div class="info-box development">
-    <div class="box-header">
-      <span class="text-20">🔮</span>
-      <h4>Why Three-Color Is Different</h4>
-    </div>
-    <div class="box-content">
-      <p><strong>You're more complete than simpler identities:</strong></p>
-      <ul class="mt-12">
-        <li>• Mono-color lacks 4 colors (major limitations)</li>
-        <li>• Two-color lacks 3 colors (significant gaps)</li>
-        <li>• <strong>Three-color lacks only 2 colors</strong> (minor blind spots)</li>
-      </ul>
-      <p class="mt-16">This makes you versatile and adaptable, able to handle diverse situations. The trade-off: less focused than simpler identities.</p>
     </div>
   </div>`;
   
@@ -10543,7 +10576,7 @@ function getMonoPhilosophy(id, profile) {
     <div class="box-content">
       <p style="font-size: 15px; line-height: 1.8;">${profile.desc}</p>
       <p style="margin-top: 16px; padding: 16px; background: rgba(139,92,246,0.1); border-radius: 8px;">
-        <strong class="text-accent">Mono-color means:</strong> You're strongly focused in one philosophical direction. This gives you depth and clarity, but limits your range.
+        <strong class="text-accent">Mono-colour means:</strong> You're strongly focused in one philosophical direction.
       </p>
     </div>
   </div>`;
@@ -10551,15 +10584,15 @@ function getMonoPhilosophy(id, profile) {
   html += `<div class="info-box shadow">
     <div class="box-header">
       <span class="text-20">🚫</span>
-      <h4>What You Lack (Four Colors Absent)</h4>
+      <h4>What You Lack</h4>
     </div>
     <div class="box-content">
-      <p>As a mono-color identity, you lack the perspectives and approaches of <strong>FOUR other colors:</strong></p>
+      <p>You lack the other four colours:</p>
       <ul class="mt-12">
-        ${others.map(c => `<li>• No ${colorNames[c]}—missing that entire dimension</li>`).join('')}
+        ${others.map(c => `<li>• No ${colorNames[c]}</li>`).join('')}
       </ul>
       <p style="margin-top: 16px; font-style: italic; color: #a0a0b0;">
-        This is your biggest development opportunity. See Development tab for how to add other colors.
+        See the Development tab for how to add other colours.
       </p>
     </div>
   </div>`;
@@ -10594,7 +10627,7 @@ function getWorkplaceContent(id) {
       <h4>Shadows</h4>
     </div>
     <div class="box-content">
-      <p style="margin-bottom: 12px; color: #9b6b6b; font-style: italic;">Risks of this type—you may not have these, or may have them and manage them well</p>
+      <p style="margin-bottom: 12px; color: #9b6b6b; font-style: italic;">Risks of this type. You may not have these, or may have them and manage them well.</p>
       <ul>`;
   profile.weak.forEach(w => {
     html += `<li>• ${w}</li>`;
@@ -10612,7 +10645,7 @@ function getWorkplaceContent(id) {
       <p><strong>Stereotypical roles for this identity:</strong></p>
       <p style="margin-top: 12px; font-size: 15px; line-height: 1.6;">${profile.roles}</p>
       <p style="margin-top: 16px; font-size: 13px; color: #a0a0b0; font-style: italic;">
-        These aren't limitations—they're where this identity naturally excels. You can succeed anywhere, but these roles play to your strengths.
+        You can succeed anywhere, but these roles play to your strengths.
       </p>
     </div>
   </div>`;
@@ -10626,7 +10659,7 @@ function getWorkplaceContent(id) {
       <div class="box-content">
         <p style="font-style: italic; color: #d0a070; font-size: 15px; line-height: 1.6;">"${profile.pubBanter}"</p>
         <p style="margin-top: 16px; font-size: 13px; color: #a0a0b0;">
-          The unvarnished truth. This is your shadow side from others' perspective.
+          This is your shadow side from others' perspective.
         </p>
       </div>
     </div>`;
@@ -10647,7 +10680,7 @@ function getStressContent(id) {
       <h4>Under Pressure</h4>
     </div>
     <div class="box-content">
-      <p><strong>When ${profile.name} is stressed, watch for:</strong></p>
+      <p><strong>When ${identityName(id)} is stressed, watch for:</strong></p>
       <ul class="mt-12">`;
   
   const stressPatterns = getStressPatterns(id);
@@ -10670,15 +10703,15 @@ function getStressContent(id) {
     <div class="box-content">
       <p><strong>For yourself:</strong></p>
       <ul style="margin-top: 8px; margin-bottom: 16px;">
-        <li>• Recognize the stress pattern early</li>
-        <li>• Channel opposite colors deliberately</li>
+        <li>• Recognise the stress pattern early</li>
+        <li>• Channel opposite colours deliberately</li>
         <li>• Set external accountability and deadlines</li>
-        <li>• Focus on outcomes, not comfortable patterns</li>
-        <li>• Practice the missing colors intentionally</li>
+        <li>• Focus on outcomes</li>
+        <li>• Practise the missing colours</li>
       </ul>
       <p><strong>For your team:</strong></p>
       <ul style="margin-top: 8px;">
-        <li>• Inject missing colors (pair with complementary identities)</li>
+        <li>• Inject missing colours (pair with complementary identities)</li>
         <li>• Provide structure or freedom as needed</li>
         <li>• Challenge patterns gently but firmly</li>
         <li>• Remind them of mission over method</li>
@@ -10691,8 +10724,8 @@ function getStressContent(id) {
 
 function getStressPatterns(id) {
   const patterns = {
-    'AZORIUS': ['Withdraws into process design, avoiding decisions', 'Creates bureaucracy to delay action', 'Condescending about "proper procedure"', 'Dismisses urgency as "lack of planning"', 'Paralyzed between fairness and efficiency'],
-    'DIMIR': ['Hoards information more aggressively', 'Paranoid about being outmaneuvered', 'Manipulates situations to regain control', 'Trusts no one', 'Withdraws into strategic scheming'],
+    'AZORIUS': ['Withdraws into process design, avoiding decisions', 'Creates bureaucracy to delay action', 'Condescending about "proper procedure"', 'Dismisses urgency as "lack of planning"', 'Paralysed between fairness and efficiency'],
+    'DIMIR': ['Hoards information more aggressively', 'Paranoid about being outmanoeuvred', 'Manipulates situations to regain control', 'Trusts no one', 'Withdraws into strategic scheming'],
     'RAKDOS': ['Explosively destructive', 'Reckless gratification-seeking', 'Burns bridges impulsively', 'Creates chaos deliberately', 'Lashes out at all constraints'],
     'IZZET': ['Scattered across too many experiments', 'Reckless with resources and testing', 'Ignores practical constraints', 'Blows things up (literally or figuratively)', 'Excited by chaos'],
     'GRUUL': ['Increasingly aggressive and hostile', 'Smashes obstacles without thinking', 'Rejects all subtlety completely', 'Hostile to any complexity', 'Pure force over all finesse'],
@@ -10700,7 +10733,7 @@ function getStressPatterns(id) {
     'ORZHOV': ['Increasingly extractive and exploitative', 'Rigid hierarchy enforcement', 'Debt collection mentality', 'Political manipulation intensifies', 'Everything becomes transactional'],
     'GOLGARI': ['Fatalistic acceptance of decay', 'Exploits death and failure coldly', 'Patient to point of complete passivity', 'Cynical about all improvement', 'Waiting for things to die'],
     'SIMIC': ['Over-optimises organic systems destructively', 'Experiments on people without consent', 'Perfectionism paralysis', 'Loses sight of "good enough"', 'Hubris about improvement capability'],
-    'BOROS': ['Zealous to dangerous fault', 'Aggressively enforces "right" way', 'Burnout from unsustainable intensity', 'Rigid about honor code', 'Cult-like fervor'],
+    'BOROS': ['Zealous to dangerous fault', 'Aggressively enforces "right" way', 'Burnout from unsustainable intensity', 'Rigid about honour code', 'Cult-like fervour'],
     'MONO-W': ['Rigidly rule-bound', 'Excessive self-sacrifice', 'Martyr complex', 'Slow consensus-seeking', 'Judges others harshly for rule-breaking'],
     'MONO-U': ['Analysis paralysis worsens', 'Condescending intellectualism', 'Avoids action completely', 'Designs over-complex solutions', 'Dismisses all emotions'],
     'MONO-B': ['Ruthlessly transactional with everyone', 'Cuts people off easily', 'Increasingly amoral decisions', 'Paranoid about exploitation', 'Hoards everything'],
@@ -10710,7 +10743,7 @@ function getStressPatterns(id) {
   
   return patterns[id] || [
     'Intensifies characteristic patterns',
-    'Shadow behaviors emerge more strongly',
+    'Shadow behaviours emerge more strongly',
     'Becomes less balanced and flexible',
     'May withdraw or become rigid',
     'Struggles with rapid adaptation'
@@ -10728,7 +10761,7 @@ function getDevelopmentContent(id) {
   
   html += `<div style="margin-bottom: 24px; padding: 20px; background: rgba(139,92,246,0.08); border-radius: 12px; border-left: 4px solid #a78bfa;">
     <p style="font-size: 15px; color: #d0d0d0; line-height: 1.7;">
-      <strong class="text-accent">Development path:</strong> Add colors you're weak in. Each color you add transforms your identity and unlocks new capabilities.
+      <strong class="text-accent">Development path:</strong> Add colours you're weak in. Each colour you add changes your identity.
     </p>
   </div>`;
   
@@ -10761,7 +10794,7 @@ function getNewIdentity(currentId, addingColor) {
     if (prof.colors && prof.colors.length === newColors.length) {
       const profColorsSorted = [...prof.colors].sort();
       if (profColorsSorted.every((c, i) => c === newColors[i])) {
-        return prof.name;
+        return identityName(id);
       }
     }
   }
@@ -10772,29 +10805,29 @@ function getNewIdentity(currentId, addingColor) {
 function getDevelopmentPath(id, color, colorName, newIdentity) {
   const developments = {
     W: {
-      what: 'Community focus, fairness, systematic coordination',
+      what: 'Community focus and fairness',
       why: 'Adds stakeholder thinking and moral framework',
-      how: ['Volunteer for team coordination roles', 'Ask "what\'s best for the team?" before deciding', 'Build one process that helps everyone', 'Practice sacrificing something small for group benefit']
+      how: ['Volunteer for team coordination roles', 'Ask "what\'s best for the team?" before deciding', 'Build one process that helps everyone', 'Practise sacrificing something small for group benefit']
     },
     U: {
-      what: 'Analytical depth, strategic thinking, optimization',
+      what: 'Analytical depth and strategic thinking',
       why: 'Adds evidence-based planning and long-term thinking',
-      how: ['Analyze before acting—ask "why?" more often', 'Read research on problems before solving', 'Map out consequences 3-5 steps ahead', 'Practice systematic optimization']
+      how: ['Analyse before acting, and ask "why" more often', 'Read research on problems before solving', 'Map out consequences 3-5 steps ahead', 'Practise systematic optimisation']
     },
     B: {
-      what: 'Pragmatism, self-advocacy, tough decisions',
+      what: 'Pragmatism and tough decisions',
       why: 'Adds agency and ability to make hard calls',
-      how: ['Negotiate explicitly for what you need', 'Practice saying no to protect your interests', 'Make one tough call per month', 'Evaluate personal benefit honestly']
+      how: ['Negotiate explicitly for what you need', 'Practise saying no to protect your interests', 'Make one tough call per month', 'Evaluate personal benefit honestly']
     },
     R: {
-      what: 'Passion, urgency, decisive action, authenticity',
+      what: 'Passion and decisive action',
       why: 'Adds energy and bias toward action',
-      how: ['Act on 70% information sometimes', 'Express emotions more openly in meetings', 'Run quick experiments instead of extensive planning', 'Practice "ship it and iterate"']
+      how: ['Act on 70% information sometimes', 'Express emotions more openly in meetings', 'Run quick experiments instead of extensive planning', 'Practise "ship it and iterate"']
     },
     G: {
-      what: 'Patience, sustainability, organic growth, accumulated wisdom',
+      what: 'Patience and accumulated wisdom',
       why: 'Adds long-term thinking and respect for what works',
-      how: ['Give initiatives time to develop naturally', 'Learn from precedent and experience', 'Practice patience with development timelines', 'Trust proven patterns and tradition']
+      how: ['Give initiatives time to develop naturally', 'Learn from precedent and experience', 'Practise patience with development timelines', 'Trust proven patterns and tradition']
     }
   };
   
@@ -10992,34 +11025,34 @@ const RESULT_COPY = {
   // Bracketed reminder text prints in italics, as on a card; mana is in braces.
   rules: {
     'MONO-W': "Vigilance. Other creatures you control get +1/+1. When this creature leaves the battlefield, its rules don't.",
-    'MONO-U': 'Flash. Hexproof from feedback. At the beginning of your upkeep, you may reconsider. If you do, reconsider again.',
+    'MONO-U': 'Flash. Hexproof from feedback. At the beginning of your upkeep, you may reconsider.',
     'MONO-B': 'Menace, lifelink. You may pay life rather than mana. Goodwill you gain lasts until end of turn.',
-    'MONO-R': 'Trample, haste. At the beginning of the end step, sacrifice this creature. Back Thursday.',
+    'MONO-R': 'Trample, haste. At the beginning of the end step, sacrifice this creature.',
     'MONO-G': "Reach. You don't lose unspent mana as steps and phases end. Spells that change things have suspend 7.",
-    AZORIUS: 'Spells your opponents cast cost {1} more to cast and need a countersignature. So do yours.',
-    DIMIR: "Whenever a player says something, surveil 1. You have shroud. (You can't be the target of spells, abilities or friends.)",
+    AZORIUS: 'Spells your opponents cast cost {1} more to cast and need a countersignature.',
+    DIMIR: 'Whenever a player says something, surveil 1. You have shroud.',
     RAKDOS: 'Unleash. At the beginning of your upkeep, if nothing went wrong last turn, something does.',
-    GRUUL: 'Riot. Trample. This creature attacks each combat if able. Meetings count as combat.',
-    SELESNYA: "Convoke. You can't sacrifice creatures. Not even that one.",
-    ORZHOV: "Extort. Whenever a player accepts help from you, they get a debt counter. Players with debt counters can't attack you. Everyone has one.",
+    GRUUL: 'Riot. Trample. This creature attacks each combat if able.',
+    SELESNYA: "Convoke. You can't sacrifice creatures.",
+    ORZHOV: "Extort. Whenever a player accepts help from you, they get a debt counter. Players with debt counters can't attack you.",
     IZZET: 'Whenever a spell you control is countered, draw two cards. Whenever one resolves, start another.',
-    GOLGARI: 'Deathtouch. Undergrowth — This creature gets +1/+1 for each dead project in your graveyard.',
+    GOLGARI: 'Deathtouch. This creature gets +1/+1 for each dead project in your graveyard.',
     SIMIC: "Evolve. This creature can't attack while it could still be improved.",
     BOROS: 'First strike. Mentor. Whenever an injustice is alleged, attack. Check the facts after combat.',
-    BANT: "Exalted. If you would attack, you may draw a card instead. You've never had a better hand.",
-    ESPER: "Flying. Creatures you control are artifacts in addition to their other types. (They've noticed.)",
+    BANT: 'Exalted. If you would attack, you may draw a card instead.',
+    ESPER: 'Flying. Creatures you control are artifacts in addition to their other types.',
     GRIXIS: 'Haste. Creatures you control get +2/+0. At the beginning of your end step, one of them leaves for a calmer deck.',
-    JUND: 'Trample. Sacrifice another creature: This creature gets +1/+0 until end of turn. It knew what the job was.',
-    NAYA: 'Battle cry, battle cry, battle cry. Other creatures you control have haste.',
+    JUND: 'Trample. Sacrifice another creature: This creature gets +1/+0 until end of turn.',
+    NAYA: 'Battle cry. Other creatures you control have haste.',
     ABZAN: "Vigilance. Outlast {1}{W}. Creatures you control get +1/+1 for each year they've been with you.",
-    JESKAI: "Prowess. Mentor. Every other creature has lesser power than this one. You've checked.",
+    JESKAI: 'Prowess. Mentor. Every other creature has lesser power than this one.',
     SULTAI: "Exploit. Whenever another player's idea resolves, you may gain control of it. At the beginning of next year, they notice.",
-    MARDU: "Haste. Whenever this creature attacks, return a creature card from your graveyard to the battlefield tapped and attacking. It's had a rest.",
+    MARDU: 'Haste. Whenever this creature attacks, return a creature card from your graveyard to the battlefield tapped and attacking.',
     TEMUR: "Trample. This spell can't be countered. At the beginning of your upkeep, shuffle your plan into your library.",
-    WITCH: "Vigilance, deathtouch, lifelink. This creature can't have or gain haste. It was arriving on schedule anyway.",
+    WITCH: "Vigilance, deathtouch, lifelink. This creature can't have or gain haste.",
     YORE: 'Flying. Whenever an artifact you control works, sacrifice it and build a better one.',
     GLINT: "Trample, cascade. Phasing (When the bill arrives, treat this creature as though it doesn't exist.)",
-    DUNE: "Vigilance, haste. You can't scry, and you've never once wanted to.",
+    DUNE: "Vigilance, haste. You can't scry.",
     INK: 'Vigilance. At the beginning of your end step, each player draws a card. Opponents draw two.',
     WUBRG: 'Changeling. You have every ability. Each works at a fifth of its strength.'
   },
@@ -11031,23 +11064,17 @@ const RESULT_COPY = {
   // "17 Island") fill the rest, split by the bars. {lands} is the comma list.
   manaBase: {
     line: '{total} lands: {lands}.',
-    // Mono: 36 basics and a utility land with a joke. The joke goes when a
-    // maybeboard line follows, so the block keeps one joke.
+    // Mono: 36 basics and a utility land. {joke} is filled from monoJokes,
+    // empty since Plain profiles and pages: the line carries no joke.
     monoLine: '{total} lands: {count} {basic} and {utility}{joke}.',
-    monoJokes: {
-      'MONO-W': ', for staffing the subcommittee',
-      'MONO-U': ", for reading ahead, which you'd have done anyway",
-      'MONO-B': ', which pays out in proportion to what you already own',
-      'MONO-R': ', so nothing has to wait its turn',
-      'MONO-G': " you've had since 1998"
-    },
+    monoJokes: {},
     // Four and five colours: the shocks and Triomes inside the colours,
     // counted rather than named. Five colours keep their 13 basics unsplit.
     counted: { 4: 'six shocks, four Triomes', 5: 'all ten shocks, all ten Triomes' },
-    fiveBasics: 'and {count} basics, mostly for the Cultivate',
+    fiveBasics: 'and {count} basics',
     // The up neighbour's land, outside the 37 and replacing nothing, by how
     // far short its colour was; "well" short gets no maybeboard line.
-    maybeboard: { one: 'Maybeboard: {land}, just in case.', few: "Maybeboard: {land}. It's been there a while." }
+    maybeboard: { one: 'Maybeboard: {land}.', few: 'Maybeboard: {land}.' }
   },
 
   // [3] Slot words for the next-door lines: {colour} / {Colour} and {lands}.
@@ -11691,7 +11718,7 @@ function splitBasics(colours, act, n) {
 }
 
 // "37 lands: Command Tower, Watery Grave, Polluted Delta, Drowned Catacomb,
-// 17 Island, 16 Swamp. Maybeboard: Zagoth Triome, just in case."
+// 17 Island, 16 Swamp. Maybeboard: Zagoth Triome."
 // The deck: a guild is Command Tower, the shock, fetch and check; three
 // colours are Command Tower, the Triome and three shocks; four and five are
 // Command Tower, Mana Confluence, City of Brass and Exotic Orchard, then the
@@ -11882,9 +11909,9 @@ function showResults() {
     
     // Show primary indicator if gap is ≥15%
     if (gap >= 15) {
-      const colorNames = { W: 'WHITE', U: 'BLUE', B: 'BLACK', R: 'RED', G: 'GREEN' };
+      const colorNames = { W: 'White', U: 'Blue', B: 'Black', R: 'Red', G: 'Green' };
       const primaryName = colorNames[topColor[0]];
-      primaryIndicator.querySelector('p').textContent = `${primaryName} is your primary color within this combination (+${gap}% higher than next)`;
+      primaryIndicator.querySelector('p').textContent = `${primaryName} is your primary colour within this combination, ${gap} points above the next.`;
       primaryIndicator.style.display = 'block';
     } else {
       primaryIndicator.style.display = 'none';
@@ -11965,7 +11992,7 @@ function showResults() {
     document.getElementById('cmd-card-frame').style.display = 'none';
     document.getElementById('cmd-card-frame').dataset.hasOracle = 'true';
     document.getElementById('cmd-simple').style.display = 'none';
-    document.getElementById('cmd-name-preview').textContent = '— ' + p.cmd;
+    document.getElementById('cmd-name-preview').textContent = '· ' + p.cmd;
     
     // Populate card frame for when expanded
     document.getElementById('cmd-name-card').textContent = p.cmd;
@@ -11993,7 +12020,7 @@ function showResults() {
     document.getElementById('cmd-card-frame').style.display = 'none';
     document.getElementById('cmd-card-frame').dataset.hasOracle = 'false';
     document.getElementById('cmd-simple').style.display = 'none';
-    document.getElementById('cmd-name-preview').textContent = '— ' + p.cmd;
+    document.getElementById('cmd-name-preview').textContent = '· ' + p.cmd;
     
     document.getElementById('cmd-name-simple').textContent = p.cmd;
     document.getElementById('cmd-desc-simple').textContent = p.cmdDesc;
@@ -12009,15 +12036,15 @@ function showResults() {
     let normText = '';
     
     if (numColors === 1) {
-      normText = 'Mono-color results are relatively uncommon — most people blend two or three colors. Having a single dominant color means your decision-making style is unusually consistent and focused. This is a strength in roles that reward clarity of purpose, though it can mean blind spots in areas covered by your weaker colors.';
+      normText = 'Mono-colour results are relatively uncommon. Most people blend two or three colours. Having a single dominant colour means your decision-making style is unusually consistent and focused.';
     } else if (numColors === 2) {
-      normText = 'Two-color identities are the most common result. Your profile shows a clear primary blend of two philosophical approaches, which is typical of how most people navigate work — balancing two competing values. The relative strength of each color within your pair shapes whether you lean more toward one side.';
+      normText = 'Two-colour identities are the most common result. Your profile shows a clear primary blend of two philosophical approaches, which is typical of how most people navigate work. The relative strength of each colour within your pair shapes whether you lean more toward one side.';
     } else if (numColors === 3) {
-      normText = 'Three-color identities indicate a broader philosophical range than most people. You draw on three distinct value systems, which makes you versatile but also means you may experience more internal tension when those values conflict. This profile is moderately common and often appears in people who\'ve worked across different contexts.';
+      normText = 'Three-colour identities indicate a broader philosophical range than most people. You draw on three distinct value systems, which makes you versatile but also means you may experience more internal tension when those values conflict. This profile is moderately common and often appears in people who\'ve worked across different contexts.';
     } else if (numColors === 4) {
-      normText = 'Four-color identities are uncommon. You\'re defined as much by what you\'re <em>not</em> as by what you are — the absent color represents an approach you consistently deprioritise. This breadth can make you highly adaptable, though others may find it harder to predict your approach.';
+      normText = 'Four-colour identities are uncommon. The absent colour represents an approach you consistently deprioritise. This breadth can make you highly adaptable, though others may find it harder to predict your approach.';
     } else {
-      normText = 'Five-color profiles are rare. Either your values are genuinely balanced across all approaches (which makes you highly contextual), or the assessment didn\'t capture a clear pattern (which means a retake might give different results). People with flat profiles tend to be strong adapters who shift approach based on situation rather than having a consistent default.';
+      normText = 'Five-colour profiles are rare. Either your values are balanced across all approaches, or the assessment didn\'t capture a clear pattern. People with flat profiles tend to be strong adapters who shift approach based on situation.';
     }
     
     // Add spread info
@@ -12026,9 +12053,9 @@ function showResults() {
       const bottomVal = Math.round((sorted[sorted.length-1]?.[1] || 0) * 100);
       const spread = topVal - bottomVal;
       if (spread < 20) {
-        normText += ' Your overall spread is narrow (' + spread + ' points), meaning your colors are relatively balanced.';
+        normText += ' Your overall spread is narrow (' + spread + ' points), meaning your colours are relatively balanced.';
       } else if (spread > 40) {
-        normText += ' Your spread is wide (' + spread + ' points), indicating strong preferences — you know what you value.';
+        normText += ' Your spread is wide (' + spread + ' points), which indicates strong preferences.';
       }
     }
     
@@ -12037,9 +12064,9 @@ function showResults() {
     // Change K: Four/five-color identity caveats
     if (numColors >= 4) {
       normativeEl.innerHTML += '<div style="margin-top: 12px; padding: 12px; background: rgba(245, 158, 11, 0.08); border-left: 3px solid rgba(245, 158, 11, 0.4); border-radius: 4px; font-size: 13px; color: #c0a060; line-height: 1.5;">' +
-        '⚠️ <strong>Note:</strong> Four- and five-colour results are the hardest to pin down. The scenarios decided it, ' +
-        'but no single colour clearly dominated your quick answers\u2014which could mean genuine versatility, context-dependent responding, ' +
-        'or that the enemy-pair format didn\'t fully capture your pattern. Consider retaking to see if it holds.' +
+        '⚠️ <strong>Note:</strong> Four- and five-colour results are the hardest to pin down. ' +
+        'No single colour clearly dominated your answers. ' +
+        'Consider retaking to see if it holds.' +
         '</div>';
     }
     
@@ -12253,11 +12280,11 @@ function showShareScreen() {
   if (closestEl) {
     const runnerUpId = state.result.round3Data?.runnerUp?.id;
     const runnerUpProfile = runnerUpId ? PROFILES[runnerUpId] : null;
-    const closestName = runnerUpProfile?.name
+    // The identity's sentence-case name ("Dimir", "Four-colour (no red)"), as the result page writes it.
+    const closestName = (runnerUpProfile ? identityName(runnerUpId) : '')
       || (state.activationSorted && state.activationSorted[1] && { W: 'White', U: 'Blue', B: 'Black', R: 'Red', G: 'Green' }[state.activationSorted[1][0]])
       || '';
-    // Title-case the identity name so 'DIMIR' renders as 'Dimir' per the v4 polish note.
-    closestEl.textContent = closestName.charAt(0).toUpperCase() + closestName.slice(1).toLowerCase();
+    closestEl.textContent = closestName;
   }
 
   document.getElementById('sc-conf').textContent = RESULT_COPY.labels[confidenceLevel()].word;
@@ -12291,7 +12318,7 @@ function showShareScreen() {
   const tcgArt = document.getElementById('tcg-art'); if (tcgArt) tcgArt.style.backgroundImage = `url('images/commanders/${state.result.identity}.jpg')`;
   const tcgMana = document.getElementById('tcg-mana');
   if (tcgMana && p.colors) tcgMana.innerHTML = p.colors.map(c => `<span class="mc-pip is-lit" data-color="${c}"></span>`).join('');
-  const tcgTypelineName = document.getElementById('tcg-typeline-name'); if (tcgTypelineName) tcgTypelineName.textContent = p.name;
+  const tcgTypelineName = document.getElementById('tcg-typeline-name'); if (tcgTypelineName) tcgTypelineName.textContent = identityName(state.result.identity);
   // The Card's set-symbol slot holds no confidence word: a collector number in
   // player mode ("MC1 • EN • 009/031", the set code carrying the scoring
   // version), nothing otherwise.
@@ -12327,7 +12354,7 @@ function showShareScreen() {
 }
 
 const FORMAT_HINTS = {
-  card:      '<strong>CARD</strong> · rules text + flavor. Best for the magic-savvy.',
+  card:      '<strong>CARD</strong> · rules text + flavour. Best for the Magic-savvy.',
   scorecard: '<strong>SCORECARD</strong> · profile bars are the hero. Best for Slack and LinkedIn.',
   story:     '<strong>STORY</strong> · one line, big. Best for Instagram and Twitter.',
 };
@@ -12385,7 +12412,7 @@ async function downloadShareImage() {
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   } catch (e) {
     console.error('Download failed:', e);
-    alert('Image export failed — check console.');
+    alert('Image export failed. Check the console.');
   }
 }
 
@@ -12399,7 +12426,7 @@ async function copyShareImage() {
     }
   } catch (e) {
     console.error('Copy image failed:', e);
-    alert('Copy image failed — your browser may not support image clipboard. Try Download.');
+    alert('Copy image failed. Your browser may not support copying images. Try Download.');
   }
 }
 
@@ -12641,11 +12668,11 @@ function renderExplorerRelations(identityKey) {
 
   if (missing.length === 0) {
     el.innerHTML = `<div class="mc-relations-detail__heading">Five-Colour</div>
-      <div class="mc-relations-detail__sub">No single colour completes this type because no single colour is absent. The friction is internal — different colours pull against each other.</div>`;
+      <div class="mc-relations-detail__sub">No single colour completes this type because no single colour is absent. The friction is internal: different colours pull against each other.</div>`;
     return;
   }
 
-  const subtitle = `What this type doesn't naturally run. Each missing colour is a colleague worth keeping close.`;
+  const subtitle = `The colours this type lacks, and what a colleague strong in each one brings.`;
   const cards = missing.map(c => {
     const g = COLOR_GAPS[c];
     return `<div class="mc-gap-card" data-color="${c}">
@@ -12731,8 +12758,9 @@ function personalizeInteractions() {
   if (!yourContent) return;
   let content = '<div style="font-size: 14px; color: #d0d0d0; line-height: 1.7;">';
   
-  content += '<p class="mb-16"><strong>Your strongest colors are:</strong> ';
-  content += p.colors.map(c => ['White','Blue','Black','Red','Green'][['W','U','B','R','G'].indexOf(c)]).join(' and ');
+  content += '<p class="mb-16"><strong>Your strongest colours are:</strong> ';
+  const colourList = p.colors.map(c => ['White','Blue','Black','Red','Green'][['W','U','B','R','G'].indexOf(c)]);
+  content += colourList.length > 1 ? colourList.slice(0, -1).join(', ') + ' and ' + colourList[colourList.length - 1] : colourList.join('');
   content += '.</p>';
   
   content += '<p class="mb-12"><strong>This means you naturally:</strong></p>';
@@ -12742,7 +12770,7 @@ function personalizeInteractions() {
   const colorTraits = {
     W: 'Value team coordination and fairness',
     U: 'Seek optimal strategies through analysis',
-    B: 'Prioritize results and self-advocacy',
+    B: 'Prioritise results and self-advocacy',
     R: 'Trust your instincts and act quickly',
     G: 'Prefer proven approaches and patience'
   };

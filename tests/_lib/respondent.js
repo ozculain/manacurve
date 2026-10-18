@@ -78,9 +78,9 @@ function itemParams(id) {
   }
   return it;
 }
-function latentWeights(rnd, C) {
+function latentWeights(rnd, C, ranges = MIS) {
   const w = {};
-  for (const c of WUBRG) w[c] = C.includes(c) ? uniformIn(rnd, MIS.inSet) : uniformIn(rnd, MIS.outSet);
+  for (const c of WUBRG) w[c] = C.includes(c) ? uniformIn(rnd, ranges.inSet) : uniformIn(rnd, ranges.outSet);
   return w;
 }
 // Identity-colour similarity: 1 - mean |indicator - weight| over the five
@@ -98,9 +98,9 @@ function similarity(colors, w) {
 // colours and display order), and picks the true identity over a one-colour
 // neighbour in Round 3 with average probability p. Deterministic per p.
 const calibCache = new Map();
-function calibrateMisspecified(p) {
-  const target = Math.min(MIS.maxP, Math.max(0.5, p));
-  if (calibCache.has(target)) return calibCache.get(target);
+// Engaged respondents' one-in, one-out items and one-colour Round 3 matchups,
+// drawn from a fixed seed, with latent weights in the given ranges.
+function calibrationRows(ranges) {
   const rnd = mulberry32(hashSeed('misspecified-calibration'));
   const N = 20000, items = [], r3 = [];
   const IDS = [];
@@ -111,30 +111,43 @@ function calibrateMisspecified(p) {
     const cin = WUBRG[Math.floor(rnd() * 5)];
     const cout = WUBRG.filter((c) => c !== cin)[Math.floor(rnd() * 4)];
     const lean = MIS.desirability * (desirable(cin) - desirable(cout)) + (rnd() < 0.5 ? MIS.position : -MIS.position);
-    items.push({ s: a * u, d: uniformIn(rnd, MIS.inSet) - uniformIn(rnd, MIS.outSet) - (rnd() < 0.5 ? b : -b), lean });
-    const C = IDS[Math.floor(rnd() * IDS.length)], w = latentWeights(rnd, C);
+    items.push({ s: a * u, d: uniformIn(rnd, ranges.inSet) - uniformIn(rnd, ranges.outSet) - (rnd() < 0.5 ? b : -b), lean });
+    const C = IDS[Math.floor(rnd() * IDS.length)], w = latentWeights(rnd, C, ranges);
     const flips = WUBRG.filter((c) => C.length > 1 || !C.includes(c));
     const flip = flips[Math.floor(rnd() * flips.length)];
     const N1 = C.includes(flip) ? C.filter((c) => c !== flip) : [...C, flip];
     r3.push({ s: u, d: similarity(C, w) - similarity(N1, w) });
   }
+  return { items, r3 };
+}
+const meanChoice = (rows, k, withLean) => rows.reduce((acc, x) => acc + sigmoid(k * x.s * x.d + (withLean ? x.lean : 0)), 0) / rows.length;
+function calibrateMisspecified(p) {
+  const target = Math.min(MIS.maxP, Math.max(0.5, p));
+  if (calibCache.has(target)) return calibCache.get(target);
+  const { items, r3 } = calibrationRows(MIS);
   const solve = (rows, withLean) => {
-    const mean = (k) => rows.reduce((acc, x) => acc + sigmoid(k * x.s * x.d + (withLean ? x.lean : 0)), 0) / rows.length;
     let lo = 0, hi = 1000;
-    for (let i = 0; i < 60; i++) { const mid = (lo + hi) / 2; if (mean(mid) < target) lo = mid; else hi = mid; }
+    for (let i = 0; i < 60; i++) { const mid = (lo + hi) / 2; if (meanChoice(rows, mid, withLean) < target) lo = mid; else hi = mid; }
     return (lo + hi) / 2;
   };
   const calib = { target, k: solve(items, true), k3: solve(r3, false) };
   calibCache.set(target, calib);
   return calib;
 }
+// The signal a calibration gives respondents whose weights lie in other ranges
+// (the mixed model's): the average probability of the in-identity option of a
+// one-in, one-out item, and of the true identity over a one-colour neighbour.
+function signalAt(calib, ranges) {
+  const { items, r3 } = calibrationRows(ranges);
+  return { items: meanChoice(items, calib.k, true), round3: meanChoice(r3, calib.k3, false) };
+}
 
-function misspecifiedRespondent({ colors: C, rnd, p, neither, seed, trueId, idx, win, calibration }) {
+function misspecifiedRespondent({ colors: C, rnd, p, neither, seed, trueId, idx, win, calibration, weightRanges }) {
   const calib = calibration || calibrateMisspecified(p);
   const person = mulberry32(hashSeed(seed, trueId, idx, 'person'));
   const disengaged = person() < MIS.disengaged;
   const u = beta(person, ...MIS.consistency) / BETA_MEAN;
-  const w = latentWeights(person, C);
+  const w = latentWeights(person, C, weightRanges || MIS);
   // Options in the order the page is showing them.
   const shown = (q) => {
     const texts = [...win.document.querySelectorAll('#choices .mc-choice__text')].map((e) => e.textContent);
@@ -162,7 +175,22 @@ function misspecifiedRespondent({ colors: C, rnd, p, neither, seed, trueId, idx,
   };
 }
 
-const MODELS = { ideal: idealRespondent, misspecified: misspecifiedRespondent };
+// ---------- Mixed model ----------
+// Real people rarely hold a clean colour set: their colour weights are
+// continuous and fairly flat, so the weakest colour they hold and the strongest
+// they do not are often only a little apart. The mixed respondent is the
+// misspecified one (the same person, items, leans, disengaged share, and k and
+// k3 calibrated at p for the misspecified model) with flatter latent weights:
+// each colour in the identity U(0.5, 0.8), each outside it U(0.2, 0.5). The
+// identity is still exactly the colours weighted above 0.5, but many items
+// and many Round 3 matches are close to coin flips, so the answers carry less
+// signal than the misspecified model's at the same p (tests/README.md).
+const MIXED = { inSet: [0.5, 0.8], outSet: [0.2, 0.5] };
+function mixedRespondent(args) {
+  return misspecifiedRespondent({ ...args, weightRanges: MIXED });
+}
+
+const MODELS = { ideal: idealRespondent, misspecified: misspecifiedRespondent, mixed: mixedRespondent };
 const MODEL_NAMES = Object.keys(MODELS);
 
 const round = (x, dp) => { const f = 10 ** dp; return Math.round(x * f) / f; };
@@ -254,4 +282,4 @@ function runRespondent(win, trueId, idx, params, { trace = false } = {}) {
   return out;
 }
 
-module.exports = { MODELS, MODEL_NAMES, MIS, jaccard, chooseOption, similarity, calibrateMisspecified, runRespondent, round, roundActivation };
+module.exports = { MODELS, MODEL_NAMES, MIS, MIXED, jaccard, chooseOption, similarity, calibrateMisspecified, signalAt, runRespondent, round, roundActivation };

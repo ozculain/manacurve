@@ -4,6 +4,235 @@ Newest first. Dates are when the work was committed.
 
 ## 2026-10-18
 
+### Plain profiles and pages
+
+The site still read as AI writing everywhere Plain screens had not been,
+down to a joke tacked onto Mono-Blue's strengths: "Finds the assumption
+nobody questioned and questions it, gently. Particularly on Tuesdays." A
+scan of that copy found 155 em dashes, 39 banned words, 115 tacked-on
+endings, 94 tricolons and 22 sentences over 25 words across the identity
+profiles, the commander descriptions, the player-mode card, the colour
+cards, the dossier, the methodology, the explorer, the colour-interactions
+screen and the share studio. Each string is now cut back to its claim: no
+em dash used as a dash, no "not X, it's Y", no rhetorical question, no
+"actually", "genuinely", "simply" or "truly", no tacked-on joke, no
+sentence over 25 words, British spelling throughout. 453 strings changed:
+295 cut, 158 rewritten (mostly two sentences joined, or a question turned
+into a statement). Scoring is unchanged and the golden fixture does not
+move; identity names, ids, colours, keys, roles and art credits are as
+they were.
+
+- Profiles (`data.js`): philosophy, description, banter, strengths and
+  shadows for all 31 identities. Some lines two identities shared word for
+  word now belong to one of them. Azorius keeps four strengths: the fifth
+  ("Azorius doesn't enjoy meetings. Azorius IS meetings.") had no claim
+  once the joke went. The link previews for Boros, Esper, Ink and Orzhov,
+  whose philosophy opens differently now, are rebuilt.
+- Commander descriptions: the card facts checked against Scryfall stay as
+  they were; the sentences around them lose their tag lines ("The Dimir
+  thesis in one mechanic.", "Red as compound impulse."). Yuriko's and
+  Kynaios and Tiro's long fact sentences split where the cards split them,
+  Rakdos loses its stray asterisks and Kenrith's line gets a full stop.
+- Player-mode card: the rules strips lose their closing quips ("Back
+  Thursday.", "It knew what the job was.") and Golgari's "Undergrowth —";
+  the commanders' printed type lines keep their dash. The mana base loses
+  its jokes: no mono-colour joke, "Maybeboard: <land>." at one answer or a
+  few short, "and 13 basics" for five colours.
+- Colour cards and explorer: no em dashes, "actually" or "not because ...,
+  but because ..."; the colleague quotes lose their rhetorical questions
+  and the grudging endings that followed most of them.
+- Dossier: the Philosophy tab's boxes that read the same for every guild or
+  three-colour identity are gone ("it's a genuine fusion with emergent
+  properties"); "Common Enemies", untrue for most three-colour identities,
+  is "What's Absent"; its sentences name the identity as the result page
+  does ("When Mono-White is stressed").
+- Methodology: "What this means" and the round notes lose their dashes,
+  "genuinely" and "color"; the primary-colour note reads "White is your
+  primary colour within this combination, 18 points above the next."; the
+  commander row is "Legendary Commander · Yuriko".
+- Colour interactions: British spelling, "White, Blue and Black", and no
+  subtitle of three. Share studio: the Card's typeline is "Personality ·
+  Dimir", and the Scorecard's "Closest" names the runner-up as the result
+  page does ("Four-colour (no red)", not "Four-color (no red)").
+- Counts after (em dashes, banned, tacked-on, tricolons, over 25 words):
+  profiles 0/0/2/14/0, commander descriptions 0/0/2/4/0, player card
+  28/0/4/1/0 (the 28 are type lines), colour cards 0/0/0/1/0, dossier
+  0/0/0/2/0, methodology 0/0/0/0/0, explorer 0/0/0/2/0, interactions
+  0/0/0/2/0, share studio 0/0/1/0/0. The tacked-on and tricolon hits left
+  are claims, lists of an identity's colours, or false matches.
+- Not changed: the identity names (MONO-WHITE, FOUR-COLOR (No Red)), which
+  links and code read; the welcome's own words; the Round 1 to 3 items;
+  engine 1's Round 3 line; and the stress list the dossier gives all 16
+  three-, four- and five-colour identities, which describes none of them in
+  particular and is left for a later pass.
+- Tests: `tests/visible-copy.test.js` (101 checks, 13 new) renders all of
+  the above and fails on the same dashes and banned phrases, a question
+  mark outside a quotation, "not X, it's Y", "color" and the other US
+  spellings, an unfilled placeholder and a sentence over 25 words. Run
+  against main it fails 9 of its 101 checks. `render.test.js` follows the
+  new rules strips and mana base.
+
+### Result matches the bars
+
+A player was told Mono-Blue, "Still shuffling", under bars of White 56, Blue
+52, Black 38, Red 60, Green 39. Blue, the only colour lit, came third;
+Jeskai, the top three bars, never reached Round 3; and the explanation said
+the bars had broken a Round 3 loop (Izzet beat Five-colour beat Mono-Blue
+beat Izzet), which under engine 2 they had not. Now the result is always one
+whose colours are the top bars, give or take half an answer, on both
+engines.
+
+- Why. The name and the bars came from two calculations that never met. The
+  bars average each colour's Round 1 (enemy pairs) and Round 2 (ally pairs)
+  win rates with equal weight, so two Round 2 answers count as much as ten
+  Round 1 answers. Engine 2's posterior reads each colour pair on its own,
+  and under its 0.5 rule an identity holding both or neither of a pair's
+  colours predicts a coin flip there and loses nothing when the pair comes
+  out even: on a flat, mixed profile the identities that predict the most
+  coin flips (Five-colour at all ten pairs, monos and fours at six) fit about
+  as well as the one the bars point to. Round 3 played the posterior's top
+  four, chosen without the bars, and its term (the identity closer by
+  Jaccard similarity is preferred) reads each "the narrower one won" answer
+  in a nested four as evidence for the narrowest. Engine 1's tie-break of a
+  Round 3 loop by the bars still ran under engine 2; its pick was replaced
+  by the posterior's, and the explanation still credited the bars.
+- Reproduced. The answers recorded in `tests/bars.test.js` (page seed 3, two
+  Round 1 Neithers) give bars W55 U52 B38 R60 G39. Red lost to Blue 0.8 to 4
+  head to head but won both its Round 2 answers, which lift its bar to 60;
+  Blue won 1 of its 3.7 weighted Round 2 answers, which hold it at 52. The
+  posterior after Round 2 is flat (Izzet 11.3%, Jeskai 9.0%, Mono-Blue 7.8%,
+  Five-colour 7.5%, which is the all-coin-flips score), so Round 3 played U,
+  UR, UWR and WUBRG, each inside the next. With the player's loop and three
+  more answers, five of the six agree with Mono-Blue under the Jaccard term
+  (three for Izzet and Jeskai, one for Five-colour), and its posterior goes
+  from 7.8% to 39%: Mono-Blue, LOW, secondary lean Izzet, and the player's
+  explanation word for word. Over the 64 ways those six matches can go,
+  engine 2 gave Mono-Blue 14 times (3 through the record rule, when Jeskai
+  led on posterior with a losing record) and Five-colour 12 times; engine 1,
+  whose four come from the bars' gaps (Jeskai, Ink, Boros, Izzet), never
+  contradicted the bars there. Of 404 Round 1 and 2 answer sets built to land
+  within 2.5 points of the player's bars, Jeskai led the posterior in 307
+  and missed the four in 33, and Five-colour made the four in 65. None of
+  the answer sets searched gave the player's exact four (Mono-Blue, Izzet and
+  Five-colour without Jeskai).
+- The lean in simulation (engine 2, before): on the mixed population at
+  p = 0.65 it reported Five-colour for 9.4% of respondents (3.2% are
+  Five-colour, and 7% of those results were right), a mono for 22.2%
+  (16.1%) and a three-colour identity for 23.3% (32.3%).
+- Contradiction, as measured: the strongest colour the result leaves out
+  sits more than half an answer (1/24 of a bar; an answer moves a bar by
+  about 1/12, `ONE_ANSWER_BY_VERSION`) above the weakest colour it holds,
+  or, for Five-colour, the weakest sits more than that below 50%, the line
+  next door draws for five colours. The player's Mono-Blue is 8 points out
+  (Red over Blue), about one answer. In percent, p = 0.65 / 0.8, n = 6,200
+  per cell (100 per identity, seeds 1 and 2), over half an answer (over one
+  answer):
+
+  | population   | engine 1 before          | engine 2 before            | after, both engines |
+  | ------------ | ------------------------ | -------------------------- | ------------------- |
+  | ideal        | 13.3 / 9.3 (9.5 / 6.3)   | 18.7 / 9.0 (11.3 / 4.6)    | 0 / 0               |
+  | misspecified | 13.7 / 9.1 (9.9 / 5.7)   | 17.7 / 9.2 (10.9 / 4.9)    | 0 / 0               |
+  | mixed        | 14.0 / 12.9 (10.2 / 9.2) | 22.5 / 17.1 (14.5 / 10.0)  | 0 / 0               |
+
+  Within half an answer a lit bar can still print below an unlit one: after
+  the change, on 13.1 / 6.5 (ideal), 12.6 / 6.7 (misspecified) and 14.7 /
+  11.8% (mixed) of engine 2's results, and 3.6 to 5.4% of engine 1's
+  (before, at p = 0.65: 26 to 32% and 18 to 19%).
+- The change. `barsAllow(id)` holds an identity to its bars at that tolerance
+  (`BARS_TOLERANCE`). Engine 2 plays Round 3 between the four identities the
+  bars allow that the Round 1 + Round 2 posterior rates highest, and reports
+  the best of them by the final posterior, the record rule acting among
+  them; the posterior and the confidence rule are as they were. Engine 1
+  reports its tournament winner when the bars allow it, and otherwise the
+  best candidate they allow in its standings (LOW, the tournament's pick as
+  runner-up). The early offer, on both engines, needs the Round 1 bars, which
+  an early result shows, to allow it. A session that reached Round 3 on an
+  earlier build finishes on an identity the bars allow too.
+- Recovery, exact, in percent, p = 0.65 / 0.8 (change on the same
+  respondents, with two paired standard errors):
+
+  | population   | engine 1    | engine 2 before | engine 2 after                         | engine 1 after |
+  | ------------ | ----------- | --------------- | -------------------------------------- | -------------- |
+  | ideal        | 16.9 / 43.4 | 24.5 / 69.2     | 24.0 / 66.5 (-0.5 ±0.8 / -2.7 ±0.8)    | 17.4 / 44.6    |
+  | misspecified | 17.7 / 42.1 | 24.7 / 60.6     | 23.2 / 57.9 (-1.6 ±0.8 / -2.7 ±0.8)    | 17.4 / 42.8    |
+  | mixed        | 8.2 / 19.4  | 9.9 / 24.0      | 9.2 / 23.0 (-0.6 ±0.6 / -1.0 ±0.8)     | 8.0 / 18.9     |
+
+  Next door (the truth within one colour of the result), engine 2 at
+  p = 0.8: 85.8 to 81.7 (ideal), 78.9 to 76.1, 42.4 to 40.3. Label accuracy
+  at p = 0.8, ideal / misspecified: HIGH 91.3 to 90.8 / 84.0 to 81.7,
+  MODERATE 83.7 to 83.6 / 75.6 to 73.7, LOW 58.0 to 54.4 / 46.5 to 42.4.
+- Five-colour is no longer reported. A five-colour respondent answers coin
+  flips, which leave the weakest bar near 31 to 34%, not near 50%: 3 to 4%
+  of them come within one answer of the line, and none within half. It had
+  been right for 15 to 27% of true five-colour respondents, and was given to
+  1.3 to 9.4% of all results, most often where it was least often right (7%
+  on the mixed population at p = 0.65, 64% for ideal respondents at
+  p = 0.8). It accounts for 0.5 to 0.9 points of engine 2's drop at
+  p = 0.8.
+- Options, measured on the same respondents (seed 1, n = 3,100 per cell;
+  engine 2's change in exact recovery against live, in points, for ideal,
+  misspecified and mixed respondents, then the share of results over half an
+  answer from their bars, in percent; two paired standard errors on a change
+  are 0.6 to 1.5):
+
+  | option                                    | p = 0.65: change / over      | p = 0.8: change / over         |
+  | ----------------------------------------- | ---------------------------- | ------------------------------ |
+  | engine 2 as it was                        | 0, 0, 0 / 19, 18, 24         | 0, 0, 0 / 9, 9, 18             |
+  | (d) engine 1 as the default               | -6.3, -7.8, -1.5 / 13, 14, 14 | -24.7, -17.3, -4.4 / 9, 10, 13 |
+  | (a) top 1, 2 and 3 bars always in Round 3 | -0.3, -1.1, -0.7 / 12, 10, 13 | -2.8, -2.4, -0.7 / 6, 6, 9     |
+  | (b) the final pick held to the bars       | -1.0, -1.7, -0.3 / 0         | -3.0, -2.4, -1.4 / 0           |
+  | (a)+(b), no tolerance                     | -0.7, -3.5, -0.6 / 0         | -5.5, -4.9, -2.0 / 0           |
+  | (a)+(b), a quarter of an answer           | -0.5, -2.6, -0.2 / 0         | -3.9, -4.0, -1.6 / 0           |
+  | (a)+(b), half an answer (taken)           | +0.2, -2.1, -0.5 / 0         | -2.4, -3.0, -1.8 / 0           |
+  | (a)+(b), one answer                       | +0.5, -1.0, +0.2 / 10, 9, 11 | -1.1, -1.5, -1.6 / 4, 4, 9     |
+  | (c) posterior bars, name over 50%         | +0.5, +0.5, +0.4 / 0         | -0.6, +0.4, +0.5 / 0           |
+
+  (d) keeps the contradictions and gives up most of engine 2's recovery.
+  (a) alone keeps half the contradictions at the cost of (a)+(b). (b) alone
+  matches (a)+(b) within noise, but plays identities in Round 3 that can
+  never be the result and can report one that played no match; (a)+(b)
+  plays only identities that can be. Half an answer rules out the player's
+  case with room to spare (one answer, 8.3 points, would allow its 8) and
+  costs up to 3 points less than no tolerance, which would also stop near
+  ties printing out of order. (c), bars from the posterior (each colour's
+  chance of being in the identity) with the colours over 50% as the name, is
+  the only option that costs nothing, but it changes what the bars mean (the
+  caption says how often each colour was picked), the units next door and
+  the mana base read, and what shared links carry, and it lets the result be
+  an identity Round 3 never played; it is a decision for the result screen,
+  not a scoring fix, so it is not taken here.
+- The explanation: Plain screens (below) removed the sentence about the bars
+  breaking the loop, with the rest of the confidence explanation; this
+  change had limited it to the loops the bars did break. The scoring still
+  records `round3Data.loopBrokenByBars`, true only when engine 1's re-rank by
+  the bars picked the result, never under engine 2; nothing shown reads it.
+  The scenario-contradiction guard can no longer fire (it needed the top bar
+  20 points clear of the result's colours).
+- Tests: `tests/bars.test.js` (in `npm test`) checks the rule on the
+  player's bars, the recorded pattern on both engines through all 64 Round 3
+  outcomes, the old four finished on this build, the loop record, and the
+  simulator over all three populations at p 0.65 and 0.8 on both engines,
+  where the bound is zero: every result passes `barsAllow` before it is
+  reported, and `tests/simulate.js` counts any that does not as a contract
+  violation. The simulator gains the mixed population (`--model mixed`,
+  `--models all`) and reports each result against its bars.
+  `tests/fixtures/golden.json` is rewritten in its own commit (120 of 186
+  paths play a different four, 29 end elsewhere; at p = 1, Five-colour and
+  Dune no longer end on themselves). `docs/SCORING_CONTRACT.md` says so, in
+  its own commit.
+- Not reached: the recovery cost above; Five-colour; near ties shown out of
+  order. The bars still weigh two Round 2 answers like ten Round 1 answers,
+  which is where they and the posterior part company; they are activation by
+  contract, so the name now follows them rather than the other way round.
+  Results and links saved before this build keep their identity.
+- Commands: `node tests/simulate.js --n 100 --seed 1,2 --models all --p
+  0.65,0.8 --engine 1,2 [638cfe3's index.html]` and the same on this build
+  (it reports the contradiction rates, and fails on 638cfe3, which breaks
+  the new contract). For the options, (a) was 638cfe3 with the top bars'
+  identities forced into Round 3; (b) and the tolerances were this change
+  without its Round 3 filter or with another `BARS_TOLERANCE`; (c) was read
+  from engine 2's final posterior on the same respondents.
+
 ### Plain screens
 
 A player took the live quiz on a phone and the result screen said, under

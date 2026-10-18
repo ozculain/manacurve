@@ -12,7 +12,7 @@
 // identity's own content (name, tagline, philosophy, strengths, shadows,
 // banter, roles, the player-mode card), the commander block (commander,
 // description, mana base) and the colour cards under Working With Others,
-// which are a separate decision. A check fails on:
+// which sections 10 to 15 hold to their own rules. A check fails on:
 //   - an em dash, or an en dash used as a dash
 //   - a banned phrase ("caveat", "treat this as", "soft read", "softer than
 //     they look", "secondary lean", "That's the game", "We know who they
@@ -25,6 +25,23 @@
 //   - a sentence over 20 words
 //   - a confidence block of more than the label and two sentences, more than
 //     one quality line under it, or anything else between it and the bars.
+// Sections 10 to 15 (CHANGELOG, "Plain profiles and pages") read what a
+// player reads about an identity and the pages around the result, rendered
+// for real: the profile blocks on the result screen for all 31 identities
+// (tagline, philosophy, strengths, shadows, banter, roles, the commander and
+// its description, the player-mode card and mana base, the colour cards),
+// the explorer with all 31 details in both audiences, the dossier's five
+// tabs for all 31, the methodology and full breakdown (Round 2 and Round 3
+// shown, under both engines), the colour-interactions screen and the share
+// studio's three formats. There a check fails on the same dashes, banned
+// phrases and scoring words (the methodology may name how the quiz works),
+// "the real", an exclamation mark, a question mark outside a quotation (no
+// rhetorical questions), "not X, it's Y", a US spelling ("color" and the
+// rest), an unfilled {placeholder} (mana symbols like {1}{W} are not), a
+// sentence over 25 words, or an identity code in capitals in the dossier's
+// sentences. Left as they are, because they are data or quoted: the
+// identity names (MONO-WHITE, FOUR-COLOR (No Red)), the commander's printed
+// type line ("Legendary Creature — Human Ninja") and the card's rules text.
 // Jokes, tricolons and dramatic colons cannot be caught by a pattern; they
 // are left to review. The checker itself is tested last, on the paragraph a
 // player saw on a phone before this rule existed.
@@ -33,19 +50,23 @@ const { bootPage, pageArgs, whenReady, isVisible, EXPOSE } = require('./_lib/loa
 const { run } = require('./_lib/report');
 
 const DUMP = process.argv.includes('--dump');
-const PAGE_EXPOSE = [...EXPOSE, 'RESULT_COPY'];
+const PAGE_EXPOSE = [...EXPOSE, 'RESULT_COPY', 'manaBaseLine', 'FORMAT_HINTS'];
 const MAX_WORDS = 20;
+const MAX_CONTENT_WORDS = 25;
 
 // ---------- the rules ----------
-const BANNED = [
+const PHRASES = [
   'caveat', 'treat this as', 'soft read', 'softer than they look', 'secondary lean', "that's the game",
   'we know who they are', 'suspect', 'genuinely', 'actually', 'simply', 'truly',
-  // how the scoring works
+];
+// how the scoring works
+const SCORING_WORDS = [
   'loop', 'final-round', 'final round', 'item answers', 'scenario answers', 'quick answers', 'disagreed',
   'margin', "couldn't decide", 'round 1 and round 2', 'head-to-head comparison', 'enemy pair', 'ally pair',
   'posterior', 'broke the',
 ];
-const US_SPELLING = /\b(?:color|favor|behavior|honor\b|center\b|(?:analy|organi|recogni|reali|priori|optimi|summari|emphasi|minimi|maximi|apologi|categori|characteri|personali)z)/i;
+const BANNED = [...PHRASES, ...SCORING_WORDS];
+const US_SPELLING = /\b(?:color|favor|flavor|behavior|honor\b|center\b|rigor\b|fervor|math\b|outmaneuver|(?:analy|organi|recogni|reali|priori|optimi|summari|emphasi|minimi|maximi|apologi|categori|characteri|personali|paraly)z)/i;
 const NOT_X_ITS_Y = /\b(?:not|isn't|aren't|wasn't)\b[^.?!]*?[,;:]\s*(?:it's|it is|but)\b/i;
 
 // Identity codes in capitals: the PROFILES keys (MONO-U ... WUBRG), and the
@@ -82,6 +103,37 @@ function problemsIn(text, { PROFILES, questions = false } = {}) {
   if (/\{\w+\}/.test(text)) out.push('unfilled placeholder');
   if (PROFILES) for (const re of codeRules(PROFILES)) { const m = re.exec(text); if (m) out.push(`identity code "${m[0]}"`); }
   for (const s of sentences(text)) if (words(s).length > MAX_WORDS) out.push(`${words(s).length} words: "${s.slice(0, 60)}..."`);
+  return out;
+}
+
+// Problems in one block of an identity's content or the pages around the
+// result (sections 10 to 15). `scoring`: whether the scoring's workings count
+// against it (not on the methodology, whose subject they are). `codes`:
+// whether an identity code in capitals counts (the dossier's sentences).
+// "Enemy pair" and "ally pair" name the colour wheel's relationships there
+// (the explorer's "Allied and enemy pairs."), not the scoring, and pass.
+// The identity names are data and are read past: FOUR-COLOR is a name, not
+// the copy's spelling.
+const WHEEL_WORDS = ['enemy pair', 'ally pair'];
+const TYPE_LINE = /^Legendary (?:Artifact )?Creature — [A-Z][a-z]+(?: [A-Z][a-z]+)*$/;
+function contentProblems(text, { PROFILES, scoring = true, codes = false } = {}) {
+  let t = text;
+  if (PROFILES) for (const p of Object.values(PROFILES)) t = t.split(p.name).join(' ');
+  const out = [];
+  const lower = t.toLowerCase();
+  if (t.includes('—')) out.push('em dash');
+  if (/\s–\s|(?<!\d)–|–(?!\d)/.test(t)) out.push('en dash used as a dash');
+  if (/\s--\s|\w--\w/.test(t)) out.push('double hyphen used as a dash');
+  for (const b of (scoring ? BANNED.filter((w) => !WHEEL_WORDS.includes(w)) : PHRASES)) if (lower.includes(b)) out.push(`"${b}"`);
+  if (/\bthe real\b/i.test(t)) out.push('"the real"');
+  if (t.includes('!')) out.push('exclamation mark');
+  if (/\?(?!['"’”])/.test(t)) out.push('question mark outside a quotation');
+  if (NOT_X_ITS_Y.test(t)) out.push('"not X, it\'s Y"');
+  const us = US_SPELLING.exec(t);
+  if (us) out.push(`US spelling "${us[0]}"`);
+  if (/\{[a-z]\w*\}/.test(t)) out.push('unfilled placeholder');
+  if (codes && PROFILES) for (const re of codeRules(PROFILES)) { const m = re.exec(text); if (m) out.push(`identity code "${m[0]}"`); }
+  for (const s of sentences(t)) if (words(s).length > MAX_CONTENT_WORDS) out.push(`${words(s).length} words: "${s.slice(0, 60)}..."`);
   return out;
 }
 
@@ -217,6 +269,12 @@ run('visible-copy', async (t) => {
     const problems = blocks.flatMap((b) => problemsIn(b, { PROFILES, questions: opts.questions }).map((p) => `${p} in "${b.slice(0, 70)}"`));
     ok(`${label}: plain`, blocks.length > 0 && problems.length === 0, problems.slice(0, 4).join(' | ') || 'no visible text');
     return blocks;
+  };
+  // The content rules on blocks already collected; returns the problems, each
+  // with the block it was found in.
+  const contentIssues = (label, blocks, PROFILES, opts = {}) => {
+    dump(label, blocks);
+    return blocks.flatMap((b) => contentProblems(b, { PROFILES, ...opts }).map((p) => `${label}: ${p} in "${b.slice(0, 70)}"`));
   };
 
   // ---------- 1. the transitions, in every mode ----------
@@ -371,7 +429,186 @@ run('visible-copy', async (t) => {
     win.close();
   }
 
-  // ---------- 9. the checker itself ----------
+  // ---------- 10. the identity's own content on the result screen, all 31 ----------
+  // Player mode, so the card (typeline, rules text, collector number) and the
+  // mana base show too. One page, re-rendered for each identity, its own
+  // colours lit and the rest well short.
+  const actFor = (colours, gap = 0.4) => {
+    const act = {};
+    const out = ['W', 'U', 'B', 'R', 'G'].filter((c) => !colours.includes(c));
+    colours.forEach((c, i) => { act[c] = 0.75 - 0.02 * i; });
+    out.forEach((c, i) => { act[c] = i === 0 ? 0.75 - 0.02 * (colours.length - 1) - gap : 0.12 - 0.01 * i; });
+    return act;
+  };
+  // The colours of the identities sections 14 and 15 render.
+  const COLOURS = { 'MONO-W': ['W'], 'MONO-U': ['U'], DIMIR: ['U', 'B'], ESPER: ['W', 'U', 'B'], WITCH: ['W', 'U', 'B', 'G'],
+    GLINT: ['U', 'B', 'R', 'G'], WUBRG: ['W', 'U', 'B', 'R', 'G'] };
+  {
+    const { win, h, errors } = await page();
+    const d = win.document, P = h.PROFILES;
+    h.selectAudience('consumer');
+    const s = h.state;
+    s.gamingFamiliar = true;
+    const PARTS = ['#res-tag', '#res-banner-commander', '#res-rules', '#res-collector', '#identity-exp', '#strengths', '#weaknesses',
+      '#res-counter-section', '#roles', '#cmd-name-aside', '#cmd-desc-aside', '#res-mana-base', '#relations-detail'];
+    const problems = [], typelines = [];
+    let parts = 0;
+    for (const id of Object.keys(P)) {
+      s.result = { identity: id, confidence: 'MODERATE', allResults: [], scoringVersion: 2, instrumentVersion: 4, round3Data: {} };
+      s.activationSorted = sorted(actFor(P[id].colors));
+      s.responses = new Array(30).fill({ c: P[id].colors[0] });
+      s.neitherCount = 1;
+      s.qualityFlags = CLEAN_FLAGS;
+      s.disclaimerAcknowledged = true;
+      h.showResults();
+      const shown = PARTS.map((sel) => d.querySelector(sel)).filter((el) => el && !hidden(win, el));
+      parts += shown.length;
+      problems.push(...contentIssues(`result: ${id}`, shown.flatMap((el) => visibleBlocks(win, el, { exclude: [] })), P));
+      typelines.push([id, d.getElementById('res-typeline').textContent]);
+    }
+    ok('result: every identity\'s profile blocks, card, commander, mana base and colour cards are plain (all 31, player mode)',
+      parts === 31 * PARTS.length && problems.length === 0 && errors.length === 0,
+      `${parts} of ${31 * PARTS.length} parts shown; ` + (problems.slice(0, 4).join(' | ') || errors.slice(0, 2).join(' | ')));
+    const badType = typelines.filter(([, line]) => !TYPE_LINE.test(line));
+    ok('result: the card\'s typeline is the commander\'s printed type line, its dash the only one on the card (all 31)',
+      typelines.length === 31 && badType.length === 0, badType.map(([id, line]) => `${id} "${line}"`).join(' | '));
+    // Every mana base line, with the up neighbour one answer, a few answers and well short.
+    const lines = Object.keys(P).flatMap((id) => [0.05, 0.15, 0.4].map((gap) => h.manaBaseLine(id, actFor(P[id].colors, gap))));
+    const manaProblems = contentIssues('mana base', [...new Set(lines)], P);
+    ok('result: every mana base line is plain (all 31, a maybeboard line or not)', lines.length === 93 && lines.every(Boolean) && manaProblems.length === 0,
+      manaProblems.slice(0, 4).join(' | '));
+    win.close();
+  }
+
+  // ---------- 11. the explorer: the grid and all 31 details, in both audiences ----------
+  for (const audience of ['consumer', 'workplace']) {
+    const { win, h, errors } = await page();
+    const d = win.document, P = h.PROFILES;
+    h.selectAudience(audience);
+    win.showExplorer();
+    const problems = contentIssues(`explorer (${audience})`, visibleBlocks(win, d.getElementById('screen-explorer'), { exclude: ['#detail-panel'] }), P);
+    let details = 0;
+    for (const id of Object.keys(P)) {
+      win.showDetail(id);
+      const blocks = visibleBlocks(win, d.getElementById('detail-panel'), { exclude: [] });
+      if (blocks.includes(P[id].tag)) details++;
+      problems.push(...contentIssues(`explorer: ${id} (${audience})`, blocks, P));
+    }
+    ok(`explorer: the grid and all 31 details are plain (${audience})`, details === 31 && problems.length === 0 && errors.length === 0,
+      `${details} details; ` + (problems.slice(0, 4).join(' | ') || errors.slice(0, 2).join(' | ')));
+    win.close();
+  }
+
+  // ---------- 12. the dossier: all five tabs, all 31 identities ----------
+  {
+    const { win, h, errors } = await page();
+    const d = win.document, P = h.PROFILES;
+    const problems = [];
+    let tabs = 0;
+    for (const id of Object.keys(P)) {
+      win.openModal(id);
+      d.querySelectorAll('#modal-body .tab-content').forEach((tab) => { tab.classList.remove('hidden'); tabs++; });
+      problems.push(...contentIssues(`dossier: ${id}`, visibleBlocks(win, d.getElementById('modal-header'), { exclude: [] }), P));
+      problems.push(...contentIssues(`dossier: ${id}`, visibleBlocks(win, d.getElementById('modal-body'), { exclude: [] }), P, { codes: true }));
+      win.closeModal();
+    }
+    ok('dossier: all five tabs for all 31 identities are plain, with no identity code in capitals in its sentences',
+      tabs === 31 * 5 && problems.length === 0 && errors.length === 0, problems.slice(0, 4).join(' | ') || errors.slice(0, 2).join(' | '));
+    win.close();
+  }
+
+  // ---------- 13. the methodology and full breakdown ----------
+  // Opened as "View Full Breakdown" opens it, the breakdown expanded, the
+  // commander card turned over and the Round 2 and Round 3 sections shown; one
+  // to five colours, a primary colour, both spreads, four and eight Neithers,
+  // and the Round 3 line under both engines. The card's rules text is quoted
+  // from the card and left out.
+  const BREAKDOWN = [
+    { id: 'MONO-R', act: { R: 0.86, B: 0.52, G: 0.44, W: 0.21, U: 0.12 }, neither: 1, engine: 2, what: 'one colour, a wide spread' },
+    { id: 'BOROS', act: { W: 0.85, R: 0.6, U: 0.3, B: 0.25, G: 0.2 }, neither: 5, engine: 2, what: 'two colours, a primary colour, four Neithers' },
+    { id: 'DIMIR', act: DIMIR_ACT, neither: 1, engine: 1, what: 'two colours, engine 1' },
+    { id: 'ESPER', act: { U: 0.7, B: 0.66, W: 0.62, G: 0.2, R: 0.1 }, neither: 1, engine: 2, what: 'three colours' },
+    { id: 'GLINT', act: { U: 0.66, B: 0.63, R: 0.6, G: 0.58, W: 0.2 }, neither: 9, engine: 2, what: 'four colours, eight Neithers' },
+    { id: 'WUBRG', act: { W: 0.55, U: 0.53, B: 0.52, R: 0.5, G: 0.49 }, neither: 1, engine: 1, what: 'five colours, a narrow spread, engine 1' },
+  ];
+  {
+    const problems = [], seen = [];
+    for (const b of BREAKDOWN) {
+      const { win, h, errors } = await renderResult({ id: b.id, confidence: 'MODERATE', act: b.act, r3: DIMIR_R3, mode: 'player' }, { engine: b.engine });
+      const d = win.document, s = h.state;
+      s.neitherCount = b.neither;
+      s.refinementAnswers = new Array(9).fill({ choice: h.PROFILES[b.id].colors[0] });
+      s.refinementPairwise = { 'W-U': { W: 2, U: 1 }, 'B-R': { B: 1, R: 2 }, 'G-W': { G: 2, W: 1 } };
+      h.showResults();
+      d.getElementById('legacy-detail').classList.remove('hidden');
+      d.getElementById('unified-breakdown').style.display = 'block';
+      ['round2-unified-section', 'round3-unified-section'].forEach((id) => d.getElementById(id).classList.remove('hidden'));
+      d.getElementById('cmd-card-frame').style.display = 'block';
+      const blocks = visibleBlocks(win, d.getElementById('legacy-detail'), { exclude: ['#cmd-oracle-text', '#cmd-pt', '#cmd-cost'] });
+      seen.push(...blocks);
+      problems.push(...contentIssues(`breakdown: ${b.what}`, blocks, h.PROFILES, { scoring: false }), ...errors);
+      win.close();
+    }
+    const has = (pattern) => seen.some((x) => pattern.test(x));
+    ok('methodology and full breakdown: plain under every state, Round 2 and Round 3 included',
+      problems.length === 0 && has(/^White is your primary colour within this combination, 25 points above the next\.$/)
+        && has(/^Round 1 tested only enemy pairs/) && has(/finished with the best record/) && has(/won on the weight of all your answers/)
+        && has(/Neither" on 9 of 30 questions/) && has(/Four- and five-colour results are the hardest to pin down/),
+      problems.slice(0, 4).join(' | ') || 'a state did not show');
+  }
+
+  // ---------- 14. the colour-interactions screen, with and without a result ----------
+  {
+    const problems = [];
+    for (const id of [null, 'MONO-W', 'DIMIR', 'ESPER', 'GLINT', 'WUBRG']) {
+      const p = id ? await renderResult({ id, confidence: 'HIGH', act: actFor(COLOURS[id]), r3: {}, mode: 'plain' }) : await page();
+      p.win.showInteractions();
+      problems.push(...contentIssues(`colour interactions (${id || 'no result'})`, visibleBlocks(p.win, p.win.document.getElementById('screen-interactions'), { exclude: [] }), p.h.PROFILES), ...p.errors);
+      p.win.close();
+    }
+    ok('colour interactions: plain, on its own and personalised for one to five colours', problems.length === 0, problems.slice(0, 4).join(' | '));
+  }
+
+  // ---------- 15. the share studio: Card, Scorecard and Story ----------
+  // The Card's keyword over each rules line ("Vigilance") is a heading on its
+  // own line and is read separately from the line under it.
+  const SHARE_EXCLUDE = ['#tcg-rules strong'];
+  {
+    const problems = [], typelines = [];
+    for (const [mode, id] of [['player', 'DIMIR'], ['plain', 'WITCH'], ['workplace', 'MONO-U']]) {
+      const { win, h, errors } = await renderResult({ id, confidence: 'HIGH', act: actFor(COLOURS[id]), r3: DIMIR_R3, mode });
+      win.showShareScreen();
+      for (const fmt of ['card', 'scorecard', 'story']) {
+        win.selectShareFormat(fmt);
+        problems.push(...contentIssues(`share studio: ${fmt} (${mode})`, visibleBlocks(win, win.document.getElementById('screen-share'), { exclude: SHARE_EXCLUDE }), h.PROFILES));
+      }
+      problems.push(...Object.values(h.FORMAT_HINTS).flatMap((x) => contentProblems(x.replace(/<[^>]+>/g, ''), { PROFILES: h.PROFILES }).map((q) => `hint: ${q}`)), ...errors);
+      typelines.push(win.document.querySelector('#share-tcg .mc-tcg__typeline span').textContent.replace(/\s+/g, ' ').trim());
+      win.close();
+    }
+    ok('share studio: the three formats and their hints are plain in every mode', problems.length === 0, problems.slice(0, 4).join(' | '));
+    ok('share studio: the Card\'s typeline reads "Personality · Name", as the result page does',
+      typelines.join(' | ') === 'Personality · Dimir | Personality · Four-colour (no red) | Personality · Mono-Blue', typelines.join(' | '));
+  }
+  {
+    // Every identity in all three formats, its runner-up a four-colour identity.
+    const { win, h, errors } = await renderResult({ id: 'DIMIR', confidence: 'HIGH', act: DIMIR_ACT, r3: { ...DIMIR_R3, runnerUp: { id: 'WITCH', wins: 2, losses: 1 } }, mode: 'player' });
+    const problems = [];
+    for (const id of Object.keys(h.PROFILES)) {
+      h.state.result.identity = id;
+      win.showShareScreen();
+      for (const fmt of ['card', 'scorecard', 'story']) {
+        win.selectShareFormat(fmt);
+        problems.push(...contentIssues(`share studio: ${id} ${fmt}`, visibleBlocks(win, win.document.getElementById('screen-share'), { exclude: SHARE_EXCLUDE }), h.PROFILES));
+      }
+    }
+    const closest = win.document.getElementById('sc-closest').textContent;
+    ok('share studio: all 31 identities are plain in all three formats, and "Closest" names the runner-up as the result page does',
+      problems.length === 0 && errors.length === 0 && closest === 'Four-colour (no red)', `Closest "${closest}"; ` + (problems.slice(0, 4).join(' | ') || errors.slice(0, 2).join(' | ')));
+    win.close();
+  }
+
+  // ---------- 16. the checkers themselves ----------
   {
     const { win, h } = await page();
     const P = h.PROFILES;
@@ -398,6 +635,37 @@ run('visible-copy', async (t) => {
       'Ages 6–12.', 'Colour, colours, coloured.', 'Do not use this for hiring, firing or any other decision about a person.'];
     const flagged = clean.filter((x) => problemsIn(x, { PROFILES: P }).length).map((x) => `${x}: ${problemsIn(x, { PROFILES: P })}`);
     ok('the checker passes plain lines (an en dash in a range, British spellings, a long list in one short sentence)', flagged.length === 0, flagged.join(' | '));
+
+    // The content checker (sections 10 to 15), on lines the profiles and pages
+    // carried before this rule, and on made-up ones.
+    const contentSamples = [
+      ['Will hold a team together past the point most people would have given up — and sometimes past the point they should have.', 'em dash'],
+      ['Treats being wrong as new information, not a personal injury. Genuinely. Not performatively.', '"genuinely"'],
+      ["Always 'well, actually' before any decision. Can we just decide already?", 'question mark outside a quotation'],
+      ['Your strongest colors are: White and Blue.', 'US spelling "color"'],
+      ['Rules are for suckers. Has done the math.', 'US spelling "math"'],
+      ['The rules are the rules -- can tend to adapt slowly.', 'double hyphen used as a dash'],
+      ["Power isn't evil, it's the ability to shape the world.", '"not X, it\'s Y"'],
+      ['They were the real reason it worked.', '"the real"'],
+      ['Your item answers broke the loop.', '"loop"'],
+      ['When MONO-WHITE is stressed, watch for:', 'identity code "MONO-WHITE"'],
+      ["In three weeks you'll come back with a thoroughly argued treatise explaining how you were right all along and we'll all know it but the world will have moved on.", '30 words'],
+      ['{Colour} made the cut by {n} answers.', 'unfilled placeholder'],
+    ];
+    const contentMissed = contentSamples.filter(([text, flag]) => !contentProblems(text, { PROFILES: P, codes: true }).join(' | ').includes(flag)).map(([text]) => text);
+    ok('the content checker flags each rule on a line the pages carried before, or a made-up one', contentMissed.length === 0, contentMissed.join(' | '));
+    const contentClean = [
+      ['Treats "is this okay?" as a question for someone else\'s department.', {}],
+      ['Your White and Blue spells cost {1} less; opponents\' spells cost {1} more.', {}],
+      ['Whenever Alesha attacks, pay {W/B}{W/B}: return a creature card with power 2 or less from graveyard, tapped and attacking.', {}],
+      ['FOUR-COLOR (No Red)', {}],
+      ['Round 1 tested only enemy pairs, colours that oppose each other.', { scoring: false }],
+      ['One two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty twenty-one twenty-two twenty-three twenty-four twenty-five.', {}],
+    ];
+    const contentFlagged = contentClean.map(([x, opts]) => [x, contentProblems(x, { PROFILES: P, ...opts })])
+      .filter(([, found]) => found.length).map(([x, found]) => `${x}: ${found}`);
+    ok('the content checker passes a quoted question, mana symbols, an identity name, the methodology\'s own words and a 25-word sentence',
+      contentFlagged.length === 0 && TYPE_LINE.test('Legendary Creature — Human Ninja') && !TYPE_LINE.test('Personality — Dimir'), contentFlagged.join(' | '));
     win.close();
   }
 });

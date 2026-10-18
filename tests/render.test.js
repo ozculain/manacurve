@@ -31,10 +31,10 @@ const CASES = [
     id: 'MONO-R', type: 'mono', confidence: 'HIGH',
     activation: { R: 0.86, B: 0.52, G: 0.44, W: 0.21, U: 0.12 },
     typeline: 'Legendary Creature — Goblin Warrior',
-    rules: 'Trample, haste. At the beginning of the end step, sacrifice this creature. Back Thursday.',
+    rules: 'Trample, haste. At the beginning of the end step, sacrifice this creature.',
     rolesForFun: 'Startups, Sales, Crisis Response, Creative Industries, Frontline Operations, Live Events',
     share: { consumer: "I'm Mono-Red. What are you?", workplace: "I'm Mono-Red. What are you?" },
-    manaBase: '37 lands: 36 Mountain and a Hanweir Battlements, so nothing has to wait its turn.',
+    manaBase: '37 lands: 36 Mountain and a Hanweir Battlements.',
     nextDoor: {
       player: [['up', 'RAKDOS', 'Splash black: Rakdos.', 'Your black was well short.']],
       plain: [['up', 'RAKDOS', 'Add black: Rakdos.', 'Black was well short.']],
@@ -45,7 +45,7 @@ const CASES = [
     id: 'DIMIR', type: 'guild', confidence: 'MODERATE',
     activation: { U: 0.78, B: 0.64, G: 0.31, W: 0.22, R: 0.11 },
     typeline: 'Legendary Creature — Human Ninja',
-    rules: "Whenever a player says something, surveil 1. You have shroud. (You can't be the target of spells, abilities or friends.)",
+    rules: 'Whenever a player says something, surveil 1. You have shroud.',
     rolesForFun: 'Strategic Planning, Competitive Intelligence, Investigative Journalism',
     share: { consumer: "I'm Dimir. What are you?", workplace: "I'm Dimir. What are you?" },
     manaBase: '37 lands: Command Tower, Watery Grave, Polluted Delta, Drowned Catacomb, 19 Island, 14 Swamp.',
@@ -72,7 +72,7 @@ const CASES = [
     id: 'JUND', type: 'three', confidence: 'LOW',
     activation: { R: 0.71, G: 0.69, B: 0.66, W: 0.24, U: 0.18 },
     typeline: 'Legendary Creature — Dragon',
-    rules: 'Trample. Sacrifice another creature: This creature gets +1/+0 until end of turn. It knew what the job was.',
+    rules: 'Trample. Sacrifice another creature: This creature gets +1/+0 until end of turn.',
     rolesForFun: 'Aggressive Sales, Competitive Industries, Startups, Sports, Private Equity',
     share: { consumer: "I'm Jund. What are you?", workplace: "I'm Jund. What are you?" },
     manaBase: "37 lands: Command Tower, Ziatora's Proving Ground, Blood Crypt, Stomping Ground, Overgrown Tomb, 11 Mountain, 11 Forest, 10 Swamp.",
@@ -119,7 +119,7 @@ const CASES = [
     rules: 'Changeling. You have every ability. Each works at a fifth of its strength.',
     rolesForFun: 'Consulting, General Tazri, Generalist Leadership, Facilitation',
     share: { consumer: "I'm Five-colour. What are you?", workplace: "I'm Five-colour. What are you?" },
-    manaBase: '37 lands: Command Tower, Mana Confluence, City of Brass, Exotic Orchard, all ten shocks, all ten Triomes, and 13 basics, mostly for the Cultivate.',
+    manaBase: '37 lands: Command Tower, Mana Confluence, City of Brass, Exotic Orchard, all ten shocks, all ten Triomes, and 13 basics.',
     nextDoor: {
       player: [['down', 'YORE', 'Cut the Forests: Four-colour (no green).', 'Green only just made the cut.']],
       plain: [['down', 'YORE', 'Drop green: Four-colour (no green).', 'Green only just made it in.']],
@@ -150,7 +150,7 @@ function landCount(line) {
     if ((x = /^(\d+) (Plains|Island|Swamp|Mountain|Forest)$/.exec(item))) return sum + Number(x[1]);
     if ((x = /^(?:all )?(four|six|ten) (?:shocks|Triomes)$/.exec(item))) return sum + WORDS[x[1]];
     if ((x = /^and (\d+) basics$/.exec(item))) return sum + Number(x[1]);
-    return sum + (item === 'mostly for the Cultivate' ? 0 : 1);
+    return sum + 1;
   }, 0);
 }
 
@@ -467,32 +467,32 @@ run('render', async (t) => {
   // three colours within an answer, four colours and five.
   const MANA_SAMPLES = [
     ['DIMIR', { U: 0.70, B: 0.66, G: 0.60, W: 0.20, R: 0.10 },
-      '37 lands: Command Tower, Watery Grave, Polluted Delta, Drowned Catacomb, 17 Island, 16 Swamp. Maybeboard: Zagoth Triome, just in case.'],
+      '37 lands: Command Tower, Watery Grave, Polluted Delta, Drowned Catacomb, 17 Island, 16 Swamp. Maybeboard: Zagoth Triome.'],
     ['MONO-G', { G: 0.90, W: 0.40, R: 0.30, U: 0.20, B: 0.10 },
-      "37 lands: 36 Forest and a Gaea's Cradle you've had since 1998."],
+      "37 lands: 36 Forest and a Gaea's Cradle."],
     ['NAYA', { R: 0.70, G: 0.68, W: 0.64, U: 0.30, B: 0.20 },
       "37 lands: Command Tower, Jetmir's Garden, Stomping Ground, Temple Garden, Sacred Foundry, 11 Mountain, 11 Forest, 10 Plains."],
     ['WITCH', { W: 0.66, U: 0.65, B: 0.64, G: 0.60, R: 0.20 },
       '37 lands: Command Tower, Mana Confluence, City of Brass, Exotic Orchard, six shocks, four Triomes, 6 Plains, 6 Island, 6 Swamp, 5 Forest.'],
     ['WUBRG', { W: 0.55, U: 0.53, B: 0.52, R: 0.50, G: 0.49 },
-      '37 lands: Command Tower, Mana Confluence, City of Brass, Exotic Orchard, all ten shocks, all ten Triomes, and 13 basics, mostly for the Cultivate.'],
+      '37 lands: Command Tower, Mana Confluence, City of Brass, Exotic Orchard, all ten shocks, all ten Triomes, and 13 basics.'],
   ];
   // The maybeboard on five recorded links' bars and a close four-colour
-  // result: one answer short gets "just in case", a few short "It's been there
-  // a while", and a mono line then drops its utility land's joke.
+  // result: one answer short and a few short both get "Maybeboard: <land>.",
+  // and a mono line names its utility land with no joke after it.
   const MAYBEBOARDS = [
     ['MONO-W', { W: 0.70, U: 0.22, B: 0.34, R: 0.40, G: 0.58 },
-      "37 lands: 36 Plains and a Castle Ardenvale. Maybeboard: Temple Garden. It's been there a while."],
+      '37 lands: 36 Plains and a Castle Ardenvale. Maybeboard: Temple Garden.'],
     ['MONO-B', { W: 0.35, U: 0.33, B: 0.73, R: 0.46, G: 0.58 },
-      "37 lands: 36 Swamp and a Cabal Coffers. Maybeboard: Overgrown Tomb. It's been there a while."],
+      '37 lands: 36 Swamp and a Cabal Coffers. Maybeboard: Overgrown Tomb.'],
     ['RAKDOS', { W: 0.48, U: 0.28, B: 0.49, R: 0.83, G: 0.24 },
-      '37 lands: Command Tower, Blood Crypt, Bloodstained Mire, Dragonskull Summit, 21 Mountain, 12 Swamp. Maybeboard: Savai Triome, just in case.'],
+      '37 lands: Command Tower, Blood Crypt, Bloodstained Mire, Dragonskull Summit, 21 Mountain, 12 Swamp. Maybeboard: Savai Triome.'],
     ['ESPER', { W: 0.68, U: 0.48, B: 0.59, R: 0.33, G: 0.15 },
-      "37 lands: Command Tower, Raffine's Tower, Hallowed Fountain, Watery Grave, Godless Shrine, 13 Plains, 11 Swamp, 8 Island. Maybeboard: Savai Triome. It's been there a while."],
+      "37 lands: Command Tower, Raffine's Tower, Hallowed Fountain, Watery Grave, Godless Shrine, 13 Plains, 11 Swamp, 8 Island. Maybeboard: Savai Triome."],
     ['TEMUR', { W: 0.33, U: 0.62, B: 0.09, R: 0.42, G: 0.68 },
-      "37 lands: Command Tower, Ketria Triome, Breeding Pool, Steam Vents, Stomping Ground, 13 Forest, 12 Island, 7 Mountain. Maybeboard: Spara's Headquarters. It's been there a while."],
+      "37 lands: Command Tower, Ketria Triome, Breeding Pool, Steam Vents, Stomping Ground, 13 Forest, 12 Island, 7 Mountain. Maybeboard: Spara's Headquarters."],
     ['GLINT', { U: 0.66, B: 0.63, R: 0.60, G: 0.58, W: 0.52 },
-      '37 lands: Command Tower, Mana Confluence, City of Brass, Exotic Orchard, six shocks, four Triomes, 6 Island, 6 Swamp, 6 Mountain, 5 Forest. Maybeboard: Hallowed Fountain, just in case.'],
+      '37 lands: Command Tower, Mana Confluence, City of Brass, Exotic Orchard, six shocks, four Triomes, 6 Island, 6 Swamp, 6 Mountain, 5 Forest. Maybeboard: Hallowed Fountain.'],
   ];
   for (const [label, list] of [['sample', MANA_SAMPLES], ['maybeboard', MAYBEBOARDS]]) {
     for (const [id, activation, want] of list) {
@@ -514,7 +514,7 @@ run('render', async (t) => {
     const { win, h, errors } = bootPage({ ...pageArgs(), seed: seed++, expose: PAGE_EXPOSE });
     await whenReady(win);
     const L = h.MANA_BASE_LANDS, colourOf = landColours(L), problems = [];
-    const tail = { one: ', just in case.', few: ". It's been there a while." };
+    const tail = { one: '.', few: '.' };
     for (const [id, prof] of Object.entries(h.PROFILES)) {
       const lit = prof.colors;
       for (const [margin, gap] of [['one', 0.05], ['few', 0.15], ['well', 0.4]]) {
@@ -535,11 +535,11 @@ run('render', async (t) => {
         const qualifies = out.length > 0 && margin !== 'well';
         if (!!mb !== qualifies) problems.push(`${where} maybeboard ${mb ? 'shown' : 'missing'}`);
         if (mb) {
-          const land = mb.replace(/(, just in case\.|\. It's been there a while\.)$/, '');
+          const land = mb.replace(/\.$/, '');
           const cols = colourOf.get(land) || '';
           const outside = [...cols].filter((c) => !lit.includes(c));
           if (!mb.endsWith(tail[margin]) || outside.length !== 1 || outside[0] !== out[0]) problems.push(`${where} maybeboard land ${land} (${cols})`);
-          if (lit.length === 1 && !deckPart(line).endsWith(`and a ${L.mono[lit[0]]}.`)) problems.push(`${where} keeps its joke beside a maybeboard line`);
+          if (lit.length === 1 && !deckPart(line).endsWith(`and a ${L.mono[lit[0]]}.`)) problems.push(`${where} carries a joke after its utility land`);
         }
       }
     }
