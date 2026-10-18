@@ -46,10 +46,10 @@ const inGroup = (id, group) => (group === tool.GENERIC ? !id.startsWith('POOL_')
 const optionCount = live.scenarios.reduce((n, s) => n + s.options.length, 0);
 
 // The fixture has to describe the Round 3 set this repository ships, or the checks below mean little.
-t.ok('the fixture holds 8 generic, 20 POOL_B and 20 POOL_C scenarios',
-  GROUPS.map((g) => fixtureIds.filter((id) => inGroup(id, g)).length).join() === '8,20,20');
-t.ok('the live sources hold 48 scenarios and 378 options (8 x 31 generic, 60 POOL_B, 70 POOL_C)',
-  live.scenarios.length === 48 && optionCount === 378,
+t.ok('the fixture holds 8 generic, 30 POOL_B and 55 POOL_C scenarios',
+  GROUPS.map((g) => fixtureIds.filter((id) => inGroup(id, g)).length).join() === '8,30,55');
+t.ok('the live sources hold 93 scenarios and 543 options (8 x 31 generic, 90 POOL_B, 205 POOL_C)',
+  live.scenarios.length === 93 && optionCount === 543,
   `${live.scenarios.length} scenarios, ${optionCount} options`);
 
 // 1. The 15-word cap
@@ -72,7 +72,7 @@ t.ok('every stem and option is a non-empty string and no key repeats within a sc
 {
   const liveKeys = keysOf(live);
   const gone = fixtureIds.filter((id) => !(id in liveKeys)), added = Object.keys(liveKeys).filter((id) => !(id in fixture));
-  t.ok('the same 48 scenarios as before the rewrite', gone.length === 0 && added.length === 0,
+  t.ok('the same 93 scenarios as the fixture', gone.length === 0 && added.length === 0,
     `missing: ${list(gone)}; new: ${list(added)}; update the fixture only if that is on purpose`);
   for (const group of GROUPS) {
     const bad = [];

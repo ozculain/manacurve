@@ -22,10 +22,11 @@ const { runRespondent, calibrateMisspecified, signalAt, MIXED, MODEL_NAMES } = r
 const ENGINES = [1, 2];
 const DEFAULT_ENGINE = 2;
 // The instrument version the page stamps on a finished result (INSTRUMENT_VERSION in
-// index.html): 8 since the second naive-reader round of the questions (7 for the
+// index.html): 9 since Round 3's short situations for the matchups players meet (8 for
+// the second naive-reader round of the questions, 7 for the
 // questions rewritten from naive readers, 6 for the persona check of all questions, 5 for the Round 1 and 2 real-stakes items, 4 for the
 // Plain screens copy, 3 for the Round 1 and 2 copy rewrite, 2 for the Phase 3 quiz copy).
-const INSTRUMENT_VERSION = 8;
+const INSTRUMENT_VERSION = 9;
 const engineUrl =(engine) => (engine === 1 ? 'http://localhost/?engine=1' : 'http://localhost/');
 
 // ---------- CLI ----------

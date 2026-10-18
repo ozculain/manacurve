@@ -901,7 +901,7 @@ run('play', async (t) => {
     if (isVisible(win, 'screen-early-offer')) h.continueToRound2();
     finishRound(h, 2);
     h.continueToStage2();
-    win.eval('getPoolScenarioForMatchup = function () { return window.__scenario; }'); // render each of the 48 in the live Round 3
+    win.eval('getPoolScenarioForMatchup = function () { return window.__scenario; }'); // render each of the 93 in the live Round 3
     const hintOf = win.eval('getContextHint');
     const liveHinted = live.scenarios.filter((sc) => hintOf(sc.stem, sc.id)).map((sc) => sc.id);
     // A hint for the test alone, under ETHICS, so the eyebrow's hint line is still exercised.
@@ -925,8 +925,8 @@ run('play', async (t) => {
       } else if (!eyebrow.classList.contains('hidden') || eyebrow.textContent !== '') problems.push('the eyebrow is not hidden');
       if (problems.length) bad.push(sc.id + ': ' + problems.join(', '));
     }
-    ok('P9c all 48 Round 3 stems: shown once in the stem line, the hint (when there is one) in the eyebrow above it, the eyebrow hidden when there is none',
-      live.scenarios.length === 48 && bad.length === 0, bad.slice(0, 3).join(' | '));
+    ok('P9c all 93 Round 3 stems: shown once in the stem line, the hint (when there is one) in the eyebrow above it, the eyebrow hidden when there is none',
+      live.scenarios.length === 93 && bad.length === 0, bad.slice(0, 3).join(' | '));
     ok('P9d no live Round 3 stem shows a hint, and the one added for the test shows under ETHICS alone',
       liveHinted.length === 0 && hinted.length === 1 && hinted[0] === 'ETHICS', `live: ${liveHinted.join(' ')}; with the test hint: ${hinted.join(' ')}`);
     // Back to a real question afterwards: the eyebrow and the hint class come off with the next Round 1 quiz
@@ -943,25 +943,25 @@ run('play', async (t) => {
   // The items and screens changed (the Phase 3 copy, then the Round 1 and 2 copy,
   // then the plain screens seen while answering, then the Round 1 and 2 items
   // rewritten for real stakes, then the persona check of all questions, then the
-  // questions rewritten from naive readers, then their second naive-reader round), so a
-  // result built now is instrument 8 and its link says i=8; a link without i still means 1
-  // (tests/seed.test.js).
+  // questions rewritten from naive readers, then their second naive-reader round, then
+  // Round 3's short situations for the matchups players meet), so a result built now is
+  // instrument 9 and its link says i=9; a link without i still means 1 (tests/seed.test.js).
   {
     const { win, h, errors } = await page();
     begin(h);
     playThrough(h, win, () => {});
     await waitForResults(win);
     const url = h.buildResultURL();
-    ok('P10a INSTRUMENT_VERSION is 8, a finished quiz carries it, and its link ends s=2&i=8',
-      win.eval('INSTRUMENT_VERSION') === 8 && !!h.state.result && h.state.result.instrumentVersion === 8 && /\/r\/[A-Z0-9-]+\.html\?p=[\d,]+&c=\w+&a=consumer&s=2&i=8$/.test(url), url);
+    ok('P10a INSTRUMENT_VERSION is 9, a finished quiz carries it, and its link ends s=2&i=9',
+      win.eval('INSTRUMENT_VERSION') === 9 && !!h.state.result && h.state.result.instrumentVersion === 9 && /\/r\/[A-Z0-9-]+\.html\?p=[\d,]+&c=\w+&a=consumer&s=2&i=9$/.test(url), url);
     // An early result (the offer taken) carries it as well
     h.restart();
     begin(h);
     h.state.activationSorted = [['U', 0.82], ['B', 0.7], ['G', 0.3], ['W', 0.2], ['R', 0.1]];
     win.earlyConfidenceData = { identity: 'DIMIR', confidence: 0.95 };
     win.showResultsEarly();
-    ok('P10b an early result is instrument 8 too, and its link says i=8',
-      h.state.result.earlyTermination === true && h.state.result.instrumentVersion === 8 && /&s=2&i=8$/.test(h.buildResultURL()), h.buildResultURL());
+    ok('P10b an early result is instrument 9 too, and its link says i=9',
+      h.state.result.earlyTermination === true && h.state.result.instrumentVersion === 9 && /&s=2&i=9$/.test(h.buildResultURL()), h.buildResultURL());
     ok('P10c no errors', errors.length === 0, errors.slice(0, 3).join(' | '));
     win.close();
   }
