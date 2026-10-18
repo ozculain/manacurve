@@ -935,8 +935,9 @@ run('play', async (t) => {
 
   // ---------- 10: the instrument version ----------
   // The items and screens changed (the Phase 3 copy, then the Round 1 and 2 copy,
-  // then the plain screens seen while answering), so a result built now is
-  // instrument 4 and its link says i=4; a link without i still means 1
+  // then the plain screens seen while answering, then the Round 1 and 2 items
+  // rewritten for real stakes), so a result built now is instrument 5 and its
+  // link says i=5; a link without i still means 1
   // (tests/seed.test.js).
   {
     const { win, h, errors } = await page();
@@ -944,16 +945,16 @@ run('play', async (t) => {
     playThrough(h, win, () => {});
     await waitForResults(win);
     const url = h.buildResultURL();
-    ok('P10a INSTRUMENT_VERSION is 4, a finished quiz carries it, and its link ends s=2&i=4',
-      win.eval('INSTRUMENT_VERSION') === 4 && !!h.state.result && h.state.result.instrumentVersion === 4 && /\/r\/[A-Z0-9-]+\.html\?p=[\d,]+&c=\w+&a=consumer&s=2&i=4$/.test(url), url);
+    ok('P10a INSTRUMENT_VERSION is 5, a finished quiz carries it, and its link ends s=2&i=5',
+      win.eval('INSTRUMENT_VERSION') === 5 && !!h.state.result && h.state.result.instrumentVersion === 5 && /\/r\/[A-Z0-9-]+\.html\?p=[\d,]+&c=\w+&a=consumer&s=2&i=5$/.test(url), url);
     // An early result (the offer taken) carries it as well
     h.restart();
     begin(h);
     h.state.activationSorted = [['U', 0.82], ['B', 0.7], ['G', 0.3], ['W', 0.2], ['R', 0.1]];
     win.earlyConfidenceData = { identity: 'DIMIR', confidence: 0.95 };
     win.showResultsEarly();
-    ok('P10b an early result is instrument 4 too, and its link says i=4',
-      h.state.result.earlyTermination === true && h.state.result.instrumentVersion === 4 && /&s=2&i=4$/.test(h.buildResultURL()), h.buildResultURL());
+    ok('P10b an early result is instrument 5 too, and its link says i=5',
+      h.state.result.earlyTermination === true && h.state.result.instrumentVersion === 5 && /&s=2&i=5$/.test(h.buildResultURL()), h.buildResultURL());
     ok('P10c no errors', errors.length === 0, errors.slice(0, 3).join(' | '));
     win.close();
   }

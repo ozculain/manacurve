@@ -22,9 +22,10 @@ const { runRespondent, calibrateMisspecified, signalAt, MIXED, MODEL_NAMES } = r
 const ENGINES = [1, 2];
 const DEFAULT_ENGINE = 2;
 // The instrument version the page stamps on a finished result (INSTRUMENT_VERSION in
-// index.html): 4 since the Plain screens copy (3 for the Round 1 and 2 copy rewrite,
+// index.html): 5 since the Round 1 and 2 items were rewritten for real stakes (4 for the
+// Plain screens copy, 3 for the Round 1 and 2 copy rewrite,
 // 2 for the Phase 3 quiz copy).
-const INSTRUMENT_VERSION = 4;
+const INSTRUMENT_VERSION = 5;
 const engineUrl =(engine) => (engine === 1 ? 'http://localhost/?engine=1' : 'http://localhost/');
 
 // ---------- CLI ----------

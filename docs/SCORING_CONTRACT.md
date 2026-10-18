@@ -10,7 +10,7 @@ Agreed before the scoring branch (Phase 1) and the presentation branch (Phase 2)
   confidence:        'HIGH' | 'MODERATE' | 'LOW',
   allResults:        Array<{ id, ... }>,// as today, best first
   scoringVersion:    number,            // 1 = current engine, 2 = likelihood engine
-  instrumentVersion: number,            // 4 = current items and screens (Plain screens: the transitions, Round 3 line-up, early offer, progress line and undo seen while answering); 3 = Round 1 and 2 copy rewrite; 2 = Phase 3 quiz copy and flow; 1 = before, and any link or saved result without one
+  instrumentVersion: number,            // 5 = current items and screens (Round 1 and 2 items rewritten so the respondent has real stakes); 4 = Plain screens (the transitions, Round 3 line-up, early offer, progress line and undo seen while answering); 3 = Round 1 and 2 copy rewrite; 2 = Phase 3 quiz copy and flow; 1 = before, and any link or saved result without one
   posterior:         { [id]: number } | undefined, // present when scoringVersion >= 2; sums to 1
   round3Data:        { ... as today, scenarioContradiction, contextDisagreement, runnerUp, ... },
   earlyTermination:  boolean | undefined
