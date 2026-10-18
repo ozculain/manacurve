@@ -455,7 +455,7 @@ body[data-audience="workplace"] .mc-warning__label { color: var(--ink-muted); }
 .mc-result__list li::before { content: "✦"; position: absolute; left: 0; color: var(--gilt); opacity: 0.7; }
 .mc-result__list li:last-child { border-bottom: 0; }
 .mc-result__banter { margin: 32px 0; padding: 32px; background: var(--inset); border: 1px solid var(--gilt-line); position: relative; }
-.mc-result__banter::before { content: "PUB BANTER"; position: absolute; top: -10px; left: 24px; background: var(--canvas); padding: 0 12px; font-family: var(--f-display); letter-spacing: 0.32em; font-size: 10px; color: var(--gilt); }
+.mc-result__banter-label { position: absolute; top: -10px; left: 24px; background: var(--canvas); padding: 0 12px; font-family: var(--f-display); text-transform: uppercase; letter-spacing: 0.32em; font-size: 10px; color: var(--gilt); }
 .mc-result__banter p { font-family: var(--f-flavor); font-style: italic; font-size: 18px; line-height: 1.6; color: var(--ink-muted); }
 body[data-audience="workplace"] .mc-result__banter { display: none; }
 
@@ -2554,8 +2554,13 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
           </div>
         </div>
 
-        <!-- Pub-banter block (audience-aware — hidden in workplace mode by the .mc-result__banter CSS) -->
+        <!-- Pub-banter block (audience-aware — hidden in workplace mode by the
+             .mc-result__banter CSS, and on the pages whose profile has no
+             banter). Its label is text, not a CSS ::before, so a screen reader
+             or a copied page keeps it: without it the line read as the last
+             of the shadows. -->
         <div class="mc-result__banter" id="res-counter-section">
+          <div class="mc-result__banter-label" id="res-counter-label">Pub banter</div>
           <p id="res-counter">Banter</p>
         </div>
 
@@ -2646,7 +2651,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
                  draws its kind of line (renderRelations). -->
             <div class="mc-relations-legend">
               <div id="rel-legend-ally"><span class="mc-rel-legend-mark mc-rel-legend-mark--ally"></span> Solid line: two of your colours that get on.</div>
-              <div id="rel-legend-enemy"><span class="mc-rel-legend-mark mc-rel-legend-mark--enemy"></span> Dashed line: one of your colours against one you lack.</div>
+              <div id="rel-legend-enemy"><span class="mc-rel-legend-mark mc-rel-legend-mark--enemy"></span> Dashed line: one of your colours and a missing colour that pulls against it.</div>
             </div>
           </div>
           <div class="mc-relations-detail" id="relations-detail">
@@ -4300,139 +4305,143 @@ const COLOR_STRENGTHS = {
 // before a fight), so it cannot tell a careful, rule-loving result that it
 // moves on instinct, as one shared line once did; and it does not repeat
 // its own page word for word. "Them" is the colleague, "you" the reader.
+// The lines are built differently from one another: each colour's cards
+// once opened the same way on every page ("Talk to them when ...", "Check
+// with them before ..."), and the third readers saw the template in that.
+// No opening is used on more than six cards, nor twice on one page.
 // The explorer shows the same cards.
 const COLOR_GAPS = {
   'MONO-W': {
-    U: 'Bring them in when a new rule is being drafted, to check what it will do in practice.',
-    B: 'Talk to them before a negotiation, so you know what the other side wants.',
-    R: 'Call on them when a decision has been through every proper step and is still waiting.',
-    G: 'Check with them before you tidy up something that grew on its own.'
+    U: 'Show them the draft of a new rule and ask what it will do in practice.',
+    B: 'Spend an hour with them on what the other side wants before a negotiation.',
+    R: 'When a decision has been through every proper step and is still waiting, let them push it.',
+    G: "Before you tidy up something that grew on its own, ask them what it's for."
   },
   'MONO-U': {
-    W: 'Ask them when a plan is sound on paper and is about to be explained to the team.',
-    B: "Talk to them when you're right and people still won't agree to it.",
-    R: 'Call on them when the analysis is finished and nobody has said go.',
-    G: 'Check with them before replacing something that works, to hear why it was built that way.'
+    W: 'Before the plan goes to the team, let them put it into plain words.',
+    B: "If the evidence is on your side and people still won't move, they can tell you what's in the way.",
+    R: "Once the analysis is done and nobody has said go, they'll say it.",
+    G: 'Learn from them why the old system was built the way it was, then decide whether to replace it.'
   },
   'MONO-B': {
-    W: 'Ask them before a plan reaches the people it affects.',
-    U: 'Bring them in when a deal looks good, to read the small print.',
-    R: 'Call on them when a plan needs people to care about it as well as agree to it.',
-    G: 'Check with them when a quick win would cost something that took years to build.'
+    W: 'Show them the plan before the people it affects see it.',
+    U: 'Have them read the small print on any deal that looks too good.',
+    R: "Give them the floor when people agree with your plan but don't care about it.",
+    G: 'Weigh a quick win with them when it would cost something that took years to build.'
   },
   'MONO-R': {
-    W: 'Ask them before you announce a change, while it is still easy to adjust.',
-    U: 'Bring them in the day before you start, for an hour.',
-    B: 'Talk to them before a big move, to find out who it will annoy.',
-    G: 'Check with them before you scrap something that is only slow.'
+    W: "Run the announcement past them while it's still easy to change.",
+    U: 'Book an hour with them the day before you start.',
+    B: "They'll know who your big move is going to annoy, and how much.",
+    G: 'Show them anything you want to scrap for being slow, and ask whether it still works.'
   },
   'MONO-G': {
-    W: 'Ask them when a team is changing shape, to keep it fair to the people in it.',
-    U: 'Bring them in when the usual way of doing something stops giving the usual results.',
-    B: 'Talk to them when a reorganisation is coming, to see where it leaves you.',
-    R: 'Call on them when something has to change this week.'
+    W: 'Have them check that the way things have always been done is fair to the people who joined last.',
+    U: 'Bring them in when the usual way stops giving the usual results.',
+    B: "If a restructure is coming, they'll work out where it leaves you.",
+    R: 'Put them in charge of anything that has to change this week.'
   },
   AZORIUS: {
-    B: 'Show them a new procedure before it launches, so they can find the ways round it first.',
-    R: 'Call on them when the meeting about the meeting has been booked.',
-    G: 'Check with them when a team that has always run on trust is about to get a handbook.'
+    B: 'Set them loose on a new procedure to find the ways round it before anyone else does.',
+    R: 'Put them on any decision that has stalled in the process.',
+    G: 'Hear them out before a team that has always run on trust gets a handbook.'
   },
   SELESNYA: {
-    U: 'Bring them in when everyone likes the plan and nobody has checked the numbers.',
-    B: 'Talk to them when being kind to one person is costing everyone else.',
-    R: 'Ask them along when you finally tell someone the hard thing.'
+    U: "Hand them the numbers when the whole team loves a plan that hasn't been costed.",
+    B: "They'll say out loud what keeping one person happy is costing the rest.",
+    R: 'Take them with you when you finally tell someone the hard thing.'
   },
   ORZHOV: {
-    U: 'Bring them in when a policy has so many exceptions that nobody can explain it.',
-    R: 'Call on them when the hierarchy is in the way of someone who is clearly right.',
-    G: 'Check with them when every kindness in the team has started to come with a price.'
+    U: 'Get them to sort out the rulebook once the exceptions outnumber the rules.',
+    R: 'When the hierarchy is blocking someone who is clearly right, let them make a noise about it.',
+    G: "If every kindness in the team now comes with a price, they'll notice first."
   },
   DIMIR: {
-    W: 'Ask them when you know something other people have a right to hear.',
+    W: 'Ask them what other people have a right to know.',
     R: "Let them tell people what you've known for weeks.",
-    G: "Check with them before a clever move costs you people's trust."
+    G: "Run a clever move past them before it costs you people's trust."
   },
   IZZET: {
-    W: "Ask them who has to live with the prototype after you've moved on.",
-    B: 'Talk to them when your best experiment needs a budget and someone senior behind it.',
-    G: 'Check with them before an experiment touches something people rely on every day.'
+    W: "Find out from them who has to live with the prototype once you've moved on.",
+    B: 'Go to them when your best experiment needs money and someone senior behind it.',
+    G: 'Keep them close when an experiment touches something people rely on every day.'
   },
   GRUUL: {
     W: 'Ask them which rules are there to keep people safe, before you ignore one.',
-    U: 'Bring them in to read the manual you skipped.',
-    B: 'Talk to them when a promotion turns the job into mostly politics.'
+    U: "Get them to look for the step you're about to skip.",
+    B: 'Take their advice on who matters when a promotion turns the job into politics.'
   },
   RAKDOS: {
-    W: "Ask them who was relying on the thing you're about to tear down.",
-    U: 'Bring them in before the exciting plan goes live, to see what it breaks.',
-    G: "Check with them when things have been calm for a while and you're getting restless."
+    W: 'Before you tear something down, have them list who was relying on it.',
+    U: 'Let them test the exciting plan before it goes live.',
+    G: "Agree with them what's worth keeping before the next shake-up."
   },
   GOLGARI: {
-    W: 'Ask them who gets hurt when a project is left to die.',
-    U: "Bring them in when you've seen a problem coming, to work out a fix.",
-    R: "Call on them when it's time to stop watching and do something."
+    W: "They'll tell you who gets hurt when a team is wound down.",
+    U: "Once you've seen a problem coming, work out the fix with them.",
+    R: "Hand it to them when it's time to stop watching and act."
   },
   SIMIC: {
-    W: 'Ask them whether a newcomer could follow how it works.',
-    B: 'Talk to them when you need to know which change is worth the most.',
+    W: 'Walk them through the process as if they were new, and see where they get lost.',
+    B: 'Find out from them which change matters most to the people who decide.',
     R: "Let them ship it when it's nearly finished and you want another week."
   },
   BOROS: {
-    U: 'Run the facts past them before the fight.',
-    B: 'Talk to them about who gains if you win.',
-    G: "Check with them when there's a new cause every week."
+    U: 'Have them check the story before you take a side.',
+    B: 'Work out with them who gains if you win.',
+    G: 'When the causes start piling up, let them help you pick one.'
   },
   BANT: {
-    B: 'Talk to them when everyone has agreed a little too easily.',
-    R: 'Call on them when a crisis needs a decision before the next meeting.'
+    B: 'Expect them to find the catch when agreement comes a little too easily.',
+    R: 'Let them make the call when it has to be made today.'
   },
   ESPER: {
     R: 'Send them to talk to whoever your plan has upset.',
-    G: 'Check with them when the efficient answer would undo something people care about.'
+    G: "They'll notice when the efficient answer would undo something people care about."
   },
   GRIXIS: {
     W: "Ask them what it's like to work for you.",
-    G: "Check with them before you burn a relationship you'll need next year."
+    G: "Talk it over with them before you write off someone you'll need next year."
   },
   JUND: {
-    W: 'Ask them how the team is holding up.',
-    U: 'Bring them in when the answer looks obvious and someone wants a second look.'
+    W: 'Sit down with them now and then to hear how the team is holding up.',
+    U: 'When the answer looks obvious, give them an hour to check it.'
   },
   NAYA: {
-    U: "Bring them in once everyone's fired up, to turn the energy into a plan.",
-    B: "Talk to them when you're sure the whole team wants the same thing."
+    U: 'Once the team is fired up, get them to turn the energy into a plan.',
+    B: "They'll find out whether the whole team wants the same thing, or just the loudest."
   },
   ABZAN: {
     U: "Let them try out the change you've already argued against.",
-    R: 'Call on them when something has been under review for longer than anyone can remember.'
+    R: 'Hand them anything that has been under review for longer than anyone can remember.'
   },
   JESKAI: {
-    B: 'Talk to them when your best work keeps going unnoticed by the people who decide.',
-    G: 'Check with them when the team needs rest more than another round of practice.'
+    B: 'If your best work keeps going unnoticed upstairs, they can get it seen.',
+    G: 'Check with them when the team might need a rest more than another round of practice.'
   },
   SULTAI: {
     W: "Ask them how your plan looks to the people it's being played on.",
-    R: 'Call on them when the long game has gone on long enough.'
+    R: 'Trust them to say when the waiting has gone on long enough.'
   },
   MARDU: {
-    U: 'Bring them in before you commit the team, to check the plan will hold.',
-    G: 'Check with them before you ask the same people for another all-nighter.'
+    U: 'Get them to pick holes in the plan before you commit the team.',
+    G: 'Listen to them before you ask the same people for another all-nighter.'
   },
   TEMUR: {
     W: 'Ask them who has to start again each time the plan changes.',
-    B: 'Talk to them before you change plans on people who backed the old one.'
+    B: "They'll know who backed the old plan, and what to offer them when you drop it."
   },
   WITCH: {
-    R: 'Call on them when a deadline matters more than a better answer.'
+    R: 'Give them the job when a deadline matters more than a better answer.'
   },
   YORE: {
-    G: 'Check with them before you rebuild something that has never given anyone trouble.'
+    G: 'Before you replace something old, ask them what people will miss about it.'
   },
   GLINT: {
-    W: 'Ask them to hold you to the commitments you made last quarter.'
+    W: "Tell them what you've promised people, and let them remind you."
   },
   DUNE: {
-    U: "Bring them in when you're sure enough to skip the numbers."
+    U: 'Before you skip the checks, give them ten minutes with the figures.'
   },
   INK: {
     B: "Talk to them when someone's offer of help seems too generous."
@@ -4443,8 +4452,10 @@ const COLOR_GAPS = {
 const COLOR_GAPS_COPY = {
   heading: 'Who to bring in',
   sub: { result: 'Colleagues strong in the colours outside yours.', explorer: "Colleagues strong in the colours this type doesn't hold." },
+  // Five colours have no card to show. The line that stood in ("None of the
+  // five colours is missing from your result.") read as machine-written.
   five: {
-    result: 'None of the five colours is missing from your result. Before a big decision, ask someone who will argue hard for one side.',
+    result: "Every colour is in your result, so there's no gap to fill. Before a big decision, ask someone with one strong view to argue it hard.",
     explorer: 'All five colours are in this type, so none is missing.'
   }
 };
@@ -11086,7 +11097,10 @@ function revealResults() {
 // 5: Result screens, second naive-reader round (18 October 2026): plain rows
 // are sentences ("With white as well, you'd be Selesnya."), and each row's
 // reason counts the gap in the label line's words.
-const RESULT_COPY_VERSION = 5;
+// 6: Result screens, third naive-reader round (18 October 2026): gaps are in
+// points, as the bars print them, and the down row names the dropped colour
+// as the lowest of yours ("Red was the lowest of your three colours.").
+const RESULT_COPY_VERSION = 6;
 
 const RESULT_COPY = {
   // One sentence-case name per identity, for use inside sentences. [3]
@@ -11175,18 +11189,18 @@ const RESULT_COPY = {
   // The line under the label: one sentence about this result's own bars, the
   // same in both modes (confidenceLine). It reads the five bars alone, so a
   // shared link reads as it did when it was shared. How far apart two
-  // colours are is counted in answers (oneAnswer()), in words, never as a
-  // number, and next door's reasons count the same gap in the same words
-  // (barGap): a page once said "less than an answer behind" here and "one
-  // answer short" next door. Colours are filled in lower case ({a}) or
+  // colours are is said in points, the bars' own unit: the gap between the
+  // two percentages as printed, so "5 points behind" sits above bars of 74%
+  // and 69%. Next door's reasons give the same gap in the same unit (barGap):
+  // the third readers saw "within two answers" above bars 14 points apart and
+  // called it a contradiction. Colours are filled in lower case ({a}) or
   // capitalised to open the sentence ({A}).
   // {a}: your one colour, or your top colour; {b}: the colour after it.
   // {w}: the lowest of your colours; {o}: the highest colour outside yours,
   // {p} the next one. {t} and {m}: five colours' highest and lowest.
-  // {n}: how many answers apart, from `answers`; {span}, for five colours,
-  // from `spans`.
+  // {n}: the gap in points, from `points`.
   confidence: {
-    answers: { under: 'less than an answer', one: 'about one answer', two: 'one or two answers', three: 'two or three answers' },
+    points: { one: '1 point', many: '{count} points' },
     mono: {
       well: '{A} was well ahead of every other colour.',
       close: '{A} led {b} by {n}.',
@@ -11198,8 +11212,8 @@ const RESULT_COPY = {
       3: '{O} and {p} were well behind your three colours.',
       4: '{O} was well behind your four colours.'
     },
-    // Within about one answer the colour outside yours nearly made it in;
-    // one to three answers off, it came next.
+    // Within about one answer (8 points) the colour outside yours nearly made
+    // it in; up to three answers (25 points) off, it came next.
     near: {
       2: '{O} nearly made it in, {n} behind {w}.',
       3: '{O} nearly made it in, {n} behind {w}.',
@@ -11221,10 +11235,9 @@ const RESULT_COPY = {
     // so the line says that, and not which colour was lowest.
     five: {
       level: 'All five colours finished level.',
-      close: 'All five colours finished within {span} of each other.',
-      well: 'All five colours made it in, though {m} finished more than three answers behind {t}.'
+      close: 'All five colours finished within {n} of each other.',
+      well: 'All five colours made it in, though {m} finished {n} behind {t}.'
     },
-    spans: { under: 'an answer', one: 'about one answer', two: 'two answers', three: 'three answers' },
     // "Still shuffling" on bars that were clear: the doubt is about the result.
     lowWell: '{line}, but your answers fitted more than one result.',
     // A shared link with no bars in it.
@@ -11251,12 +11264,12 @@ const RESULT_COPY = {
   // Norn's +2/+2, Omnath's green mana); one that nearly repeated the card
   // below it (Jund, Mardu, four-colour without black) now does something else.
   rules: {
-    'MONO-W': "Vigilance. Other creatures you control get +2/+2. When this creature leaves the battlefield, its rules don't.",
+    'MONO-W': "Vigilance. When this creature leaves the battlefield, its rules don't.",
     'MONO-U': 'Flash. Hexproof from small talk. At the beginning of your upkeep, you may reconsider.',
-    'MONO-B': 'Menace, lifelink. You may pay life rather than mana. Goodwill you gain lasts until end of turn.',
+    'MONO-B': 'Menace, lifelink. Goodwill you gain lasts until end of turn.',
     'MONO-R': 'Trample, haste. At the beginning of the end step, sacrifice this creature.',
-    'MONO-G': "Reach. You don't lose unspent green mana as steps and phases end. Spells that change things have suspend 7.",
-    AZORIUS: 'Spells your opponents cast cost {1} more to cast and need a countersignature.',
+    'MONO-G': 'Reach. Spells that change things have suspend 7.',
+    AZORIUS: 'Spells your opponents cast need a countersignature.',
     DIMIR: 'Whenever a player says something, surveil 1. You have shroud.',
     RAKDOS: 'Unleash. At the beginning of your upkeep, if nothing went wrong last turn, something does.',
     GRUUL: 'Riot. Trample. This creature attacks each combat if able.',
@@ -11267,10 +11280,10 @@ const RESULT_COPY = {
     SIMIC: "Evolve. This creature can't attack while it could still be improved.",
     BOROS: 'First strike. Mentor. Whenever an injustice is alleged, attack. Check the facts after combat.',
     BANT: 'Exalted. If you would attack, you may draw a card instead.',
-    ESPER: 'Flying. Creatures you control are artifacts in addition to their other types.',
+    ESPER: "Flying. Your decisions can't be overturned by a show of hands.",
     GRIXIS: 'Haste. Creatures you control get +2/+0. At the beginning of your end step, one of them leaves for a calmer deck.',
     JUND: 'Trample. At the beginning of each quarter, sacrifice your weakest creature.',
-    NAYA: 'Battle cry. Other creatures you control have haste.',
+    NAYA: 'Battle cry. Whenever a creature you control attacks, it brings a friend.',
     ABZAN: "Vigilance. Outlast {1}{W}. Creatures you control get +1/+1 for each year they've been with you.",
     JESKAI: 'Prowess. Mentor. Whenever this creature attacks, it does so exactly as rehearsed.',
     SULTAI: "Exploit. Whenever another player's idea resolves, you may gain control of it. At the beginning of next year, they notice.",
@@ -11301,7 +11314,8 @@ const RESULT_COPY = {
   // block. The land names are in MANA_BASE_LANDS (data.js). 37 lands: Command
   // Tower opens every two- and three-colour line, four and five colours count
   // their shocks and Triomes, and basics (printed singular, as in a decklist:
-  // "17 Island") fill the rest, split by the bars. {lands} is the comma list.
+  // "17 Island") fill the rest, split by the bars for one to three colours.
+  // {lands} is the comma list.
   manaBase: {
     line: '{total} lands: {lands}.',
     // Mono: 36 basics and a utility land. {joke} is filled from monoJokes,
@@ -11309,7 +11323,10 @@ const RESULT_COPY = {
     monoLine: '{total} lands: {count} {basic} and {utility}{joke}.',
     monoJokes: {},
     // Four and five colours: the shocks and Triomes inside the colours,
-    // counted rather than named. Five colours keep their 13 basics unsplit.
+    // counted rather than named, then the basics as one count ("six shocks,
+    // four Triomes and 23 basics"). Four colours once split theirs by the bars
+    // ("7 Plains, 6 Swamp, 5 Mountain, 5 Forest"), and readers called the line
+    // too long.
     counted: { 4: 'six shocks, four Triomes', 5: 'all ten shocks, all ten Triomes' },
     fiveBasics: 'and {count} basics',
     // The up neighbour's land, outside the 37 and replacing nothing, by how
@@ -11326,27 +11343,33 @@ const RESULT_COPY = {
   // do; mono has no down row, five-colour no up row. Plain mode says each row
   // as a sentence, since "Add white: Selesnya." means nothing to someone who
   // doesn't know the names. One plain reason per row, keyed by barGap on the
-  // same two bars as the line under the label: close (within three answers),
-  // well, level, or above (an old link's bars). The up row counts a close gap
-  // in the line's own words ({n} from confidence.answers); the down row, the
-  // same gap from the other side, says only that this colour was your lowest,
-  // so the count is not said three times over. {other}: the colour on the far
-  // side of the line. Five colours have no colour outside, so their down row
-  // says only that too: "made the cut" beside "Locked in" read as a
-  // contradiction.
+  // same two bars as the line under the label: close (within three answers,
+  // 25 points), well, level, or above (an old link's bars). Gaps are in
+  // points, as the bars and the line under the label give them ({n}). The up
+  // row says how far short the added colour was. The down row says the
+  // dropped colour was the lowest of yours ({rank}: "the lower of your two
+  // colours", "the lowest of your three colours"): readers took "your lowest
+  // colour" for the lowest of all five, and the bars showed otherwise. When
+  // the line under the label already counted a close gap, the down row
+  // leaves it at that, so a page says the count twice, not three times; when
+  // the line said only "well behind", the down row says how far the colour
+  // was ahead of the nearest one outside ({other}), where "made the cut
+  // easily" stood and read, in the slot for the colour you would drop, as
+  // the opposite. Five colours have no colour outside, so their down row
+  // says only which colour was lowest.
   nextDoor: {
     up: {
       player: {
         head: 'Splash {colour}: {identity}.',
         close: 'Your {colour} was {n} short.',
-        well: 'Your {colour} was well short.',
+        well: 'Your {colour} was {n} short.',
         level: 'Your {colour} tied with {other}.',
         above: 'Your {colour} finished above {other}.'
       },
       plain: {
         head: "With {colour} as well, you'd be {identity}.",
         close: '{Colour} was {n} short.',
-        well: '{Colour} was well short.',
+        well: '{Colour} was {n} short.',
         level: '{Colour} tied with {other}.',
         above: '{Colour} finished above {other}.'
       }
@@ -11354,21 +11377,23 @@ const RESULT_COPY = {
     down: {
       player: {
         head: 'Cut the {lands}: {identity}.',
-        close: '{Colour} was your lowest colour.',
-        well: '{Colour} made the cut easily.',
+        close: '{Colour} was {rank}.',
+        well: '{Colour} was {rank}, {n} ahead of {other}.',
         level: '{Colour} tied with {other}.',
         above: '{Colour} finished below {other}.',
-        lowest: '{Colour} was your lowest colour.'
+        lowest: '{Colour} was {rank}.'
       },
       plain: {
         head: "Without {colour}, you'd be {identity}.",
-        close: '{Colour} was your lowest colour.',
-        well: '{Colour} made it in easily.',
+        close: '{Colour} was {rank}.',
+        well: '{Colour} was {rank}, {n} ahead of {other}.',
         level: '{Colour} tied with {other}.',
         above: '{Colour} finished below {other}.',
-        lowest: '{Colour} was your lowest colour.'
+        lowest: '{Colour} was {rank}.'
       }
-    }
+    },
+    // {rank}, by how many colours the result holds.
+    rank: { 2: 'the lower of your two colours', 3: 'the lowest of your three colours', 4: 'the lowest of your four colours', 5: 'the lowest of your five colours' }
   },
 
   // [9] Appeal the ruling, from the Next door rows. Each row has its own peek
@@ -11550,7 +11575,8 @@ function collectorNumber(id) {
 
 // The label words replace "High/Moderate/Low Confidence"; scoring still owns
 // result.confidence and the links keep c=high|moderate|low. The line under the
-// label is confidenceLine(): no number until Phase 5 (see RESULT_COPY.labels).
+// label is confidenceLine(): a gap in the bars' own points, and no rate of
+// results that held up until Phase 5 (see RESULT_COPY.labels).
 function renderConfidenceLabel() {
   const level = confidenceLevel();
   const label = RESULT_COPY.labels[level];
@@ -11562,26 +11588,32 @@ function renderConfidenceLabel() {
 }
 
 // The gap between two bars, hi the one expected higher, as the line under the
-// label and the next-door reasons both word it: 'above' when lo printed
-// higher, 'level' when they printed alike, 'close' within three answers (with
-// `key`, how many in RESULT_COPY.confidence.answers: under, one, two, three)
-// and 'well' past that. Answers are counted on the bars' own values.
+// label and the next-door reasons both say it, read off the bars as printed
+// (whole percentages), so a reader can check it against them: 'above' when lo
+// printed higher, 'level' when they printed alike, 'close' up to three
+// answers apart (25 points; `near` when within one, 8 points) and 'well' past
+// that. `points` is the gap between the two printed numbers.
 function barGap(hi, lo, act) {
-  const raw = (c) => (act && act[c]) || 0;
-  const shown = (c) => Math.round(raw(c) * 100);
-  if (shown(lo) > shown(hi)) return { kind: 'above' };
-  if (shown(lo) === shown(hi)) return { kind: 'level' };
-  const answers = (raw(hi) - raw(lo)) / oneAnswer();
-  if (answers > NEXT_DOOR_MARGINS.few + 1e-9) return { kind: 'well' };
-  const key = answers > 2 + 1e-9 ? 'three' : answers > NEXT_DOOR_MARGINS.one + 1e-9 ? 'two' : answers >= 0.5 ? 'one' : 'under';
-  return { kind: 'close', key };
+  const shown = (c) => Math.round(((act && act[c]) || 0) * 100);
+  const points = shown(hi) - shown(lo);
+  if (points < 0) return { kind: 'above', points: -points };
+  if (points === 0) return { kind: 'level', points: 0 };
+  const answer = 100 * oneAnswer();
+  if (points > NEXT_DOOR_MARGINS.few * answer + 1e-9) return { kind: 'well', points };
+  return { kind: 'close', points, near: points <= NEXT_DOOR_MARGINS.one * answer + 1e-9 };
+}
+
+// "5 points", "1 point": a gap in the bars' own unit (RESULT_COPY.confidence.points).
+function pointsText(points) {
+  const P = RESULT_COPY.confidence.points;
+  return points === 1 ? P.one : fillCopy(P.many, { count: points });
 }
 
 // One sentence about the bars behind this result (RESULT_COPY.confidence):
 // how far your colours stood from the nearest one outside them, or, for one
 // colour, from the colour after it, and for five, how closely all five
-// finished. The gap is counted in answers (barGap), in the words next door
-// uses for the same gap; a tie is a tie as printed.
+// finished. The gap is in points (barGap), as next door gives the same gap;
+// a tie is a tie as printed.
 function confidenceLine(id, act, level) {
   const C = RESULT_COPY.confidence;
   const prof = PROFILES[id];
@@ -11602,10 +11634,10 @@ function confidenceLine(id, act, level) {
   if (!outside.length) { hi = inside[0]; lo = inside[inside.length - 1]; put('t', hi); put('m', lo); }
   else { hi = inside[inside.length - 1]; lo = outside[0]; put('a', inside[0]); put('b', inside[1] || lo); put('w', hi); put('o', lo); put('p', outside[1]); }
   const gap = barGap(hi, lo, act);
-  if (gap.key) { vars.n = C.answers[gap.key]; vars.span = C.spans[gap.key]; }
+  vars.n = pointsText(gap.points);
   const kind = gap.kind;
   const k = inside.length;
-  const near = gap.key === 'under' || gap.key === 'one';
+  const near = !!gap.near;
   const template = !outside.length ? C.five[kind === 'above' ? 'level' : kind]
     : k === 1 ? C.mono[kind]
     : kind === 'above' ? C.above
@@ -11678,9 +11710,9 @@ function marginWord(gap) {
 // that one gap; with all five colours in, the line is 50%. A colour on the
 // wrong side of its line (the scenarios overruled the bars) counts as "one".
 // Mono has no down row; five-colour has no up row. `said` is how the row's
-// reason words the gap: barGap on the same two bars the line under the label
-// compares, so both count it alike; five colours, with nothing outside,
-// have kind 'lowest'. `other` is the colour across the line.
+// reason gives the gap: barGap on the same two bars the line under the label
+// compares, so both give it in the same points; five colours, with nothing
+// outside, have kind 'lowest'. `other` is the colour across the line.
 function nextDoorFor(id, act) {
   const prof = PROFILES[id];
   if (!prof || !prof.colors) return [];
@@ -11694,20 +11726,23 @@ function nextDoorFor(id, act) {
   const gap = strongestOut ? bar(weakestIn) - bar(strongestOut) : bar(weakestIn) - 0.5;
   const margin = marginWord(gap);
   const said = strongestOut ? barGap(weakestIn, strongestOut, act) : { kind: 'lowest' };
+  const held = lit.length;
   const rows = [];
-  if (strongestOut) rows.push({ dir: 'up', colour: strongestOut, other: weakestIn, id: identityForColours([...lit, strongestOut]), gap, margin, said });
-  if (inside.length > 1) rows.push({ dir: 'down', colour: weakestIn, other: strongestOut, id: identityForColours(lit.filter(c => c !== weakestIn)), gap, margin, said });
+  if (strongestOut) rows.push({ dir: 'up', colour: strongestOut, other: weakestIn, id: identityForColours([...lit, strongestOut]), gap, margin, said, held });
+  if (inside.length > 1) rows.push({ dir: 'down', colour: weakestIn, other: strongestOut, id: identityForColours(lit.filter(c => c !== weakestIn)), gap, margin, said, held });
   return rows.filter(row => row.id);
 }
 
 function nextDoorLine(row, player) {
-  const t = RESULT_COPY.nextDoor[row.dir][player ? 'player' : 'plain'];
+  const N = RESULT_COPY.nextDoor;
+  const t = N[row.dir][player ? 'player' : 'plain'];
   const colour = RESULT_COPY.colourWords[row.colour];
   const vars = {
     colour, Colour: colour.charAt(0).toUpperCase() + colour.slice(1),
     lands: RESULT_COPY.landWords[row.colour], identity: identityName(row.id),
     other: row.other ? RESULT_COPY.colourWords[row.other] : '',
-    n: row.said.key ? RESULT_COPY.confidence.answers[row.said.key] : ''
+    n: row.said.points !== undefined ? pointsText(row.said.points) : '',
+    rank: N.rank[row.held] || ''
   };
   return { head: fillCopy(t.head, vars), why: fillCopy(t[row.said.kind], vars) };
 }
@@ -12039,8 +12074,8 @@ function splitBasics(colours, act, n) {
 // colours are Command Tower, the Triome and three shocks; four and five are
 // Command Tower, Mana Confluence, City of Brass and Exotic Orchard, then the
 // shocks and Triomes inside the colours, counted; mono is basics and one
-// utility land. Basics fill the rest of 37, split by the bars (five colours
-// leave them unsplit). Every land in the deck is inside the identity's
+// utility land. Basics fill the rest of 37, split by the bars (four and five
+// colours give them as one count). Every land in the deck is inside the identity's
 // colours. The up neighbour's land is a maybeboard line outside the 37, only
 // when its colour is one or a few answers short: for a guild, the Triome with
 // the new colour; mono, the shock for both colours; three colours, the Triome
@@ -12086,11 +12121,11 @@ function manaBaseLine(id, act) {
       total: COMMANDER_LANDS, count: basicCount, basic: L.basics[key],
       utility: withArticle(named[0]), joke: maybeboard ? '' : (M.monoJokes[id] || '')
     });
-  } else if (colours.length === 5) {
-    deck = fillCopy(M.line, { total: COMMANDER_LANDS, lands: [...named, counted, fillCopy(M.fiveBasics, { count: basicCount })].join(', ') });
+  } else if (counted) {
+    deck = fillCopy(M.line, { total: COMMANDER_LANDS, lands: [...named, `${counted} ${fillCopy(M.fiveBasics, { count: basicCount })}`].join(', ') });
   } else {
     const basics = splitBasics(colours, act, basicCount).map(([c, n]) => `${n} ${L.basics[c]}`);
-    deck = fillCopy(M.line, { total: COMMANDER_LANDS, lands: [...named, ...(counted ? [counted] : []), ...basics].join(', ') });
+    deck = fillCopy(M.line, { total: COMMANDER_LANDS, lands: [...named, ...basics].join(', ') });
   }
   return maybeboard ? `${deck} ${maybeboard}` : deck;
 }
@@ -12295,9 +12330,10 @@ function showResults() {
   // Audience-based visibility: workplace mode hides the pubBanter section
   // (cartoon-villain caricatures aren't defensible in HR-adjacent settings) and
   // surfaces the no-validation disclaimer banner at the top of the result.
+  // A profile with no banter has no section: not every page ends on a joke.
   const audience = state.audience || 'consumer';
   const counterSection = document.getElementById('res-counter-section');
-  if (counterSection) counterSection.style.display = audience === 'workplace' ? 'none' : 'block';
+  if (counterSection) counterSection.style.display = audience === 'workplace' || !p.pubBanter ? 'none' : 'block';
   const workplaceBanner = document.getElementById('workplace-disclaimer');
   if (workplaceBanner) workplaceBanner.style.display = audience === 'workplace' ? 'block' : 'none';
   const heading = document.getElementById('res-heading');
@@ -12654,7 +12690,7 @@ function showShareScreen() {
     tcgRules.innerHTML = (p.str || []).slice(0, 3).map((line, i) => `<li><strong>${headers[i] || 'Strength'}</strong>${line}</li>`).join('');
   }
   const tcgFlavor = document.getElementById('tcg-flavor');
-  if (tcgFlavor) tcgFlavor.textContent = audience === 'workplace' ? (p.philosophy || '') : (p.pubBanter || '');
+  if (tcgFlavor) tcgFlavor.textContent = audience === 'workplace' ? (p.philosophy || '') : (p.pubBanter || p.desc || '');
   const tcgCommander = document.getElementById('tcg-commander'); if (tcgCommander) tcgCommander.textContent = p.cmd || '';
 
   // Populate Story (9:16) frame

@@ -115,7 +115,8 @@ function renderProblems(win, h, want, errors) {
   need(d.getElementById('conf-badge').dataset.level === want.confidence.toLowerCase(), 'confidence ' + d.getElementById('conf-badge').dataset.level);
   need(d.body.dataset.audience === (want.audience === 'workplace' ? 'workplace' : 'forfun'), 'body audience ' + d.body.dataset.audience);
   const banter = d.getElementById('res-counter-section');
-  need(!banter || (banter.style.display === 'none') === (want.audience === 'workplace'), 'banter visibility for ' + want.audience);
+  // The banter box shows for a consumer when the profile has a closing line.
+  need(!banter || (banter.style.display === 'none') === (want.audience === 'workplace' || !p.pubBanter), 'banter visibility for ' + want.audience);
   need(errors.length === 0, 'errors: ' + errors.slice(0, 2).join(' | '));
   return problems;
 }
