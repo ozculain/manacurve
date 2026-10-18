@@ -864,9 +864,9 @@ run('play', async (t) => {
   // ---------- 9: the stem is shown once ----------
   // Round 3 used to print the stem in the eyebrow (#ctx) and again in #scenario.
   // Now #scenario carries it alone; #ctx carries the short context hint when the
-  // scenario has one (ETHICS, the one Round 3 stem that assumes an employer) and is
-  // hidden otherwise. Rounds 1 and 2 label the item in #ctx, and must not repeat the
-  // stem there either.
+  // scenario has one and is hidden otherwise. No live stem has one (CONTEXT_HINTS is
+  // empty), so a hint is added here for one stem, to show where it would go. Rounds
+  // 1 and 2 label the item in #ctx, and must not repeat the stem there either.
   {
     const { win, h, errors } = await page();
     const d = win.document;
@@ -900,6 +900,9 @@ run('play', async (t) => {
     h.continueToStage2();
     win.eval('getPoolScenarioForMatchup = function () { return window.__scenario; }'); // render each of the 48 in the live Round 3
     const hintOf = win.eval('getContextHint');
+    const liveHinted = live.scenarios.filter((sc) => hintOf(sc.stem, sc.id)).map((sc) => sc.id);
+    // A hint for the test alone, under ETHICS, so the eyebrow's hint line is still exercised.
+    win.eval("CONTEXT_HINTS.TEST_ONLY = { hint: 'A line for the test.', patterns: [/legal but dodgy/] }");
     const eyebrow = d.getElementById('ctx');
     const stemEl = d.getElementById('scenario');
     const bad = [], hinted = [];
@@ -921,8 +924,8 @@ run('play', async (t) => {
     }
     ok('P9c all 48 Round 3 stems: shown once in the stem line, the hint (when there is one) in the eyebrow above it, the eyebrow hidden when there is none',
       live.scenarios.length === 48 && bad.length === 0, bad.slice(0, 3).join(' | '));
-    ok('P9d one of the 48 stems keeps a hint: the generic ETHICS, which assumes an employer and a bonus',
-      hinted.length === 1 && hinted[0] === 'ETHICS', hinted.join(' '));
+    ok('P9d no live Round 3 stem shows a hint, and the one added for the test shows under ETHICS alone',
+      liveHinted.length === 0 && hinted.length === 1 && hinted[0] === 'ETHICS', `live: ${liveHinted.join(' ')}; with the test hint: ${hinted.join(' ')}`);
     // Back to a real question afterwards: the eyebrow and the hint class come off with the next Round 1 quiz
     h.restart();
     begin(h);

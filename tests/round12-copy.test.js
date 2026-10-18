@@ -12,8 +12,9 @@
 //     tagline, mana or colour; and the house style holds (no em dash, exclamation mark, asterisk,
 //     capitals or question mark in an answer; British spelling; none of the brief's banned words).
 //  4. Every item was rewritten, or is on the fixture's keptAfterReview list, unchanged.
-//  5. The hints: which item shows which (HINTS below), none on any other item (Magic items
-//     included), and every hint in CONTEXT_HINTS shown under some Round 1, 2 or 3 stem.
+//  5. The hints: which item shows which (HINTS below, empty now), none on any other item (Magic
+//     items included), every hint in CONTEXT_HINTS shown under some Round 1, 2 or 3 stem, and no
+//     hint line repeated.
 //  6. In the page: Round 1's and Round 2's renderers on every item, and real Rounds 1 and 2 with
 //     Magic items off and on, show the label, the stem, the hint and both answers as written.
 //  7. The guards themselves, on made-up sources: each rule flags what it should and nothing else.
@@ -32,15 +33,10 @@ const ROOT = args.htmlPath ? path.dirname(args.htmlPath) : tool.ROOT;
 const fixture = JSON.parse(fs.readFileSync(tool.FIXTURE, 'utf-8'));
 
 // The Round 1 and 2 items that show a hint under the stem, and which one. Every other item shows none.
-// Only the nine items whose stem assumes a job of your own (a boss, a firm, clients, a union, a
-// colleague) carry one, so someone without a job can answer, and each has its own wording, so no
-// hint line repeats. Items that cast you in a role (you run a shop, you've taught for fifteen years)
-// need none. Round 3 shows one more, EMPLOYER under ETHICS (tests/play.test.js).
-const HINTS = {
-  'A-WB-W01': 'SUCCESSOR', 'A-WB-W05': 'PAY', 'A-WB-PSY': 'CUTS', 'A-WB-PSY3': 'CLIENTS',
-  'A-WR-W07': 'UNION', 'A-WR-W09': 'PROMISE', 'A-BG-REV': 'TOP_JOB', 'AL-WU-06': 'SUPPLIER',
-  'AL-BR-02': 'COLLEAGUE',
-};
+// None does now: first-time readers took the hint lines for patches stuck on the work questions, and
+// every stem is a situation anyone can picture (CONTEXT_HINTS in index.html is empty). An item given a
+// hint again goes here, with its hint's key.
+const HINTS = {};
 // Items per pool and pair, Magic items included: what Round 1's six-per-pair draw and Round 2's
 // two-per-pair draw are made from, and what the golden fixture's seeded paths depend on.
 const COUNTS = {
@@ -200,7 +196,7 @@ run('round12-copy', async (t) => {
   {
     const wrong = live.items.filter((i) => (i.hintKey || null) !== (HINTS[i.id] || null))
       .map((i) => `${i.id} shows ${i.hintKey || 'none'}, expected ${HINTS[i.id] || 'none'}`);
-    ok('C5a the hints under the stems: nine items each show their own, none on any other item (Magic items included)',
+    ok(`C5a the hints under the stems: ${Object.keys(HINTS).length ? Object.keys(HINTS).length + ' items each show their own, none on any other item' : 'no item shows one'} (Magic items included)`,
       wrong.length === 0, list(wrong));
     const keyOfHint = (hint) => Object.keys(live.CONTEXT_HINTS).find((k) => live.CONTEXT_HINTS[k].hint === hint);
     const shown = new Set(live.items.map((i) => i.hintKey).filter(Boolean));
@@ -248,7 +244,7 @@ run('round12-copy', async (t) => {
     ok(`C6b Round 2's renderer shows all ${poolAlly.length} POOL_ALLY items, and all ${poolA.length} POOL_A items as enemy retests, as written`,
       poolAlly.length === 50 && bad2.length === 0 && errors.length === 0, list(bad2.concat(errors)));
     const hinted = poolA.concat(poolAlly).filter((q) => hintOf(q.sc, q.id)).map((q) => q.id).sort().join();
-    ok(`C6c in the page, the same ${Object.keys(HINTS).length} items show a hint, and no Magic item does`, hinted === Object.keys(HINTS).sort().join(), hinted);
+    ok(`C6c in the page, ${Object.keys(HINTS).length ? 'the same ' + Object.keys(HINTS).length + ' items show a hint' : 'no item shows a hint'}, and no Magic item does`, hinted === Object.keys(HINTS).sort().join(), hinted);
     win.close();
   }
   for (const gaming of [false, true]) {
