@@ -10299,7 +10299,7 @@ function getOverviewContent(id) {
   </div>`;
   
   html += `<p style="font-size: 13px; color: #808090; text-align: center; margin-top: 32px; font-style: italic;">
-    Click the tabs above to explore philosophy, workplace patterns, stress responses, and development paths.
+    More in the tabs above.
   </p>`;
   
   return html;
@@ -10320,18 +10320,18 @@ function getQuickFacts(id, profile, type) {
     
     html += `<div class="quick-fact">
       <strong>Partnership:</strong>
-      <p style="margin: 0; color: #d0d0d0;">${colorNames[colors[0]]} + ${colorNames[colors[1]]} combine for unique synergy.</p>
+      <p style="margin: 0; color: #d0d0d0;">${colorNames[colors[0]]} and ${colorNames[colors[1]]}.</p>
     </div>`;
     
     html += `<div class="quick-fact">
       <strong>What's Absent:</strong>
-      <p style="margin: 0; color: #d0d0d0;">No ${absent.map(c => colorNames[c]).join(', ')}. This shapes your approach as much as what you have.</p>
+      <p style="margin: 0; color: #d0d0d0;">No ${absent.map(c => colorNames[c]).join(', ')}.</p>
     </div>`;
     
     const isAllied = isAlliedPair(colors);
     html += `<div class="quick-fact">
       <strong>${isAllied ? 'Allied Pair' : 'Enemy Pair'}:</strong>
-      <p style="margin: 0; color: #d0d0d0;">${isAllied ? 'Colors reinforce each other smoothly' : 'Productive tension between opposing values'}.</p>
+      <p style="margin: 0; color: #d0d0d0;">${isAllied ? 'The two colours reinforce each other' : 'The two colours pull against each other'}.</p>
     </div>`;
     
   } else if (type === 'THREE') {
@@ -10340,12 +10340,12 @@ function getQuickFacts(id, profile, type) {
     
     html += `<div class="quick-fact">
       <strong>Three-Colour Identity:</strong>
-      <p style="margin: 0; color: #d0d0d0;">Versatile and complete—only lacks 2 colors instead of 3 or 4.</p>
+      <p style="margin: 0; color: #d0d0d0;">Lacks two colours instead of three or four.</p>
     </div>`;
     
     html += `<div class="quick-fact">
-      <strong>Common Enemies:</strong>
-      <p style="margin: 0; color: #d0d0d0;">${absent.map(c => colorNames[c]).join(' and ')}. Your identity is defined by lacking these two.</p>
+      <strong>What's Absent:</strong>
+      <p style="margin: 0; color: #d0d0d0;">No ${absent.map(c => colorNames[c]).join(' or ')}.</p>
     </div>`;
   }
   
@@ -10391,43 +10391,6 @@ function getGuildPhilosophy(id, profile) {
   
   let html = '';
   
-  html += `<div class="info-box">
-    <div class="box-header">
-      <span class="text-20">🤝</span>
-      <h4>What ${colorNames[colors[0]]} & ${colorNames[colors[1]]} Share</h4>
-    </div>
-    <div class="box-content">
-      <p>Both colors value certain approaches, and when combined, these shared values get <strong>EMPHASIZED</strong>.</p>
-      <p style="margin-top: 16px; padding: 16px; background: rgba(139,92,246,0.1); border-radius: 8px;">
-        <strong class="text-accent">Together:</strong> They reinforce each other's core philosophy, creating something stronger than either alone.
-      </p>
-    </div>
-  </div>`;
-  
-  html += `<div class="info-box">
-    <div class="box-header">
-      <span class="text-20">⚖️</span>
-      <h4>The Productive Tension</h4>
-    </div>
-    <div class="box-content">
-      <p>While ${colorNames[colors[0]]} and ${colorNames[colors[1]]} share core values, they <strong>DISAGREE</strong> on key points.</p>
-      <p style="margin-top: 16px; font-style: italic; color: #d0d0d0;">
-        This tension creates the unique character of ${profile.name}—you balance two different perspectives.
-      </p>
-    </div>
-  </div>`;
-  
-  html += `<div class="info-box">
-    <div class="box-header">
-      <span class="text-20">✨</span>
-      <h4>What Emerges Uniquely</h4>
-    </div>
-    <div class="box-content">
-      <p>${profile.name} creates patterns that <strong>neither color alone produces</strong>.</p>
-      <p class="mt-12">This isn't just "${colorNames[colors[0]]} AND ${colorNames[colors[1]]}"—it's a genuine fusion with emergent properties.</p>
-    </div>
-  </div>`;
-  
   html += `<div class="info-box shadow">
     <div class="box-header">
       <span class="text-20">🚫</span>
@@ -10438,11 +10401,11 @@ function getGuildPhilosophy(id, profile) {
       <ul class="mt-12">`;
   
   const absentMeanings = {
-    W: {impact: 'No community focus or moral framework', result: 'Must work through efficiency, self-interest, or natural patterns'},
-    U: {impact: 'No analytical depth or strategic planning', result: 'Must rely on instinct, tradition, passion, or pragmatism'},
-    B: {impact: 'No self-interest or ruthless pragmatism', result: 'Naive about power dynamics, struggles with tough calls'},
-    R: {impact: 'No passion, urgency, or emotional authenticity', result: 'Everything calm, measured, potentially too slow'},
-    G: {impact: 'No patience, organic growth, or respect for tradition', result: 'Everything active, engineered, potentially unsustainable'}
+    W: {impact: 'No community focus or moral framework', result: 'Must work through efficiency or self-interest'},
+    U: {impact: 'No analytical depth or strategic planning', result: 'Must rely on instinct and tradition'},
+    B: {impact: 'No self-interest or ruthless pragmatism', result: 'Naive about power, and struggles with tough calls'},
+    R: {impact: 'No passion or urgency', result: 'Calm and measured, sometimes too slow'},
+    G: {impact: 'No patience or respect for tradition', result: 'Active and engineered, sometimes unsustainable'}
   };
   
   absent.forEach(c => {
@@ -10453,9 +10416,6 @@ function getGuildPhilosophy(id, profile) {
   });
   
   html += `</ul>
-      <p style="margin-top: 16px; padding: 12px; background: rgba(239,68,68,0.1); border-radius: 8px; border-left: 3px solid #EF4444;">
-        <strong style="color: #EF4444;">Key insight:</strong> Your approach is defined by what you CAN'T do as much as what you can.
-      </p>
     </div>
   </div>`;
   
@@ -10469,35 +10429,22 @@ function getThreeColorPhilosophy(id, profile) {
   
   let html = '';
   
-  html += `<div class="info-box">
-    <div class="box-header">
-      <span class="text-20">🎯</span>
-      <h4>What All Three Colors Seek</h4>
-    </div>
-    <div class="box-content">
-      <p>${colorNames[colors[0]]}, ${colorNames[colors[1]]}, and ${colorNames[colors[2]]} all share philosophical common ground.</p>
-      <p style="margin-top: 16px; padding: 16px; background: rgba(139,92,246,0.1); border-radius: 8px;">
-        When three colors align, they create a <strong class="text-accent">complete and versatile identity</strong> with only minor blind spots (just 2 absent colors).
-      </p>
-    </div>
-  </div>`;
-  
   html += `<div class="info-box shadow">
     <div class="box-header">
       <span class="text-20">⚔️</span>
-      <h4>Common Enemies</h4>
+      <h4>What's Absent</h4>
     </div>
     <div class="box-content">
-      <p><strong>${absent.map(c => colorNames[c]).join(' and ')}:</strong> All three of your colors oppose these two.</p>
-      <p class="mt-12">This shared opposition defines your blind spots:</p>
+      <p><strong>No ${absent.map(c => colorNames[c]).join(' or ')}.</strong></p>
+      <p class="mt-12">That shapes your blind spots:</p>
       <ul class="mt-12">`;
   
   const absentMeanings = {
-    W: 'No community focus—individual or collective but not "fair for all"',
-    U: 'No analytical optimization—instinct and tradition guide you',
-    B: 'No self-interest—everything serves collective or natural order',
-    R: 'No passion or urgency—calm, measured, patient',
-    G: 'No organic patience—everything active and engineered'
+    W: 'No community focus',
+    U: 'No analytical optimisation; instinct and tradition guide you',
+    B: 'No self-interest; everything serves the group or the natural order',
+    R: 'No passion or urgency',
+    G: 'No organic patience; everything is active and engineered'
   };
   
   absent.forEach(c => {
@@ -10505,22 +10452,6 @@ function getThreeColorPhilosophy(id, profile) {
   });
   
   html += `</ul>
-    </div>
-  </div>`;
-  
-  html += `<div class="info-box development">
-    <div class="box-header">
-      <span class="text-20">🔮</span>
-      <h4>Why Three-Color Is Different</h4>
-    </div>
-    <div class="box-content">
-      <p><strong>You're more complete than simpler identities:</strong></p>
-      <ul class="mt-12">
-        <li>• Mono-color lacks 4 colors (major limitations)</li>
-        <li>• Two-color lacks 3 colors (significant gaps)</li>
-        <li>• <strong>Three-color lacks only 2 colors</strong> (minor blind spots)</li>
-      </ul>
-      <p class="mt-16">This makes you versatile and adaptable, able to handle diverse situations. The trade-off: less focused than simpler identities.</p>
     </div>
   </div>`;
   
@@ -10542,7 +10473,7 @@ function getMonoPhilosophy(id, profile) {
     <div class="box-content">
       <p style="font-size: 15px; line-height: 1.8;">${profile.desc}</p>
       <p style="margin-top: 16px; padding: 16px; background: rgba(139,92,246,0.1); border-radius: 8px;">
-        <strong class="text-accent">Mono-color means:</strong> You're strongly focused in one philosophical direction. This gives you depth and clarity, but limits your range.
+        <strong class="text-accent">Mono-colour means:</strong> You're strongly focused in one philosophical direction.
       </p>
     </div>
   </div>`;
@@ -10550,15 +10481,15 @@ function getMonoPhilosophy(id, profile) {
   html += `<div class="info-box shadow">
     <div class="box-header">
       <span class="text-20">🚫</span>
-      <h4>What You Lack (Four Colors Absent)</h4>
+      <h4>What You Lack</h4>
     </div>
     <div class="box-content">
-      <p>As a mono-color identity, you lack the perspectives and approaches of <strong>FOUR other colors:</strong></p>
+      <p>You lack the other four colours:</p>
       <ul class="mt-12">
-        ${others.map(c => `<li>• No ${colorNames[c]}—missing that entire dimension</li>`).join('')}
+        ${others.map(c => `<li>• No ${colorNames[c]}</li>`).join('')}
       </ul>
       <p style="margin-top: 16px; font-style: italic; color: #a0a0b0;">
-        This is your biggest development opportunity. See Development tab for how to add other colors.
+        See the Development tab for how to add other colours.
       </p>
     </div>
   </div>`;
@@ -10593,7 +10524,7 @@ function getWorkplaceContent(id) {
       <h4>Shadows</h4>
     </div>
     <div class="box-content">
-      <p style="margin-bottom: 12px; color: #9b6b6b; font-style: italic;">Risks of this type—you may not have these, or may have them and manage them well</p>
+      <p style="margin-bottom: 12px; color: #9b6b6b; font-style: italic;">Risks of this type. You may not have these, or may have them and manage them well.</p>
       <ul>`;
   profile.weak.forEach(w => {
     html += `<li>• ${w}</li>`;
@@ -10611,7 +10542,7 @@ function getWorkplaceContent(id) {
       <p><strong>Stereotypical roles for this identity:</strong></p>
       <p style="margin-top: 12px; font-size: 15px; line-height: 1.6;">${profile.roles}</p>
       <p style="margin-top: 16px; font-size: 13px; color: #a0a0b0; font-style: italic;">
-        These aren't limitations—they're where this identity naturally excels. You can succeed anywhere, but these roles play to your strengths.
+        You can succeed anywhere, but these roles play to your strengths.
       </p>
     </div>
   </div>`;
@@ -10625,7 +10556,7 @@ function getWorkplaceContent(id) {
       <div class="box-content">
         <p style="font-style: italic; color: #d0a070; font-size: 15px; line-height: 1.6;">"${profile.pubBanter}"</p>
         <p style="margin-top: 16px; font-size: 13px; color: #a0a0b0;">
-          The unvarnished truth. This is your shadow side from others' perspective.
+          This is your shadow side from others' perspective.
         </p>
       </div>
     </div>`;
@@ -10646,7 +10577,7 @@ function getStressContent(id) {
       <h4>Under Pressure</h4>
     </div>
     <div class="box-content">
-      <p><strong>When ${profile.name} is stressed, watch for:</strong></p>
+      <p><strong>When ${identityName(id)} is stressed, watch for:</strong></p>
       <ul class="mt-12">`;
   
   const stressPatterns = getStressPatterns(id);
@@ -10669,15 +10600,15 @@ function getStressContent(id) {
     <div class="box-content">
       <p><strong>For yourself:</strong></p>
       <ul style="margin-top: 8px; margin-bottom: 16px;">
-        <li>• Recognize the stress pattern early</li>
-        <li>• Channel opposite colors deliberately</li>
+        <li>• Recognise the stress pattern early</li>
+        <li>• Channel opposite colours deliberately</li>
         <li>• Set external accountability and deadlines</li>
-        <li>• Focus on outcomes, not comfortable patterns</li>
-        <li>• Practice the missing colors intentionally</li>
+        <li>• Focus on outcomes</li>
+        <li>• Practise the missing colours</li>
       </ul>
       <p><strong>For your team:</strong></p>
       <ul style="margin-top: 8px;">
-        <li>• Inject missing colors (pair with complementary identities)</li>
+        <li>• Inject missing colours (pair with complementary identities)</li>
         <li>• Provide structure or freedom as needed</li>
         <li>• Challenge patterns gently but firmly</li>
         <li>• Remind them of mission over method</li>
@@ -10690,8 +10621,8 @@ function getStressContent(id) {
 
 function getStressPatterns(id) {
   const patterns = {
-    'AZORIUS': ['Withdraws into process design, avoiding decisions', 'Creates bureaucracy to delay action', 'Condescending about "proper procedure"', 'Dismisses urgency as "lack of planning"', 'Paralyzed between fairness and efficiency'],
-    'DIMIR': ['Hoards information more aggressively', 'Paranoid about being outmaneuvered', 'Manipulates situations to regain control', 'Trusts no one', 'Withdraws into strategic scheming'],
+    'AZORIUS': ['Withdraws into process design, avoiding decisions', 'Creates bureaucracy to delay action', 'Condescending about "proper procedure"', 'Dismisses urgency as "lack of planning"', 'Paralysed between fairness and efficiency'],
+    'DIMIR': ['Hoards information more aggressively', 'Paranoid about being outmanoeuvred', 'Manipulates situations to regain control', 'Trusts no one', 'Withdraws into strategic scheming'],
     'RAKDOS': ['Explosively destructive', 'Reckless gratification-seeking', 'Burns bridges impulsively', 'Creates chaos deliberately', 'Lashes out at all constraints'],
     'IZZET': ['Scattered across too many experiments', 'Reckless with resources and testing', 'Ignores practical constraints', 'Blows things up (literally or figuratively)', 'Excited by chaos'],
     'GRUUL': ['Increasingly aggressive and hostile', 'Smashes obstacles without thinking', 'Rejects all subtlety completely', 'Hostile to any complexity', 'Pure force over all finesse'],
@@ -10699,7 +10630,7 @@ function getStressPatterns(id) {
     'ORZHOV': ['Increasingly extractive and exploitative', 'Rigid hierarchy enforcement', 'Debt collection mentality', 'Political manipulation intensifies', 'Everything becomes transactional'],
     'GOLGARI': ['Fatalistic acceptance of decay', 'Exploits death and failure coldly', 'Patient to point of complete passivity', 'Cynical about all improvement', 'Waiting for things to die'],
     'SIMIC': ['Over-optimises organic systems destructively', 'Experiments on people without consent', 'Perfectionism paralysis', 'Loses sight of "good enough"', 'Hubris about improvement capability'],
-    'BOROS': ['Zealous to dangerous fault', 'Aggressively enforces "right" way', 'Burnout from unsustainable intensity', 'Rigid about honor code', 'Cult-like fervor'],
+    'BOROS': ['Zealous to dangerous fault', 'Aggressively enforces "right" way', 'Burnout from unsustainable intensity', 'Rigid about honour code', 'Cult-like fervour'],
     'MONO-W': ['Rigidly rule-bound', 'Excessive self-sacrifice', 'Martyr complex', 'Slow consensus-seeking', 'Judges others harshly for rule-breaking'],
     'MONO-U': ['Analysis paralysis worsens', 'Condescending intellectualism', 'Avoids action completely', 'Designs over-complex solutions', 'Dismisses all emotions'],
     'MONO-B': ['Ruthlessly transactional with everyone', 'Cuts people off easily', 'Increasingly amoral decisions', 'Paranoid about exploitation', 'Hoards everything'],
@@ -10709,7 +10640,7 @@ function getStressPatterns(id) {
   
   return patterns[id] || [
     'Intensifies characteristic patterns',
-    'Shadow behaviors emerge more strongly',
+    'Shadow behaviours emerge more strongly',
     'Becomes less balanced and flexible',
     'May withdraw or become rigid',
     'Struggles with rapid adaptation'
@@ -10727,7 +10658,7 @@ function getDevelopmentContent(id) {
   
   html += `<div style="margin-bottom: 24px; padding: 20px; background: rgba(139,92,246,0.08); border-radius: 12px; border-left: 4px solid #a78bfa;">
     <p style="font-size: 15px; color: #d0d0d0; line-height: 1.7;">
-      <strong class="text-accent">Development path:</strong> Add colors you're weak in. Each color you add transforms your identity and unlocks new capabilities.
+      <strong class="text-accent">Development path:</strong> Add colours you're weak in. Each colour you add changes your identity.
     </p>
   </div>`;
   
@@ -10760,7 +10691,7 @@ function getNewIdentity(currentId, addingColor) {
     if (prof.colors && prof.colors.length === newColors.length) {
       const profColorsSorted = [...prof.colors].sort();
       if (profColorsSorted.every((c, i) => c === newColors[i])) {
-        return prof.name;
+        return identityName(id);
       }
     }
   }
@@ -10771,29 +10702,29 @@ function getNewIdentity(currentId, addingColor) {
 function getDevelopmentPath(id, color, colorName, newIdentity) {
   const developments = {
     W: {
-      what: 'Community focus, fairness, systematic coordination',
+      what: 'Community focus and fairness',
       why: 'Adds stakeholder thinking and moral framework',
-      how: ['Volunteer for team coordination roles', 'Ask "what\'s best for the team?" before deciding', 'Build one process that helps everyone', 'Practice sacrificing something small for group benefit']
+      how: ['Volunteer for team coordination roles', 'Ask "what\'s best for the team?" before deciding', 'Build one process that helps everyone', 'Practise sacrificing something small for group benefit']
     },
     U: {
-      what: 'Analytical depth, strategic thinking, optimization',
+      what: 'Analytical depth and strategic thinking',
       why: 'Adds evidence-based planning and long-term thinking',
-      how: ['Analyze before acting—ask "why?" more often', 'Read research on problems before solving', 'Map out consequences 3-5 steps ahead', 'Practice systematic optimization']
+      how: ['Analyse before acting, and ask "why" more often', 'Read research on problems before solving', 'Map out consequences 3-5 steps ahead', 'Practise systematic optimisation']
     },
     B: {
-      what: 'Pragmatism, self-advocacy, tough decisions',
+      what: 'Pragmatism and tough decisions',
       why: 'Adds agency and ability to make hard calls',
-      how: ['Negotiate explicitly for what you need', 'Practice saying no to protect your interests', 'Make one tough call per month', 'Evaluate personal benefit honestly']
+      how: ['Negotiate explicitly for what you need', 'Practise saying no to protect your interests', 'Make one tough call per month', 'Evaluate personal benefit honestly']
     },
     R: {
-      what: 'Passion, urgency, decisive action, authenticity',
+      what: 'Passion and decisive action',
       why: 'Adds energy and bias toward action',
-      how: ['Act on 70% information sometimes', 'Express emotions more openly in meetings', 'Run quick experiments instead of extensive planning', 'Practice "ship it and iterate"']
+      how: ['Act on 70% information sometimes', 'Express emotions more openly in meetings', 'Run quick experiments instead of extensive planning', 'Practise "ship it and iterate"']
     },
     G: {
-      what: 'Patience, sustainability, organic growth, accumulated wisdom',
+      what: 'Patience and accumulated wisdom',
       why: 'Adds long-term thinking and respect for what works',
-      how: ['Give initiatives time to develop naturally', 'Learn from precedent and experience', 'Practice patience with development timelines', 'Trust proven patterns and tradition']
+      how: ['Give initiatives time to develop naturally', 'Learn from precedent and experience', 'Practise patience with development timelines', 'Trust proven patterns and tradition']
     }
   };
   
