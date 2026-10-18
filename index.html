@@ -2255,7 +2255,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
           <!-- One counter for the whole quiz (renderQuizCounter), and the free
                mulligan: one undo per round (useMulligan). -->
           <div class="mc-q__count-row">
-            <div class="mc-q__count">Question <span id="q-num">1</span> of <span id="q-tot">45</span></div>
+            <div class="mc-q__count">Question <span id="q-num">1</span> of up to <span id="q-tot">45</span></div>
             <button type="button" class="mc-mulligan" id="mulligan-btn" onclick="askMulligan()" disabled>Undo</button>
           </div>
           <!-- Under the button: the hint, then "taken" and "used" (updateMulliganControl). The
@@ -3606,19 +3606,19 @@ const POOL_A = [
   // REVERSE-KEY: W-B (tests individual accountability vs group blame - should correlate with W-B pattern)
   {w:0.7,id:'A-WB-REV',pair:'W-B',ctx:'Group Project',sc:'Your group project, worth a third of your degree, went badly because one member was ill. You may each write who did what.',r:[{t:'Write that we worked as a group, and should share the mark.',c:'W'},{t:'List exactly which parts were mine.',c:'B'}]},
 
-  // BLUE vs RED (U-R) - Analysis vs action
-  {id:'A-UR-W01',pair:'U-R',ctx:'The Scan',sc:'A scan finds a small lump, almost certainly harmless. You can have it removed now, or wait six months for a second scan.',r:[{t:'Wait for the second scan, and decide on what it shows.',c:'U'},{t:'Have it out now. My gut says don\'t wait.',c:'R'}]},
-  {id:'A-UR-W03',pair:'U-R',ctx:'New Field',sc:'You\'re offered a place on a course in the field you\'ve always wanted, costing most of your savings. They want an answer today.',r:[{t:'Ask for a week to look into it, even if that loses it.',c:'U'},{t:'Yes, on the spot, before my head can talk me out of it.',c:'R'}]},
-  {id:'A-UR-W05',pair:'U-R',ctx:'The Loft',sc:'Two builders quote the same for your loft. One has drawn every detail; the other has a bold idea for a huge roof window.',r:[{t:'The one with every detail drawn. No surprises.',c:'U'},{t:'The bold one. I can already see myself waking up under that window.',c:'R'}]},
-  {id:'A-UR-L01',pair:'U-R',ctx:'Moving In',sc:'You\'ve been together six months and you\'re happy. Their lease ends next month, and they\'ve asked to move in with you.',r:[{t:'Only once I\'ve seen how we handle money and rows.',c:'U'},{t:'Yes, tonight. I know how I feel.',c:'R'}]},
-  {id:'A-UR-L03',pair:'U-R',ctx:'Buying a Car',sc:'You\'re buying a second-hand car, and it\'s down to two: a dull one with a spotless record, or an old classic you\'ve fallen for.',r:[{t:'The dull one, once I\'ve checked its service history.',c:'U'},{t:'The classic. I\'d grin every time I turned the key.',c:'R'}]},
-  {id:'A-UR-L05',pair:'U-R',ctx:'The Speech',sc:'You\'re giving the speech at your brother\'s wedding, to two hundred guests. It matters to him, and to you.',r:[{t:'Write it out, and rehearse until I know every word.',c:'U'},{t:'A few notes. On the day, I\'ll say what I feel.',c:'R'}]},
+  // BLUE vs RED (U-R) - Understand or verify first, at a visible cost, vs act now on conviction
+  {id:'A-UR-W01',pair:'U-R',ctx:'The Scan',sc:'A scan finds a small lump, probably harmless. Removing it means a general anaesthetic and a scar; a rescan in six months would show more.',r:[{t:'Rescan in six months. If it\'s grown, it comes out.',c:'U'},{t:'Have it out next week. I\'m not carrying it round for six months.',c:'R'}]},
+  {id:'A-UR-W03',pair:'U-R',ctx:'New Field',sc:'You\'re offered a place on a course in the field you\'ve always wanted, costing most of your savings. They want an answer today.',r:[{t:'Ask for a week to look into it. A course that can\'t wait a week worries me.',c:'U'},{t:'Take it today. I\'ve wanted this for years, and I know what it\'ll cost me.',c:'R'}]},
+  {id:'A-UR-W05',pair:'U-R',ctx:'The Loft',sc:'A builder has sketched a bold design for your loft, round a huge roof window. Full drawings would put the start back three months.',r:[{t:'Wait for the drawings. I don\'t sign for a room I\'ve only seen sketched.',c:'U'},{t:'Start on the sketch. I\'ve seen his other lofts, and I trust his eye.',c:'R'}]},
+  {id:'A-UR-L01',pair:'U-R',ctx:'Moving In',sc:'Six months in, you\'re happy together. Their lease ends next month, and they\'d like to move in with you rather than sign for another year.',r:[{t:'Not yet. Six months isn\'t enough to know.',c:'U'},{t:'Yes. We\'ll learn how we handle money and rows faster under one roof.',c:'R'}]},
+  {id:'A-UR-L03',pair:'U-R',ctx:'Buying a Car',sc:'The second-hand car you want is fairly priced, and another buyer is coming at five. There\'s no time to get it inspected.',r:[{t:'I\'d lose it to the five o\'clock buyer before I\'d buy it unchecked.',c:'U'},{t:'Buy it. I\'ve driven it and looked underneath. That\'s enough for me.',c:'R'}]},
+  {id:'A-UR-L05',pair:'U-R',ctx:'The Speech',sc:'You\'re giving the speech at your brother\'s wedding next month, to two hundred guests. It matters to him, and to you.',r:[{t:'Draft it a dozen times and read it from the page, word for word.',c:'U'},{t:'My three best stories about him, told to the room without a script.',c:'R'}]},
   // PSYCHOLOGY JOKE: U-R
-  {w:0.8,id:'A-UR-PSY',pair:'U-R',ctx:'Her Story',sc:'Your mother is ninety, and you\'ve promised to write down her life story while she can still tell it.',r:[{t:'Plan it chapter by chapter, checking every fact before I write.',c:'U'},{t:'No plan at all: sit with her and write whatever comes.',c:'R'}]},
+  {w:0.8,id:'A-UR-PSY',pair:'U-R',ctx:'Her Story',sc:'Your mother is ninety and still sharp, and you\'ve promised to write down her life story.',r:[{t:'A fortnight in the family papers first. I\'d ask her far better questions.',c:'U'},{t:'Start recording her this weekend. The facts can be checked later.',c:'R'}]},
   // REVERSE-KEY: U-R (tests regret framing - should correlate with U-R pattern)
-  {w:0.7,id:'A-UR-REV',pair:'U-R',ctx:'Second Chance',sc:'Two years ago you ended things with someone you loved. They\'ve been in touch, asking if you\'d try again.',r:[{t:'Not until we\'ve talked through why I ended it.',c:'U'},{t:'Yes. I\'ve missed them every day.',c:'R'}]},
+  {w:0.7,id:'A-UR-REV',pair:'U-R',ctx:'Second Chance',sc:'Two years ago you ended things with someone you loved. They\'ve been in touch, asking if you\'d try again.',r:[{t:'Talk through why it ended first. They may not wait that long.',c:'U'},{t:'I still love them. I\'d try again, knowing it could end the same way.',c:'R'}]},
   // HETEROPOLAR: U-R \u2014 options flip presentation so each option rejects the OPPOSING pole; R-first to vary position
-  {w:0.7,id:'A-UR-HET',pair:'U-R',ctx:'Co-Founder',sc:'You\'re starting a business with your savings and need a partner. Two able people want to join you.',r:[{t:'The one who asks the hardest questions about the plan.',c:'U'},{t:'The one who\'s as fired up about it as I am.',c:'R'}]},
+  {w:0.7,id:'A-UR-HET',pair:'U-R',ctx:'Co-Founder',sc:'You\'re starting a business with your savings and need a partner. Two able people want to join you.',r:[{t:'The one who\'ll catch my mistakes before customers do. We\'d open later for it.',c:'U'},{t:'The one who\'ll have us trading by spring.',c:'R'}]},
 
   // GREEN vs BLUE (G-U) - Acceptance vs optimisation
   {id:'A-GU-W08',pair:'G-U',ctx:'Genetic Test',sc:'Your mother\'s side of the family carries a gene for a serious illness. A test would tell you whether you have it.',r:[{t:'Leave it, and let nature take its course.',c:'G'},{t:'Have the test.',c:'U'}]},
@@ -3662,8 +3662,8 @@ const POOL_A = [
   // ============================================================================
   {w:0.8,id:'A-WB-PSY2',pair:'W-B',ctx:'Developer',sc:'A developer needs every house on your street. Your neighbours want to sell together at one price, though yours is the biggest house.',r:[{t:'Sell with them, at the same price as everyone.',c:'W'},{t:'Negotiate my own price. Mine\'s the biggest house.',c:'B'}]},
   {w:0.8,id:'A-WB-PSY3',pair:'W-B',ctx:'The Plot',sc:'Your neighbour offers you the empty plot next door, cheaply. Your community group had hoped to buy it for a shared garden.',r:[{t:'Point her to the group, so the whole street gets the garden.',c:'W'},{t:'Buy it. I\'d be mad to let that price go.',c:'B'}]},
-  {w:0.8,id:'A-UR-PSY2',pair:'U-R',ctx:'The Trip',sc:'Two years of saving have paid for three months of travel.',r:[{t:'Plan the route and book ahead, so none of it\'s wasted.',c:'U'},{t:'Buy a one-way ticket, and decide the rest as I go.',c:'R'}]},
-  {w:0.8,id:'A-UR-PSY3',pair:'U-R',ctx:'Oldest Friend',sc:'Your oldest friend is about to put their savings into a business with someone you don\'t trust.',r:[{t:'Look into this person quietly, and only speak if I find something.',c:'U'},{t:'Ring my friend tonight and say what I think.',c:'R'}]},
+  {w:0.8,id:'A-UR-PSY2',pair:'U-R',ctx:'The Trip',sc:'You\'ve saved enough for three months of travel.',r:[{t:'Weeks of planning first, so every stop earns its place.',c:'U'},{t:'Go straight to the city I\'ve always wanted to live in. If it fits, I stay.',c:'R'}]},
+  {w:0.8,id:'A-UR-PSY3',pair:'U-R',ctx:'Oldest Friend',sc:'Your oldest friend signs on Friday to put their savings into a business with someone you don\'t trust.',r:[{t:'Dig into this person\'s past first. I\'ll only speak with something solid.',c:'U'},{t:'Ring my friend tonight and tell them straight what I think.',c:'R'}]},
   {w:0.8,id:'A-GU-PSY2',pair:'G-U',ctx:'Settling Down',sc:'You\'re choosing where to settle for good. One town wins on every figure you\'ve compared; the other is where you grew up.',r:[{t:'Where I grew up.',c:'G'},{t:'The one that wins on the figures.',c:'U'}]},
   {w:0.8,id:'A-GU-PSY3',pair:'G-U',ctx:'Old Dog',sc:'Your dog is old and slowing down. The vet suggests tests and treatment, covered by insurance, that might give him another good year.',r:[{t:'Let him see out his time in peace, at home.',c:'G'},{t:'Do the tests first, so the decision rests on facts.',c:'U'}]},
   {w:0.8,id:'A-WR-PSY2',pair:'W-R',ctx:'School Rules',sc:'Your son\'s school has sent him home because of his hair, which breaks its rules. He\'s fourteen, and he loves it.',r:[{t:'Get it cut to the rules, and send him back.',c:'W'},{t:'Back him, and send him in as he is.',c:'R'}]},
@@ -3681,9 +3681,9 @@ const POOL_A = [
   {id:'MTG-WB-02',pair:'W-B',ctx:'The Concession',sc:'It\'s the last round of a big tournament. Your opponent, a friend who\'s already through, offers to concede so you make the top eight.',r:[{t:'Play it out. It isn\'t fair on whoever finishes ninth.',c:'W'},{t:'Accept. They offered, and I want the place.',c:'B'}]},
   
   // MTG U-R Set 1
-  {id:'MTG-UR-01',pair:'U-R',ctx:'Deck Choice',sc:'You\'ve qualified for a big tournament next month. You know your deck inside out, but you\'re tired of it, and a new one excites you.',r:[{t:'Study every deck I might face, and play the one I know best.',c:'U'},{t:'Switch. I can\'t stop thinking about the new one.',c:'R'}]},
+  {id:'MTG-UR-01',pair:'U-R',ctx:'Deck Choice',sc:'You\'ve qualified for a national tournament next month. You know your deck inside out, but a new one looks stronger against the field.',r:[{t:'Test both for a fortnight. Whichever wins more gets my last two weeks.',c:'U'},{t:'Switch now. A month is long enough to learn it properly.',c:'R'}]},
   // MTG U-R Set 2
-  {id:'MTG-UR-02',pair:'U-R',ctx:'Coaching Offer',sc:'Before a big event, a well-known player offers to coach you, on condition you play their deck their way.',r:[{t:'Accept, and learn why every card is in it.',c:'U'},{t:'Turn it down. I play my own decks, win or lose.',c:'R'}]},
+  {id:'MTG-UR-02',pair:'U-R',ctx:'Coaching Offer',sc:'A month before a major event, a well-known player offers to coach you, if you play their deck their way. You think yours is better.',r:[{t:'Accept. I\'d like to know why they think theirs is better.',c:'U'},{t:'Say no. I trust my read of this field more than theirs.',c:'R'}]},
   
   // MTG G-U Set 1
   {id:'MTG-GU-01',pair:'G-U',ctx:'Signature Deck',sc:'You\'ve played the same deck at your store for five years, and people know you for it. Newer decks beat it more often now.',r:[{t:'Keep it as it is. It\'s part of the furniture there now.',c:'G'},{t:'Work out exactly why it\'s losing, and fix that.',c:'U'}]},
@@ -3733,18 +3733,18 @@ const POOL_ALLY = [
   // HET: U-B — each option attacks the OPPOSING ally's failure mode
   {w:0.7,id:'AL-UB-HET',pair:'U-B',ctx:'Your Book',sc:'Your publisher wants a bold, simple title for your first book. Your careful one is more accurate, but would sell far fewer copies.',r:[{t:'My careful title, because it says what the book is.',c:'U'},{t:'Use the bold one. I want it on the front tables.',c:'B'}]},
 
-  // BLACK vs RED (B-R) - Calculated self-interest vs impulsive self-expression
-  {id:'AL-BR-01',pair:'B-R',ctx:'Restaurant',sc:'A friend is opening a restaurant and wants you as an equal partner. You\'d be putting in £30,000.',r:[{t:'Offer a loan at eight per cent instead. It\'s a better deal for me.',c:'B'},{t:'Go in as an equal partner. I love what they\'re doing.',c:'R'}]},
-  {id:'AL-BR-02',pair:'B-R',ctx:'Stolen Idea',sc:'At your writing group, with a literary agent visiting, a friend reads out a story built on your idea, and the agent wants more.',r:[{t:'Say nothing tonight. First thing tomorrow, my own pages go to the agent.',c:'B'},{t:'Stand up there and then, and say, \'That was my idea.\'',c:'R'}]},
-  {id:'AL-BR-03',pair:'B-R',ctx:'Family Party',sc:'At a family party, your partner\'s father makes a cruel joke about you in front of everyone.',r:[{t:'Laugh it off. Keeping him sweet will pay me back later.',c:'B'},{t:'Snap back at him there and then: \'I\'m not having that.\'',c:'R'}]},
-  {id:'AL-BR-04',pair:'B-R',ctx:'Asked Out',sc:'Someone you\'ve fallen for has asked you out. You\'re both on the shortlist for the one scholarship that would pay for your degree.',r:[{t:'Not until the scholarship\'s decided. I want it too much.',c:'B'},{t:'Say yes. I\'ll worry about the scholarship later.',c:'R'}]},
-  {id:'AL-BR-05',pair:'B-R',ctx:'Where to Live',sc:'You can buy a flat in a dull area that\'s about to boom, or rent in the lively neighbourhood you love.',r:[{t:'Buy in the dull area. In five years I\'ll be well ahead.',c:'B'},{t:'Rent where I love, and enjoy every night of it.',c:'R'}]},
-  {id:'AL-BR-06',pair:'B-R',ctx:'Gallery Offer',sc:'A gallery will give you your first solo show if you paint more of what sells, and less of what you love.',r:[{t:'Paint what sells, and get the show.',c:'B'},{t:'Keep painting what I love.',c:'R'}]},
+  // BLACK vs RED (B-R) - Position and the long game, paid for in deferral, vs conviction acted on now
+  {id:'AL-BR-01',pair:'B-R',ctx:'Restaurant',sc:'A friend is opening a restaurant and wants you as an equal partner. You\'d be putting in £30,000.',r:[{t:'Lend it at eight per cent, with the right to buy in later if it works.',c:'B'},{t:'Go in as an equal partner. I believe in it.',c:'R'}]},
+  {id:'AL-BR-02',pair:'B-R',ctx:'Stolen Idea',sc:'At your writing group, with a literary agent visiting, a friend reads out a story built on your idea, and the agent wants more.',r:[{t:'Say nothing tonight. First thing tomorrow, my pages go to the agent.',c:'B'},{t:'Claim it there and then, while the agent\'s still in the room.',c:'R'}]},
+  {id:'AL-BR-03',pair:'B-R',ctx:'Family Party',sc:'At a family party, your partner\'s father makes a cruel joke about you in front of everyone.',r:[{t:'Laugh it off. His goodwill will be worth more to me than the last word.',c:'B'},{t:'Tell him, to his face, that it wasn\'t funny.',c:'R'}]},
+  {id:'AL-BR-04',pair:'B-R',ctx:'Asked Out',sc:'Someone you\'ve fallen for has asked you out. You\'re both on the shortlist for the one scholarship that would pay for your degree.',r:[{t:'Not until the scholarship\'s decided. I want it too much.',c:'B'},{t:'Yes. If it hurts my chances of the scholarship, that\'s a risk I\'ll take.',c:'R'}]},
+  {id:'AL-BR-05',pair:'B-R',ctx:'Where to Live',sc:'You can buy a flat in a dull area that\'s about to boom, or rent in the lively neighbourhood you love.',r:[{t:'Buy in the dull area. I can put up with it for five years.',c:'B'},{t:'Rent where I love. These are the years I want to spend there.',c:'R'}]},
+  {id:'AL-BR-06',pair:'B-R',ctx:'Gallery Offer',sc:'A gallery will give you your first solo show if you paint more of what sells, and less of what you love.',r:[{t:'Paint what sells and get the show. Once I\'ve a name, I\'ll paint what I like.',c:'B'},{t:'Turn it down. Another gallery will take my work as it is.',c:'R'}]},
 
-  // PSY: B-R — both reject the dumb policy; one circumvents, one defies
-  {w:0.8,id:'AL-BR-PSY',pair:'B-R',ctx:'Prize Draw',sc:'You\'ve won £15,000 in a prize draw.',r:[{t:'Put it towards a deposit on a flat to let out.',c:'B'},{t:'Learn to fly, which I\'ve dreamt of for years.',c:'R'}]},
+  // PSY: B-R — a windfall: left to work for twenty years, or backed on an idea now
+  {w:0.8,id:'AL-BR-PSY',pair:'B-R',ctx:'Prize Draw',sc:'You\'ve won £15,000 in a prize draw, the first real money you\'ve ever had spare.',r:[{t:'Invest it and leave it alone. In twenty years it\'ll be working for me.',c:'B'},{t:'Back the idea I\'ve sat on for years. This is my chance to try it.',c:'R'}]},
   // HET: B-R — each option attacks the OPPOSING ally's failure mode
-  {w:0.7,id:'AL-BR-HET',pair:'B-R',ctx:'Strings Attached',sc:'A wealthy aunt offers to pay off your mortgage, as long as you spend every Sunday with her for the rest of her life.',r:[{t:'Accept, because a paid-off house would change everything for me.',c:'B'},{t:'Say no. I\'m not living my life on her terms.',c:'R'}]},
+  {w:0.7,id:'AL-BR-HET',pair:'B-R',ctx:'Strings Attached',sc:'A wealthy aunt offers to pay off your mortgage, as long as you spend every Sunday with her for the rest of her life.',r:[{t:'Accept. A paid-off house would change everything for me.',c:'B'},{t:'No deal. I\'ll keep my Sundays and pay my mortgage myself.',c:'R'}]},
 
   // RED vs GREEN (R-G) - Action and change vs acceptance and stability
   {id:'AL-RG-01',pair:'R-G',ctx:'Leaving School',sc:'Your sixteen-year-old wants to leave school to train as a chef in London, where a restaurant has offered him a place.',r:[{t:'Let him go. He\'s on fire about it, and so was I at his age.',c:'R'},{t:'Keep him at home a year or two. He\'ll grow into it.',c:'G'}]},
@@ -3787,14 +3787,14 @@ const POOL_ALLY = [
   {id:'MTG-UB-02',pair:'U-B',ctx:'Testing Team',sc:'Twelve strong players preparing together for a big event invite you to join. Everything anyone finds is shared, including with players you\'ll face.',r:[{t:'Join. I\'d learn more in a month than in a year alone.',c:'U'},{t:'Test alone, and keep my best idea for the event.',c:'B'}]},
   
   // MTG B-R Set 1
-  {id:'MTG-BR-01',pair:'B-R',ctx:'The Final',sc:'You\'ve reached the final of a big tournament. Your opponent offers to split the prize money evenly, whoever wins.',r:[{t:'Agree. Half the prize is mine either way.',c:'B'},{t:'No split. I\'m here for the thrill, win or lose.',c:'R'}]},
+  {id:'MTG-BR-01',pair:'B-R',ctx:'The Final',sc:'You\'ve reached the final of a big tournament. Your opponent offers to split the prize money evenly, whoever wins.',r:[{t:'Counter with sixty-forty in my favour. They wouldn\'t offer if they weren\'t nervous.',c:'B'},{t:'Play it out for the whole prize.',c:'R'}]},
   // MTG B-R Set 2
-  {id:'MTG-BR-02',pair:'B-R',ctx:'Cash for a Deck',sc:'Before a big event, a stranger offers you £400 cash for the deck you built and love.',r:[{t:'Take the £400.',c:'B'},{t:'No way. I\'ve been buzzing all week about playing it.',c:'R'}]},
+  {id:'MTG-BR-02',pair:'B-R',ctx:'Cash for a Deck',sc:'Before a big event, a stranger offers you £400 cash for the deck you built and love.',r:[{t:'Sell it, and play a borrowed deck. The money builds something stronger later.',c:'B'},{t:'No. I built that deck to win this event.',c:'R'}]},
   
   // MTG R-G Set 1
-  {id:'MTG-RG-01',pair:'R-G',ctx:'Saving Up',sc:'You\'ve been saving for months towards a rare card for your deck. Another card you love comes up today, at a good price.',r:[{t:'Buy the one I love, today.',c:'R'},{t:'Keep saving. The one I\'m after will turn up.',c:'G'}]},
+  {id:'MTG-RG-01',pair:'R-G',ctx:'Saving Up',sc:'You\'ve saved for months towards a rare card. A dealer has it today at a fair price, and you\'re £50 short.',r:[{t:'Sell cards I\'d hoped to keep, and buy it today.',c:'R'},{t:'Let it go. Another will come round once I\'ve saved enough.',c:'G'}]},
   // MTG R-G Set 2
-  {id:'MTG-RG-02',pair:'R-G',ctx:'Store Closing',sc:'Your local store is closing. A bigger store across town wants you to run its league, on the night your old group meets.',r:[{t:'Jump at it. I\'d love a fresh start with new people.',c:'R'},{t:'Stay with my old group. We\'ll find somewhere, like we always do.',c:'G'}]},
+  {id:'MTG-RG-02',pair:'R-G',ctx:'Store Closing',sc:'Your local store is closing. A bigger store across town wants you to run its league, on the night your old group meets.',r:[{t:'Take it, and start again with new people.',c:'R'},{t:'Stay with my old group. We\'ll find somewhere, like we always do.',c:'G'}]},
   
   // MTG G-W Set 1
   {id:'MTG-GW-01',pair:'G-W',ctx:'Group Venue',sc:'Your games group has met at one friend\'s house for years. It\'s grown, and new players want a public venue with sign-ups.',r:[{t:'Keep it at the house.',c:'G'},{t:'Move it somewhere public, so anyone can join on the same terms.',c:'W'}]},
@@ -5508,7 +5508,7 @@ window.addEventListener('DOMContentLoaded', function() {
 // URL. Both write the state.result shape in docs/SCORING_CONTRACT.md, tagged
 // with scoringVersion and instrumentVersion.
 const SCORING_VERSION = 2;
-const INSTRUMENT_VERSION = 9; // the current items and screens (8: before Round 3's short situations for the matchups players meet; 7: before the second naive-reader round of the questions; 6: before the questions were rewritten from naive readers; 5: before the persona check of all questions; 4: before the Round 1 and 2 real-stakes items; 3: before the Plain screens copy; 2: before the Round 1 and 2 copy rewrite; 1: before the Phase 3 copy and flow, and links without i)
+const INSTRUMENT_VERSION = 10; // the current items and screens (9: before the Red answers were rewritten as conviction and the counter said "of up to"; 8: before Round 3's short situations for the matchups players meet; 7: before the second naive-reader round of the questions; 6: before the questions were rewritten from naive readers; 5: before the persona check of all questions; 4: before the Round 1 and 2 real-stakes items; 3: before the Plain screens copy; 2: before the Round 1 and 2 copy rewrite; 1: before the Phase 3 copy and flow, and links without i)
 
 // THE BARS (both engines). The results screen draws five bars
 // (state.activationSorted), captioned "How often you picked each colour when it
@@ -5841,12 +5841,15 @@ function updateLikelihood(stage) {
 
 // How long the quiz is. Round 1 is fixed; Rounds 2 and 3 count for real as
 // soon as they are built and use these estimates before then. Simulated
-// respondents: Round 2 is usually 9 questions (6 to 10); Round 3 plays four
-// candidates, six head-to-heads, which a clinch can cut short and a tiebreak
-// can lengthen by up to two. 30 + 9 + 6 = 45, about 8 minutes: the claims on
-// the welcome and preflight say "up to" that, because a clinch can end the
-// quiz early. The minutes are 8 until they are measured (Phase 5); the early
-// offer's minutes come from the same figure.
+// respondents: Round 2 is 9 questions for about three in four, 7 or 8 for the
+// rest (6 to 10 in all), and 6 or 7 for someone with no close enemy pair, so no
+// one estimate fits everyone; Round 3 plays four candidates, six
+// head-to-heads, which a clinch can cut short and a tiebreak can lengthen by
+// up to two. 30 + 9 + 6 = 45, about 8 minutes: the claims on the welcome and
+// preflight say "up to" that, because the quiz can end sooner, and the counter
+// says "of up to 45" all the way through (renderQuizCounter). The minutes are
+// 8 until they are measured (Phase 5); the early offer's minutes come from the
+// same figure.
 const QUIZ_LENGTH = { round1: 30, round2: 9, round3: 6, minutes: 8 };
 
 const PLAY_COPY = {
@@ -6012,10 +6015,15 @@ function applyPlayCopy() {
 }
 
 // ─── The one counter ────────────────────────────────────────────────────────
-// Question x of the whole quiz, never reset between rounds. Each round counts
-// its real length once it is built (Round 2's questions, Round 3's matches,
-// tiebreaks included) and its QUIZ_LENGTH estimate before that, so the total
-// can move at a round boundary.
+// "Question x of up to y" for the whole quiz, never reset between rounds. y is
+// the quiz's stated length, the figure the welcome and preflight give
+// (quizEstimate), unless the real length known so far is longer; then y is
+// that. Each round counts its real length once it is built (Round 2's
+// questions, Round 3's matches, tiebreaks included) and its QUIZ_LENGTH
+// estimate before that (quizLengths). A shorter real length leaves y alone, so
+// it never drops at a round boundary: the quiz ends sooner, as "up to" says.
+// Only a longer Round 2 or a Round 3 tiebreak can raise it. The progress line
+// counts what is left by the real length.
 
 // The round on screen: 1, 2 (stage 'refinement') or 3.
 function quizRound() {
@@ -6039,8 +6047,13 @@ function quizAnswered() {
   return Math.min(state.qNum || 0, r1);
 }
 
+// The y of "Question x of up to y".
+function counterTotal() {
+  return Math.max(quizLengths().total, quizEstimate());
+}
+
 function renderQuizCounter() {
-  const { total } = quizLengths();
+  const total = counterTotal();
   const qNum = document.getElementById('q-num');
   const qTot = document.getElementById('q-tot');
   if (qNum) qNum.textContent = String(Math.min(quizAnswered() + 1, total));
@@ -6049,8 +6062,9 @@ function renderQuizCounter() {
 
 // ─── The every-ten progress line ────────────────────────────────────────────
 // After answers 10, 20 and 40, one line above the next question: how many are
-// answered and how many are left, by the one counter's own total (so it moves
-// with the counter when a round's real length becomes known). Not after 30,
+// answered and how many are left, by the quiz's real length as far as it is
+// known (quizLengths: the counter's own total in Round 1, and from Round 2 the
+// rounds' real lengths, which the counter's "up to" figure may exceed). Not after 30,
 // which ends Round 1, and not when any round ends on the answer: a transition
 // follows instead, so the line is skipped when the question is the first of
 // its round. It is worked out from the counter each time, so a re-render, a

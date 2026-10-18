@@ -4,6 +4,81 @@ Newest first. Dates are when the work was committed.
 
 ## 2026-10-19
 
+### Red answers: conviction, not impulse
+
+A classification test had a model play the live quiz, with no colours and no
+key, as a person who runs their own affairs and plans a long way ahead,
+understands a thing and then acts quickly, is ambitious and comfortable with
+power, plays for big outcomes, feels things strongly and acts on it, and has
+little patience for process or tradition. The author places that person at
+Blue-Black-Red. Two runs both came out Blue-Black, with Red at 54% and 53%. On
+the Blue-Red questions the person took Blue five times in six, because Red was
+written as impulse ("No plan at all", "Yes, tonight. I know how I feel", the
+roof window they could already see themselves waking up under), and Black over
+Red on both Black-Red questions for the same reason (learning to fly, renting
+where they love). Against White, where Red is candour and conviction, they
+took Red every time. So the quiz found Red only in people who act rashly, the
+same fault the author had already caught for Black.
+
+- Blue-Red: all 13 items in `POOL_A` (11 ordinary, 2 Magic) are rewritten.
+  Red is what a capable adult does on conviction: has the lump out, scar and
+  all, rather than carry it round for six months, starts on the builder's
+  sketch because his other lofts are good, says yes because living together
+  answers the money-and-rows question faster, rings the friend tonight, backs
+  its own read of the field. Blue needs to understand or verify first, and the
+  situation shows the price: the other buyer at five, three months on the
+  loft, a friend who signs on Friday, an ex who may not wait, a speech read
+  word for word. No Red answer is "no plan" any more.
+- Black-Red: all 10 items in `POOL_ALLY`. Red says the true thing there and
+  then, backs its own work or idea, or takes the risk with its eyes open (an
+  equal share in the restaurant, the idea sat on for years, the whole prize).
+  Black plays for position and pays in deferral: a loan with the right to buy
+  in later, five dull years before the boom, a name before the work it wants,
+  twenty years of leaving the money alone. The prize split and the £400 deck
+  now give Black a position play (sixty-forty while the opponent is nervous,
+  a stronger deck later) where it read as caution and every reader took Red.
+- Red-Green: two Magic items had impulse for Red (buying whichever card you
+  love today, jumping at a new league). Red now sells cards it hoped to keep
+  to buy the one it saved for, and takes the league to start again with new
+  people. The other eight Red-Green items and all the White-Red ones already
+  read as conviction and are kept.
+- 25 items changed (12 stems, 48 answers, no labels). Ids, pairs, weights,
+  answer colours and order are as they were, so the seeded draws and
+  `tests/fixtures/golden.json` do not move, and
+  `tests/fixtures/round12-keys.json` is untouched.
+- Checked blind. Readers answered all 111 Round 1 and 2 questions in a
+  shuffled order, answers unlabelled, in character. As the person above, on
+  the old items they took Blue on 9 of the 13 Blue-Red questions; a first
+  draft overshot to Red on 11; the final text gives Blue on 6 and 7 in two
+  runs, and Black on 6 and 4 of the 10 Black-Red questions (5 before). Their
+  colours came out Blue 64% and 69%, Black 86% and 82%, Red 73% and 76%,
+  against White 16% and Green under 10%. Controls held on the final text: a
+  careful analyst took Blue on all 13 Blue-Red questions, a passionate free
+  spirit Red on all 13 and on all 10 Black-Red ones, and a strategist Black on
+  all 10 (8 on the first draft, before the prize split and the deck were
+  fixed). A critic held every item to the brief and its fixes are in: Her
+  Story was lopsided (she is now "ninety and still sharp"), Second Chance's
+  Red undercut itself, the car's and the speech's Blue cost nothing, and
+  shapes and phrases repeated across the set.
+- The question counter said "of 45" through Round 1 and then, for someone
+  with no close enemy pair (a Round 2 of 7 questions), "of 43" from Round 2 on.
+  Simulated respondents get a Round 2 of 9 about three times in four and 7 or 8
+  otherwise, so no Round 1 estimate fits everyone. The counter now reads
+  "Question x of up to 45" from start to finish: the welcome's figure, raised
+  only when a 10-question Round 2 or a Round 3 tiebreak makes the quiz longer,
+  never lowered (`counterTotal`). The progress line still counts what is left
+  by the real length. `tests/play.test.js` checks the line, that the figure
+  never drops, and a Round 2 of 7 and of 10 and a tiebreak (P2a, P2c, P2k,
+  P2l); P5a counts the progress line by the real length.
+- Instrument version 10: `INSTRUMENT_VERSION` is 10 and a result built now
+  writes `i=10`. The contract line, the simulator's constant,
+  `tests/play.test.js` and the tests README say so.
+- Not measured: real players. The readers are models answering in character
+  and the simulator answers by colour keys, so neither shows whether real
+  Blue-Black-Red players now land there. Not checked in a browser: the longer
+  counter line, which by the stylesheet's widths still leaves Undo beside it
+  on a 375px screen in Blind Draft.
+
 ### Round 3: short situations for the matchups players meet
 
 Round 3 plays the top four candidates against each other, and for each match

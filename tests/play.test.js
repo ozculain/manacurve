@@ -4,8 +4,8 @@
 //   1. phones: below 600px the two answers stack at full width without their
 //      fixed height, and plinths drop to about 20px (the CSS rules; jsdom
 //      cannot lay out, so the fit itself is checked in a browser)
-//   2. one counter across the whole quiz ("x of 45"), recomputed as each
-//      round's length becomes known, never reset; no "Enemy Pairs" in the
+//   2. one counter across the whole quiz ("x of up to 45", higher only when a
+//      round's real length makes the quiz longer), never reset; no "Enemy Pairs" in the
 //      round labels; How This Works, the preflight and the early offer agree
 //   3. the one-question preflight ("Played Magic?"), its two links, and the
 //      theme switcher on the results page
@@ -155,8 +155,8 @@ run('play', async (t) => {
     await tick(); // let the rune track's MutationObserver run
     const runes = win.document.getElementById('mc-rune-track').children.length;
     const counter = win.document.querySelector('.mc-q__count').textContent.replace(/\s+/g, ' ').trim();
-    ok('P2a the counter starts at "Question 1 of 45" and the rune track spans the whole quiz',
-      counter === 'Question 1 of 45' && runes === 45, `counter="${counter}" runes=${runes}`);
+    ok('P2a the counter starts at "Question 1 of up to 45" and the rune track spans the whole quiz',
+      counter === 'Question 1 of up to 45' && runes === 45, `counter="${counter}" runes=${runes}`);
     const seen = [];
     playThrough(h, win, () => {
       const s = h.state;
@@ -172,10 +172,18 @@ run('play', async (t) => {
     const steps = seen.map((x, i) => (i === 0 ? x.num === 1 : x.num === seen[i - 1].num + 1));
     ok('P2b the counter never resets: one step per answer across all three rounds',
       seen.length === 30 + r2 + r3 && steps.every(Boolean), seen.map((x) => x.num).join(','));
-    const totals = seen.map((x) => (x.round === 1 ? 45 : x.round === 2 ? 30 + r2 + 6 : 30 + r2 + x.max));
+    // "of up to 45": the stated length, unless the real length so far (30 + Round 2 + Round 3,
+    // each counted for real once known, estimates 9 and 6 before) is longer
+    const real = seen.map((x) => (x.round === 1 ? 45 : x.round === 2 ? 30 + r2 + 6 : 30 + r2 + x.max));
+    const totals = real.map((n) => Math.max(45, n));
     const bad = seen.filter((x, i) => x.tot !== totals[i]).map((x) => `R${x.round} ${x.num}/${x.tot}`);
-    ok('P2c the total is 30 + Round 2 + Round 3, each counted for real once known (estimates 9 and 6 before)',
+    ok('P2c the total is "up to 45", or 30 + Round 2 + Round 3 (each counted for real once known) when that is longer, and the last question is 30 + Round 2 + Round 3',
       bad.length === 0 && seen[seen.length - 1].num === 30 + r2 + r3, `${bad.slice(0, 4).join('; ')} last=${seen[seen.length - 1].num} r2=${r2} r3=${r3}`);
+    // The figure never drops: a shorter Round 2 leaves "up to 45" as it was
+    const drops = seen.filter((x, i) => i > 0 && x.tot < seen[i - 1].tot).map((x) => `${x.num}/${x.tot}`);
+    ok('P2k the counter\'s "up to" figure never drops between rounds, and every question says "of up to"',
+      drops.length === 0 && /^Question \d+ of up to \d+$/.test(win.document.querySelector('.mc-q__count').textContent.replace(/\s+/g, ' ').trim()),
+      drops.join(', ') || win.document.querySelector('.mc-q__count').textContent);
     const labels = [...new Set(seen.map((x) => x.label))];
     ok('P2d round labels keep the round names, and "Enemy Pairs" is gone',
       labels.includes('Round 1: ' + P.rounds[1]) && labels.includes('Round 2: Refinement') && labels.some((l) => l.startsWith('Round 3: Final Determination'))
@@ -221,6 +229,28 @@ run('play', async (t) => {
       win.eval('quizLengths().total') === 48 && textOf(win, 'preflight-length') === 'Up to 48 questions, about 8 minutes.'
         && textOf(win, 'welcome-length') === 'Up to 48 questions, about 8 minutes.' && textOf(win, 'how-length') === 'Up to 48 questions over three rounds.',
       `${textOf(win, 'preflight-length')} | ${textOf(win, 'welcome-length')} | ${textOf(win, 'how-length')}`);
+    win.close();
+  }
+  {
+    // A Round 2 of 7 (someone with no close enemy pair) leaves "of up to 45" as it was, and the
+    // progress line counts by the real 43; 10 in Round 2, or a Round 3 tiebreak, raises the figure
+    const { win, h } = await page();
+    begin(h);
+    const s = h.state;
+    const show = (stage, r2, r3) => {
+      s.stage = stage; s.refinementQuestions = h.POOL_ALLY.slice(0, r2); s.qNum = 0;
+      s.tournament = stage === 3 ? { maxQuestions: r3, questionCount: 0 } : null;
+      win.renderQuizCounter();
+      return win.document.querySelector('.mc-q__count').textContent.replace(/\s+/g, ' ').trim();
+    };
+    const seven = show('refinement', 7), ten = show('refinement', 10);
+    const tiebreak = show(3, 9, 8), shortR3 = show(3, 7, 6);
+    s.stage = 'refinement'; s.refinementQuestions = h.POOL_ALLY.slice(0, 7); s.tournament = null; s.qNum = 5;
+    const left = win.eval('quizLengths().total') - win.eval('quizAnswered()');
+    ok('P2l a short Round 2 keeps "of up to 45" (the progress line still counts 43); a 10-question Round 2 or a tiebreak raises it',
+      seven === 'Question 31 of up to 45' && ten === 'Question 31 of up to 46' && tiebreak === 'Question 40 of up to 47'
+        && shortR3 === 'Question 38 of up to 45' && left === 8,
+      `${seven} | ${ten} | ${tiebreak} | ${shortR3} | left=${left}`);
     win.close();
   }
 
@@ -355,19 +385,22 @@ run('play', async (t) => {
   {
     // A whole journey in plain mode: the progress line shows above the question
     // after answers 10, 20 and 40 only (never after 30, which ends Round 1, nor
-    // when a round ends on the answer), and counts what is left by the counter.
+    // when a round ends on the answer), and counts what is left by the quiz's
+    // real length as far as it is known (the counter's own total in Round 1;
+    // from Round 2 it can be less than the counter's "up to" figure).
     const { win, h, errors } = await page();
     const P = copy(win);
     begin(h);
     const seen = [];
     playThrough(h, win, () => seen.push({
-      num: +textOf(win, 'q-num'), tot: +textOf(win, 'q-tot'), label: textOf(win, 'stage-label'),
+      num: +textOf(win, 'q-num'), tot: +textOf(win, 'q-tot'), real: win.eval('quizLengths().total'), label: textOf(win, 'stage-label'),
       beat: isVisible(win, 'q-beat') ? textOf(win, 'q-beat') : '',
     }));
     const shown = seen.filter((x) => x.beat);
     const wrongPlace = shown.filter((x) => ![11, 21, 41].includes(x.num)).map((x) => x.num);
-    const wrongWords = shown.filter((x) => x.beat !== `${x.num - 1} answered, ${x.tot - x.num + 1} to go.`).map((x) => `${x.num}:"${x.beat}"`);
-    ok('P5a the progress line shows above the question after answers 10, 20 and 40 (never 30), and reads "10 answered, 35 to go." by the counter',
+    const wrongWords = shown.filter((x) => x.beat !== `${x.num - 1} answered, ${x.real - x.num + 1} to go.`
+      || (x.num < 31 && x.real !== x.tot)).map((x) => `${x.num}:"${x.beat}"`);
+    ok('P5a the progress line shows above the question after answers 10, 20 and 40 (never 30), and reads "10 answered, 35 to go." by the quiz\'s real length (the counter\'s total in Round 1)',
       seen.length > 40 && shown.length >= 2 && wrongPlace.length === 0 && wrongWords.length === 0 && shown[0].beat === '10 answered, 35 to go.',
       `lines at ${shown.map((x) => x.num)} wrong=${wrongPlace} words=${wrongWords.slice(0, 2)}`);
     const leaks = seen.filter((x) => COLOUR_WORDS.test(x.label + ' ' + x.beat)).map((x) => x.num);
@@ -944,24 +977,26 @@ run('play', async (t) => {
   // then the plain screens seen while answering, then the Round 1 and 2 items
   // rewritten for real stakes, then the persona check of all questions, then the
   // questions rewritten from naive readers, then their second naive-reader round, then
-  // Round 3's short situations for the matchups players meet), so a result built now is
-  // instrument 9 and its link says i=9; a link without i still means 1 (tests/seed.test.js).
+  // Round 3's short situations for the matchups players meet, then the Red answers rewritten
+  // as conviction and the counter's "of up to"), so a result built now is instrument 10 and
+  // its link says i=10; a link without i still means 1
+  // (tests/seed.test.js).
   {
     const { win, h, errors } = await page();
     begin(h);
     playThrough(h, win, () => {});
     await waitForResults(win);
     const url = h.buildResultURL();
-    ok('P10a INSTRUMENT_VERSION is 9, a finished quiz carries it, and its link ends s=2&i=9',
-      win.eval('INSTRUMENT_VERSION') === 9 && !!h.state.result && h.state.result.instrumentVersion === 9 && /\/r\/[A-Z0-9-]+\.html\?p=[\d,]+&c=\w+&a=consumer&s=2&i=9$/.test(url), url);
+    ok('P10a INSTRUMENT_VERSION is 10, a finished quiz carries it, and its link ends s=2&i=10',
+      win.eval('INSTRUMENT_VERSION') === 10 && !!h.state.result && h.state.result.instrumentVersion === 10 && /\/r\/[A-Z0-9-]+\.html\?p=[\d,]+&c=\w+&a=consumer&s=2&i=10$/.test(url), url);
     // An early result (the offer taken) carries it as well
     h.restart();
     begin(h);
     h.state.activationSorted = [['U', 0.82], ['B', 0.7], ['G', 0.3], ['W', 0.2], ['R', 0.1]];
     win.earlyConfidenceData = { identity: 'DIMIR', confidence: 0.95 };
     win.showResultsEarly();
-    ok('P10b an early result is instrument 9 too, and its link says i=9',
-      h.state.result.earlyTermination === true && h.state.result.instrumentVersion === 9 && /&s=2&i=9$/.test(h.buildResultURL()), h.buildResultURL());
+    ok('P10b an early result is instrument 10 too, and its link says i=10',
+      h.state.result.earlyTermination === true && h.state.result.instrumentVersion === 10 && /&s=2&i=10$/.test(h.buildResultURL()), h.buildResultURL());
     ok('P10c no errors', errors.length === 0, errors.slice(0, 3).join(' | '));
     win.close();
   }
