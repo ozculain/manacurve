@@ -38,7 +38,7 @@ const CASES = [
     manaBase: '37 lands: 36 Mountain and a Hanweir Battlements.',
     nextDoor: {
       player: [['up', 'RAKDOS', 'Splash black: Rakdos.', 'Your black was well short.']],
-      plain: [['up', 'RAKDOS', 'Add black: Rakdos.', 'Black was well short.']],
+      plain: [['up', 'RAKDOS', "With black as well, you'd be Rakdos.", 'Black was well short.']],
     },
     result: { allResults: [], round3Data: { matchHistory: [] } },
   },
@@ -53,8 +53,8 @@ const CASES = [
     manaBase: '37 lands: Command Tower, Watery Grave, Polluted Delta, Drowned Catacomb, 19 Island, 14 Swamp.',
     nextDoor: {
       player: [['up', 'SULTAI', 'Splash green: Sultai.', 'Your green was well short.'],
-        ['down', 'MONO-U', 'Cut the Swamps: Mono-Blue.', "Black made the cut easily."]],
-      plain: [['up', 'SULTAI', 'Add green: Sultai.', 'Green was well short.'], ['down', 'MONO-U', 'Drop black: Mono-Blue.', 'Black made it in comfortably.']],
+        ['down', 'MONO-U', 'Cut the Swamps: Mono-Blue.', 'Black made the cut easily.']],
+      plain: [['up', 'SULTAI', "With green as well, you'd be Sultai.", 'Green was well short.'], ['down', 'MONO-U', "Without black, you'd be Mono-Blue.", 'Black made it in easily.']],
     },
     result: {
       allResults: [alt('DIMIR', 0.81, 0.75, 2, 1), alt('GRIXIS', 0.74, 0.75, 2, 1), alt('ESPER', 0.66, 0.25, 1, 2), alt('MONO-U', 0.61, 0.25, 1, 2)],
@@ -81,8 +81,8 @@ const CASES = [
     manaBase: "37 lands: Command Tower, Ziatora's Proving Ground, Blood Crypt, Stomping Ground, Overgrown Tomb, 11 Mountain, 11 Forest, 10 Swamp.",
     nextDoor: {
       player: [['up', 'DUNE', 'Splash white: Four-colour (no blue).', 'Your white was well short.'],
-        ['down', 'GRUUL', 'Cut the Swamps: Gruul.', "Black made the cut easily."]],
-      plain: [['up', 'DUNE', 'Add white: Four-colour (no blue).', 'White was well short.'], ['down', 'GRUUL', 'Drop black: Gruul.', 'Black made it in comfortably.']],
+        ['down', 'GRUUL', 'Cut the Swamps: Gruul.', 'Black made the cut easily.']],
+      plain: [['up', 'DUNE', "With white as well, you'd be Four-colour (no blue).", 'White was well short.'], ['down', 'GRUUL', "Without black, you'd be Gruul.", 'Black made it in easily.']],
     },
     result: {
       allResults: [alt('JUND', 0.7, 0.5, 2, 2), alt('GRUUL', 0.68, 0.5, 2, 2), alt('RAKDOS', 0.65, 0.5, 2, 2)],
@@ -100,13 +100,13 @@ const CASES = [
     line: 'White was well behind your four colours.',
     typeline: 'Legendary Creature — Ogre Wizard',
     rules: "Trample, cascade. Phasing (When the bill arrives, treat this creature as though it doesn't exist.)",
-    rolesForFun: 'High-Risk Ventures, Competitive Industries, Activist Investing',
+    rolesForFun: 'Venture Capital, Trading, Startups, Activist Investing',
     share: { consumer: "I'm Four-colour (no white). What are you?", workplace: "I'm Four-colour (no white). What are you?" },
     manaBase: '37 lands: Command Tower, Mana Confluence, City of Brass, Exotic Orchard, six shocks, four Triomes, 6 Island, 6 Swamp, 6 Mountain, 5 Forest.',
     nextDoor: {
       player: [['up', 'WUBRG', 'Splash white: Five-colour.', 'Your white was well short.'],
-        ['down', 'GRIXIS', 'Cut the Forests: Grixis.', "Green made the cut easily."]],
-      plain: [['up', 'WUBRG', 'Add white: Five-colour.', 'White was well short.'], ['down', 'GRIXIS', 'Drop green: Grixis.', 'Green made it in comfortably.']],
+        ['down', 'GRIXIS', 'Cut the Forests: Grixis.', 'Green made the cut easily.']],
+      plain: [['up', 'WUBRG', "With white as well, you'd be Five-colour.", 'White was well short.'], ['down', 'GRIXIS', "Without green, you'd be Grixis.", 'Green made it in easily.']],
     },
     result: {
       allResults: [alt('GLINT', 0.64, 0.75, 3, 0), alt('GRIXIS', 0.6, 0.5, 2, 1)],
@@ -119,15 +119,15 @@ const CASES = [
   {
     id: 'WUBRG', type: 'five', confidence: 'LOW',
     activation: { W: 0.55, U: 0.53, B: 0.52, R: 0.5, G: 0.49 },
-    line: 'White was your highest colour and green your lowest, about one answer apart.',
+    line: 'All five colours finished within about one answer of each other.',
     typeline: 'Legendary Creature — Human Noble',
     rules: 'Changeling. You have every ability. Each works at a fifth of its strength.',
     rolesForFun: 'Consulting, Chief of Staff, Generalist Leadership, Facilitation',
     share: { consumer: "I'm Five-colour. What are you?", workplace: "I'm Five-colour. What are you?" },
     manaBase: '37 lands: Command Tower, Mana Confluence, City of Brass, Exotic Orchard, all ten shocks, all ten Triomes, and 13 basics.',
     nextDoor: {
-      player: [['down', 'YORE', 'Cut the Forests: Four-colour (no green).', 'Green only just made the cut.']],
-      plain: [['down', 'YORE', 'Drop green: Four-colour (no green).', 'Green only just made it in.']],
+      player: [['down', 'YORE', 'Cut the Forests: Four-colour (no green).', 'Green was your lowest colour.']],
+      plain: [['down', 'YORE', "Without green, you'd be Four-colour (no green).", 'Green was your lowest colour.']],
     },
     result: { allResults: [], round3Data: {} },
   },
@@ -186,8 +186,9 @@ const LABELS = {
   MODERATE: { word: 'Leaning' },
   LOW: { word: 'Still shuffling' },
 };
-// The commander block's plain line, in place of the card text.
-const PLAIN_COMMANDER = (name) => `The Magic: The Gathering card matched to ${name}. The art at the top of the page is from it.`;
+// The banner names the card: the commander in player mode, the art's source
+// otherwise. Only player mode has the commander block beside Natural Roles.
+const BANNER_CARD = { player: (card) => `Commander · ${card}`, plain: (card) => `Card art: ${card}` };
 // [4] The bars' title by mode; the caption is the same in both.
 const BARS_TITLE = { player: 'Your Mana Pool', plain: 'Your colours' };
 
@@ -213,11 +214,14 @@ function checkRender(win, h, c, audience, player, threw, errors) {
   need(text('res-id') === p.name.trim(), `res-id "${text('res-id')}"`);
   need(text('res-tag') === p.tag.trim(), 'res-tag');
   need(text('res-typeline-name') === h.RESULT_COPY.names[c.id], 'res-typeline-name');
-  need(text('cmd-name-aside') === (p.cmd || '').trim() && text('cmd-name-aside') !== '', 'cmd-name-aside');
-  // The card text in player mode; one plain line in its place otherwise.
-  const wantCmdDesc = playerCopy ? (p.cmdDesc || '').trim() : PLAIN_COMMANDER(h.RESULT_COPY.names[c.id]);
-  need(text('cmd-desc-aside') === wantCmdDesc && text('cmd-desc-aside') !== '', `cmd-desc-aside "${text('cmd-desc-aside')}"`);
-  need(text('cmd-title-aside') === (playerCopy ? 'Commander' : 'Your card'), `commander title "${text('cmd-title-aside')}"`);
+  // The commander block: the card's name and text in player mode; none
+  // otherwise, and Natural Roles takes the full width.
+  if (playerCopy) {
+    need(visible('res-cmd-aside') && text('cmd-title-aside') === 'Commander' && text('cmd-name-aside') === (p.cmd || '').trim() && text('cmd-name-aside') !== '', 'commander block');
+    need(text('cmd-desc-aside') === (p.cmdDesc || '').trim() && text('cmd-desc-aside') !== '', `cmd-desc-aside "${text('cmd-desc-aside')}"`);
+  } else {
+    need(!visible('res-cmd-aside') && text('cmd-desc-aside') === '' && el('res-roles-grid').style.gridTemplateColumns === '1fr', 'commander block shown outside player mode, or the roles not at full width');
+  }
   need(d.querySelectorAll('#strengths li').length === p.str.length && p.str.length > 0, 'strengths list');
   need(d.querySelectorAll('#weaknesses li').length === p.weak.length && p.weak.length > 0, 'shadows list');
   for (const id of ['roles', 'res-desc', 'identity-exp', 'share-preview']) real(id);
@@ -230,7 +234,7 @@ function checkRender(win, h, c, audience, player, threw, errors) {
   //    it, the collector number at its foot. Then the philosophy, with the
   //    confidence badge and its one line after it, then the quality line's
   //    place (hidden here: these answers raise no quality flag).
-  need(text('res-banner-commander') === 'Commander · ' + p.cmd, 'banner commander ' + text('res-banner-commander'));
+  need(text('res-banner-commander') === BANNER_CARD[playerCopy ? 'player' : 'plain'](p.cmd), 'banner commander ' + text('res-banner-commander'));
   need(before(win, el('res-id'), el('res-tag')) && before(win, el('res-tag'), el('identity-exp')), 'name and tagline should precede the philosophy');
   need(before(win, el('identity-exp'), el('conf-badge')), 'confidence badge should follow the philosophy');
   need(before(win, el('conf-base-rate'), el('quality-warning')) && before(win, el('quality-warning'), el('res-bars-title')),
@@ -238,7 +242,8 @@ function checkRender(win, h, c, audience, player, threw, errors) {
   need(!shown('quality-warning') && text('quality-warning') === '', `a quality line with no flag raised: "${text('quality-warning')}"`);
   need(text('identity-exp') === p.philosophy.trim(), 'philosophy text');
   // 8. One typeline on the page: the card's in player mode, the "Personality"
-  //    divider's in plain mode, which prints the scoring version in the footer.
+  //    divider's in plain mode. The scoring version closes the methodology,
+  //    under "View Full Breakdown", in every mode, and is not in the footer.
   const collector = `MC1 • EN • ${String(Object.keys(h.PROFILES).indexOf(c.id) + 1).padStart(3, '0')}/031`;
   if (playerCopy) {
     need(visible('res-idcard') && text('res-typeline') === c.typeline, `typeline "${text('res-typeline')}" != "${c.typeline}"`);
@@ -247,12 +252,13 @@ function checkRender(win, h, c, audience, player, threw, errors) {
       'the card should read name, tagline, typeline, rules text, collector number, then the philosophy');
     need(!el('res-banner-commander').parentElement.contains(el('res-typeline')), 'typeline under the commander');
     need(text('res-collector') === collector, `collector number "${text('res-collector')}" != "${collector}"`);
-    need(!visible('res-personality') && !visible('res-version'), 'a second typeline (the Personality divider) or the footer version in player mode');
+    need(!visible('res-personality'), 'a second typeline (the Personality divider) in player mode');
   } else {
     need(!visible('res-idcard') && !visible('res-typeline') && text('res-typeline') === '' && text('res-collector') === '', 'card shown outside player mode');
     need(visible('res-personality') && text('res-personality').replace(/\s+/g, ' ') === 'Personality · ' + h.RESULT_COPY.names[c.id], `divider "${text('res-personality')}"`);
-    need(visible('res-version') && text('res-version') === 'Scoring version 1', `footer "${text('res-version')}"`);
   }
+  need(text('res-version') === 'Scoring version 1.' && el('unified-breakdown').contains(el('res-version')) && !visible('res-version'),
+    `scoring version "${text('res-version')}" should close the methodology, out of sight until the breakdown opens`);
 
   const rows = [...d.querySelectorAll('#res-profile-bars .mc-profile__row')];
   need(rows.length === 5, `expected 5 profile rows, got ${rows.length}`);
@@ -407,18 +413,20 @@ run('render', async (t) => {
 
   // The line under the label reads the bars: the closest call, by how many
   // answers, on Dimir with green one, a few and well short, tied, and above
-  // black (an old link's bars); Mono-Red close to black; five colours level;
-  // and a link with no bars. Plain mode, so nothing else differs.
+  // black (an old link's bars); Mono-Red close to black; five colours level
+  // and within two answers; and a link with no bars. Plain mode, so nothing
+  // else differs.
   {
     const LINES = [
-      ['DIMIR', 'MODERATE', { U: 0.78, B: 0.64, G: 0.6, W: 0.22, R: 0.11 }, 'The nearest colour outside yours was green, less than an answer behind black.'],
-      ['DIMIR', 'MODERATE', { U: 0.78, B: 0.64, G: 0.57, W: 0.22, R: 0.11 }, 'The nearest colour outside yours was green, about one answer behind black.'],
-      ['DIMIR', 'HIGH', { U: 0.78, B: 0.64, G: 0.5, W: 0.22, R: 0.11 }, 'The nearest colour outside yours was green, one or two answers behind black.'],
-      ['DIMIR', 'LOW', { U: 0.78, B: 0.64, G: 0.42, W: 0.22, R: 0.11 }, 'The nearest colour outside yours was green, two or three answers behind black.'],
+      ['DIMIR', 'MODERATE', { U: 0.78, B: 0.64, G: 0.6, W: 0.22, R: 0.11 }, 'Green nearly made it in, less than an answer behind black.'],
+      ['DIMIR', 'MODERATE', { U: 0.78, B: 0.64, G: 0.57, W: 0.22, R: 0.11 }, 'Green nearly made it in, about one answer behind black.'],
+      ['DIMIR', 'HIGH', { U: 0.78, B: 0.64, G: 0.5, W: 0.22, R: 0.11 }, 'Green came next, one or two answers behind black.'],
+      ['DIMIR', 'LOW', { U: 0.78, B: 0.64, G: 0.42, W: 0.22, R: 0.11 }, 'Green came next, two or three answers behind black.'],
       ['DIMIR', 'LOW', { U: 0.78, B: 0.64, G: 0.641, W: 0.22, R: 0.11 }, 'Green tied with black, the lower of your two colours.'],
       ['DIMIR', 'LOW', { U: 0.78, B: 0.6, G: 0.64, W: 0.22, R: 0.11 }, 'Green edged ahead of black, though black is the one in your result.'],
-      ['MONO-R', 'MODERATE', { R: 0.7, B: 0.6, G: 0.44, W: 0.21, U: 0.12 }, 'Red led, with black one or two answers behind.'],
+      ['MONO-R', 'MODERATE', { R: 0.7, B: 0.6, G: 0.44, W: 0.21, U: 0.12 }, 'Red led black by one or two answers.'],
       ['WUBRG', 'MODERATE', { W: 0.5, U: 0.5, B: 0.5, R: 0.5, G: 0.5 }, 'All five colours finished level.'],
+      ['WUBRG', 'HIGH', { W: 0.66, U: 0.62, B: 0.58, R: 0.55, G: 0.52 }, 'All five colours finished within two answers of each other.'],
       ['DIMIR', 'MODERATE', { U: 0, B: 0, G: 0, W: 0, R: 0 }, 'This link shows Dimir without the answers behind it.'],
     ];
     const problems = [];
@@ -461,27 +469,48 @@ run('render', async (t) => {
   }
 
   // [3] Next door reasons, from the drafts' worked examples, in player and
-  // plain modes: the colon headline whatever the margin, one plain reason,
-  // and a four-colour neighbour by its sentence name.
+  // plain modes: the colon headline in player mode and a sentence otherwise,
+  // whatever the gap; one plain reason, the up row counting a close gap in the
+  // words of the line under the label and the down row saying only which
+  // colour was lowest; a four-colour neighbour by its sentence name; a tie and
+  // an old link's inverted bars said as they are; and the one row of five
+  // colours, which says only which colour was lowest.
   {
     const EXAMPLES = [
       ['MONO-U', { U: 0.70, B: 0.64, W: 0.30, R: 0.20, G: 0.10 }, {
-        player: [['up', 'DIMIR', 'Splash black: Dimir.', 'Your black was one answer short.']],
-        plain: [['up', 'DIMIR', 'Add black: Dimir.', 'Black came in one answer short.']],
+        player: [['up', 'DIMIR', 'Splash black: Dimir.', 'Your black was about one answer short.']],
+        plain: [['up', 'DIMIR', "With black as well, you'd be Dimir.", 'Black was about one answer short.']],
       }],
       ['MONO-R', { R: 0.85, G: 0.45, W: 0.30, U: 0.20, B: 0.10 }, {
         player: [['up', 'GRUUL', 'Splash green: Gruul.', 'Your green was well short.']],
-        plain: [['up', 'GRUUL', 'Add green: Gruul.', 'Green was well short.']],
+        plain: [['up', 'GRUUL', "With green as well, you'd be Gruul.", 'Green was well short.']],
       }],
       ['BOROS', { W: 0.70, R: 0.62, U: 0.45, B: 0.20, G: 0.10 }, {
-        player: [['up', 'JESKAI', 'Splash blue: Jeskai.', "Your blue was a few answers short."],
-          ['down', 'MONO-W', 'Cut the Mountains: Mono-White.', 'Red made the cut by a few answers.']],
-        plain: [['up', 'JESKAI', 'Add blue: Jeskai.', 'Blue was a few answers short.'], ['down', 'MONO-W', 'Drop red: Mono-White.', 'Red made it in by a few answers.']],
+        player: [['up', 'JESKAI', 'Splash blue: Jeskai.', 'Your blue was two or three answers short.'],
+          ['down', 'MONO-W', 'Cut the Mountains: Mono-White.', 'Red was your lowest colour.']],
+        plain: [['up', 'JESKAI', "With blue as well, you'd be Jeskai.", 'Blue was two or three answers short.'], ['down', 'MONO-W', "Without red, you'd be Mono-White.", 'Red was your lowest colour.']],
       }],
       ['ESPER', { W: 0.62, U: 0.70, B: 0.66, G: 0.20, R: 0.10 }, {
         player: [['up', 'WITCH', 'Splash green: Four-colour (no red).', 'Your green was well short.'],
-          ['down', 'DIMIR', 'Cut the Plains: Dimir.', "White made the cut easily."]],
-        plain: [['up', 'WITCH', 'Add green: Four-colour (no red).', 'Green was well short.'], ['down', 'DIMIR', 'Drop white: Dimir.', 'White made it in comfortably.']],
+          ['down', 'DIMIR', 'Cut the Plains: Dimir.', 'White made the cut easily.']],
+        plain: [['up', 'WITCH', "With green as well, you'd be Four-colour (no red).", 'Green was well short.'], ['down', 'DIMIR', "Without white, you'd be Dimir.", 'White made it in easily.']],
+      }],
+      ['DIMIR', { U: 0.78, B: 0.64, G: 0.60, W: 0.22, R: 0.11 }, {
+        player: [['up', 'SULTAI', 'Splash green: Sultai.', 'Your green was less than an answer short.'],
+          ['down', 'MONO-U', 'Cut the Swamps: Mono-Blue.', 'Black was your lowest colour.']],
+        plain: [['up', 'SULTAI', "With green as well, you'd be Sultai.", 'Green was less than an answer short.'], ['down', 'MONO-U', "Without black, you'd be Mono-Blue.", 'Black was your lowest colour.']],
+      }],
+      ['DIMIR', { U: 0.78, B: 0.641, G: 0.64, W: 0.22, R: 0.11 }, {
+        player: [['up', 'SULTAI', 'Splash green: Sultai.', 'Your green tied with black.'], ['down', 'MONO-U', 'Cut the Swamps: Mono-Blue.', 'Black tied with green.']],
+        plain: [['up', 'SULTAI', "With green as well, you'd be Sultai.", 'Green tied with black.'], ['down', 'MONO-U', "Without black, you'd be Mono-Blue.", 'Black tied with green.']],
+      }],
+      ['DIMIR', { U: 0.78, B: 0.60, G: 0.64, W: 0.22, R: 0.11 }, {
+        player: [['up', 'SULTAI', 'Splash green: Sultai.', 'Your green finished above black.'], ['down', 'MONO-U', 'Cut the Swamps: Mono-Blue.', 'Black finished below green.']],
+        plain: [['up', 'SULTAI', "With green as well, you'd be Sultai.", 'Green finished above black.'], ['down', 'MONO-U', "Without black, you'd be Mono-Blue.", 'Black finished below green.']],
+      }],
+      ['WUBRG', { W: 0.66, U: 0.62, B: 0.58, R: 0.55, G: 0.52 }, {
+        player: [['down', 'YORE', 'Cut the Forests: Four-colour (no green).', 'Green was your lowest colour.']],
+        plain: [['down', 'YORE', "Without green, you'd be Four-colour (no green).", 'Green was your lowest colour.']],
       }],
     ];
     const problems = [];
@@ -675,7 +704,7 @@ run('render', async (t) => {
     el('appeal-btn').click();
     const a = h.state.result.appeal || {};
     need(h.state.result.identity === 'DIMIR', 'the verdict was overwritten');
-    need(a.chosen === 'SULTAI' && JSON.stringify(a.shown) === '["SULTAI","MONO-U"]' && a.copyVersion === 4
+    need(a.chosen === 'SULTAI' && JSON.stringify(a.shown) === '["SULTAI","MONO-U"]' && a.copyVersion === 5
       && a.labelShown === 'Leaning' && Number.isFinite(a.timeToAppealMs) && a.timeToAppealMs >= 0, 'appeal record ' + JSON.stringify(a));
     need(text(win, 'res-id') === P.SULTAI.name && text(win, 'res-tag') === P.SULTAI.tag && text(win, 'identity-exp') === P.SULTAI.philosophy.trim(), 'appealed identity not on screen');
     need(!playerCopy || (text(win, 'res-typeline') === 'Legendary Creature — Snake Shaman' && text(win, 'res-rules') === h.RESULT_COPY.rules.SULTAI),
@@ -804,7 +833,7 @@ run('render', async (t) => {
     if (!shared || shared.text !== want || shared.url !== h.buildResultURL()) problems.push('Web Share ' + JSON.stringify(shared));
     delete win.navigator.share;
     Object.defineProperty(win.navigator, 'clipboard', { configurable: true, value: { writeText: async (s) => { copied = s; } } });
-    const btn = win.document.getElementById('share-result-btn');
+    const btn = win.document.getElementById('res-banner-share');
     await win.shareResult(btn);
     if (copied !== `${want} ${h.buildResultURL()}`) problems.push('clipboard ' + JSON.stringify(copied));
     if (btn.textContent !== '✓ Link copied') problems.push('button feedback ' + btn.textContent);

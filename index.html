@@ -948,16 +948,17 @@ main { position: relative; z-index: 2; }
 .mc-relations-detail__heading { font-family: var(--f-display); letter-spacing: 0.18em; font-size: 12px; text-transform: uppercase; color: var(--gilt); margin-bottom: 4px; }
 .mc-relations-detail__sub { font-family: var(--f-flavor); font-style: italic; font-size: 13px; color: var(--ink-muted); margin-bottom: 18px; line-height: 1.5; }
 .mc-relations-detail__empty { padding: 22px 26px; background: var(--inset); border-left: 2px solid var(--gilt-soft); font-family: var(--f-flavor); font-style: italic; font-size: 14px; color: var(--ink-muted); line-height: 1.55; }
-/* Gap card: one per missing colour. Pip on the left, gap & complement on the right. */
+/* Gap card: one per missing colour. Pip on the left; on the right the head
+   ("White colleague") and one line saying when to ask them. The plus is
+   drawn, not written, so it is not read out as a word. */
 .mc-gap-card { display: flex; gap: 16px; padding: 18px 18px; margin-bottom: 12px; background: var(--inset); border-left: 2px solid var(--gilt-soft); border-radius: 0; transition: background 220ms, border-color 220ms, transform 180ms; cursor: pointer; align-items: flex-start; }
 .mc-gap-card:last-child { margin-bottom: 0; }
 .mc-gap-card.is-highlight { background: rgba(212,175,106,0.08); border-left-color: var(--gilt); transform: translateX(2px); }
 .mc-gap-card__pip { flex-shrink: 0; width: 32px; height: 32px; margin-top: 2px; }
 .mc-gap-card__body { flex: 1; font-family: var(--f-body); }
 .mc-gap-card__head { font-family: var(--f-display); letter-spacing: 0.16em; font-size: 13px; text-transform: uppercase; color: var(--ink); margin-bottom: 8px; }
-.mc-gap-card__plus { color: var(--gilt); font-weight: 700; margin-right: 8px; }
-.mc-gap-card__gap { font-size: 14px; line-height: 1.6; color: var(--ink-muted); margin-bottom: 10px; }
-.mc-gap-card__complement { font-family: var(--f-flavor); font-style: italic; font-size: 13px; line-height: 1.55; color: var(--gilt); padding-top: 8px; border-top: 1px solid var(--gilt-line); }
+.mc-gap-card__head::before { content: "+"; color: var(--gilt); font-weight: 700; margin-right: 8px; }
+.mc-gap-card__gap { font-size: 14px; line-height: 1.6; color: var(--ink-muted); }
 
 /* Seed banner: shown above the result when arrived via a shared seed URL */
 .mc-seed-banner {
@@ -2565,13 +2566,15 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
         <!-- Type-line divider before the role/commander block -->
         <div class="mc-typeline"><span class="mc-typeline__diamond"></span></div>
 
-        <!-- Roles + Commander aside (2-col grid) -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;">
+        <!-- Roles + Commander aside (2-col grid). The commander aside is player
+             mode only; everyone else gets the roles at full width, and the
+             card is named once, as the banner's art credit. -->
+        <div id="res-roles-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;">
           <div>
             <div class="mc-result__col-title">Natural Roles</div>
             <p class="mc-body" style="color:var(--ink);font-size:15px;line-height:1.7;" id="roles">Roles</p>
           </div>
-          <div>
+          <div id="res-cmd-aside">
             <div class="mc-result__col-title" id="cmd-title-aside">Commander</div>
             <p class="mc-flavor" style="font-size:15px;">
               <strong style="color:var(--ink);font-style:normal;font-family:var(--f-display);letter-spacing:.1em;" id="cmd-name-aside">…</strong>
@@ -2639,10 +2642,11 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
                 <image class="rel-vertex-img" href="images/symbols/G.svg" x="48" y="132" width="56" height="56"/>
               </g>
             </svg>
-            <!-- Each line shows only when the diagram draws its kind of line (renderRelations). -->
+            <!-- A key to the diagram. Each line shows only when the diagram
+                 draws its kind of line (renderRelations). -->
             <div class="mc-relations-legend">
-              <div id="rel-legend-ally"><span class="mc-rel-legend-mark mc-rel-legend-mark--ally"></span> A solid line joins two of your colours that work well together.</div>
-              <div id="rel-legend-enemy"><span class="mc-rel-legend-mark mc-rel-legend-mark--enemy"></span> A dashed line joins one of your colours to a colour it clashes with.</div>
+              <div id="rel-legend-ally"><span class="mc-rel-legend-mark mc-rel-legend-mark--ally"></span> Solid line: two of your colours that get on.</div>
+              <div id="rel-legend-enemy"><span class="mc-rel-legend-mark mc-rel-legend-mark--enemy"></span> Dashed line: one of your colours against one you lack.</div>
             </div>
           </div>
           <div class="mc-relations-detail" id="relations-detail">
@@ -2650,10 +2654,11 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
           </div>
         </div>
 
-        <!-- Action row -->
+        <!-- Action row. Share itself is the one button beside the identity in
+             the banner (#res-banner-share); a second Share here read as a
+             duplicate. -->
         <div style="display:flex;gap:12px;margin-top:32px;flex-wrap:wrap;">
-          <button id="share-result-btn" class="mc-btn mc-btn--primary" onclick="shareResult(this)">⚜ Share my result</button>
-          <button class="mc-btn" onclick="showShareScreen()">Make an image</button>
+          <button class="mc-btn mc-btn--primary" onclick="showShareScreen()">Make an image</button>
           <button class="mc-btn" onclick="document.getElementById('legacy-detail').classList.toggle('hidden'); this.textContent = document.getElementById('legacy-detail').classList.contains('hidden') ? 'View Full Breakdown' : 'Hide Full Breakdown';">View Full Breakdown</button>
           <button class="mc-btn mc-btn--ghost" onclick="restart()">Retake</button>
         </div>
@@ -2824,6 +2829,11 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
           </div>
         </div>
 
+        <!-- Which scoring produced this result, in every mode. It sits here,
+             with the workings, and not in the page footer, where readers took
+             it for leftover build output. -->
+        <p class="mc-result__version" id="res-version"></p>
+
       </div>
     </div>
 
@@ -2852,21 +2862,20 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
 
       <!-- The table: the theme switcher, moved here from the preflight. The
            choice persists (localStorage); Card Frames plays the next quiz
-           face-down and earns its frame with the result. -->
+           face-down and earns its frame with the result. It has no note:
+           two notes explaining Card Frames read to first-time readers as
+           leftover settings text. -->
       <div class="mc-theme-switch" id="theme-switch" role="group" aria-labelledby="theme-switch-label">
         <span class="mc-theme-switch__label" id="theme-switch-label" data-copy="results.themeLabel"></span>
         <button type="button" class="mc-theme-switch__opt is-selected" id="theme-gilded" onclick="selectTheme('gilded')" aria-pressed="true" data-copy="results.themes.gilded"></button>
         <button type="button" class="mc-theme-switch__opt" id="theme-frames" onclick="selectTheme('frames')" aria-pressed="false" data-copy="results.themes.frames"></button>
         <button type="button" class="mc-theme-switch__opt" id="theme-borderless" onclick="selectTheme('borderless')" aria-pressed="false" data-copy="results.themes.borderless"></button>
-        <p class="mc-theme-switch__note" data-copy="results.themeNote"></p>
       </div>
 
       <div class="mc-warning" style="margin-top: 32px;">
         <div class="mc-warning__label">⚠ Not For Official Use</div>
         <p style="font-family: var(--f-body); font-size: 13px; line-height: 1.6; color: var(--ink-muted); margin-bottom: 0;">Do not use this for hiring, firing or any other decision about a person.</p>
       </div>
-      <!-- Footer, plain mode: the scoring version (player mode prints it as the card's collector number) -->
-      <p class="mc-result__version hidden" id="res-version"></p>
     </div>
   </div>
 
@@ -4265,8 +4274,8 @@ function restoreSession(snapshot) {
 // Renders a WUBRG pentagon diagram showing your colours filled, missing
 // colours hollow, ally edges within identity lit gold, and pentagram-enemy
 // edges from your colours to missing colours lit dashed red. Beside the
-// diagram, one card per colour you lack: what a colleague strong in it
-// brings, and when to bring them in.
+// diagram, one card per colour you lack: when to ask a colleague strong in
+// it, in the identity's own words (COLOR_GAPS).
 
 const COLOR_ALLIES = { W:['U','G'], U:['W','B'], B:['U','R'], R:['B','G'], G:['R','W'] };
 const COLOR_ENEMIES = { W:['B','R'], U:['R','G'], B:['W','G'], R:['W','U'], G:['U','B'] };
@@ -4282,59 +4291,151 @@ const COLOR_STRENGTHS = {
   G: "You can tell when an existing process has wisdom baked in even if no one can articulate why. You restrain the impulse to rebuild what's working. Institutional knowledge survives in you because you didn't discard it as 'legacy'. Pattern recognition across years."
 };
 
-// For each colour a result lacks: what a colleague strong in it brings
-// (`brings`, written under the card's "White colleague" head, so it has no
-// subject of its own), and when to bring them in (`when`). Neither line says
-// what the reader is like: their own result does that, and a line here once
-// told careful, rule-loving results that they move on instinct. `when` is
-// keyed by one of the reader's colours (gapPartner): the one the missing
-// colour pulls against most, so two results lacking the same colour can read
-// differently.
+// Who to bring in: one card per colour a result lacks, headed "White
+// colleague", with one line saying when to ask that colleague in. The line
+// belongs to the identity, so no two pages print the same card: readers
+// comparing pages saw the same blurb on half of them and took the section
+// for a template. It names a moment from that identity's own working life
+// (the hard thing Selesnya keeps putting off, Izzet's prototype, Boros
+// before a fight), so it cannot tell a careful, rule-loving result that it
+// moves on instinct, as one shared line once did; and it does not repeat
+// its own page word for word. "Them" is the colleague, "you" the reader.
+// The explorer shows the same cards.
 const COLOR_GAPS = {
-  W: {
-    brings: "Notices who a plan is unfair to, and who will quietly stop helping because of it.",
-    when: {
-      B: "Ask them before a plan reaches the people it affects.",
-      R: "Ask them before you announce a change, while it is still easy to adjust.",
-      U: "Ask them when a plan is sound on paper and is about to be explained to the team.",
-      G: "Ask them when a team is changing shape, to keep it fair to the people in it."
-    }
+  'MONO-W': {
+    U: 'Bring them in when a new rule is being drafted, to check what it will do in practice.',
+    B: 'Talk to them before a negotiation, so you know what the other side wants.',
+    R: 'Call on them when a decision has been through every proper step and is still waiting.',
+    G: 'Check with them before you tidy up something that grew on its own.'
   },
-  U: {
-    brings: "Asks what happens next, and what happens after that, before anyone commits.",
-    when: {
-      R: "Bring them in the day before you start, for an hour.",
-      G: "Bring them in when the usual way of doing something stops giving the usual results.",
-      W: "Bring them in when a new rule is being drafted, to check what it will do in practice.",
-      B: "Bring them in when a deal looks good, to read the small print."
-    }
+  'MONO-U': {
+    W: 'Ask them when a plan is sound on paper and is about to be explained to the team.',
+    B: "Talk to them when you're right and people still won't agree to it.",
+    R: 'Call on them when the analysis is finished and nobody has said go.',
+    G: 'Check with them before replacing something that works, to hear why it was built that way.'
   },
-  B: {
-    brings: "Can tell you who gains if your project fails, and who has already worked that out.",
-    when: {
-      W: "Talk to them before a negotiation, so you know what the other side wants.",
-      G: "Talk to them when a reorganisation is coming, to see where it leaves you.",
-      U: "Talk to them when the analysis is right and the room still won't agree to it.",
-      R: "Talk to them before a big move, to find out who it will annoy."
-    }
+  'MONO-B': {
+    W: 'Ask them before a plan reaches the people it affects.',
+    U: 'Bring them in when a deal looks good, to read the small print.',
+    R: 'Call on them when a plan needs people to care about it as well as agree to it.',
+    G: 'Check with them when a quick win would cost something that took years to build.'
   },
-  R: {
-    brings: "Turns a decision that has been discussed into one that has been made.",
-    when: {
-      W: "Call on them when a decision has been through every proper step and is still waiting.",
-      U: "Call on them when the analysis is finished and nobody has said go.",
-      B: "Call on them when a plan needs people to care about it as well as agree to it.",
-      G: "Call on them when something needs to change this week and the usual pace would take a season."
-    }
+  'MONO-R': {
+    W: 'Ask them before you announce a change, while it is still easy to adjust.',
+    U: 'Bring them in the day before you start, for an hour.',
+    B: 'Talk to them before a big move, to find out who it will annoy.',
+    G: 'Check with them before you scrap something that is only slow.'
   },
-  G: {
-    brings: "Remembers what was tried last time, and why it stopped.",
-    when: {
-      U: "Check with them before replacing something that works, to hear why it was built that way.",
-      B: "Check with them when a quick win would cost something that took years to build.",
-      R: "Check with them before you start again from scratch.",
-      W: "Check with them when a new process replaces an old one, to keep what the old one did well."
-    }
+  'MONO-G': {
+    W: 'Ask them when a team is changing shape, to keep it fair to the people in it.',
+    U: 'Bring them in when the usual way of doing something stops giving the usual results.',
+    B: 'Talk to them when a reorganisation is coming, to see where it leaves you.',
+    R: 'Call on them when something has to change this week.'
+  },
+  AZORIUS: {
+    B: 'Show them a new procedure before it launches, so they can find the ways round it first.',
+    R: 'Call on them when the meeting about the meeting has been booked.',
+    G: 'Check with them when a team that has always run on trust is about to get a handbook.'
+  },
+  SELESNYA: {
+    U: 'Bring them in when everyone likes the plan and nobody has checked the numbers.',
+    B: 'Talk to them when being kind to one person is costing everyone else.',
+    R: 'Ask them along when you finally tell someone the hard thing.'
+  },
+  ORZHOV: {
+    U: 'Bring them in when a policy has so many exceptions that nobody can explain it.',
+    R: 'Call on them when the hierarchy is in the way of someone who is clearly right.',
+    G: 'Check with them when every kindness in the team has started to come with a price.'
+  },
+  DIMIR: {
+    W: 'Ask them when you know something other people have a right to hear.',
+    R: "Let them tell people what you've known for weeks.",
+    G: "Check with them before a clever move costs you people's trust."
+  },
+  IZZET: {
+    W: "Ask them who has to live with the prototype after you've moved on.",
+    B: 'Talk to them when your best experiment needs a budget and someone senior behind it.',
+    G: 'Check with them before an experiment touches something people rely on every day.'
+  },
+  GRUUL: {
+    W: 'Ask them which rules are there to keep people safe, before you ignore one.',
+    U: 'Bring them in to read the manual you skipped.',
+    B: 'Talk to them when a promotion turns the job into mostly politics.'
+  },
+  RAKDOS: {
+    W: "Ask them who was relying on the thing you're about to tear down.",
+    U: 'Bring them in before the exciting plan goes live, to see what it breaks.',
+    G: "Check with them when things have been calm for a while and you're getting restless."
+  },
+  GOLGARI: {
+    W: 'Ask them who gets hurt when a project is left to die.',
+    U: "Bring them in when you've seen a problem coming, to work out a fix.",
+    R: "Call on them when it's time to stop watching and do something."
+  },
+  SIMIC: {
+    W: 'Ask them whether a newcomer could follow how it works.',
+    B: 'Talk to them when you need to know which change is worth the most.',
+    R: "Let them ship it when it's nearly finished and you want another week."
+  },
+  BOROS: {
+    U: 'Run the facts past them before the fight.',
+    B: 'Talk to them about who gains if you win.',
+    G: "Check with them when there's a new cause every week."
+  },
+  BANT: {
+    B: 'Talk to them when everyone has agreed a little too easily.',
+    R: 'Call on them when a crisis needs a decision before the next meeting.'
+  },
+  ESPER: {
+    R: 'Send them to talk to whoever your plan has upset.',
+    G: 'Check with them when the efficient answer would undo something people care about.'
+  },
+  GRIXIS: {
+    W: "Ask them what it's like to work for you.",
+    G: "Check with them before you burn a relationship you'll need next year."
+  },
+  JUND: {
+    W: 'Ask them how the team is holding up.',
+    U: 'Bring them in when the answer looks obvious and someone wants a second look.'
+  },
+  NAYA: {
+    U: "Bring them in once everyone's fired up, to turn the energy into a plan.",
+    B: "Talk to them when you're sure the whole team wants the same thing."
+  },
+  ABZAN: {
+    U: "Let them try out the change you've already argued against.",
+    R: 'Call on them when something has been under review for longer than anyone can remember.'
+  },
+  JESKAI: {
+    B: 'Talk to them when your best work keeps going unnoticed by the people who decide.',
+    G: 'Check with them when the team needs rest more than another round of practice.'
+  },
+  SULTAI: {
+    W: "Ask them how your plan looks to the people it's being played on.",
+    R: 'Call on them when the long game has gone on long enough.'
+  },
+  MARDU: {
+    U: 'Bring them in before you commit the team, to check the plan will hold.',
+    G: 'Check with them before you ask the same people for another all-nighter.'
+  },
+  TEMUR: {
+    W: 'Ask them who has to start again each time the plan changes.',
+    B: 'Talk to them before you change plans on people who backed the old one.'
+  },
+  WITCH: {
+    R: 'Call on them when a deadline matters more than a better answer.'
+  },
+  YORE: {
+    G: 'Check with them before you rebuild something that has never given anyone trouble.'
+  },
+  GLINT: {
+    W: 'Ask them to hold you to the commitments you made last quarter.'
+  },
+  DUNE: {
+    U: "Bring them in when you're sure enough to skip the numbers."
+  },
+  INK: {
+    B: "Talk to them when someone's offer of help seems too generous."
   }
 };
 
@@ -4343,34 +4444,21 @@ const COLOR_GAPS_COPY = {
   heading: 'Who to bring in',
   sub: { result: 'Colleagues strong in the colours outside yours.', explorer: "Colleagues strong in the colours this type doesn't hold." },
   five: {
-    result: 'All five colours are in your result, so none is missing. When a choice needs one approach argued for hard, bring in a colleague with one strong colour.',
+    result: 'None of the five colours is missing from your result. Before a big decision, ask someone who will argue hard for one side.',
     explorer: 'All five colours are in this type, so none is missing.'
   }
 };
 
-// The reader's colour that `when` is keyed by, for a missing colour: the
-// colour it clashes with (COLOR_ENEMIES) before an ally, and of those the one
-// with the higher bar, or the first in the identity's own order without bars.
-function gapPartner(missing, colours, act) {
-  const rank = (list) => [...list].sort((a, b) => (act ? (act[b] || 0) - (act[a] || 0) : 0) || (colours.indexOf(a) - colours.indexOf(b)));
-  const enemies = rank(colours.filter(c => COLOR_ENEMIES[missing].includes(c)));
-  return enemies[0] || rank(colours.filter(c => COLOR_ALLIES[missing].includes(c)))[0];
-}
-
-// One card per missing colour: the head, what they bring, when to bring them in.
-function gapCardsHTML(missing, colours, act) {
-  return missing.map(c => {
-    const g = COLOR_GAPS[c];
-    const when = g.when[gapPartner(c, colours, act)] || '';
-    return `<div class="mc-gap-card" data-color="${c}">
-        <span class="mc-pip is-lit mc-gap-card__pip" data-color="${c}" aria-label="${c}"></span>
+// One card per missing colour: the head and the identity's own line.
+function gapCardsHTML(id, missing) {
+  const lines = COLOR_GAPS[id] || {};
+  return missing.map(c => `<div class="mc-gap-card" data-color="${c}">
+        <span class="mc-pip is-lit mc-gap-card__pip" data-color="${c}" aria-hidden="true"></span>
         <div class="mc-gap-card__body">
-          <div class="mc-gap-card__head"><span class="mc-gap-card__plus">+</span>${COLOR_DISPLAY[c]} colleague</div>
-          <div class="mc-gap-card__gap">${g.brings}</div>
-          <div class="mc-gap-card__complement">→ ${when}</div>
+          <div class="mc-gap-card__head">${COLOR_DISPLAY[c]} colleague</div>
+          <div class="mc-gap-card__gap">${htmlText(lines[c] || '')}</div>
         </div>
-      </div>`;
-  }).join('');
+      </div>`).join('');
 }
 
 function renderRelations() {
@@ -4413,7 +4501,7 @@ function renderRelations() {
     html += `<div class="mc-relations-detail__empty">${G.five.result}</div>`;
   } else {
     html += `<div class="mc-relations-detail__sub">${G.sub.result}</div>
-      ${gapCardsHTML(missing, p.colors, activationMap())}`;
+      ${gapCardsHTML(state.result.identity, missing)}`;
   }
   el.innerHTML = html;
   bindRelationsInteractivity();
@@ -5850,13 +5938,16 @@ const PLAY_COPY = {
     showNow: 'Show my result',
   },
 
-  // PROVISIONAL: the results page's share button and table switcher. The
-  // label and the note make sense without the three buttons beside them.
+  // PROVISIONAL: the results page's share button (the only one: a second,
+  // "Share my result", read as a duplicate) and table switcher. The switcher
+  // is its label and three names, with no note: "keeps the colours hidden
+  // until your result" and then "keeps the page plain during the quiz" both
+  // read to first-time readers, who have finished the quiz, as leftover
+  // settings text.
   results: {
     share: '⚜ Share',
     themeLabel: 'Page style',
     themes: { gilded: 'Gilded Hall', frames: 'Card Frames', borderless: 'Borderless' },
-    themeNote: 'The Card Frames style keeps the page plain during the quiz and colours it to match your result.',
   },
 };
 
@@ -10992,7 +11083,10 @@ function revealResults() {
 // (18 October 2026): no jokes in the next-door reasons, no question headings.
 // 4: Result screens rewritten from naive readers (18 October 2026): the plain
 // prompt says what the rows are, and the line under the label reads the bars.
-const RESULT_COPY_VERSION = 4;
+// 5: Result screens, second naive-reader round (18 October 2026): plain rows
+// are sentences ("With white as well, you'd be Selesnya."), and each row's
+// reason counts the gap in the label line's words.
+const RESULT_COPY_VERSION = 5;
 
 const RESULT_COPY = {
   // One sentence-case name per identity, for use inside sentences. [3]
@@ -11050,9 +11144,10 @@ const RESULT_COPY = {
   // [8] The collector number at the foot of that card, player mode only (the
   // share Card's set-symbol slot carries it too): the identity's place in
   // PROFILES, the set code carrying the scoring version. No rarity letter.
-  // Plain mode prints versionNote in the results footer instead.
+  // In every mode versionNote closes the methodology under "View Full
+  // Breakdown"; in the page footer readers took it for leftover build output.
   collector: 'MC{s} • EN • {n}/{total}',
-  versionNote: 'Scoring version {s}',
+  versionNote: 'Scoring version {s}.',
 
   // [4] Confidence labels, the same in both modes (links keep
   // c=high|moderate|low). The label and the one line under it (`confidence`
@@ -11079,19 +11174,22 @@ const RESULT_COPY = {
 
   // The line under the label: one sentence about this result's own bars, the
   // same in both modes (confidenceLine). It reads the five bars alone, so a
-  // shared link reads as it did when it was shared, and it says what the
-  // next-door rows say in other words. How far apart two colours are is
-  // counted in answers (oneAnswer()), in words, never as a number. Colours
-  // are filled in lower case ({a}) or capitalised to open the sentence ({A}).
+  // shared link reads as it did when it was shared. How far apart two
+  // colours are is counted in answers (oneAnswer()), in words, never as a
+  // number, and next door's reasons count the same gap in the same words
+  // (barGap): a page once said "less than an answer behind" here and "one
+  // answer short" next door. Colours are filled in lower case ({a}) or
+  // capitalised to open the sentence ({A}).
   // {a}: your one colour, or your top colour; {b}: the colour after it.
   // {w}: the lowest of your colours; {o}: the highest colour outside yours,
   // {p} the next one. {t} and {m}: five colours' highest and lowest.
-  // {n}: how many answers apart, from `answers`.
+  // {n}: how many answers apart, from `answers`; {span}, for five colours,
+  // from `spans`.
   confidence: {
     answers: { under: 'less than an answer', one: 'about one answer', two: 'one or two answers', three: 'two or three answers' },
     mono: {
       well: '{A} was well ahead of every other colour.',
-      close: '{A} led, with {b} {n} behind.',
+      close: '{A} led {b} by {n}.',
       level: '{A} and {b} finished level.',
       above: '{B} edged ahead of {a}, though {a} is the colour in your result.'
     },
@@ -11100,9 +11198,16 @@ const RESULT_COPY = {
       3: '{O} and {p} were well behind your three colours.',
       4: '{O} was well behind your four colours.'
     },
+    // Within about one answer the colour outside yours nearly made it in;
+    // one to three answers off, it came next.
+    near: {
+      2: '{O} nearly made it in, {n} behind {w}.',
+      3: '{O} nearly made it in, {n} behind {w}.',
+      4: '{O}, the one colour outside yours, finished {n} behind {w}.'
+    },
     close: {
-      2: 'The nearest colour outside yours was {o}, {n} behind {w}.',
-      3: 'The nearest colour outside yours was {o}, {n} behind {w}.',
+      2: '{O} came next, {n} behind {w}.',
+      3: '{O} came next, {n} behind {w}.',
       4: '{O}, the one colour outside yours, finished {n} behind {w}.'
     },
     level: {
@@ -11112,11 +11217,14 @@ const RESULT_COPY = {
     },
     // The bars of an old link can put a colour outside the result above one in it.
     above: '{O} edged ahead of {w}, though {w} is the one in your result.',
+    // Five colours: how close all five finished is the reason for the result,
+    // so the line says that, and not which colour was lowest.
     five: {
       level: 'All five colours finished level.',
-      close: '{T} was your highest colour and {m} your lowest, {n} apart.',
-      well: '{T} was your highest colour and {m} your lowest, more than three answers apart.'
+      close: 'All five colours finished within {span} of each other.',
+      well: 'All five colours made it in, though {m} finished more than three answers behind {t}.'
     },
+    spans: { under: 'an answer', one: 'about one answer', two: 'two answers', three: 'three answers' },
     // "Still shuffling" on bars that were clear: the doubt is about the result.
     lowWell: '{line}, but your answers fitted more than one result.',
     // A shared link with no bars in it.
@@ -11144,7 +11252,7 @@ const RESULT_COPY = {
   // below it (Jund, Mardu, four-colour without black) now does something else.
   rules: {
     'MONO-W': "Vigilance. Other creatures you control get +2/+2. When this creature leaves the battlefield, its rules don't.",
-    'MONO-U': 'Flash. Hexproof from feedback. At the beginning of your upkeep, you may reconsider.',
+    'MONO-U': 'Flash. Hexproof from small talk. At the beginning of your upkeep, you may reconsider.',
     'MONO-B': 'Menace, lifelink. You may pay life rather than mana. Goodwill you gain lasts until end of turn.',
     'MONO-R': 'Trample, haste. At the beginning of the end step, sacrifice this creature.',
     'MONO-G': "Reach. You don't lose unspent green mana as steps and phases end. Spells that change things have suspend 7.",
@@ -11164,7 +11272,7 @@ const RESULT_COPY = {
     JUND: 'Trample. At the beginning of each quarter, sacrifice your weakest creature.',
     NAYA: 'Battle cry. Other creatures you control have haste.',
     ABZAN: "Vigilance. Outlast {1}{W}. Creatures you control get +1/+1 for each year they've been with you.",
-    JESKAI: 'Prowess. Mentor. Every other creature has lesser power than this one.',
+    JESKAI: 'Prowess. Mentor. Whenever this creature attacks, it does so exactly as rehearsed.',
     SULTAI: "Exploit. Whenever another player's idea resolves, you may gain control of it. At the beginning of next year, they notice.",
     MARDU: "Haste. Creatures you control don't untap until the deadline has passed.",
     TEMUR: "Trample. This spell can't be countered. At the beginning of your upkeep, shuffle your plan into your library.",
@@ -11176,13 +11284,17 @@ const RESULT_COPY = {
     WUBRG: 'Changeling. You have every ability. Each works at a fifth of its strength.'
   },
 
-  // The commander block beside Natural Roles. Player mode: "Commander", the
-  // card's name and what the card does (PROFILES cmdDesc). Everyone else gets
-  // the card's name and one plain line in its place, since card text means
-  // nothing to someone who doesn't play. (Not in the drafts.)
+  // The commander. Player mode: "Commander · <card>" in the banner and,
+  // beside Natural Roles, "Commander", the card's name and what it does
+  // (PROFILES cmdDesc), with the mana base under it. Everyone else gets the
+  // art credited to the card in the banner and no commander block: card text
+  // means nothing to someone who doesn't play, and the line that stood in for
+  // it ("The Magic: The Gathering card matched to ...") read, the same on
+  // every page, as machine-written. {card} is the card's name. (Not in the
+  // drafts.)
   commander: {
-    title: { player: 'Commander', plain: 'Your card' },
-    plain: 'The Magic: The Gathering card matched to {identity}. The art at the top of the page is from it.'
+    title: 'Commander',
+    banner: { player: 'Commander · {card}', plain: 'Card art: {card}' }
   },
 
   // [10] Commander mana base, player mode only, at the foot of the commander
@@ -11211,36 +11323,50 @@ const RESULT_COPY = {
 
   // [3] Next door, directly below the commander block and its mana base. "up"
   // adds the strongest colour you don't run, "down" drops the weakest one you
-  // do; mono has no down row, five-colour no up row. The margin (one / few /
-  // well) says how far that colour sat from the line between in and out; see
-  // NEXT_DOOR_MARGINS. One plain reason per row.
+  // do; mono has no down row, five-colour no up row. Plain mode says each row
+  // as a sentence, since "Add white: Selesnya." means nothing to someone who
+  // doesn't know the names. One plain reason per row, keyed by barGap on the
+  // same two bars as the line under the label: close (within three answers),
+  // well, level, or above (an old link's bars). The up row counts a close gap
+  // in the line's own words ({n} from confidence.answers); the down row, the
+  // same gap from the other side, says only that this colour was your lowest,
+  // so the count is not said three times over. {other}: the colour on the far
+  // side of the line. Five colours have no colour outside, so their down row
+  // says only that too: "made the cut" beside "Locked in" read as a
+  // contradiction.
   nextDoor: {
     up: {
       player: {
         head: 'Splash {colour}: {identity}.',
-        one: 'Your {colour} was one answer short.',
-        few: 'Your {colour} was a few answers short.',
-        well: 'Your {colour} was well short.'
+        close: 'Your {colour} was {n} short.',
+        well: 'Your {colour} was well short.',
+        level: 'Your {colour} tied with {other}.',
+        above: 'Your {colour} finished above {other}.'
       },
       plain: {
-        head: 'Add {colour}: {identity}.',
-        one: '{Colour} came in one answer short.',
-        few: '{Colour} was a few answers short.',
-        well: '{Colour} was well short.'
+        head: "With {colour} as well, you'd be {identity}.",
+        close: '{Colour} was {n} short.',
+        well: '{Colour} was well short.',
+        level: '{Colour} tied with {other}.',
+        above: '{Colour} finished above {other}.'
       }
     },
     down: {
       player: {
         head: 'Cut the {lands}: {identity}.',
-        one: '{Colour} only just made the cut.',
-        few: '{Colour} made the cut by a few answers.',
-        well: '{Colour} made the cut easily.'
+        close: '{Colour} was your lowest colour.',
+        well: '{Colour} made the cut easily.',
+        level: '{Colour} tied with {other}.',
+        above: '{Colour} finished below {other}.',
+        lowest: '{Colour} was your lowest colour.'
       },
       plain: {
-        head: 'Drop {colour}: {identity}.',
-        one: '{Colour} only just made it in.',
-        few: '{Colour} made it in by a few answers.',
-        well: '{Colour} made it in comfortably.'
+        head: "Without {colour}, you'd be {identity}.",
+        close: '{Colour} was your lowest colour.',
+        well: '{Colour} made it in easily.',
+        level: '{Colour} tied with {other}.',
+        above: '{Colour} finished below {other}.',
+        lowest: '{Colour} was your lowest colour.'
       }
     }
   },
@@ -11359,8 +11485,8 @@ function identityName(id) {
 // typeline ("Legendary Creature — Human Ninja"), the rules text directly
 // under it (bracketed reminder text in italics) and the collector number at
 // its foot. The "Personality · Name" divider keeps its text only in plain
-// mode, which prints the scoring version in the footer instead of the
-// collector number.
+// mode. The scoring version, which the collector number carries in player
+// mode, closes the methodology in every mode.
 function renderIdentityCard(id) {
   const show = isPlayerMode() && !!PROFILES[id];
   const set = (elId, fn) => { const el = document.getElementById(elId); if (el) fn(el); };
@@ -11372,10 +11498,8 @@ function renderIdentityCard(id) {
   });
   set('res-collector', (el) => { el.textContent = show ? collectorNumber(id) : ''; });
   set('res-personality', (el) => el.classList.toggle('hidden', show));
-  set('res-version', (el) => {
-    el.textContent = show ? '' : fillCopy(RESULT_COPY.versionNote, { s: resultVersion('scoringVersion') });
-    el.classList.toggle('hidden', show);
-  });
+  // The scoring version, in every mode, at the foot of the methodology.
+  set('res-version', (el) => { el.textContent = fillCopy(RESULT_COPY.versionNote, { s: resultVersion('scoringVersion') }); });
 }
 
 // state.result.scoringVersion / instrumentVersion; absent (old engine, old link) means 1.
@@ -11437,11 +11561,27 @@ function renderConfidenceLabel() {
   document.getElementById('conf-base-rate').textContent = confidenceLine(resultShownId(), activationMap(), level);
 }
 
+// The gap between two bars, hi the one expected higher, as the line under the
+// label and the next-door reasons both word it: 'above' when lo printed
+// higher, 'level' when they printed alike, 'close' within three answers (with
+// `key`, how many in RESULT_COPY.confidence.answers: under, one, two, three)
+// and 'well' past that. Answers are counted on the bars' own values.
+function barGap(hi, lo, act) {
+  const raw = (c) => (act && act[c]) || 0;
+  const shown = (c) => Math.round(raw(c) * 100);
+  if (shown(lo) > shown(hi)) return { kind: 'above' };
+  if (shown(lo) === shown(hi)) return { kind: 'level' };
+  const answers = (raw(hi) - raw(lo)) / oneAnswer();
+  if (answers > NEXT_DOOR_MARGINS.few + 1e-9) return { kind: 'well' };
+  const key = answers > 2 + 1e-9 ? 'three' : answers > NEXT_DOOR_MARGINS.one + 1e-9 ? 'two' : answers >= 0.5 ? 'one' : 'under';
+  return { kind: 'close', key };
+}
+
 // One sentence about the bars behind this result (RESULT_COPY.confidence):
 // how far your colours stood from the nearest one outside them, or, for one
-// colour, from the colour after it, and for five, how far apart the highest
-// and lowest were. The gap is counted in answers on the bars' own values, as
-// next door counts it; a tie is a tie as printed.
+// colour, from the colour after it, and for five, how closely all five
+// finished. The gap is counted in answers (barGap), in the words next door
+// uses for the same gap; a tie is a tie as printed.
 function confidenceLine(id, act, level) {
   const C = RESULT_COPY.confidence;
   const prof = PROFILES[id];
@@ -11456,25 +11596,21 @@ function confidenceLine(id, act, level) {
   const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
   const vars = {};
   const put = (key, c) => { if (c) { vars[key] = word(c); vars[key.toUpperCase()] = cap(word(c)); } };
-  // How many answers apart, in words; null when they are more than three apart.
-  const apart = (hi, lo) => {
-    const answers = (raw(hi) - raw(lo)) / oneAnswer();
-    if (answers > NEXT_DOOR_MARGINS.few + 1e-9) return null;
-    if (answers > 2 + 1e-9) return C.answers.three;
-    if (answers > NEXT_DOOR_MARGINS.one + 1e-9) return C.answers.two;
-    return answers >= 0.5 ? C.answers.one : C.answers.under;
-  };
   // The two bars compared: your lowest colour and the highest one outside it
   // (for one colour, the colour after yours; for five, your highest).
   let hi, lo;
   if (!outside.length) { hi = inside[0]; lo = inside[inside.length - 1]; put('t', hi); put('m', lo); }
   else { hi = inside[inside.length - 1]; lo = outside[0]; put('a', inside[0]); put('b', inside[1] || lo); put('w', hi); put('o', lo); put('p', outside[1]); }
-  vars.n = apart(hi, lo);
-  const kind = shown(lo) > shown(hi) ? 'above' : shown(lo) === shown(hi) ? 'level' : vars.n ? 'close' : 'well';
+  const gap = barGap(hi, lo, act);
+  if (gap.key) { vars.n = C.answers[gap.key]; vars.span = C.spans[gap.key]; }
+  const kind = gap.kind;
   const k = inside.length;
+  const near = gap.key === 'under' || gap.key === 'one';
   const template = !outside.length ? C.five[kind === 'above' ? 'level' : kind]
     : k === 1 ? C.mono[kind]
-    : kind === 'above' ? C.above : C[kind][k];
+    : kind === 'above' ? C.above
+    : kind === 'close' ? C[near ? 'near' : 'close'][k]
+    : C[kind][k];
   const line = fillCopy(template, vars);
   return level === 'LOW' && kind === 'well' && outside.length ? fillCopy(C.lowWell, { line: line.replace(/\.$/, '') }) : line;
 }
@@ -11541,7 +11677,10 @@ function marginWord(gap) {
 // the weakest colour in and the strongest colour out, so both rows measure
 // that one gap; with all five colours in, the line is 50%. A colour on the
 // wrong side of its line (the scenarios overruled the bars) counts as "one".
-// Mono has no down row; five-colour has no up row.
+// Mono has no down row; five-colour has no up row. `said` is how the row's
+// reason words the gap: barGap on the same two bars the line under the label
+// compares, so both count it alike; five colours, with nothing outside,
+// have kind 'lowest'. `other` is the colour across the line.
 function nextDoorFor(id, act) {
   const prof = PROFILES[id];
   if (!prof || !prof.colors) return [];
@@ -11554,9 +11693,10 @@ function nextDoorFor(id, act) {
   const strongestOut = outside[0];
   const gap = strongestOut ? bar(weakestIn) - bar(strongestOut) : bar(weakestIn) - 0.5;
   const margin = marginWord(gap);
+  const said = strongestOut ? barGap(weakestIn, strongestOut, act) : { kind: 'lowest' };
   const rows = [];
-  if (strongestOut) rows.push({ dir: 'up', colour: strongestOut, id: identityForColours([...lit, strongestOut]), gap, margin });
-  if (inside.length > 1) rows.push({ dir: 'down', colour: weakestIn, id: identityForColours(lit.filter(c => c !== weakestIn)), gap, margin });
+  if (strongestOut) rows.push({ dir: 'up', colour: strongestOut, other: weakestIn, id: identityForColours([...lit, strongestOut]), gap, margin, said });
+  if (inside.length > 1) rows.push({ dir: 'down', colour: weakestIn, other: strongestOut, id: identityForColours(lit.filter(c => c !== weakestIn)), gap, margin, said });
   return rows.filter(row => row.id);
 }
 
@@ -11565,9 +11705,11 @@ function nextDoorLine(row, player) {
   const colour = RESULT_COPY.colourWords[row.colour];
   const vars = {
     colour, Colour: colour.charAt(0).toUpperCase() + colour.slice(1),
-    lands: RESULT_COPY.landWords[row.colour], identity: identityName(row.id)
+    lands: RESULT_COPY.landWords[row.colour], identity: identityName(row.id),
+    other: row.other ? RESULT_COPY.colourWords[row.other] : '',
+    n: row.said.key ? RESULT_COPY.confidence.answers[row.said.key] : ''
   };
-  return { head: fillCopy(t.head, vars), why: fillCopy(t[row.margin], vars) };
+  return { head: fillCopy(t.head, vars), why: fillCopy(t[row.said.kind], vars) };
 }
 
 // Ids of the next-door rows last rendered, in order (an appeal records them).
@@ -12028,25 +12170,29 @@ function showResults() {
   if (bannerPips && p.colors) {
     bannerPips.innerHTML = p.colors.map(c => `<span class="mc-pip is-lit mc-pip--lg" data-color="${c}" aria-label="${c}"></span>`).join('');
   }
+  // The banner names the card: as the commander in player mode, as the art's
+  // source otherwise (RESULT_COPY.commander).
   const bannerCmd = document.getElementById('res-banner-commander');
-  if (bannerCmd) bannerCmd.textContent = p.cmd ? `Commander · ${p.cmd}` : '';
+  if (bannerCmd) bannerCmd.textContent = p.cmd ? fillCopy(copyVariant(RESULT_COPY.commander.banner), { card: p.cmd }) : '';
   renderAppealMark();
 
   // Claude Design plinth: typeline name (its sentence-case name, as in prose)
   // + commander aside.
   const typelineName = document.getElementById('res-typeline-name');
   if (typelineName) typelineName.textContent = identityName(shownId);
-  // The commander aside: what the card does in player mode, one plain line
-  // in its place otherwise (RESULT_COPY.commander).
+  // The commander aside, player mode only: the card's name and what it does.
+  // Everyone else gets Natural Roles at full width.
+  const playerCard = isPlayerMode();
+  const cmdAside = document.getElementById('res-cmd-aside');
+  if (cmdAside) cmdAside.classList.toggle('hidden', !playerCard);
+  const rolesGrid = document.getElementById('res-roles-grid');
+  if (rolesGrid) rolesGrid.style.gridTemplateColumns = playerCard ? '1fr 1fr' : '1fr';
   const cmdTitleAside = document.getElementById('cmd-title-aside');
-  if (cmdTitleAside) cmdTitleAside.textContent = copyVariant(RESULT_COPY.commander.title);
+  if (cmdTitleAside) cmdTitleAside.textContent = RESULT_COPY.commander.title;
   const cmdNameAside = document.getElementById('cmd-name-aside');
   if (cmdNameAside) cmdNameAside.textContent = p.cmd || '';
   const cmdDescAside = document.getElementById('cmd-desc-aside');
-  if (cmdDescAside) {
-    cmdDescAside.textContent = isPlayerMode() ? (p.cmdDesc || '')
-      : fillCopy(RESULT_COPY.commander.plain, { identity: identityName(shownId) });
-  }
+  if (cmdDescAside) cmdDescAside.textContent = playerCard ? (p.cmdDesc || '') : '';
   renderManaBase(shownId);
 
   // 5-color profile bars (the "psychometric receipt"). Pulls from state.activationSorted —
@@ -12853,7 +12999,7 @@ function renderExplorerRelations(identityKey) {
 
   el.innerHTML = `<div class="mc-relations-detail__heading">${G.heading}</div>
     <div class="mc-relations-detail__sub">${G.sub.explorer}</div>
-    ${gapCardsHTML(missing, p.colors, null)}`;
+    ${gapCardsHTML(identityKey, missing)}`;
 }
 
 // ============================================================================

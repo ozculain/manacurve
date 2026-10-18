@@ -32,13 +32,21 @@
 // identity), or says what the bars do not ("well" clear by three answers or
 // fewer, "level" for bars printed apart, a count of answers the gap does not
 // fit); on all 31 identities, seven bar shapes and the three labels, and as
-// rendered in plain and player modes. Section 9 also renders the commander
-// block (the card text only in player mode) and the colleague cards under
-// Working With Others for all 31, on the result and in the explorer: one card
-// per missing colour saying what it brings and when to bring it in, none of
-// the traits and jargon readers caught ("You move on instinct", "Decisions
-// defer", "second-order consequences"), no sentence opening on "You", and a
-// legend naming only the lines the diagram draws.
+// rendered in plain and player modes. Section 9 also renders, for all 31 in
+// plain and player modes (CHANGELOG, "Result screens: second naive-reader
+// round"): next door, whose rows are "Splash white: Selesnya." for players
+// and a sentence for everyone else ("With white as well, you'd be
+// Selesnya."), the up row counting the gap in the line's own words and the
+// down row never counting it again, five colours' one row saying only which
+// colour was lowest; the commander block (player mode only, the banner
+// crediting the art otherwise); the colleague cards under Working With
+// Others, on the result and in the explorer: one per missing colour, each
+// line on one identity's page only, none of the traits and jargon readers
+// caught ("You move on instinct", "Decisions defer", "second-order
+// consequences"), no sentence opening on "You"; a legend naming only the
+// lines the diagram draws; the theme switcher as its label and three names;
+// and the whole page: none of the lines the second readers flagged, the
+// scoring version only in the methodology, and one Share.
 // Sections 10 to 15 (CHANGELOG, "Plain profiles and pages") read what a
 // player reads about an identity and the pages around the result, rendered
 // for real: the profile blocks on the result screen for all 31 identities
@@ -65,10 +73,15 @@
 // card's modes, no closing line in the formulas the profiles leaned on ("The
 // card rewards ...", "... worth it", "The team finds you ..."), and the same
 // em dash, rhetorical question and banned words; the rules are spelt out
-// above rhythmProblems. Jokes, dramatic colons and a neat closing line in
-// other words cannot be caught by a pattern; they are left to review. The
-// checkers themselves are tested last, on the paragraph a player saw on a
-// phone before these rules existed and on the profiles' old passages.
+// above rhythmProblems. It also holds the voice across the 31 (above
+// voiceProblems): no "we", "us" or "our", no strength or shadow opening on
+// "You", no year written out, and no joke shape ("the room", "quietly",
+// acting while others are still at it, a closing line turning on ", and")
+// on more profiles than its limit. Jokes, dramatic colons and a neat closing
+// line in other words cannot be caught by a pattern; they are left to
+// review. The checkers themselves are tested last, on the paragraph a player
+// saw on a phone before these rules existed, on the profiles' old passages
+// and on the pages the second readers saw.
 // Usage: node tests/visible-copy.test.js [--dump] [path/to/index.html]
 const { bootPage, pageArgs, whenReady, isVisible, EXPOSE } = require('./_lib/load');
 const { run } = require('./_lib/report');
@@ -200,8 +213,53 @@ function lineProblems(line, id, act, PROFILES, name) {
   const answers = (bar(hi) - bar(lo)) * 12;
   if (/\bwell\b/.test(lower) && !(answers > 3)) out.push(`"well" for ${answers.toFixed(2)} answers`);
   if (/\b(?:level|tied)\b/.test(lower) && shown(hi) !== shown(lo)) out.push(`"level" for bars of ${shown(hi)} and ${shown(lo)}`);
-  for (const [words, min, max] of ANSWER_RANGES) {
+  for (const [words, min, max] of [...ANSWER_RANGES, ...FIVE_SPANS]) {
     if (lower.includes(words) && !(answers >= min - 1e-9 && answers <= max + 1e-9)) out.push(`"${words}" for ${answers.toFixed(2)} answers`);
+  }
+  return out;
+}
+// Five colours say how closely all five finished: "within two answers of each
+// other" holds when the highest and lowest are one to two answers apart.
+const FIVE_SPANS = [
+  ['within an answer', 0, 0.5], ['within about one answer', 0.5, 1], ['within two answers', 1, 2], ['within three answers', 2, 3],
+];
+
+// ---------- next door against the line under the label (section 9) ----------
+// The up row's reason counts the gap the line under the label counts, in the
+// same words: a page once said "less than an answer behind" in the line and
+// "one answer short" next door, and readers called it a contradiction. The
+// down row is the same gap seen from the other side, so beside a close line
+// it says only that its colour was your lowest, and never counts: the count
+// once came three times on one page. Plain mode says each row as a sentence,
+// since "Add white: Selesnya." means nothing to someone who doesn't know the
+// names; player mode keeps the colon headline. Five colours have one row,
+// which says only which colour was lowest ("Green only just made the cut"
+// beside "Locked in" read as a contradiction), and their line says how
+// closely all five finished.
+function doorProblems(rows, line, id, PROFILES, names, player) {
+  const out = [];
+  const n = PROFILES[id].colors.length;
+  const want = n === 1 ? 'up' : n === 5 ? 'down' : 'up,down';
+  if (rows.map((r) => r.dir).join() !== want) out.push(`rows ${rows.map((r) => r.dir).join()} for ${n} colours`);
+  const lower = line.toLowerCase();
+  const counted = (s) => ANSWER_RANGES.map(([w]) => w).find((w) => s.includes(w));
+  for (const r of rows) {
+    const head = player
+      ? (r.dir === 'up' ? /^Splash (?:white|blue|black|red|green): (.+)\.$/ : /^Cut the (?:Plains|Islands|Swamps|Mountains|Forests): (.+)\.$/).exec(r.head)
+      : (r.dir === 'up' ? /^With (?:white|blue|black|red|green) as well, you'd be (.+)\.$/ : /^Without (?:white|blue|black|red|green), you'd be (.+)\.$/).exec(r.head);
+    if (!head || head[1] !== names[r.id]) out.push(`head "${r.head}"`);
+    const why = r.why.toLowerCase();
+    if (sentences(r.why).length !== 1) out.push(`reason "${r.why}" is not one sentence`);
+    if (n === 5) {
+      if (!/^\w+ was your lowest colour\.$/.test(r.why) || !/^all five colours\b/.test(lower)) out.push(`five colours: "${line}" / "${r.why}"`);
+      continue;
+    }
+    if (r.dir === 'up' && counted(why) !== counted(lower)) out.push(`"${line}" counts ${counted(lower) || 'nothing'}, "${r.why}" ${counted(why) || 'nothing'}`);
+    if (r.dir === 'down' && counted(why)) out.push(`the down row counts again: "${r.why}"`);
+    if (r.dir === 'down' && counted(lower) && !/^\w+ was your lowest colour\.$/.test(r.why)) out.push(`"${line}" is close, and the down row says "${r.why}"`);
+    if (/\bwell\b/.test(lower) !== (r.dir === 'up' ? /\bwell short\b/ : /\beasily\b/).test(why)) out.push(`"${line}" and "${r.why}" disagree about well clear`);
+    if (/\b(?:level|tied)\b/.test(lower) !== /\btied\b/.test(why)) out.push(`"${line}" and "${r.why}" disagree about a tie`);
+    if (/\bedged ahead\b/.test(lower) !== (r.dir === 'up' ? /\babove\b/ : /\bbelow\b/).test(why)) out.push(`"${line}" and "${r.why}" disagree about which was higher`);
   }
   return out;
 }
@@ -226,6 +284,83 @@ function gapProblems(text) {
   const lower = text.toLowerCase();
   const out = GAP_TRAITS.filter((p) => lower.includes(p)).map((p) => `"${p}"`);
   for (const s of sentences(text)) if (/^(?:you|your)\b/i.test(s)) out.push(`opens on "You": "${s.slice(0, 50)}"`);
+  return out;
+}
+
+// ---------- the whole result screen (section 9) ----------
+// CHANGELOG, "Result screens: second naive-reader round". Three readers on
+// three models read all 31 screens, as a player and as a non-player sees
+// them, and flagged lines as machine-written, insulting, jargon, a forced
+// joke, vague, too long, contradictory or repeated. These are the ones that
+// were cut or rewritten; none may come back. The frame lines flagged on every
+// page are here too: the footer's scoring version, the plain commander line,
+// the diagram's legend, the theme note and the second Share button.
+const ROUND2_FLAGGED = [
+  // frame
+  'Scoring version', 'The Magic: The Gathering card matched to', 'A dashed line joins one of your colours',
+  'A solid line joins two of your colours', 'keeps the page plain during the quiz', 'Share my result',
+  'bring in a colleague with one strong colour', 'Notices who a plan is unfair to', 'Hexproof from feedback',
+  'Every other creature has lesser power',
+  // taglines and philosophies
+  'Power Through Ruthless Action', 'Innovation Without Nature', 'though that makes decisions slower',
+  'rules are mostly for people too afraid to live', 'You believe some things are worth fighting for.', 'nice-to-haves',
+  'fair systems, deep analysis, and the willingness', "Being disliked along the way doesn't bother you",
+  'patient analysis and strategic positioning', 'take value out slowly and quietly',
+  'sustainable success comes from patience, analysis, and quiet positioning',
+  'most "ethics" are someone protecting their position', 'Rules exist to protect the people',
+  // strengths
+  'without putting their feelings on a pedestal', 'When asked to hurry, moves only as fast',
+  'Will sit with a struggling colleague until', 'Holds a group together through the kind of week',
+  'Knows just how to set up bureaucracy', 'Generates more usable ideas', 'either blows it up or helps it find a new',
+  'Reliable in a crisis precisely because', 'Will rework the inherited process slightly better every quarter',
+  'Will run at the problem while everyone else', 'Gets a team behind a cause and keeps it there',
+  'Keeps the org chart and the budget in mind', 'Made the move that mattered four quarters ago',
+  'before everyone else has finished diagramming', 'Gets more out of a small team than most managers',
+  'Makes an offer before the other side has finished', 'standing in 2034', 'Has carried the organisation through its worst years',
+  'Demonstrates the standard by doing it', 'without showing the gear-change', 'Knows what every person at the table has to give',
+  'Gets calmer as the stakes go up', 'Delivers the result, even on a deadline others have given up on',
+  'without the emotional component clouding the analysis', "Will deliver the thing that didn't exist yesterday",
+  'thirteen-part architecture', 'quietly builds the automation', 'the cynicism quietly excuses itself',
+  'Lands on decisions that hold up because the process was visibly fair',
+  // shadows
+  'Trust is offered on a thirty-day rolling basis', 'Quietly grades the room', 'When asked to pick without enough data',
+  'Capable of describing 1998', 'Wants anything new written up and approved', 'workshopping', 'Keeps the underperformer',
+  'Rewards loyalty slowly', 'Did a colleague a small favour in 2022', 'Hears what a meeting left out',
+  'about laws or processes that matter', "Can be promoted into roles where 'just do it'", 'Will happily let a project die',
+  "Suspicious of 'good enough' as a moral position", 'Struggles not to reach for the hammer',
+  "Can't quite tell the difference between a difficult conversation and a battle", 'Believes a well-run process can prevent conflict',
+  'Struggles in a crisis, when things are needed fast', 'when some of them needed a decision',
+  "Refers to colleagues by what they do and what they're worth", 'Optimises hard and leaves the ongoing problems',
+  'is sincerely puzzled when colleagues leave', "weren't built for this", 'Believes nuance is what people do',
+  'The big speech was on Wednesday', 'which is almost always untrue', "can't get a word in to say where it should point",
+  'Leaves the detail to whoever is still in the room', 'regrettable but tolerable feature of the workplace',
+  "haven't yet noticed what they're being helped towards", 'Changes the plan between Monday and Wednesday', 'personal velocity',
+  'thirty percent better and forty percent on fire', 'moved to a different role at a different company',
+  'before the analysis has finished its first sentence', "cover story for someone else's plan", 'none of them has a clear scope',
+  'Gives the win to the room', 'second-best person in the room', 'what kind of room they\'re in', 'CVs glued together',
+  'Approaches grey areas looking for the absolutely fair answer', 'Keeps choosing the fair, slow option',
+  // closing lines
+  'leaving collection', 'Getting a straight answer out of you', 'cycles of life with you', 'smoke machine', 'D-Day',
+  "five-a-side 'a friendly'", 'marching band', 'Christmas cards arrive in early November', 'We threw you a surprise party',
+  'expenses policy as an opening offer', "We're still reading the email", 'already read the reorganisation plan',
+  // roles
+  'Mission Nonprofits', 'Strategic Operations, Management Consulting', 'Startups, Innovation, R&D',
+  'Operations, Agriculture, Sustainability, Mentorship', 'Sustainability, Turnaround/Restructuring',
+  'Construction, Military, Crisis Response, Frontline Trades', 'Frontline Leadership, Field Operations',
+];
+// Problems in a whole result screen, given its visible blocks: a flagged
+// line; the scoring version anywhere but the methodology, which is closed
+// until "View Full Breakdown"; more than one Share; the colleague card's old
+// arrow or a plus written as text.
+function screenProblems(blocks, d, win) {
+  const all = blocks.join('\n');
+  const out = ROUND2_FLAGGED.filter((x) => all.includes(x)).map((x) => `flagged "${x}"`);
+  const version = d.getElementById('res-version');
+  if (!version || !d.getElementById('unified-breakdown').contains(version)) out.push('the scoring version is not in the methodology');
+  const onScreen = (el) => { for (let n = el; n; n = n.parentElement) if (hidden(win, n)) return false; return true; };
+  const shares = [...d.querySelectorAll('#screen-results button')].filter((b) => /\bshare\b/i.test(b.textContent) && onScreen(b));
+  if (shares.length !== 1) out.push(`${shares.length} Share buttons`);
+  if (blocks.some((b) => b === '+' || b.startsWith('→'))) out.push('a "+" or "→" written as text');
   return out;
 }
 
@@ -269,19 +404,14 @@ const RHYTHM_RULES = [
   ['closers', 'no closing line in the old formulas ("The card rewards ...", "... worth it", "The team finds you ...")'],
   ['banned', 'no em dash, rhetorical question, "actually", "genuinely", "simply", "truly" or "the real"'],
 ];
-// The lists that stay. Each item of a colour list stands for one of the
-// identity's own colours (Bant: civilisation, knowledge, patience), three of
-// them or more; a card's modes are the modes it prints.
-// The four that only listed colours ("Holds analysis, fairness, and timing in
-// one mental model", "Sees the same situation from analysis, ambition,
-// structure, instinct, and patience") are gone: readers took them for
-// machine-written.
-const COLOUR_LISTS = {
-  BANT: ['civilisation, knowledge, and patience'],
-  ESPER: ['fair systems, deep analysis, and the willingness to make the call'],
-  ABZAN: ['patience, pragmatism, and community'],
-  WITCH: ['patience, analysis, and quiet positioning'],
-};
+// The lists that stay. A colour list would stand for the identity's own
+// colours, one item each; a card's modes are the modes it prints.
+// No colour list stays. The four that only listed colours ("Holds analysis,
+// fairness, and timing in one mental model") went in the first naive-reader
+// round, and the four philosophies that opened on one (Bant's "civilisation,
+// knowledge, and patience", Esper's, Abzan's and Four-colour without red's)
+// in the second: readers took them for machine-written.
+const COLOUR_LISTS = {};
 const CARD_MODES = {
   YORE: ['3 damage to a player or planeswalker, -4/-4 to a creature, or gain 5 life'],
 };
@@ -351,6 +481,48 @@ function rhythmProblems({ id, part, items, list = false, prose = true }) {
 }
 // The items of a kept list: "a, b, and c" is three.
 const listItems = (text) => text.split(/,\s*(?:(?:and|or)\s+)?|\s+(?:and|or)\s+/).filter(Boolean);
+
+// ---------- voice across the 31 profiles (section 16) ----------
+// CHANGELOG, "Result screens: second naive-reader round". Readers comparing
+// pages saw the same joke shapes on page after page (the room, quietly,
+// acting while everyone else is still at something, exact years, a closing
+// line that turns on ", and") and the person drifting within a page, from
+// "you" to "they" to a sudden "we". The philosophy and the closing line say
+// "you", the strengths and shadows describe a person with no subject, and
+// nothing says "we". A rule fails on:
+//   - person: "we", "us" or "our" anywhere; a strength or shadow that opens
+//     on "You" or "Your"
+//   - years: a year written out (1998, 2034)
+//   - shapes: more profiles than SHAPE_LIMITS allows using one shape, across
+//     the philosophy, strengths, shadows, closing line and description
+const SHAPE_LIMITS = [
+  ['"the room"', /\bthe room\b/i, 2],
+  ['"quietly"', /\bquietly\b/i, 1],
+  ['"everyone else"', /\beveryone else\b/i, 5],
+  ['acting before everyone else has finished', /\bbefore (?:anyone|everyone)(?: else)? (?:has )?(?:finished|had time)\b/i, 0],
+  ['acting while everyone else is still at it', /\bwhile (?:everyone(?: else)?|the others|others) (?:is|are) still\b/i, 0],
+];
+const BANTER_TWISTS = 5; // closing lines that turn on ", and"
+function voiceProblems(passages) {
+  const out = [];
+  const add = (rule, detail) => out.push({ rule, detail });
+  for (const x of passages) {
+    const all = x.items.join(' ');
+    const we = /\b(?:we|us|our)\b/i.exec(all);
+    if (we) add('person', `${x.id} ${x.part}: "${we[0]}" in "${all.slice(0, 70)}"`);
+    if (x.list) x.items.filter((i) => /^(?:you|your)\b/i.test(i)).forEach((i) => add('person', `${x.id} ${x.part} opens on "You": "${i}"`));
+    const year = /\b(?:1[89]|20)\d\d\b/.exec(all);
+    if (year) add('years', `${x.id} ${x.part}: ${year[0]} in "${all.slice(0, 70)}"`);
+  }
+  const prose = passages.filter((x) => ['philosophy', 'strengths', 'shadows', 'banter', 'description'].includes(x.part));
+  for (const [name, re, limit] of SHAPE_LIMITS) {
+    const ids = [...new Set(prose.filter((x) => x.items.some((i) => re.test(i))).map((x) => x.id))];
+    if (ids.length > limit) add('shapes', `${name} on ${ids.length} profiles (at most ${limit}): ${ids.join(', ')}`);
+  }
+  const twists = passages.filter((x) => x.part === 'banter' && x.items.some((i) => /, and /.test(i))).map((x) => x.id);
+  if (twists.length > BANTER_TWISTS) add('shapes', `${twists.length} closing lines turn on ", and" (at most ${BANTER_TWISTS}): ${twists.join(', ')}`);
+  return out;
+}
 
 // ---------- collecting what is on screen ----------
 // Not prose for these rules: the identity's own content, the commander block
@@ -688,6 +860,7 @@ run('visible-copy', async (t) => {
       issues.length === 0 && errors.length === 0 && lines.size > 31, issues.slice(0, 4).join(' | ') || errors.slice(0, 2).join(' | '));
     win.close();
   }
+  const cardLines = {}; // each colleague card's line: the identities whose page printed it
   for (const [modeName, gaming] of [['plain', false], ['player', true]]) {
     const { win, h, errors } = await page();
     const d = win.document, P = h.PROFILES, R = h.RESULT_COPY;
@@ -696,9 +869,12 @@ run('visible-copy', async (t) => {
     s.gamingFamiliar = gaming;
     const text = (sel) => ((d.querySelector(sel) || {}).textContent || '').replace(/\s+/g, ' ').trim();
     const shown = (sel) => !!d.querySelector(sel) && !hidden(win, d.querySelector(sel));
-    const lineIssues = [], cmdIssues = [], gapIssues = [], legendIssues = [];
+    const lineIssues = [], doorIssues = [], cmdIssues = [], gapIssues = [], legendIssues = [], pageIssues = [];
     for (const id of Object.keys(P)) {
-      for (const gap of [0.06, 0.4]) {
+      // Bars of every shape the line has words for: a colour outside printed
+      // above one inside, level, under an answer, about one, one or two, two
+      // or three, well clear.
+      for (const gap of [-0.05, 0, 0.02, 0.06, 0.12, 0.2, 0.4]) {
         const act = barsFor(P[id].colors, gap);
         s.result = { identity: id, confidence: 'MODERATE', allResults: [], scoringVersion: 2, instrumentVersion: 4, round3Data: {} };
         s.activationSorted = sorted(act);
@@ -710,18 +886,28 @@ run('visible-copy', async (t) => {
         const line = text('#conf-base-rate');
         if (line !== win.confidenceLine(id, act, 'MODERATE')) lineIssues.push(`${id}: the page shows "${line}"`);
         lineIssues.push(...lineProblems(line, id, act, P, R.names[id]).map((p) => `${id} gap ${gap}: ${p} in "${line}"`));
+        // Next door says each row as the mode says it, and counts the gap in
+        // the line's words.
+        const rows = [...d.querySelectorAll('#next-door-chips .mc-nextdoor__chip')].map((chip) => ({
+          dir: chip.dataset.dir, id: chip.dataset.id,
+          head: chip.querySelector('.mc-nextdoor__head').textContent, why: chip.querySelector('.mc-nextdoor__why').textContent,
+        }));
+        doorIssues.push(...doorProblems(rows, line, id, P, R.names, gaming).map((p) => `${id} gap ${gap}: ${p}`));
       }
-      // The commander block: the card text in player mode, one plain line in its place otherwise.
-      const desc = text('#cmd-desc-aside'), title = text('#cmd-title-aside');
-      const want = gaming ? P[id].cmdDesc : R.commander.plain.replace('{identity}', R.names[id]);
-      if (desc !== want || title !== (gaming ? 'Commander' : 'Your card') || text('#cmd-name-aside') !== P[id].cmd) cmdIssues.push(`${id}: "${title}" / "${desc}"`);
+      // The commander block, player mode only, with "Commander · <card>" in
+      // the banner; otherwise no block, and the banner credits the art.
+      const desc = text('#cmd-desc-aside'), banner = text('#res-banner-commander');
+      const cmdRight = gaming
+        ? shown('#res-cmd-aside') && desc === P[id].cmdDesc && text('#cmd-title-aside') === 'Commander' && text('#cmd-name-aside') === P[id].cmd && banner === `Commander · ${P[id].cmd}`
+        : !shown('#res-cmd-aside') && desc === '' && banner === `Card art: ${P[id].cmd}`;
+      if (!cmdRight) cmdIssues.push(`${id}: "${banner}" / "${desc}"`);
       if (!gaming && /\b(?:mana|graveyard|battlefield|creature|library|token|counter|upkeep|combat)\b/i.test(desc + ' ' + text('#res-idcard'))) cmdIssues.push(`${id}: card words in plain mode`);
-      // The colleague cards: one per missing colour, each saying what they bring and when to bring them in.
+      // The colleague cards: one per missing colour, each with its own line.
       const missing = ['W', 'U', 'B', 'R', 'G'].filter((c) => !P[id].colors.includes(c));
       const cards = [...d.querySelectorAll('#relations-detail .mc-gap-card')];
-      const filled = cards.every((card) => (card.querySelector('.mc-gap-card__gap') || {}).textContent.trim()
-        && (card.querySelector('.mc-gap-card__complement') || {}).textContent.replace('→', '').trim());
-      if (cards.length !== missing.length || !filled) gapIssues.push(`${id}: ${cards.length} cards for ${missing.length} colours`);
+      const lines = cards.map((card) => ((card.querySelector('.mc-gap-card__gap') || {}).textContent || '').trim());
+      if (cards.length !== missing.length || lines.some((x) => !x)) gapIssues.push(`${id}: ${cards.length} cards for ${missing.length} colours, ${lines.filter(Boolean).length} with a line`);
+      lines.forEach((x) => (cardLines[x] = cardLines[x] || new Set()).add(id));
       for (const b of visibleBlocks(win, d.getElementById('relations-detail'), { exclude: [] })) {
         gapIssues.push(...gapProblems(b).map((p) => `${id}: ${p}`), ...contentProblems(b, { PROFILES: P }).map((p) => `${id}: ${p}`));
       }
@@ -729,16 +915,34 @@ run('visible-copy', async (t) => {
       const ally = !!d.querySelector('#screen-results .rel-edge-ally.is-lit-ally'), enemy = !!d.querySelector('#screen-results .rel-edge-enemy.is-lit-enemy');
       if (shown('#rel-legend-ally') !== ally || shown('#rel-legend-enemy') !== enemy) legendIssues.push(`${id}: legend ally ${shown('#rel-legend-ally')}/${ally}, enemy ${shown('#rel-legend-enemy')}/${enemy}`);
       legendIssues.push(...gapProblems(text('.mc-relations-legend')).map((p) => `${id} legend: ${p}`));
+      // The whole page as a reader gets it: none of the lines the second
+      // readers flagged, no scoring version outside the methodology, one Share.
+      const page = visibleBlocks(win, d.getElementById('screen-results'), { exclude: [] });
+      pageIssues.push(...screenProblems(page, d, win).map((p) => `${id}: ${p}`));
     }
-    const sw = [text('#theme-switch-label'), text('.mc-theme-switch__note')];
-    if (sw[0] === 'Table' || /keeps the colours hidden until your result/.test(sw[1])) legendIssues.push(`theme switcher "${sw.join(' / ')}"`);
-    ok(`result (${modeName}): the line under the label is confidenceLine's, true to the bars, for all 31`, lineIssues.length === 0 && errors.length === 0,
+    // The theme switcher is its label and three names: the notes about Card
+    // Frames ("keeps the colours hidden until your result", "keeps the page
+    // plain during the quiz") read to first-time readers as settings text.
+    const sw = visibleBlocks(win, d.getElementById('theme-switch'), { exclude: [] }).join(' / ');
+    if (sw !== 'Page style / Gilded Hall / Card Frames / Borderless') legendIssues.push(`theme switcher "${sw}"`);
+    ok(`result (${modeName}): the line under the label is confidenceLine's, true to the bars, for all 31 on seven bar shapes`, lineIssues.length === 0 && errors.length === 0,
       lineIssues.slice(0, 4).join(' | ') || errors.slice(0, 2).join(' | '));
-    ok(`result (${modeName}): the commander block is ${gaming ? 'the card text' : 'the card\'s name and one plain line, no card text'}, for all 31`, cmdIssues.length === 0, cmdIssues.slice(0, 4).join(' | '));
-    ok(`result (${modeName}): the colleague cards say what each missing colour brings and when to bring it in, with none of the traits readers caught and no sentence on "You", for all 31`,
+    ok(`result (${modeName}): next door ${gaming ? 'heads each row "Splash white: Selesnya."' : 'says each row as a sentence ("With white as well, you\'d be Selesnya.")'} and counts the gap in the words of the line under the label, for all 31 on seven bar shapes`,
+      doorIssues.length === 0, doorIssues.slice(0, 4).join(' | '));
+    ok(`result (${modeName}): the commander block is ${gaming ? 'the card text, under "Commander · <card>" in the banner' : 'gone, and the banner credits the art to the card'}, for all 31`, cmdIssues.length === 0, cmdIssues.slice(0, 4).join(' | '));
+    ok(`result (${modeName}): one colleague card per missing colour, each with a line, none of the traits readers caught and no sentence on "You", for all 31`,
       gapIssues.length === 0, gapIssues.slice(0, 4).join(' | '));
-    ok(`result (${modeName}): the legend names only the lines drawn, and the theme switcher reads on its own`, legendIssues.length === 0, legendIssues.slice(0, 4).join(' | '));
+    ok(`result (${modeName}): the legend names only the lines drawn, and the theme switcher is its label and three names`, legendIssues.length === 0, legendIssues.slice(0, 4).join(' | '));
+    ok(`result (${modeName}): none of the lines the second readers flagged, no scoring version outside the methodology and one Share, for all 31`,
+      pageIssues.length === 0, pageIssues.slice(0, 4).join(' | '));
     win.close();
+  }
+  // No two pages print the same colleague card: readers comparing pages saw
+  // one blurb on half of them and took the section for a template.
+  {
+    const shared = Object.entries(cardLines).filter(([, ids]) => ids.size > 1).map(([x, ids]) => `"${x}" on ${[...ids].join(', ')}`);
+    ok(`colleague cards: each of the ${Object.keys(cardLines).length} lines is on one identity's page only (all 31, plain and player)`,
+      Object.keys(cardLines).length === 75 && shared.length === 0, shared.slice(0, 3).join(' | ') || `${Object.keys(cardLines).length} lines`);
   }
   for (const audience of ['consumer', 'workplace']) {
     const { win, h, errors } = await page();
@@ -993,6 +1197,14 @@ run('visible-copy', async (t) => {
       .flatMap(([id, ls]) => ls.filter((l) => P[id] && (listItems(l).length < 3 || listItems(l).length > P[id].colors.length)).map((l) => `${id}: "${l}"`));
     ok('rhythm: every list kept is in its profile, and each colour list has three items to as many as the identity has colours',
       stale.length === 0 && miscounted.length === 0, [...stale.map((x) => 'not found ' + x), ...miscounted.map((x) => 'miscounted ' + x)].join(' | '));
+    // The voice across the 31 profiles: each section keeps its person, no
+    // year is written out, and no joke shape runs from page to page.
+    const voice = voiceProblems(passages);
+    for (const [rule, label] of [['person', 'each section keeps its person: no "we", "us" or "our", and no strength or shadow opening on "You"'],
+      ['years', 'no year written out'], ['shapes', 'no joke shape on more profiles than its limit ("the room", "quietly", "everyone else", acting while others are still at it, a closing line turning on ", and")']]) {
+      const hits = voice.filter((v) => v.rule === rule);
+      ok(`voice: ${label} (all 31 profiles)`, hits.length === 0, hits.slice(0, 4).map((v) => v.detail).join(' | '));
+    }
     win.close();
   }
 
@@ -1070,6 +1282,9 @@ run('visible-copy', async (t) => {
       [{ id: 'BANT', part: 'philosophy', items: ["You believe civilisation, knowledge, and patience all matter, and that most people pick one and pretend the other two are nice-to-haves. The trade-off is time. You've decided the time is worth it."] }, ['closers']],
       [{ id: 'GLINT', part: 'description', items: ['You combine intelligence, ambition, urgency and adaptability, without the group-level loyalty that would keep you inside the lines. The team finds you brilliant and untrustworthy in roughly equal measure.'] }, ['lists', 'closers']],
       [{ id: 'X', part: 'banter', items: ['Treats being wrong as new information, not a personal injury. Is that fair? It was the real reason — genuinely.'] }, ['antithesis', 'banned']],
+      // an identity's own colours, kept until the second naive-reader round
+      [{ id: 'BANT', part: 'philosophy', items: ['You believe civilisation, knowledge, and patience all matter.'] }, ['lists']],
+      [{ id: 'ESPER', part: 'philosophy', items: ['You believe good decisions need fair systems, deep analysis, and the willingness to make the call.'] }, ['lists']],
     ];
     const rhythmMissed = rhythmSamples.filter(([x, want]) => !want.every((r) => rulesOf(x).includes(r))).map(([x, want]) => `${x.id} ${x.part}: wanted ${want}, got ${rulesOf(x)}`);
     ok('the rhythm checker flags each rule on a profile\'s old passage or a made-up one', rhythmMissed.length === 0, rhythmMissed.join(' | '));
@@ -1079,15 +1294,14 @@ run('visible-copy', async (t) => {
       { id: 'X', part: 'commander description', items: ['Your creatures have haste. Tap: untap another creature.'] },
       // a lead-in breaks a run of short sentences
       { id: 'X', part: 'banter', items: ['You treat quarterly planning like D-Day. Months on, the intensity is exhausting. Relax for one minute and stop talking.'] },
-      // an identity's own colours, and a card's modes
-      { id: 'BANT', part: 'philosophy', items: ['You believe civilisation, knowledge, and patience all matter.'] },
+      // a card's modes
       { id: 'YORE', part: 'commander description', items: ['When Breya enters, create two 1/1 thopter tokens. Then pay {2} and sacrifice two artifacts for various effects: 3 damage to a player or planeswalker, -4/-4 to a creature, or gain 5 life.'] },
       // "but" far from a negative is no antithesis; a list of jobs is no rhythm
       { id: 'X', part: 'shadows', list: true, items: ["Treats people who haven't put in their hours as a regrettable but tolerable feature of the workplace.", 'Adapts slowly, and is surprised when the world has changed.', 'Will apply the letter of a rule in an emergency it was never written for.'] },
       { id: 'X', part: 'roles', prose: false, items: ['Strategy, Research, Analytics, Architecture, Policy Analysis, Forecasting'] },
     ];
     const rhythmFlagged = rhythmClean.filter((x) => rulesOf(x).length).map((x) => `${x.id} ${x.part}: ${rhythmProblems(x).map((f) => f.detail).join('; ')}`);
-    ok('the rhythm checker passes two openings or two short sentences in a row, a lead-in, an identity\'s colours, a card\'s modes and a list of jobs',
+    ok('the rhythm checker passes two openings or two short sentences in a row, a lead-in, a card\'s modes and a list of jobs',
       rhythmFlagged.length === 0, rhythmFlagged.join(' | '));
 
     // The line checker (sections 6 and 9), on Dimir's bars (blue 78, black 64,
@@ -1125,6 +1339,52 @@ run('visible-copy', async (t) => {
     const gapClean = ['Notices who a plan is unfair to, and who will quietly stop helping because of it. → Ask them before a plan reaches the people it affects.',
       'All five colours are in your result, so none is missing.'].filter((x) => gapProblems(x).length);
     ok('the colleague-card checker passes the cards that replaced them', gapClean.length === 0, gapClean.join(' | '));
+
+    // The next-door checker (section 9), on the pages the second readers saw
+    // and on the pages that replaced them. Abzan, Still shuffling: blue
+    // less than an answer behind green.
+    const N = h.RESULT_COPY.names;
+    const abzanOld = [{ dir: 'up', id: 'WITCH', head: 'Splash blue: Four-colour (no red).', why: 'Your blue was one answer short.' },
+      { dir: 'down', id: 'ORZHOV', head: 'Cut the Forests: Orzhov.', why: 'Green only just made the cut.' }];
+    const abzanOldLine = 'The nearest colour outside yours was blue, less than an answer behind green.';
+    const doorSamples = [
+      ['ABZAN', abzanOldLine, abzanOld, true, 'counts less than an answer'],
+      ['MONO-G', 'Green was well ahead of every other colour.', [{ dir: 'up', id: 'SELESNYA', head: 'Add white: Selesnya.', why: 'White was well short.' }], false, 'head "Add white'],
+      ['WUBRG', 'White was your highest colour and green your lowest, one or two answers apart.',
+        [{ dir: 'down', id: 'YORE', head: 'Cut the Forests: Four-colour (no green).', why: 'Green only just made the cut.' }], true, 'five colours'],
+      ['DIMIR', 'Green tied with black, the lower of your two colours.', [{ dir: 'up', id: 'SULTAI', head: 'Splash green: Sultai.', why: 'Your green was less than an answer short.' },
+        { dir: 'down', id: 'MONO-U', head: 'Cut the Swamps: Mono-Blue.', why: 'Black tied with green.' }], true, 'disagree about a tie'],
+      ['TEMUR', 'White nearly made it in, about one answer behind red.', [{ dir: 'up', id: 'INK', head: 'Splash white: Four-colour (no black).', why: 'Your white was about one answer short.' },
+        { dir: 'down', id: 'SIMIC', head: 'Cut the Mountains: Simic.', why: 'Red made the cut by about one answer.' }], true, 'the down row counts again'],
+    ];
+    const doorMissed = doorSamples.filter(([id, line, rows, player, flag]) => !doorProblems(rows, line, id, P, N, player).join(' | ').includes(flag))
+      .map(([id, line, rows, player]) => `${id}: ${doorProblems(rows, line, id, P, N, player).join('; ') || 'nothing'}`);
+    ok('the next-door checker flags a gap counted two ways, a down row counting it again, a colon headline in plain mode, five colours "made the cut" and a tie said once', doorMissed.length === 0, doorMissed.join(' | '));
+    const doorClean = [
+      ['ABZAN', 'Blue nearly made it in, less than an answer behind green.', [{ dir: 'up', id: 'WITCH', head: 'Splash blue: Four-colour (no red).', why: 'Your blue was less than an answer short.' },
+        { dir: 'down', id: 'ORZHOV', head: 'Cut the Forests: Orzhov.', why: 'Green was your lowest colour.' }], true],
+      ['MONO-G', 'Green was well ahead of every other colour.', [{ dir: 'up', id: 'SELESNYA', head: "With white as well, you'd be Selesnya.", why: 'White was well short.' }], false],
+      ['WUBRG', 'All five colours finished within two answers of each other.', [{ dir: 'down', id: 'YORE', head: "Without green, you'd be Four-colour (no green).", why: 'Green was your lowest colour.' }], false],
+    ].filter(([id, line, rows, player]) => doorProblems(rows, line, id, P, N, player).length)
+      .map(([id, line, rows, player]) => `${id}: ${doorProblems(rows, line, id, P, N, player).join('; ')}`);
+    ok('the next-door checker passes rows that count the gap as the line does', doorClean.length === 0, doorClean.join(' | '));
+
+    // The voice checker (section 16), on lines the second readers saw.
+    const rulesFound = (passages) => [...new Set(voiceProblems(passages).map((v) => v.rule))].sort().join();
+    const voiceSamples = [
+      [[{ id: 'WITCH', part: 'banter', items: ['We threw you a surprise party once, mostly as an experiment. You thanked us.'] }], 'person'],
+      [[{ id: 'DIMIR', part: 'shadows', list: true, items: ['You know things and never say how.'] }], 'person'],
+      [[{ id: 'ORZHOV', part: 'shadows', list: true, items: ['Did a colleague a small favour in 2022, and has been collecting on it since.'] }], 'years'],
+      [['MONO-U', 'NAYA', 'INK'].map((id) => ({ id, part: 'shadows', list: true, items: ['Quietly grades the room.'] })), 'shapes'],
+      [['GRUUL', 'BOROS', 'GLINT'].map((id) => ({ id, part: 'strengths', list: true, items: ['Closes the deal while the others are still arranging the call.'] })), 'shapes'],
+    ].filter(([passages, rule]) => !rulesFound(passages).includes(rule)).map(([passages, rule]) => `${passages[0].items[0]}: wanted ${rule}, got ${rulesFound(passages)}`);
+    ok('the voice checker flags "we", a shadow on "You", a year and a joke shape on several pages', voiceSamples.length === 0, voiceSamples.join(' | '));
+    const voiceClean = voiceProblems([
+      { id: 'BOROS', part: 'shadows', list: true, items: ["Treats 'let's just send an email' as a form of moral cowardice."] },
+      { id: 'IZZET', part: 'strengths', list: true, items: ['Will rebuild a system at 11pm because they thought of a better way at 10:47pm.'] },
+      { id: 'BANT', part: 'strengths', list: true, items: ["Asks the quietest person in the room first, and changes the plan when they're right."] },
+    ]);
+    ok('the voice checker passes a quoted "let\'s", a time of night and one page with "the room"', voiceClean.length === 0, voiceClean.map((v) => v.detail).join(' | '));
     win.close();
   }
 });
