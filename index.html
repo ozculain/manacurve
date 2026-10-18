@@ -5439,16 +5439,19 @@ function barsFromTallies(tallies) {
 // other, about three answers a bar. The posterior, which favours the
 // identities that predict the most coin flips when the answers are even, then
 // decides among the identities the bars allow, as it does for every result;
-// bars wider than the band leave the one of them it rates highest, for a
-// five-colour respondent most often the four-colour identity of the top four
-// bars. Even answers do not make flat bars: with about fifteen answers to a
-// colour, a simulated five-colour respondent's bars print a median 36 to 40
-// points apart, and within 20 for 6 to 12% of them, against 0.7 to 9% of
-// everyone else (1% or less of the ideal and misspecified respondents at
-// p = 0.8). So Five-colour is given rarely, and LOW. A band of 10 or 15 points
-// gave it to almost no five-colour respondent (0 to 5%); one of 25 would let
-// it through for 12 to 19% of everyone else at p = 0.65. Measured in the
-// CHANGELOG, "Even bars and Five-colour".
+// bars wider than the band leave the one of them it rates highest (for a
+// five-colour respondent, a four-colour identity 27 to 64% of the time). Even
+// answers do not make flat bars: with about fifteen answers to a colour, a
+// simulated five-colour respondent's bars print a median 36 to 40 points
+// apart, and within 20 for 6 to 12% of them, against 0.7 to 9% of everyone
+// else. So Five-colour is given rarely, and LOW: at 20 points engine 2 gives
+// it to 3.5 to 8% of five-colour respondents and 0.3 to 3% of all results,
+// right 80% of the time for ideal respondents at p = 0.8 but 4 to 24% of the
+// time in the noisier populations, at no cost to overall recovery. 15 points
+// halved its reach at no better precision; 25 would let it through for 12 to
+// 19% of everyone else at p = 0.65, and for the player's bars of W56 U52 B38
+// R60 G39, 22 points apart. Measured in the CHANGELOG, "Even bars and
+// Five-colour".
 const FIVE_COLOUR_BAND = 20;
 
 // The bars as the results screen prints them, { colour: whole percent }.
