@@ -4,6 +4,74 @@ Newest first. Dates are when the work was committed.
 
 ## 2026-10-18
 
+### Plain profiles and pages
+
+The site still read as AI writing everywhere Plain screens had not been,
+down to a joke tacked onto Mono-Blue's strengths: "Finds the assumption
+nobody questioned and questions it, gently. Particularly on Tuesdays." A
+scan of that copy found 155 em dashes, 39 banned words, 115 tacked-on
+endings, 94 tricolons and 22 sentences over 25 words across the identity
+profiles, the commander descriptions, the player-mode card, the colour
+cards, the dossier, the methodology, the explorer, the colour-interactions
+screen and the share studio. Each string is now cut back to its claim: no
+em dash used as a dash, no "not X, it's Y", no rhetorical question, no
+"actually", "genuinely", "simply" or "truly", no tacked-on joke, no
+sentence over 25 words, British spelling throughout. 453 strings changed:
+295 cut, 158 rewritten (mostly two sentences joined, or a question turned
+into a statement). Scoring is unchanged and the golden fixture does not
+move; identity names, ids, colours, keys, roles and art credits are as
+they were.
+
+- Profiles (`data.js`): philosophy, description, banter, strengths and
+  shadows for all 31 identities. Some lines two identities shared word for
+  word now belong to one of them. Azorius keeps four strengths: the fifth
+  ("Azorius doesn't enjoy meetings. Azorius IS meetings.") had no claim
+  once the joke went. The link previews for Boros, Esper, Ink and Orzhov,
+  whose philosophy opens differently now, are rebuilt.
+- Commander descriptions: the card facts checked against Scryfall stay as
+  they were; the sentences around them lose their tag lines ("The Dimir
+  thesis in one mechanic.", "Red as compound impulse."). Yuriko's and
+  Kynaios and Tiro's long fact sentences split where the cards split them,
+  Rakdos loses its stray asterisks and Kenrith's line gets a full stop.
+- Player-mode card: the rules strips lose their closing quips ("Back
+  Thursday.", "It knew what the job was.") and Golgari's "Undergrowth —";
+  the commanders' printed type lines keep their dash. The mana base loses
+  its jokes: no mono-colour joke, "Maybeboard: <land>." at one answer or a
+  few short, "and 13 basics" for five colours.
+- Colour cards and explorer: no em dashes, "actually" or "not because ...,
+  but because ..."; the colleague quotes lose their rhetorical questions
+  and the grudging endings that followed most of them.
+- Dossier: the Philosophy tab's boxes that read the same for every guild or
+  three-colour identity are gone ("it's a genuine fusion with emergent
+  properties"); "Common Enemies", untrue for most three-colour identities,
+  is "What's Absent"; its sentences name the identity as the result page
+  does ("When Mono-White is stressed").
+- Methodology: "What this means" and the round notes lose their dashes,
+  "genuinely" and "color"; the primary-colour note reads "White is your
+  primary colour within this combination, 18 points above the next."; the
+  commander row is "Legendary Commander · Yuriko".
+- Colour interactions: British spelling, "White, Blue and Black", and no
+  subtitle of three. Share studio: the Card's typeline is "Personality ·
+  Dimir", and the Scorecard's "Closest" names the runner-up as the result
+  page does ("Four-colour (no red)", not "Four-color (no red)").
+- Counts after (em dashes, banned, tacked-on, tricolons, over 25 words):
+  profiles 0/0/2/14/0, commander descriptions 0/0/2/4/0, player card
+  28/0/4/1/0 (the 28 are type lines), colour cards 0/0/0/1/0, dossier
+  0/0/0/2/0, methodology 0/0/0/0/0, explorer 0/0/0/2/0, interactions
+  0/0/0/2/0, share studio 0/0/1/0/0. The tacked-on and tricolon hits left
+  are claims, lists of an identity's colours, or false matches.
+- Not changed: the identity names (MONO-WHITE, FOUR-COLOR (No Red)), which
+  links and code read; the welcome's own words; the Round 1 to 3 items;
+  engine 1's Round 3 line; and the stress list the dossier gives all 16
+  three-, four- and five-colour identities, which describes none of them in
+  particular and is left for a later pass.
+- Tests: `tests/visible-copy.test.js` (101 checks, 13 new) renders all of
+  the above and fails on the same dashes and banned phrases, a question
+  mark outside a quotation, "not X, it's Y", "color" and the other US
+  spellings, an unfilled placeholder and a sentence over 25 words. Run
+  against main it fails 9 of its 101 checks. `render.test.js` follows the
+  new rules strips and mana base.
+
 ### Plain screens
 
 A player took the live quiz on a phone and the result screen said, under
