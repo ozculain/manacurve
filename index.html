@@ -2778,7 +2778,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
 
           <div style="background: var(--inset); padding: 22px 26px; border: 1px solid var(--gilt-line);">
             <p class="mc-body" style="font-size: 14px; color: var(--ink); margin-bottom: 18px; line-height: 1.75;">
-              We tested five enemy colour pairs — White/Black, Blue/Red, Green/Blue, White/Red, Black/Green. Each question forced you to choose between competing philosophies, revealing which colours genuinely resonate.
+              We tested five enemy colour pairs: White/Black, Blue/Red, Green/Blue, White/Red and Black/Green. Each question made you choose between competing philosophies.
             </p>
             <div id="stage1-explanation-content"></div>
           </div>
@@ -9622,7 +9622,7 @@ function displayPairwiseMatchups(container) {
   const barColors = {W:'#FDE047', U:'#93C5FD', B:'#D1D5DB', R:'#FCA5A5', G:'#6EE7B7'};
   
   let html = '<div style="font-size: 14px; font-weight: 600; color: #e0e0e0; margin-bottom: 12px;">Head-to-Head Matchups</div>';
-  html += '<div style="font-size: 13px; color: #a0a0b0; margin-bottom: 16px;">Your choices in each enemy-color pairing:</div>';
+  html += '<div style="font-size: 13px; color: #a0a0b0; margin-bottom: 16px;">Your choices in each enemy colour pair:</div>';
   
   const pairs = [
     {name: 'W-B', colors: ['W', 'B']},
@@ -9785,8 +9785,8 @@ function displayRefinementResults() {
   
   // Explain why refinement was done
   let introHTML = '<p class="mb-12">';
-  introHTML += 'Round 1 only tested <strong>enemy pairs</strong> (colors that oppose each other). ';
-  introHTML += 'Round 2 tested <strong>ally pairs</strong> — the ones Round 1 never saw — to sharpen your estimate.';
+  introHTML += 'Round 1 tested only <strong>enemy pairs</strong>, colours that oppose each other. ';
+  introHTML += 'Round 2 tested the <strong>ally pairs</strong> that Round 1 never saw, to sharpen the estimate.';
   introHTML += '</p>';
   introText.innerHTML = introHTML;
   
@@ -11806,9 +11806,9 @@ function showResults() {
     
     // Show primary indicator if gap is ≥15%
     if (gap >= 15) {
-      const colorNames = { W: 'WHITE', U: 'BLUE', B: 'BLACK', R: 'RED', G: 'GREEN' };
+      const colorNames = { W: 'White', U: 'Blue', B: 'Black', R: 'Red', G: 'Green' };
       const primaryName = colorNames[topColor[0]];
-      primaryIndicator.querySelector('p').textContent = `${primaryName} is your primary color within this combination (+${gap}% higher than next)`;
+      primaryIndicator.querySelector('p').textContent = `${primaryName} is your primary colour within this combination, ${gap} points above the next.`;
       primaryIndicator.style.display = 'block';
     } else {
       primaryIndicator.style.display = 'none';
@@ -11889,7 +11889,7 @@ function showResults() {
     document.getElementById('cmd-card-frame').style.display = 'none';
     document.getElementById('cmd-card-frame').dataset.hasOracle = 'true';
     document.getElementById('cmd-simple').style.display = 'none';
-    document.getElementById('cmd-name-preview').textContent = '— ' + p.cmd;
+    document.getElementById('cmd-name-preview').textContent = '· ' + p.cmd;
     
     // Populate card frame for when expanded
     document.getElementById('cmd-name-card').textContent = p.cmd;
@@ -11917,7 +11917,7 @@ function showResults() {
     document.getElementById('cmd-card-frame').style.display = 'none';
     document.getElementById('cmd-card-frame').dataset.hasOracle = 'false';
     document.getElementById('cmd-simple').style.display = 'none';
-    document.getElementById('cmd-name-preview').textContent = '— ' + p.cmd;
+    document.getElementById('cmd-name-preview').textContent = '· ' + p.cmd;
     
     document.getElementById('cmd-name-simple').textContent = p.cmd;
     document.getElementById('cmd-desc-simple').textContent = p.cmdDesc;
@@ -11933,15 +11933,15 @@ function showResults() {
     let normText = '';
     
     if (numColors === 1) {
-      normText = 'Mono-color results are relatively uncommon — most people blend two or three colors. Having a single dominant color means your decision-making style is unusually consistent and focused. This is a strength in roles that reward clarity of purpose, though it can mean blind spots in areas covered by your weaker colors.';
+      normText = 'Mono-colour results are relatively uncommon. Most people blend two or three colours. Having a single dominant colour means your decision-making style is unusually consistent and focused.';
     } else if (numColors === 2) {
-      normText = 'Two-color identities are the most common result. Your profile shows a clear primary blend of two philosophical approaches, which is typical of how most people navigate work — balancing two competing values. The relative strength of each color within your pair shapes whether you lean more toward one side.';
+      normText = 'Two-colour identities are the most common result. Your profile shows a clear primary blend of two philosophical approaches, which is typical of how most people navigate work. The relative strength of each colour within your pair shapes whether you lean more toward one side.';
     } else if (numColors === 3) {
-      normText = 'Three-color identities indicate a broader philosophical range than most people. You draw on three distinct value systems, which makes you versatile but also means you may experience more internal tension when those values conflict. This profile is moderately common and often appears in people who\'ve worked across different contexts.';
+      normText = 'Three-colour identities indicate a broader philosophical range than most people. You draw on three distinct value systems, which makes you versatile but also means you may experience more internal tension when those values conflict. This profile is moderately common and often appears in people who\'ve worked across different contexts.';
     } else if (numColors === 4) {
-      normText = 'Four-color identities are uncommon. You\'re defined as much by what you\'re <em>not</em> as by what you are — the absent color represents an approach you consistently deprioritise. This breadth can make you highly adaptable, though others may find it harder to predict your approach.';
+      normText = 'Four-colour identities are uncommon. The absent colour represents an approach you consistently deprioritise. This breadth can make you highly adaptable, though others may find it harder to predict your approach.';
     } else {
-      normText = 'Five-color profiles are rare. Either your values are genuinely balanced across all approaches (which makes you highly contextual), or the assessment didn\'t capture a clear pattern (which means a retake might give different results). People with flat profiles tend to be strong adapters who shift approach based on situation rather than having a consistent default.';
+      normText = 'Five-colour profiles are rare. Either your values are balanced across all approaches, or the assessment didn\'t capture a clear pattern. People with flat profiles tend to be strong adapters who shift approach based on situation.';
     }
     
     // Add spread info
@@ -11950,9 +11950,9 @@ function showResults() {
       const bottomVal = Math.round((sorted[sorted.length-1]?.[1] || 0) * 100);
       const spread = topVal - bottomVal;
       if (spread < 20) {
-        normText += ' Your overall spread is narrow (' + spread + ' points), meaning your colors are relatively balanced.';
+        normText += ' Your overall spread is narrow (' + spread + ' points), meaning your colours are relatively balanced.';
       } else if (spread > 40) {
-        normText += ' Your spread is wide (' + spread + ' points), indicating strong preferences — you know what you value.';
+        normText += ' Your spread is wide (' + spread + ' points), which indicates strong preferences.';
       }
     }
     
@@ -11961,9 +11961,9 @@ function showResults() {
     // Change K: Four/five-color identity caveats
     if (numColors >= 4) {
       normativeEl.innerHTML += '<div style="margin-top: 12px; padding: 12px; background: rgba(245, 158, 11, 0.08); border-left: 3px solid rgba(245, 158, 11, 0.4); border-radius: 4px; font-size: 13px; color: #c0a060; line-height: 1.5;">' +
-        '⚠️ <strong>Note:</strong> Four- and five-colour results are the hardest to pin down. The scenarios decided it, ' +
-        'but no single colour clearly dominated your quick answers\u2014which could mean genuine versatility, context-dependent responding, ' +
-        'or that the enemy-pair format didn\'t fully capture your pattern. Consider retaking to see if it holds.' +
+        '⚠️ <strong>Note:</strong> Four- and five-colour results are the hardest to pin down. ' +
+        'No single colour clearly dominated your answers. ' +
+        'Consider retaking to see if it holds.' +
         '</div>';
     }
     
