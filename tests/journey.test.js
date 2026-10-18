@@ -222,8 +222,8 @@ run('journey', async ({ ok }) => {
     const block = wh.document.querySelector('.mc-verdict-status').textContent.replace(/\s+/g, ' ').trim();
     const page = wh.document.getElementById('screen-results').textContent;
     ok('H1 showResults runs with a context disagreement', !threw, threw);
-    ok('H2 the confidence block is the label and its one line, with no caveat about Round 1 and Round 2',
-      block === 'Leaning Fairly clear. Your nearest neighbour is next door.' && !wh.document.getElementById('conf-exp')
+    ok('H2 the confidence block is the label and its one line about the bars, with no caveat about Round 1 and Round 2',
+      block === 'Leaning Blue and black were well clear of the other three colours.' && !wh.document.getElementById('conf-exp')
         && !/caveat|disagreed|Round 1 and Round 2|softer than/i.test(page), block);
     wh.close();
   }
