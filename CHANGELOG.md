@@ -2,6 +2,61 @@
 
 Newest first. Dates are when the work was committed.
 
+## 2026-10-18
+
+### Plain screens
+
+A player took the live quiz on a phone and the result screen said, under
+"Still shuffling": "Your final-round preferences formed a loop (IZZET beat
+WUBRG beat MONO-U, who beat IZZET), so the scenarios couldn't decide this",
+then a soft read, a secondary lean and a caveat about Round 1 and Round 2.
+The screens between rounds read the same way. Every string the quiz and the
+result screen put around the identity is now the shortest plain sentence
+that does the job: no flourish, no jokes in system text, nothing about how
+the scoring works, no identity codes in capitals, no em dashes, no sentence
+over 20 words. Scoring is unchanged: the golden fixture does not move, and
+the Round 3 line-up keeps the one random draw its banter used to take.
+
+- Confidence: the label and one line, nothing stacked under it. Locked in:
+  "A clear result." Leaning: "Fairly clear. Your nearest neighbour is next
+  door." Still shuffling: "Your answers were split between a few results.
+  Have a look next door." The loop, the secondary lean, the scenario and
+  Round 1 / Round 2 caveats, the borderline and width-shift lines and every
+  "soft read" are gone from the page; the guards that lower the label are
+  untouched.
+- Quality: at most one small line under the confidence line, only when a
+  flag fires (quick answers, then the first answer chosen most of the time,
+  then many Neithers; the thresholds are as they were).
+- Between rounds: "Round 1 done.", "Round 2 done.", "Round 3 done." and
+  Continue. The Round 3 line-up is "Round 3", the face-down cards and "Four
+  results are still in the running. You'll compare them two at a time.",
+  then "Start Round 3". The early offer is "Round 1 done." and "We can call
+  it now, or you can keep going for a firmer result." Every ten answers:
+  "10 answered, 35 to go.", from the counter. The undo is "Free mulligan" or
+  "Undo", with one plain confirm. "Neither"; "Working out your result"; the
+  pre-result screen loses "A Caveat" and its joke. The banter, the
+  "suspects", the trait lines and the all-Neither easter egg are gone.
+- Result screen: next door gives one plain reason per row and no question
+  headings (RESULT_COPY_VERSION 3); the share text is "I'm Dimir. What are
+  you?"; the workplace notice, the "Not For Official Use" seal, the
+  shared-link banner, the theme note and How This Works say one plain thing
+  each; the divider reads "Personality · Dimir".
+- Not changed, and a separate decision: the identity profiles, the
+  commander block (with the mana base and the player-mode card), the colour
+  cards under Working With Others, the methodology and dossier, the
+  explorer, the colour-interactions screen, the share studio, and the
+  welcome's lede, "Learn more" paragraphs and 40 taglines, which are the
+  author's own words.
+- Instrument version 4: a result built now writes `i=4`.
+- Tests: `tests/visible-copy.test.js` (88 checks, in `npm test`) renders
+  the transitions, the line-up, the early offer, the calculating and
+  pre-result screens and the question screen's own lines in every mode, and
+  the result screen in twelve states, and fails on the rules above. Run
+  against the previous build it fails 71 of its 88 checks. `play.test.js`,
+  `render.test.js` and `journey.test.js` follow the new words.
+- Phones: not measured again in a browser. The screens carry fewer and
+  shorter lines than before.
+
 ## 2026-10-17
 
 - Commander descriptions: corrected 16 entries against Scryfall oracle text.
