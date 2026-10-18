@@ -172,12 +172,13 @@ function offIdentityLands(line, colours, map) {
   return [...map].filter(([name, cols]) => deck.includes(name) && ![...cols].every((c) => colours.includes(c))).map(([name]) => name);
 }
 
-// [4] Label words and base-rate sentences: the same in both modes, joke-free,
-// and with no number until Phase 5 measures real results.
+// [4] Label words and the one line under each: the same in both modes, plain,
+// and with no number until Phase 5 measures real results. Nothing else is
+// stacked under them (tests/visible-copy.test.js holds the block to that).
 const LABELS = {
-  HIGH: { word: 'Locked in', line: 'The colours are usually right. One more or one fewer is where it wobbles.' },
-  MODERATE: { word: 'Leaning', line: "Mostly one way, with a pull next door. If it's off, it's usually by one colour." },
-  LOW: { word: 'Still shuffling', line: 'Your answers pulled several ways. Read next door before you settle on this one.' },
+  HIGH: { word: 'Locked in', line: 'A clear result.' },
+  MODERATE: { word: 'Leaning', line: 'Fairly clear. Your nearest neighbour is next door.' },
+  LOW: { word: 'Still shuffling', line: 'Your answers were split between a few results. Have a look next door.' },
 };
 // [4] The bars' title by mode; the caption is the same in both.
 const BARS_TITLE = { player: 'Your Mana Pool', plain: 'Your colours' };
@@ -208,20 +209,22 @@ function checkRender(win, h, c, audience, player, threw, errors) {
   need(text('cmd-desc-aside') === (p.cmdDesc || '').trim() && text('cmd-desc-aside') !== '', 'cmd-desc-aside');
   need(d.querySelectorAll('#strengths li').length === p.str.length && p.str.length > 0, 'strengths list');
   need(d.querySelectorAll('#weaknesses li').length === p.weak.length && p.weak.length > 0, 'shadows list');
-  for (const id of ['roles', 'res-desc', 'identity-exp', 'conf-exp', 'share-preview']) real(id);
-  need(!el('conf-exp').classList.contains('hidden'), 'conf-exp hidden');
+  for (const id of ['roles', 'res-desc', 'identity-exp', 'share-preview']) real(id);
+  need(!el('conf-exp'), 'the old confidence explanation (#conf-exp) is back');
   need(el('conf-badge').dataset.level === c.confidence.toLowerCase(), 'confidence badge level');
   need(d.querySelectorAll('#res-banner-pips .mc-pip').length === p.colors.length, 'banner pips');
 
   // 1. The reveal lands first: commander, name, tagline, then (player mode)
   //    the identity as a card: the typeline, the rules text directly under
   //    it, the collector number at its foot. Then the philosophy, with the
-  //    confidence badge and its explanation after it.
+  //    confidence badge and its one line after it, then the quality line's
+  //    place (hidden here: these answers raise no quality flag).
   need(text('res-banner-commander') === 'Commander · ' + p.cmd, 'banner commander ' + text('res-banner-commander'));
   need(before(win, el('res-id'), el('res-tag')) && before(win, el('res-tag'), el('identity-exp')), 'name and tagline should precede the philosophy');
   need(before(win, el('identity-exp'), el('conf-badge')), 'confidence badge should follow the philosophy');
-  need(before(win, el('conf-badge'), el('conf-exp')), 'confidence explanation should follow the badge');
-  need(before(win, el('identity-exp'), el('quality-warning')), 'quality warning should follow the philosophy');
+  need(before(win, el('conf-base-rate'), el('quality-warning')) && before(win, el('quality-warning'), el('res-bars-title')),
+    'the quality line should sit between the confidence line and the bars');
+  need(!shown('quality-warning') && text('quality-warning') === '', `a quality line with no flag raised: "${text('quality-warning')}"`);
   need(text('identity-exp') === p.philosophy.trim(), 'philosophy text');
   // 8. One typeline on the page: the card's in player mode, the "Personality"
   //    divider's in plain mode, which prints the scoring version in the footer.
@@ -302,7 +305,7 @@ function checkRender(win, h, c, audience, player, threw, errors) {
   //    and the same caption in every mode.
   need(text('res-bars-title') === BARS_TITLE[playerCopy ? 'player' : 'plain'] && el('res-bars-title') === el('res-bars-caption').previousElementSibling,
     `bars title "${text('res-bars-title')}"`);
-  need(text('res-bars-caption') === "The name's the summary. The bars are what you said.", `bars caption "${text('res-bars-caption')}"`);
+  need(text('res-bars-caption') === 'How often you picked each colour when it was one of the answers.', `bars caption "${text('res-bars-caption')}"`);
   need(before(win, el('res-bars-caption'), el('res-profile-bars')), 'caption should sit above the bars');
 
   // 5. Rules-text strip, player mode only, on the card (its place is checked
@@ -337,7 +340,7 @@ function checkRender(win, h, c, audience, player, threw, errors) {
 
   // Workplace mode gets the plain copy throughout: no Magic nods, no banter.
   if (audience === 'workplace') {
-    const plainText = ['res-idcard', 'res-bars-title', 'next-door', 'conf-base-rate', 'conf-exp', 'res-mana-base']
+    const plainText = ['res-idcard', 'res-bars-title', 'next-door', 'conf-base-rate', 'res-mana-base']
       .filter(visible).map((id) => text(id)).join(' ');
     need(!/splash|cut the|sleeve|proxy|on the stack|respond|legendary|37 lands|mana pool|maybeboard|ruling/i.test(plainText), 'Magic-flavoured copy in workplace mode');
   }
@@ -548,28 +551,28 @@ run('render', async (t) => {
 
   // What decided the result. Engine 2 (the default) weighs all the answers,
   // so the reported identity can lack the best Round 3 record: the Round 3
-  // line says what decided it, and says so plainly when the record was not
-  // the best; the confidence explanation no longer credits the head-to-heads
-  // alone. Engine 1 (?engine=1) keeps "finished with the best record".
+  // line in "How we read you" says what decided it, and says so plainly when
+  // the record was not the best. Engine 1 (?engine=1) keeps "finished with
+  // the best record". The confidence block says none of it: under either
+  // engine it is the label and its one line.
   {
     const notBest = JSON.parse(JSON.stringify(DIMIR.result));
     notBest.round3Data.allScores = [cand('DIMIR', 1, 2, 0.81), cand('GRIXIS', 3, 0, 0.74), cand('ESPER', 1, 2, 0.66), cand('MONO-U', 1, 2, 0.61)];
     notBest.round3Data.runnerUp = { id: 'GRIXIS', wins: 3, losses: 0 };
-    const ENGINE2_CONF = 'Decided by a clear but not overwhelming margin on the weight of all your answers, 6 head-to-head comparisons included.';
-    const ENGINE1_CONF = 'Decided by a clear but not overwhelming margin across 6 head-to-head comparisons.';
     const R3 = [
       ['engine 2, the winner lacks the best record', notBest, 2,
-        'Dimir won on the weight of all your answers, though not with the best record in this round (1W-2L). Grixis came next (3W-0L).', ENGINE2_CONF],
+        'Dimir won on the weight of all your answers, though not with the best record in this round (1W-2L). Grixis came next (3W-0L).'],
       ['engine 2, the winner shares the best record', DIMIR.result, 2,
-        'Dimir won on the weight of all your answers (2W-1L in this round). Grixis came next (2W-1L).', ENGINE2_CONF],
+        'Dimir won on the weight of all your answers (2W-1L in this round). Grixis came next (2W-1L).'],
       ['engine 1 keeps its line', DIMIR.result, 1,
-        'DIMIR finished with the best record (2W-1L), ahead of GRIXIS (2W-1L).', ENGINE1_CONF],
+        'DIMIR finished with the best record (2W-1L), ahead of GRIXIS (2W-1L).'],
     ];
-    for (const [what, result, version, want, wantConf] of R3) {
+    for (const [what, result, version, want] of R3) {
       const { win, errors, threw } = await renderCase({ ...DIMIR, result }, 'consumer', false, seed++, { scoringVersion: version });
-      const got = text(win, 'round3-testing-explanation'), conf = text(win, 'conf-exp');
-      t.ok(`what decided it: ${what}`, !threw && errors.length === 0 && got === want && conf.startsWith(wantConf),
-        `${threw || ''} "${got}" | "${conf.slice(0, 140)}"`);
+      const got = text(win, 'round3-testing-explanation');
+      const block = win.document.querySelector('.mc-verdict-status').textContent.replace(/\s+/g, ' ').trim();
+      t.ok(`what decided it: ${what}`, !threw && errors.length === 0 && got === want && block === `${LABELS.MODERATE.word} ${LABELS.MODERATE.line}`,
+        `${threw || ''} "${got}" | "${block}"`);
       win.close();
     }
   }

@@ -2546,17 +2546,16 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
         <!-- Philosophy quote (the type's worldview) -->
         <p class="mc-result__philosophy" id="identity-exp">Explanation</p>
 
-        <!-- Confidence, below the philosophy: the label, its base-rate sentence
-             (no number until Phase 5), then why. -->
+        <!-- Confidence, below the philosophy: the label and its one line (no
+             number until Phase 5), then at most one small quality line, only
+             when a quality flag fires (renderQualityWarning). -->
         <div class="mc-verdict-status">
           <span class="mc-confidence" id="conf-badge" data-level="moderate"><span class="mc-confidence__dot"></span><span>Leaning</span></span>
           <div class="mc-verdict-status__rate">
             <p class="mc-verdict-status__line" id="conf-base-rate"></p>
           </div>
         </div>
-        <span class="mc-flavor text-md hidden" id="conf-exp">Pattern read from your responses.</span>
-
-        <div id="quality-warning" style="display: none; margin-bottom: 16px; padding: 12px 16px; background: var(--inset); border: 1px dashed var(--gilt-soft); font-family: var(--f-body); font-size: 13px; color: var(--ink-muted);"></div>
+        <p id="quality-warning" style="display: none; margin: 0 0 16px; font-family: var(--f-body); font-size: 13px; line-height: 1.5; color: var(--ink-muted);"></p>
 
         <!-- Profile bars — the psychometric receipt. 5 rows, populated from state.activationSorted. -->
         <div style="margin: 32px 0;">
@@ -11151,23 +11150,24 @@ function getInteractionsContent(id) {
   return '<p style="color: #e0e0e0;">Interaction content coming soon.</p>';
 }
 
+// One small line under the confidence line, only when a quality flag fires,
+// and never more than one (RESULT_COPY.quality, most telling first): more
+// than 40% of answers under 0.6 s, the first answer more than 70% of the
+// time, Neither on more than 30%. The thresholds are as they were.
 function renderQualityWarning() {
   const el = document.getElementById('quality-warning');
   if (!el) return;
   const q = state.qualityFlags;
-  if (!q || !q.totalAnswered || q.totalAnswered < 10) { el.style.display = 'none'; return; }
-
-  const concerns = [];
-  const leftRate = q.alwaysLeftCount / q.totalAnswered;
-  const fastRate = q.fastResponseCount / q.totalAnswered;
-  const neitherRate = q.allNeitherCount / q.totalAnswered;
-  if (leftRate > 0.7) concerns.push("you picked the first option most of the time — that can mean strong consistency or it can mean position bias");
-  if (fastRate > 0.4) concerns.push("many answers came in under 0.6s — quicker than the questions can usually be read");
-  if (neitherRate > 0.3) concerns.push("you used 'Neither' on more than a third of items — the read is thinner as a result");
-
-  if (concerns.length === 0) { el.style.display = 'none'; return; }
-  el.style.display = 'block';
-  el.innerHTML = '<strong style="color: #F59E0B;">Heads up:</strong> ' + concerns.join('; ') + '. Take this with an extra grain of salt.';
+  let line = '';
+  if (q && q.totalAnswered >= 10) {
+    const rate = (n) => (n || 0) / q.totalAnswered;
+    const Q = RESULT_COPY.quality;
+    line = rate(q.fastResponseCount) > 0.4 ? Q.fast
+      : rate(q.alwaysLeftCount) > 0.7 ? Q.firstAnswer
+      : rate(q.allNeitherCount) > 0.3 ? Q.neither : '';
+  }
+  el.textContent = line;
+  el.style.display = line ? 'block' : 'none';
 }
 
 function showPreResultDisclaimer() {
@@ -11270,46 +11270,46 @@ const RESULT_COPY = {
   collector: 'MC{s} • EN • {n}/{total}',
   versionNote: 'Scoring version {s}',
 
-  // [4] Confidence labels and their base-rate sentences, the same in both modes
-  // and joke-free (links keep c=high|moderate|low). No numbers until real data
-  // exists (editor's decision 3), so `line` is what prints.
+  // [4] Confidence labels and the one line under each, the same in both modes
+  // (links keep c=high|moderate|low). The line is all the confidence block
+  // says: nothing about how the result was reached is stacked under it. No
+  // numbers until real data exists (editor's decision 3), so `line` is what
+  // prints.
   // PHASE 5, UNUSED: `phase5` (and phase5SmallPrint under it) waits for
   // recalibrated figures: {pct} is the share of results like this that held up,
   // {date} when that was measured. Nothing reads them before Phase 5.
   labels: {
     HIGH: {
       word: 'Locked in',
-      line: 'The colours are usually right. One more or one fewer is where it wobbles.',
+      line: 'A clear result.',
       phase5: 'About {pct}% of results like this held up when tested.'
     },
     MODERATE: {
       word: 'Leaning',
-      line: "Mostly one way, with a pull next door. If it's off, it's usually by one colour.",
+      line: 'Fairly clear. Your nearest neighbour is next door.',
       phase5: 'About {pct}% of results like this held up when tested.'
     },
     LOW: {
       word: 'Still shuffling',
-      line: 'Your answers pulled several ways. Read next door before you settle on this one.',
+      line: 'Your answers were split between a few results. Have a look next door.',
       phase5: 'About {pct}% of results like this held up when tested, so read next door too.'
     }
   },
   phase5SmallPrint: '(Tested on second visits and appeals, {date}.)', // PHASE 5, UNUSED
 
+  // Under the confidence line, at most one of these, and only when its flag
+  // fires (renderQualityWarning; the flags count Round 1's answers): answers
+  // quicker than the questions can be read first, then the first answer chosen
+  // most of the time, then many Neithers.
+  quality: {
+    fast: 'You answered a lot of these very quickly. A slower run might land somewhere else.',
+    firstAnswer: 'You often picked whichever answer came first, which can skew the result.',
+    neither: 'You chose neither quite often, so this result rests on fewer answers.'
+  },
+
   // [4] The bars: the title by mode, one caption for both.
   barsTitle: { player: 'Your Mana Pool', plain: 'Your colours' },
-  barsCaption: "The name's the summary. The bars are what you said.",
-  // Two caveats in the confidence explanation point at the bars; plain mode
-  // follows its own title. (Not in the drafts.)
-  barsPointer: {
-    loop: {
-      player: 'Your item answers — the mana pool below — broke the loop instead.',
-      plain: 'Your item answers — the bars below — broke the loop instead.'
-    },
-    story: {
-      player: 'The mana pool below remembers the other story.',
-      plain: 'The bars below remember the other story.'
-    }
-  },
+  barsCaption: 'How often you picked each colour when it was one of the answers.',
 
   // [2] Rules-text strip, player mode only, one line per identity.
   // Bracketed reminder text prints in italics, as on a card; mana is in braces.
@@ -11466,14 +11466,11 @@ const RESULT_COPY = {
     playerCommander: "I'm {identity}. {commander}, apparently. What are you?"
   },
 
-  // What decided the result: the confidence explanation and Round 3 of "How
-  // we read you". Scoring engine 2 weighs all the answers, so the result can
-  // lack the best head-to-head record (about 15% of results); engine 1
-  // (?engine=1) keeps its old lines. {n}: head-to-head comparisons; {record}:
-  // wins and losses, "2W-1L". (Not in the drafts.)
+  // What decided the result, in Round 3 of "How we read you". Scoring engine 2
+  // weighs all the answers, so the result can lack the best head-to-head
+  // record (about 15% of results); engine 1 (?engine=1) keeps its old lines.
+  // {record}: wins and losses, "2W-1L". (Not in the drafts.)
   decided: {
-    clear: 'Decided by a clear margin on the weight of all your answers, {n} head-to-head comparisons included.',
-    leaning: 'Decided by a clear but not overwhelming margin on the weight of all your answers, {n} head-to-head comparisons included.',
     won: '{identity} won on the weight of all your answers ({record} in this round).',
     wonNotBest: '{identity} won on the weight of all your answers, though not with the best record in this round ({record}).',
     next: '{identity} came next ({record}).'
@@ -12247,65 +12244,14 @@ function showResults() {
   document.getElementById('restart-text').textContent = 'Retake it to get the result you wanted instead of who you actually are?';
   document.getElementById('explorer-hint').textContent = '';
   
-  // Confidence label ("Locked in" / "Leaning" / "Still shuffling") and its base rate.
+  // The confidence block: the label ("Locked in" / "Leaning" / "Still
+  // shuffling") and its one line, then at most one quality line
+  // (renderQualityWarning, called above). Nothing else is stacked under it.
+  // The guards that lower the label (a Round 3 cycle, a scenario
+  // contradiction, a context disagreement) stay in the scoring code; the page
+  // does not describe them, and next door shows the alternatives.
   renderConfidenceLabel();
 
-  // Plain-language basis for the confidence call. The engine already knows why
-  // it believes what it believes; the reader should get the same courtesy —
-  // including the borderline warning, since near-ties genuinely can tip on a
-  // different day. Snapshot, not verdict.
-  const r3ForConf = state.result.round3Data || {};
-  const confComparisons = (r3ForConf.matchHistory || []).length;
-  const confRunnerUpId = r3ForConf.runnerUp ? r3ForConf.runnerUp.id : null;
-  const confRunnerUpName = confRunnerUpId ? (PROFILES[confRunnerUpId]?.name || confRunnerUpId) : null;
-  // Engine 2 weighs every answer, not the head-to-heads alone (RESULT_COPY.decided).
-  const allAnswers = decidedByAllAnswers();
-  let confBasis;
-  if (state.result.confidence === 'HIGH') {
-    confBasis = !confComparisons ? 'Your early answers pointed one way and kept pointing there.'
-      : allAnswers ? fillCopy(RESULT_COPY.decided.clear, { n: confComparisons })
-      : `Decided by a clear margin across ${confComparisons} head-to-head comparisons.`;
-  } else if (state.result.confidence === 'LOW' && r3ForConf.cycle) {
-    confBasis = `Your final-round preferences formed a loop (${r3ForConf.cycle.join(' beat ')}, who beat ${r3ForConf.cycle[0]}), so the scenarios couldn't decide this. ${copyVariant(RESULT_COPY.barsPointer.loop)} Treat this as a soft read.`;
-  } else if (state.result.confidence === 'LOW') {
-    confBasis = 'The margins stayed thin throughout. Treat this as a soft read.';
-  } else {
-    confBasis = !confComparisons ? 'A clear pattern, with some genuine variation inside it.'
-      : allAnswers ? fillCopy(RESULT_COPY.decided.leaning, { n: confComparisons })
-      : `Decided by a clear but not overwhelming margin across ${confComparisons} head-to-head comparisons.`;
-  }
-  const isBorderline = confRunnerUpName && typeof r3ForConf.gap === 'number' && r3ForConf.gap <= 1 && !r3ForConf.cycle;
-  if (isBorderline) {
-    confBasis += ` You're near the border with ${confRunnerUpName} — take this again next month and it could tip. That's normal: this is a snapshot of your preferences, not a verdict on your character.`;
-  } else if (confRunnerUpName) {
-    confBasis += ` Your secondary lean: ${confRunnerUpName}.`;
-  }
-  // Scenario-vs-item contradiction: the winner's colours are not where the
-  // quick answers pointed. Say so — the bars below will show it anyway.
-  if (r3ForConf.scenarioContradiction) {
-    const contraNames = { W: 'White', U: 'Blue', B: 'Black', R: 'Red', G: 'Green' };
-    const contraName = contraNames[r3ForConf.scenarioContradiction.color] || r3ForConf.scenarioContradiction.color;
-    confBasis += ` One caveat: your quick answers kept choosing ${contraName}, and your scenario answers went somewhere else entirely. The scenarios decided it. ${copyVariant(RESULT_COPY.barsPointer.story)}`;
-  }
-  // Enemy-pair vs ally-pair disagreement: the two question rounds told
-  // different stories about a colour, so the margins are softer than they look.
-  if (r3ForConf.contextDisagreement) {
-    const agreeNames = { W: 'White', U: 'Blue', B: 'Black', R: 'Red', G: 'Green' };
-    const agreeName = agreeNames[r3ForConf.contextDisagreement.color];
-    confBasis += agreeName
-      ? ` Another caveat: Round 1 and Round 2 disagreed about ${agreeName} — you chose it against its enemies but not against its allies, or the other way round. Treat the margins as softer than they look.`
-      : ` Another caveat: Round 1 and Round 2 pulled in different directions. Treat the margins as softer than they look.`;
-  }
-  // Width shift (said by the old alternatives box, which next door replaces):
-  // the scenarios settled on more or fewer colours than the early answers did.
-  if (r3ForConf.widthShift && r3ForConf.expectedWinner && PROFILES[r3ForConf.expectedWinner]
-      && r3ForConf.expectedWinner !== state.result.identity) {
-    confBasis += ` Your initial patterns suggested ${PROFILES[r3ForConf.expectedWinner].name}, but your scenario choices revealed a ${r3ForConf.shiftDirection === 'wider' ? 'broader' : 'more focused'} identity.`;
-  }
-  const confExpEl = document.getElementById('conf-exp');
-  confExpEl.textContent = confBasis;
-  confExpEl.classList.remove('hidden');
-  
   // The card (player mode), philosophy, strengths and shadows of the identity
   // on screen. A peek next door opens under its own row instead.
   renderIdentitySections(shownId);

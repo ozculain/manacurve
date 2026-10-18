@@ -4,7 +4,8 @@
 // gaming gate, weighted ally answers, the Round 3 badge, session save and
 // resume at every stage (mid-Round 2, both round boundaries, mid-Round 3 and a
 // finished result), the Round 3 clinch rule, Neither-neutral Round 1 ranking,
-// the early-offer evidence floor and the context-disagreement caveat.
+// the early-offer evidence floor, and a context disagreement that the result
+// page no longer spells out.
 // Every page gets its own seeded Math.random, so runs are reproducible.
 // Usage: node tests/journey.test.js [path/to/index.html]
 const { bootPage, pageArgs, isVisible, waitForResults } = require('./_lib/load');
@@ -206,7 +207,9 @@ run('journey', async ({ ok }) => {
     wg.close();
   }
 
-  // ---------- H: context-disagreement caveat renders ----------
+  // ---------- H: a context disagreement says nothing on screen ----------
+  // The guard still caps the confidence in the scoring code; the result page
+  // shows the label and its one line, with no caveat stacked under them.
   {
     const { win: wh } = makeDom();
     const hh = wh.__h; const sh = hh.state;
@@ -216,9 +219,12 @@ run('journey', async ({ ok }) => {
     sh.qualityFlags = { totalAnswered: 30, alwaysLeftCount: 5, allNeitherCount: 2, fastResponseCount: 1 };
     sh.disclaimerAcknowledged = true;
     let threw = null; try { hh.showResults(); } catch (e) { threw = e.message; }
-    const conf = (wh.document.getElementById('conf-exp') || {}).textContent || '';
+    const block = wh.document.querySelector('.mc-verdict-status').textContent.replace(/\s+/g, ' ').trim();
+    const page = wh.document.getElementById('screen-results').textContent;
     ok('H1 showResults runs with a context disagreement', !threw, threw);
-    ok('H2 caveat text mentions Round 1 and Round 2 disagreeing about Blue', /Round 1 and Round 2 disagreed about Blue/.test(conf), conf.slice(-220));
+    ok('H2 the confidence block is the label and its one line, with no caveat about Round 1 and Round 2',
+      block === 'Leaning Fairly clear. Your nearest neighbour is next door.' && !wh.document.getElementById('conf-exp')
+        && !/caveat|disagreed|Round 1 and Round 2|softer than/i.test(page), block);
     wh.close();
   }
 });
