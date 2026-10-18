@@ -27,26 +27,34 @@
 //     one quality line under it, or anything else between it and the bars.
 // The line under the label (sections 6 and 9; CHANGELOG, "Result screens
 // rewritten from naive readers") is one sentence about the result's own bars:
-// a check fails when it carries a number, is one of the old lines every result
-// printed, names none of the result's colours (or, with no bars, the
-// identity), or says what the bars do not ("well" clear by three answers or
-// fewer, "level" for bars printed apart, a count of answers the gap does not
-// fit); on all 31 identities, seven bar shapes and the three labels, and as
-// rendered in plain and player modes. Section 9 also renders, for all 31 in
-// plain and player modes (CHANGELOG, "Result screens: second naive-reader
-// round"): next door, whose rows are "Splash white: Selesnya." for players
-// and a sentence for everyone else ("With white as well, you'd be
-// Selesnya."), the up row counting the gap in the line's own words and the
-// down row never counting it again, five colours' one row saying only which
-// colour was lowest; the commander block (player mode only, the banner
-// crediting the art otherwise); the colleague cards under Working With
-// Others, on the result and in the explorer: one per missing colour, each
-// line on one identity's page only, none of the traits and jargon readers
-// caught ("You move on instinct", "Decisions defer", "second-order
-// consequences"), no sentence opening on "You"; a legend naming only the
-// lines the diagram draws; the theme switcher as its label and three names;
-// and the whole page: none of the lines the second readers flagged, the
-// scoring version only in the methodology, and one Share.
+// a check fails when it carries a number that is not a gap in points, is one
+// of the old lines every result printed, names none of the result's colours
+// (or, with no bars, the identity), or says what the bars do not ("well"
+// clear by 25 points or fewer, "level" for bars printed apart, "nearly made
+// it in" more than 8 points off, a close gap left uncounted); on all 31
+// identities, seven bar shapes and the three labels, and as rendered in plain
+// and player modes. Its gaps, and next door's, are in points, the gap between
+// the two bars as printed, never in answers (CHANGELOG, "Result screens: third
+// naive-reader round": "within two answers" sat above bars 14 points apart).
+// Section 9 also renders, for all 31 in plain and player modes (CHANGELOG,
+// "Result screens: second naive-reader round" and the third): next door,
+// whose rows are "Splash white: Selesnya." for players and a sentence for
+// everyone else ("With white as well, you'd be Selesnya."), the up row giving
+// how far short the added colour was, the down row naming its colour as the
+// lowest of yours ("the lower of your two colours"), never "your lowest
+// colour" or "made the cut", and saying how far it was ahead of the nearest
+// colour outside only when the line under the label did not count the gap,
+// five colours' one row saying only which colour was lowest; the commander
+// block (player mode only, the banner crediting the art otherwise); the
+// colleague cards under Working With Others, on the result and in the
+// explorer: one per missing colour, each line on one identity's page only,
+// none of the traits and jargon readers caught ("You move on instinct",
+// "Decisions defer", "second-order consequences"), no sentence opening on
+// "You", no opening word on more than six cards or twice on one page; a
+// legend naming only the lines the diagram draws; the theme switcher as its
+// label and three names; and the whole page: none of the lines the second
+// and third readers flagged, the scoring version only in the methodology,
+// and one Share.
 // Sections 10 to 15 (CHANGELOG, "Plain profiles and pages") read what a
 // player reads about an identity and the pages around the result, rendered
 // for real: the profile blocks on the result screen for all 31 identities
@@ -62,7 +70,7 @@
 // rest), an unfilled {placeholder} (mana symbols like {1}{W} are not), a
 // sentence over 25 words, or an identity code in capitals in the dossier's
 // sentences. Left as they are, because they are data or quoted: the
-// identity names (MONO-WHITE, FOUR-COLOR (No Red)), the commander's printed
+// identity names (MONO-WHITE, FOUR-COLOUR (No Red)), the commander's printed
 // type line ("Legendary Creature — Human Ninja") and the card's rules text.
 // Section 16 (CHANGELOG, "Profile rhythm") holds the 31 profiles' own
 // passages, as the result screen and the explorer render them, to rhythm
@@ -75,13 +83,16 @@
 // em dash, rhetorical question and banned words; the rules are spelt out
 // above rhythmProblems. It also holds the voice across the 31 (above
 // voiceProblems): no "we", "us" or "our", no strength or shadow opening on
-// "You", no year written out, and no joke shape ("the room", "quietly",
+// "You" or "The", no year written out, no joke shape ("the room", "quietly",
 // acting while others are still at it, a closing line turning on ", and")
-// on more profiles than its limit. Jokes, dramatic colons and a neat closing
-// line in other words cannot be caught by a pattern; they are left to
-// review. The checkers themselves are tested last, on the paragraph a player
-// saw on a phone before these rules existed, on the profiles' old passages
-// and on the pages the second readers saw.
+// or office prop (meetings, quarters, favours, emails, the fridge and cake,
+// votes, a crisis, weekdays, "nobody", an X about the X) on more profiles
+// than its limit, and a closing line on 22 profiles at most, each in a box
+// labelled "Pub banter". Jokes, dramatic colons and a neat closing line in
+// other words cannot be caught by a pattern; they are left to review. The
+// checkers themselves are tested last, on the paragraph a player saw on a
+// phone before these rules existed, on the profiles' old passages and on the
+// pages the second and third readers saw.
 // Usage: node tests/visible-copy.test.js [--dump] [path/to/index.html]
 const { bootPage, pageArgs, whenReady, isVisible, EXPOSE } = require('./_lib/load');
 const { run } = require('./_lib/report');
@@ -107,7 +118,7 @@ const US_SPELLING = /\b(?:color|favor|flavor|behavior|honor\b|center\b|rigor\b|f
 const NOT_X_ITS_Y = /\b(?:not|isn't|aren't|wasn't)\b[^.?!]*?[,;:]\s*(?:it's|it is|but)\b/i;
 
 // Identity codes in capitals: the PROFILES keys (MONO-U ... WUBRG), and the
-// capitalised profile names a sentence could pick up (MONO-BLUE, FOUR-COLOR ...).
+// capitalised profile names a sentence could pick up (MONO-BLUE, FOUR-COLOUR ...).
 function codeRules(PROFILES) {
   const keys = Object.keys(PROFILES).map((k) => k.replace(/[-]/g, '\\-'));
   return [
@@ -149,8 +160,8 @@ function problemsIn(text, { PROFILES, questions = false } = {}) {
 // whether an identity code in capitals counts (the dossier's sentences).
 // "Enemy pair" and "ally pair" name the colour wheel's relationships there
 // (the explorer's "Allied and enemy pairs."), not the scoring, and pass.
-// The identity names are data and are read past: FOUR-COLOR is a name, not
-// the copy's spelling.
+// The identity names are data and are read past: FOUR-COLOUR (No Red) is a
+// name, not an identity code in a sentence.
 const WHEEL_WORDS = ['enemy pair', 'ally pair'];
 const TYPE_LINE = /^Legendary (?:Artifact )?Creature — [A-Z][a-z]+(?: [A-Z][a-z]+)*$/;
 function contentProblems(text, { PROFILES, scoring = true, codes = false } = {}) {
@@ -174,75 +185,107 @@ function contentProblems(text, { PROFILES, scoring = true, codes = false } = {})
   return out;
 }
 
+// ---------- units (sections 6 and 9) ----------
+// CHANGELOG, "Result screens: third naive-reader round". The bars print
+// percentages, so a gap is said in points, the difference between two
+// printed numbers ("5 points behind" above bars of 74% and 69%). The line
+// under the label and next door once counted it in answers ("within two
+// answers of each other" above bars 14 points apart), and readers called that
+// a contradiction. A text fails when it counts in answers, gives a
+// percentage, writes "1 points" or "5 point", or gives a number of points
+// that is not the gap between the two bars it compares, as printed.
+const ANSWER_COUNT = /\b(?:less than an|about one|an|one|two|three|four|\d+) answers?\b/i;
+// The gaps a text gives in points: "5 points" is { n: 5, word: 'points' }.
+const pointsIn = (text) => [...text.matchAll(/\b(\d+) (points?)\b/g)].map((m) => ({ n: Number(m[1]), word: m[2] }));
+const badPointWords = (text) => pointsIn(text).filter(({ n, word }) => (n === 1) !== (word === 'point')).map(({ n, word }) => `"${n} ${word}"`);
+// The two bars a line or a next-door row compares, as the page orders them:
+// your lowest colour and the highest one outside it, or for five colours your
+// highest and lowest; `gap` is the first printed number less the second.
+function comparedBars(id, act, PROFILES) {
+  const colours = PROFILES[id].colors;
+  const bar = (c) => act[c] || 0;
+  const shown = (c) => Math.round(bar(c) * 100);
+  const byBar = (list) => [...list].sort((a, b) => (bar(b) - bar(a)) || ('WUBRG'.indexOf(a) - 'WUBRG'.indexOf(b)));
+  const inside = byBar(colours);
+  const outside = byBar(['W', 'U', 'B', 'R', 'G'].filter((c) => !colours.includes(c)));
+  const [hi, lo] = outside.length ? [inside[inside.length - 1], outside[0]] : [inside[0], inside[inside.length - 1]];
+  return { inside, outside, hi, lo, gap: shown(hi) - shown(lo) };
+}
+function unitProblems(texts, gap) {
+  const out = [];
+  for (const t of texts) {
+    if (ANSWER_COUNT.test(t)) out.push(`counts in answers: "${t}"`);
+    if (/%/.test(t)) out.push(`a percentage: "${t}"`);
+    out.push(...badPointWords(t).map((w) => `${w} in "${t}"`));
+    const bad = pointsIn(t).filter(({ n }) => n !== Math.abs(gap));
+    if (bad.length) out.push(`"${t}" gives ${bad.map((b) => b.n).join(' and ')} points for bars ${Math.abs(gap)} points apart`);
+  }
+  return out;
+}
+
 // ---------- the line under the label (sections 6 and 9) ----------
 // One sentence about this result's own bars (CHANGELOG, "Result screens
-// rewritten from naive readers"). It fails when it is empty, more than one
-// sentence, carries a number, is one of the old lines every result printed
-// ("Fairly clear. Your nearest neighbour is next door."), names no colour of
-// the result (its own colours, the nearest one outside them, or for five
-// colours "all five colours") and not the identity either, or says something
-// the bars do not: "well" for a gap of
-// three answers or less, "level" or "tied" for bars that print apart, or a
-// count of answers the gap does not fit. One answer is a twelfth of a bar, as
-// next door counts it.
+// rewritten from naive readers"), any gap in it in points (the unit rules
+// above). It fails when it is empty, more than one sentence, carries a number
+// that is not a gap in points or a gap the bars do not print, counts in
+// answers, is one of the old lines every result printed ("Fairly clear. Your
+// nearest neighbour is next door."), names no colour of the result (its own
+// colours, the nearest one outside them, or for five colours "all five
+// colours") and not the identity either, or says something the bars do not:
+// "well" for a gap of three answers (25 points) or less, "level" or "tied" for
+// bars that print apart, "nearly made it in" for more than one answer (8
+// points), or a gap of 25 points or less left uncounted. One answer is a
+// twelfth of a bar, as next door counts it.
 const OLD_LABEL_LINES = ['A clear result.', 'Fairly clear. Your nearest neighbour is next door.',
   'Your answers were split between a few results. Have a look next door.'];
 const COLOUR_WORD = { W: 'white', U: 'blue', B: 'black', R: 'red', G: 'green' };
-const ANSWER_RANGES = [
-  ['less than an answer', 0, 0.5], ['about one answer', 0.5, 1], ['one or two answers', 1, 2],
-  ['two or three answers', 2, 3], ['more than three answers', 3, Infinity],
-];
 function lineProblems(line, id, act, PROFILES, name) {
   const out = [];
   if (!line) return ['no line'];
   if (sentences(line).length !== 1) out.push(`${sentences(line).length} sentences`);
-  if (/\d|%/.test(line)) out.push('a number');
+  if (/\d|%/.test(line.replace(/\b\d+ points?\b/g, ''))) out.push('a number that is not a gap in points');
   if (OLD_LABEL_LINES.includes(line)) out.push('an old line every result printed');
   const colours = PROFILES[id].colors;
-  const bar = (c) => act[c] || 0;
-  const shown = (c) => Math.round(bar(c) * 100);
-  const outside = ['W', 'U', 'B', 'R', 'G'].filter((c) => !colours.includes(c)).sort((a, b) => bar(b) - bar(a));
-  const inside = [...colours].sort((a, b) => bar(b) - bar(a));
+  const { outside, gap } = comparedBars(id, act, PROFILES);
   const lower = line.toLowerCase();
   const named = [...colours, ...outside.slice(0, 1)].filter((c) => new RegExp(`\\b${COLOUR_WORD[c]}\\b`).test(lower));
   const allFive = colours.length === 5 && /\ball five colours\b/.test(lower);
   if (!named.length && !allFive && !(name && line.includes(name))) out.push('names no colour of this result');
-  // The two bars the line compares: your lowest colour and the highest one
-  // outside it, or for five colours the highest and the lowest.
-  const [hi, lo] = outside.length ? [inside[inside.length - 1], outside[0]] : [inside[0], inside[inside.length - 1]];
-  const answers = (bar(hi) - bar(lo)) * 12;
-  if (/\bwell\b/.test(lower) && !(answers > 3)) out.push(`"well" for ${answers.toFixed(2)} answers`);
-  if (/\b(?:level|tied)\b/.test(lower) && shown(hi) !== shown(lo)) out.push(`"level" for bars of ${shown(hi)} and ${shown(lo)}`);
-  for (const [words, min, max] of [...ANSWER_RANGES, ...FIVE_SPANS]) {
-    if (lower.includes(words) && !(answers >= min - 1e-9 && answers <= max + 1e-9)) out.push(`"${words}" for ${answers.toFixed(2)} answers`);
-  }
+  out.push(...unitProblems([line], gap));
+  if (gap > 0 && gap <= 25 && !pointsIn(line).length) out.push(`a gap of ${gap} points left uncounted`);
+  if (/\bwell\b/.test(lower) && !(gap > 25)) out.push(`"well" for a gap of ${gap} points`);
+  if (/\b(?:level|tied)\b/.test(lower) && gap !== 0) out.push(`"level" for bars ${Math.abs(gap)} points apart`);
+  if (/\bnearly made it in\b/.test(lower) && !(gap > 0 && gap <= 8)) out.push(`"nearly made it in" for a gap of ${gap} points`);
   return out;
 }
-// Five colours say how closely all five finished: "within two answers of each
-// other" holds when the highest and lowest are one to two answers apart.
-const FIVE_SPANS = [
-  ['within an answer', 0, 0.5], ['within about one answer', 0.5, 1], ['within two answers', 1, 2], ['within three answers', 2, 3],
-];
 
 // ---------- next door against the line under the label (section 9) ----------
-// The up row's reason counts the gap the line under the label counts, in the
-// same words: a page once said "less than an answer behind" in the line and
-// "one answer short" next door, and readers called it a contradiction. The
-// down row is the same gap seen from the other side, so beside a close line
-// it says only that its colour was your lowest, and never counts: the count
-// once came three times on one page. Plain mode says each row as a sentence,
-// since "Add white: Selesnya." means nothing to someone who doesn't know the
-// names; player mode keeps the colon headline. Five colours have one row,
-// which says only which colour was lowest ("Green only just made the cut"
-// beside "Locked in" read as a contradiction), and their line says how
-// closely all five finished.
+// Plain mode says each row as a sentence, since "Add white: Selesnya." means
+// nothing to someone who doesn't know the names; player mode keeps the colon
+// headline. Each reason gives the gap the line under the label compares, in
+// points (the unit rules above, held by unitProblems): a page once said "less
+// than an answer behind" in the line and "one answer short" next door. The up
+// row says how far short the added colour was. The down row names the colour
+// it drops as the lowest of yours ("the lower of your two colours", "the
+// lowest of your three colours"): the third readers read "Blue was your
+// lowest colour" beside a blue bar of 80% as the lowest of all five. Beside a
+// line that counted the gap, the down row does not count it again (the count
+// once came three times on one page); beside a line that said only "well",
+// it says how far its colour was ahead of the nearest one outside ("Blue was
+// the lowest of your three colours, 40 points ahead of white."), where "Blue
+// made the cut easily" stood and read, in the slot for the colour you would
+// drop, as the opposite. Five colours have one row, which says only which
+// colour was lowest ("Green only just made the cut" beside "Locked in" read
+// as a contradiction), and their line says how closely all five finished.
+const RANK = { 2: 'the lower of your two colours', 3: 'the lowest of your three colours', 4: 'the lowest of your four colours', 5: 'the lowest of your five colours' };
+const OLD_DOWN = /\byour lowest colour\b|\bmade the cut\b|\bmade it in\b|\beasily\b|\bonly just\b/i;
 function doorProblems(rows, line, id, PROFILES, names, player) {
   const out = [];
   const n = PROFILES[id].colors.length;
   const want = n === 1 ? 'up' : n === 5 ? 'down' : 'up,down';
   if (rows.map((r) => r.dir).join() !== want) out.push(`rows ${rows.map((r) => r.dir).join()} for ${n} colours`);
   const lower = line.toLowerCase();
-  const counted = (s) => ANSWER_RANGES.map(([w]) => w).find((w) => s.includes(w));
+  const lineCounts = pointsIn(line).length > 0;
   for (const r of rows) {
     const head = player
       ? (r.dir === 'up' ? /^Splash (?:white|blue|black|red|green): (.+)\.$/ : /^Cut the (?:Plains|Islands|Swamps|Mountains|Forests): (.+)\.$/).exec(r.head)
@@ -250,16 +293,21 @@ function doorProblems(rows, line, id, PROFILES, names, player) {
     if (!head || head[1] !== names[r.id]) out.push(`head "${r.head}"`);
     const why = r.why.toLowerCase();
     if (sentences(r.why).length !== 1) out.push(`reason "${r.why}" is not one sentence`);
+    if (r.dir === 'down' && OLD_DOWN.test(r.why)) out.push(`the down row says "${r.why}"`);
     if (n === 5) {
-      if (!/^\w+ was your lowest colour\.$/.test(r.why) || !/^all five colours\b/.test(lower)) out.push(`five colours: "${line}" / "${r.why}"`);
+      if (r.why.replace(/^\w+ /, '') !== `was ${RANK[5]}.` || !/^all five colours\b/.test(lower)) out.push(`five colours: "${line}" / "${r.why}"`);
       continue;
     }
-    if (r.dir === 'up' && counted(why) !== counted(lower)) out.push(`"${line}" counts ${counted(lower) || 'nothing'}, "${r.why}" ${counted(why) || 'nothing'}`);
-    if (r.dir === 'down' && counted(why)) out.push(`the down row counts again: "${r.why}"`);
-    if (r.dir === 'down' && counted(lower) && !/^\w+ was your lowest colour\.$/.test(r.why)) out.push(`"${line}" is close, and the down row says "${r.why}"`);
-    if (/\bwell\b/.test(lower) !== (r.dir === 'up' ? /\bwell short\b/ : /\beasily\b/).test(why)) out.push(`"${line}" and "${r.why}" disagree about well clear`);
-    if (/\b(?:level|tied)\b/.test(lower) !== /\btied\b/.test(why)) out.push(`"${line}" and "${r.why}" disagree about a tie`);
-    if (/\bedged ahead\b/.test(lower) !== (r.dir === 'up' ? /\babove\b/ : /\bbelow\b/).test(why)) out.push(`"${line}" and "${r.why}" disagree about which was higher`);
+    const tie = /\b(?:level|tied)\b/.test(lower), above = /\bedged ahead\b/.test(lower);
+    if (tie !== /\btied\b/.test(why)) out.push(`"${line}" and "${r.why}" disagree about a tie`);
+    if (above !== (r.dir === 'up' ? /\babove\b/ : /\bbelow\b/).test(why)) out.push(`"${line}" and "${r.why}" disagree about which was higher`);
+    if (tie || above) continue;
+    if (r.dir === 'up' && !/^(?:Your \w+|\w+) was \d+ points? short\.$/.test(r.why)) out.push(`the up row does not say how far short: "${r.why}"`);
+    if (r.dir === 'down') {
+      if (!r.why.includes(` was ${RANK[n]}`)) out.push(`the down row does not name its colour as ${RANK[n]}: "${r.why}"`);
+      if (lineCounts && pointsIn(r.why).length) out.push(`the down row counts again: "${r.why}"`);
+      if (!lineCounts && !/, \d+ points? ahead of (?:white|blue|black|red|green)\.$/.test(r.why)) out.push(`"${line}" gives no gap, and the down row does not say how far ahead: "${r.why}"`);
+    }
   }
   return out;
 }
@@ -284,6 +332,28 @@ function gapProblems(text) {
   const lower = text.toLowerCase();
   const out = GAP_TRAITS.filter((p) => lower.includes(p)).map((p) => `"${p}"`);
   for (const s of sentences(text)) if (/^(?:you|your)\b/i.test(s)) out.push(`opens on "You": "${s.slice(0, 50)}"`);
+  return out;
+}
+// The cards are built differently from one another (CHANGELOG, "Result
+// screens: third naive-reader round"): each colour's cards once opened the
+// same way on every page ("Talk to them when ...", "Check with them before
+// ..."), and readers comparing pages saw the template. No opening word is
+// used on more than CARD_OPENINGS cards, nor twice on one page.
+const CARD_OPENINGS = 6;
+function cardOpeningProblems(cardsByPage) {
+  const out = [];
+  const first = (line) => (line.split(/\s+/)[0] || '').replace(/[^A-Za-z'’]/g, '').toLowerCase();
+  const pages = {};
+  for (const [id, lines] of Object.entries(cardsByPage)) {
+    const seen = new Set();
+    for (const line of lines) {
+      const w = first(line);
+      (pages[w] = pages[w] || []).push(id);
+      if (seen.has(w)) out.push(`${id}: two cards open on "${w}"`);
+      seen.add(w);
+    }
+  }
+  for (const [w, ids] of Object.entries(pages)) if (ids.length > CARD_OPENINGS) out.push(`"${w}" opens ${ids.length} cards (at most ${CARD_OPENINGS})`);
   return out;
 }
 
@@ -348,13 +418,70 @@ const ROUND2_FLAGGED = [
   'Operations, Agriculture, Sustainability, Mentorship', 'Sustainability, Turnaround/Restructuring',
   'Construction, Military, Crisis Response, Frontline Trades', 'Frontline Leadership, Field Operations',
 ];
+// CHANGELOG, "Result screens: third naive-reader round". The lines the third
+// readers flagged (vague, repeated, contradictory, a forced joke,
+// machine-written, insulting, too long, jargon, no sense), each cut or
+// rewritten, and the recurring props they named (the meeting about the
+// meeting, a vote about a vote, the fridge and cake rules, reply-all,
+// quarters). None may come back.
+const ROUND3_FLAGGED = [
+  // units and next door
+  'within two answers of each other', 'led white by about one answer', 'was your lowest colour', 'made the cut easily', 'made it in easily',
+  'Dashed line: one of your colours against one you lack.', 'None of the five colours is missing from your result.',
+  // names and taglines
+  'FOUR-COLOR', 'FIVE-COLOR', 'Intelligence Through Control', 'Power Through Agency', 'Structure Through Power',
+  'Community Through Nature', 'Growth Through Positioning', 'Chaos or Mastery',
+  // philosophies
+  'the most reliable form of leverage', 'accepting your place in the larger system', 'structure is the foundation of ambition',
+  'belong to something larger than themselves', 'serving something larger than yourself', 'you take it and live with the consequences',
+  'Tradition is useful to you as information.',
+  // strengths
+  'Knows what a piece of information is worth', 'Picks up on how a team feels without being told.',
+  'Gets things shipped without waiting for every question', 'Will try a move that\'s technically against the rules',
+  'Closes the deal that everyone said couldn\'t be done.', 'Routes around new constraints', 'Knows which rules can be broken and what it will cost.',
+  'Can drop the script halfway through', 'Names who is in charge and what they want.', 'Goes after the outcome they want without waiting',
+  'Gets unlikely projects off the ground.', 'Comes alive in a crisis.', 'Is never the first to blink',
+  'Keeps a clear head when a discussion turns heated.', 'Speaks five different professional dialects',
+  'Is usually three steps ahead', 'Looks out for the people nobody else notices.',
+  // shadows
+  'Has prepared a framework for selecting the framework.', 'Turns difficult conversations into battles.',
+  'Relies on quiet influence when a bit of loud energy', 'By the third quarter', 'rotting from the inside',
+  'Keeps losing good people to calmer jobs.', 'Will burn down the agenda', 'in it for themselves', 'three good causes this month',
+  'Leaves the long-term cost of how they got here', 'Pulls the lever and is surprised', 'anyone would do the same if they were honest',
+  'The transition was discussed in March', 'low hum of property damage', 'the third hour of the Tuesday call',
+  'Gets bored during a stable, successful stretch', "'one paragraph short on the docs'", 'made a process so robust',
+  'Watches a struggling project until it\'s cheap enough', 'Drops a method that works because a newer one',
+  'Can seem so detached that colleagues wonder', 'Holds five priorities and gives each one twenty percent',
+  'Has a CV that reads like five people\'s.', 'Rebuilds things that were correct the first time.',
+  // closing lines
+  'fax number in your email signature', 'which desk you\'re having when your manager leaves', 'parked in the director\'s space',
+  'office plants are thriving', 'took over the Thursday meeting', 'interval training for the charity fun run',
+  'team away day is a second deadline', 'every Monday meeting with a round of applause', 'office fridge policy',
+  'sign-off process for the office birthday cake', 'a vote on whether to hold a vote', 'reply-all thread',
+  'chair the one that decides the committees',
+  // who to bring in
+  'the meeting about the meeting', 'Bring them in to read the manual you skipped.', 'skip the numbers',
+  'Talk to them when a reorganisation is coming', 'Talk to them before a big move', 'Talk to them when you\'re right',
+  'Bring them in when a deal looks good', 'so many exceptions that nobody can explain it',
+  'being kind to one person is costing everyone else', 'commitments you made last quarter',
+  // commander and rules text
+  'Creatures you control are artifacts in addition to their other types.', 'You may pay life rather than mana.',
+  'You don\'t lose unspent green mana as steps and phases end.', 'Other creatures you control get +2/+2.',
+  'Other creatures you control have haste.', 'Samut and your other creatures have haste.', 'Pay {W} and tap Samut',
+  'Pay {1}{G}{W} and tap Trostani', '{W/B}{W/B}', 'within your experience', 'Pay {2} and sacrifice two artifacts to choose one',
+  'Your White and Blue spells cost {1} less', 'cost {1} more to cast and need a countersignature',
+  ', 5 Mountain, 5 Forest', ', 5 Swamp, 5 Forest', ', 5 Swamp, 5 Mountain',
+  // roles
+  'Professional Services', 'Competitive Industries', 'Competitive Markets', 'Disruptive Startups', 'Aggressive Sales',
+  'Private Equity, VC, Real Estate', 'Generalist Leadership', 'Recycling',
+];
 // Problems in a whole result screen, given its visible blocks: a flagged
 // line; the scoring version anywhere but the methodology, which is closed
 // until "View Full Breakdown"; more than one Share; the colleague card's old
 // arrow or a plus written as text.
 function screenProblems(blocks, d, win) {
   const all = blocks.join('\n');
-  const out = ROUND2_FLAGGED.filter((x) => all.includes(x)).map((x) => `flagged "${x}"`);
+  const out = [...ROUND2_FLAGGED, ...ROUND3_FLAGGED].filter((x) => all.includes(x)).map((x) => `flagged "${x}"`);
   const version = d.getElementById('res-version');
   if (!version || !d.getElementById('unified-breakdown').contains(version)) out.push('the scoring version is not in the methodology');
   const onScreen = (el) => { for (let n = el; n; n = n.parentElement) if (hidden(win, n)) return false; return true; };
@@ -411,10 +538,12 @@ const RHYTHM_RULES = [
 // round, and the four philosophies that opened on one (Bant's "civilisation,
 // knowledge, and patience", Esper's, Abzan's and Four-colour without red's)
 // in the second: readers took them for machine-written.
+// No card's modes stay either: the third readers called Breya's three ("3
+// damage to a player or planeswalker, -4/-4 to a creature, or gain 5 life")
+// too long, and its description now names two. A passage may still carry its
+// own `kept` list, which the checker's own tests use.
 const COLOUR_LISTS = {};
-const CARD_MODES = {
-  YORE: ['3 damage to a player or planeswalker, -4/-4 to a creature, or gain 5 life'],
-};
+const CARD_MODES = {};
 const RHYTHM_ANTITHESIS = [
   [/\brather than\b/i, '"rather than"'],
   [/\b(?:would|'d|’d) rather\b/i, '"would rather"'],
@@ -455,7 +584,7 @@ function runsOf(list, key) {
   }
   return out;
 }
-function rhythmProblems({ id, part, items, list = false, prose = true }) {
+function rhythmProblems({ id, part, items, list = false, prose = true, kept: own = [] }) {
   const out = [];
   const add = (rule, detail) => out.push({ rule, at: `${id} ${part}`, detail });
   const all = items.join(' ');
@@ -464,7 +593,7 @@ function rhythmProblems({ id, part, items, list = false, prose = true }) {
   const seq = items.flatMap(sentences);
   for (const r of runsOf(seq, (s) => opener(s) || null)) add('openings', `${r.length} open on "${opener(r[0])}": ${r.join(' / ')}`);
   for (const r of runsOf(seq, (s) => (words(s).length <= SHORT_SENTENCE ? shapeOf(s) : null))) add('short', `${r.length} short, ${shapeOf(r[0])}: ${r.join(' / ')}`);
-  const kept = [...(COLOUR_LISTS[id] || []), ...(CARD_MODES[id] || [])];
+  const kept = [...(COLOUR_LISTS[id] || []), ...(CARD_MODES[id] || []), ...own];
   for (const s of seq) {
     for (const [re, name] of RHYTHM_ANTITHESIS) if (re.test(s)) add('antithesis', `${name}: "${s}"`);
     const keep = kept.map((k) => [s.indexOf(k), k.length]).filter(([i]) => i >= 0);
@@ -491,10 +620,20 @@ const listItems = (text) => text.split(/,\s*(?:(?:and|or)\s+)?|\s+(?:and|or)\s+/
 // "you", the strengths and shadows describe a person with no subject, and
 // nothing says "we". A rule fails on:
 //   - person: "we", "us" or "our" anywhere; a strength or shadow that opens
-//     on "You" or "Your"
+//     on "You" or "Your", or on "The" (a note about something else: "The
+//     transition was discussed in March", "The team has, collectively,
+//     stopped scheduling"), which the third readers saw switch the list's
+//     voice
 //   - years: a year written out (1998, 2034)
 //   - shapes: more profiles than SHAPE_LIMITS allows using one shape, across
 //     the philosophy, strengths, shadows, closing line and description
+//   - props: more profiles than PROP_LIMITS allows using one office prop,
+//     across what the result page says about an identity (tagline,
+//     philosophy, strengths, shadows, banter, rules text, colleague cards)
+//   - banter: a closing line on more than BANTER_PROFILES profiles. It sits in
+//     its own box, labelled "Pub banter"; the third readers, who had the page
+//     as text, read it as the last of the shadows, and saw every page end on
+//     a joke.
 const SHAPE_LIMITS = [
   ['"the room"', /\bthe room\b/i, 2],
   ['"quietly"', /\bquietly\b/i, 1],
@@ -502,7 +641,25 @@ const SHAPE_LIMITS = [
   ['acting before everyone else has finished', /\bbefore (?:anyone|everyone)(?: else)? (?:has )?(?:finished|had time)\b/i, 0],
   ['acting while everyone else is still at it', /\bwhile (?:everyone(?: else)?|the others|others) (?:is|are) still\b/i, 0],
 ];
+// CHANGELOG, "Result screens: third naive-reader round": the props the third
+// readers saw come round page after page (meetings, quarters, reply-all
+// emails, favours, the fridge and cake rules, a vote about a vote, the
+// meeting about the meeting).
+const PROP_LIMITS = [
+  ['meetings', /\bmeetings?\b/i, 6],
+  ['quarters', /\bquarters?\b/i, 1],
+  ['favours', /\bfavours?\b/i, 2],
+  ['emails and reply-all', /\b(?:e-?mails?|reply-all|replied)\b/i, 3],
+  ['the fridge, the cake and the biscuits', /\b(?:fridge|cakes?|biscuits?)\b/i, 0],
+  ['votes', /\bvot(?:e|es|ed|ing)\b/i, 1],
+  ['a crisis', /\bcris(?:is|es)\b/i, 3],
+  ['a day of the week', /\b(?:Monday|Tuesday|Wednesday|Thursday|Friday)\b/, 4],
+  ['"nobody"', /\bnobody\b/i, 10],
+  ['an X about the X', /\b(\w{4,}) (?:about|for selecting|on whether to hold) (?:the|a|an) \1s?\b/i, 0],
+];
+const PROP_PARTS = ['tagline', 'philosophy', 'strengths', 'shadows', 'banter', 'rules', 'colleague cards'];
 const BANTER_TWISTS = 5; // closing lines that turn on ", and"
+const BANTER_PROFILES = 22; // profiles with a closing line at all
 function voiceProblems(passages) {
   const out = [];
   const add = (rule, detail) => out.push({ rule, detail });
@@ -510,7 +667,7 @@ function voiceProblems(passages) {
     const all = x.items.join(' ');
     const we = /\b(?:we|us|our)\b/i.exec(all);
     if (we) add('person', `${x.id} ${x.part}: "${we[0]}" in "${all.slice(0, 70)}"`);
-    if (x.list) x.items.filter((i) => /^(?:you|your)\b/i.test(i)).forEach((i) => add('person', `${x.id} ${x.part} opens on "You": "${i}"`));
+    if (x.list) x.items.filter((i) => /^(?:you|your|the)\b/i.test(i)).forEach((i) => add('person', `${x.id} ${x.part} opens on "${i.split(' ')[0]}": "${i}"`));
     const year = /\b(?:1[89]|20)\d\d\b/.exec(all);
     if (year) add('years', `${x.id} ${x.part}: ${year[0]} in "${all.slice(0, 70)}"`);
   }
@@ -521,6 +678,13 @@ function voiceProblems(passages) {
   }
   const twists = passages.filter((x) => x.part === 'banter' && x.items.some((i) => /, and /.test(i))).map((x) => x.id);
   if (twists.length > BANTER_TWISTS) add('shapes', `${twists.length} closing lines turn on ", and" (at most ${BANTER_TWISTS}): ${twists.join(', ')}`);
+  const page = passages.filter((x) => PROP_PARTS.includes(x.part));
+  for (const [name, re, limit] of PROP_LIMITS) {
+    const ids = [...new Set(page.filter((x) => x.items.some((i) => re.test(i))).map((x) => x.id))];
+    if (ids.length > limit) add('props', `${name} on ${ids.length} profiles (at most ${limit}): ${ids.join(', ')}`);
+  }
+  const banter = [...new Set(passages.filter((x) => x.part === 'banter' && x.items.some(Boolean)).map((x) => x.id))];
+  if (banter.length > BANTER_PROFILES) add('banter', `a closing line on ${banter.length} profiles (at most ${BANTER_PROFILES})`);
   return out;
 }
 
@@ -821,11 +985,12 @@ run('visible-copy', async (t) => {
 
   // ---------- 9. the line under the label, the commander and the colleague cards, all 31 ----------
   // The line from confidenceLine on bars of every shape it has words for (a
-  // colour outside the result printed above one in it, level, under an
-  // answer, about one, one or two, two or three, well clear) under each
-  // label; then every identity rendered for real in plain and player modes:
-  // the line on the page, the commander block (no card text in plain mode),
-  // the colleague cards and the legend; then the explorer's cards for all 31.
+  // colour outside the result printed above one in it, level, within one
+  // answer (2 and 6 points), a few answers (12 and 20 points), well clear)
+  // under each label; then every identity rendered for real in plain and
+  // player modes: the line on the page and next door, each gap in points as
+  // the bars print it, the commander block (no card text in plain mode), the
+  // colleague cards and the legend; then the explorer's cards for all 31.
   // Bars: the result's colours from 75 down by two, the nearest colour
   // outside them `gap` below the lowest, the rest near 10; five colours from
   // 60, spread over `gap`.
@@ -861,6 +1026,7 @@ run('visible-copy', async (t) => {
     win.close();
   }
   const cardLines = {}; // each colleague card's line: the identities whose page printed it
+  const cardsByPage = {}; // each identity's colleague cards, in page order
   for (const [modeName, gaming] of [['plain', false], ['player', true]]) {
     const { win, h, errors } = await page();
     const d = win.document, P = h.PROFILES, R = h.RESULT_COPY;
@@ -869,11 +1035,11 @@ run('visible-copy', async (t) => {
     s.gamingFamiliar = gaming;
     const text = (sel) => ((d.querySelector(sel) || {}).textContent || '').replace(/\s+/g, ' ').trim();
     const shown = (sel) => !!d.querySelector(sel) && !hidden(win, d.querySelector(sel));
-    const lineIssues = [], doorIssues = [], cmdIssues = [], gapIssues = [], legendIssues = [], pageIssues = [];
+    const lineIssues = [], doorIssues = [], unitIssues = [], cmdIssues = [], gapIssues = [], legendIssues = [], pageIssues = [];
+    let gapsGiven = 0, wellRows = 0;
     for (const id of Object.keys(P)) {
       // Bars of every shape the line has words for: a colour outside printed
-      // above one inside, level, under an answer, about one, one or two, two
-      // or three, well clear.
+      // above one inside, level, within one answer, a few answers, well clear.
       for (const gap of [-0.05, 0, 0.02, 0.06, 0.12, 0.2, 0.4]) {
         const act = barsFor(P[id].colors, gap);
         s.result = { identity: id, confidence: 'MODERATE', allResults: [], scoringVersion: 2, instrumentVersion: 4, round3Data: {} };
@@ -886,14 +1052,23 @@ run('visible-copy', async (t) => {
         const line = text('#conf-base-rate');
         if (line !== win.confidenceLine(id, act, 'MODERATE')) lineIssues.push(`${id}: the page shows "${line}"`);
         lineIssues.push(...lineProblems(line, id, act, P, R.names[id]).map((p) => `${id} gap ${gap}: ${p} in "${line}"`));
-        // Next door says each row as the mode says it, and counts the gap in
-        // the line's words.
+        // Next door says each row as the mode says it, gives the gap the line
+        // compares, and names a dropped colour as the lowest of yours.
         const rows = [...d.querySelectorAll('#next-door-chips .mc-nextdoor__chip')].map((chip) => ({
           dir: chip.dataset.dir, id: chip.dataset.id,
           head: chip.querySelector('.mc-nextdoor__head').textContent, why: chip.querySelector('.mc-nextdoor__why').textContent,
         }));
         doorIssues.push(...doorProblems(rows, line, id, P, R.names, gaming).map((p) => `${id} gap ${gap}: ${p}`));
+        // The units: the line and every reason give the gap in points, the gap
+        // between the two bars as the page prints them.
+        const printed = [...d.querySelectorAll('#res-profile-bars .mc-profile__pct')].map((el) => Number(el.textContent.replace('%', '')));
+        const shownAct = Object.fromEntries(['W', 'U', 'B', 'R', 'G'].map((c, i) => [c, printed[i] / 100]));
+        const texts = [line, ...rows.map((r) => r.why)];
+        unitIssues.push(...unitProblems(texts, comparedBars(id, shownAct, P).gap).map((p) => `${id} gap ${gap}: ${p}`));
+        gapsGiven += texts.filter((t) => pointsIn(t).length).length;
+        wellRows += rows.filter((r) => r.dir === 'down' && /, \d+ points? ahead of \w+\.$/.test(r.why)).length;
       }
+      cardsByPage[id] = [...d.querySelectorAll('#relations-detail .mc-gap-card .mc-gap-card__gap')].map((el) => el.textContent.trim());
       // The commander block, player mode only, with "Commander · <card>" in
       // the banner; otherwise no block, and the banner credits the art.
       const desc = text('#cmd-desc-aside'), banner = text('#res-banner-commander');
@@ -927,13 +1102,17 @@ run('visible-copy', async (t) => {
     if (sw !== 'Page style / Gilded Hall / Card Frames / Borderless') legendIssues.push(`theme switcher "${sw}"`);
     ok(`result (${modeName}): the line under the label is confidenceLine's, true to the bars, for all 31 on seven bar shapes`, lineIssues.length === 0 && errors.length === 0,
       lineIssues.slice(0, 4).join(' | ') || errors.slice(0, 2).join(' | '));
-    ok(`result (${modeName}): next door ${gaming ? 'heads each row "Splash white: Selesnya."' : 'says each row as a sentence ("With white as well, you\'d be Selesnya.")'} and counts the gap in the words of the line under the label, for all 31 on seven bar shapes`,
+    ok(`result (${modeName}): next door ${gaming ? 'heads each row "Splash white: Selesnya."' : 'says each row as a sentence ("With white as well, you\'d be Selesnya.")'}, says how far short the added colour was, and names the dropped one as the lowest of yours ("the lower of your two colours"), never "your lowest colour" or "made the cut", for all 31 on seven bar shapes`,
       doorIssues.length === 0, doorIssues.slice(0, 4).join(' | '));
+    ok(`result (${modeName}): next door's down row says how far its colour was ahead of the nearest one outside when the line under the label did not count the gap, and does not count it again when it did (${wellRows} rows with the gap)`,
+      doorIssues.filter((p) => /how far ahead|counts again/.test(p)).length === 0 && wellRows > 0, doorIssues.filter((p) => /how far ahead|counts again/.test(p)).slice(0, 4).join(' | ') || `${wellRows} rows`);
+    ok(`result (${modeName}): units: the line under the label and next door give every gap in points, the gap between the two bars as printed, and never in answers (all 31, seven bar shapes: ${gapsGiven} gaps given)`,
+      unitIssues.length === 0 && gapsGiven > 0, unitIssues.slice(0, 4).join(' | '));
     ok(`result (${modeName}): the commander block is ${gaming ? 'the card text, under "Commander · <card>" in the banner' : 'gone, and the banner credits the art to the card'}, for all 31`, cmdIssues.length === 0, cmdIssues.slice(0, 4).join(' | '));
     ok(`result (${modeName}): one colleague card per missing colour, each with a line, none of the traits readers caught and no sentence on "You", for all 31`,
       gapIssues.length === 0, gapIssues.slice(0, 4).join(' | '));
     ok(`result (${modeName}): the legend names only the lines drawn, and the theme switcher is its label and three names`, legendIssues.length === 0, legendIssues.slice(0, 4).join(' | '));
-    ok(`result (${modeName}): none of the lines the second readers flagged, no scoring version outside the methodology and one Share, for all 31`,
+    ok(`result (${modeName}): none of the lines the second and third readers flagged, no scoring version outside the methodology and one Share, for all 31`,
       pageIssues.length === 0, pageIssues.slice(0, 4).join(' | '));
     win.close();
   }
@@ -943,6 +1122,9 @@ run('visible-copy', async (t) => {
     const shared = Object.entries(cardLines).filter(([, ids]) => ids.size > 1).map(([x, ids]) => `"${x}" on ${[...ids].join(', ')}`);
     ok(`colleague cards: each of the ${Object.keys(cardLines).length} lines is on one identity's page only (all 31, plain and player)`,
       Object.keys(cardLines).length === 75 && shared.length === 0, shared.slice(0, 3).join(' | ') || `${Object.keys(cardLines).length} lines`);
+    const openings = cardOpeningProblems(cardsByPage);
+    ok(`colleague cards: no opening word on more than ${CARD_OPENINGS} of the 75 cards, and none twice on one page (all 31)`,
+      Object.keys(cardsByPage).length === 31 && openings.length === 0, openings.slice(0, 4).join(' | '));
   }
   for (const audience of ['consumer', 'workplace']) {
     const { win, h, errors } = await page();
@@ -999,9 +1181,11 @@ run('visible-copy', async (t) => {
       problems.push(...contentIssues(`result: ${id}`, shown.flatMap((el) => visibleBlocks(win, el, { exclude: [] })), P));
       typelines.push([id, d.getElementById('res-typeline').textContent]);
     }
+    // Every part shows, but the banter on a profile that has none.
+    const wantParts = 31 * PARTS.length - Object.values(P).filter((p) => !p.pubBanter).length;
     ok('result: every identity\'s profile blocks, card, commander, mana base and colour cards are plain (all 31, player mode)',
-      parts === 31 * PARTS.length && problems.length === 0 && errors.length === 0,
-      `${parts} of ${31 * PARTS.length} parts shown; ` + (problems.slice(0, 4).join(' | ') || errors.slice(0, 2).join(' | ')));
+      parts === wantParts && problems.length === 0 && errors.length === 0,
+      `${parts} of ${wantParts} parts shown; ` + (problems.slice(0, 4).join(' | ') || errors.slice(0, 2).join(' | ')));
     const badType = typelines.filter(([, line]) => !TYPE_LINE.test(line));
     ok('result: the card\'s typeline is the commander\'s printed type line, its dash the only one on the card (all 31)',
       typelines.length === 31 && badType.length === 0, badType.map(([id, line]) => `${id} "${line}"`).join(' | '));
@@ -1145,7 +1329,9 @@ run('visible-copy', async (t) => {
   // Each identity's result screen in player mode for a consumer (so the card
   // and the banter show): the tagline, philosophy, strengths, shadows, banter,
   // roles and commander description as the page writes them; then its
-  // description, which the explorer shows. Eight passages for each of 31.
+  // description, which the explorer shows. Eight passages for each of 31, the
+  // banter empty on a profile that has none, whose page shows no banter box.
+  // The rules text and the colleague cards are read too, for the props.
   {
     const { win, h, errors } = await page();
     const d = win.document, P = h.PROFILES;
@@ -1154,7 +1340,7 @@ run('visible-copy', async (t) => {
     s.gamingFamiliar = true;
     const text = (sel) => ((d.querySelector(sel) || {}).textContent || '').replace(/\s+/g, ' ').trim();
     const lines = (sel) => [...d.querySelectorAll(sel)].map((el) => el.textContent.replace(/\s+/g, ' ').trim());
-    const passages = [];
+    const passages = [], extras = [], banterBoxes = [];
     for (const id of Object.keys(P)) {
       s.result = { identity: id, confidence: 'MODERATE', allResults: [], scoringVersion: 2, instrumentVersion: 4, round3Data: {} };
       s.activationSorted = sorted(actFor(P[id].colors));
@@ -1163,14 +1349,21 @@ run('visible-copy', async (t) => {
       s.qualityFlags = CLEAN_FLAGS;
       s.disclaimerAcknowledged = true;
       h.showResults();
+      const box = d.getElementById('res-counter-section');
+      const boxShown = !!box && !hidden(win, box);
+      if (boxShown !== !!P[id].pubBanter || (boxShown && text('#res-counter-label') !== 'Pub banter')) banterBoxes.push(`${id}: box ${boxShown ? 'shown' : 'hidden'}, label "${text('#res-counter-label')}"`);
       passages.push(
         { id, part: 'tagline', items: [text('#res-tag')], prose: false },
         { id, part: 'philosophy', items: [text('#identity-exp')] },
         { id, part: 'strengths', items: lines('#strengths li'), list: true },
         { id, part: 'shadows', items: lines('#weaknesses li'), list: true },
-        { id, part: 'banter', items: [text('#res-counter')] },
+        { id, part: 'banter', items: [boxShown ? text('#res-counter') : ''] },
         { id, part: 'roles', items: [text('#roles')], prose: false },
         { id, part: 'commander description', items: [text('#cmd-desc-aside')] },
+      );
+      extras.push(
+        { id, part: 'rules', items: [text('#res-rules')], prose: false },
+        { id, part: 'colleague cards', items: lines('#relations-detail .mc-gap-card__gap'), prose: false },
       );
     }
     win.showExplorer();
@@ -1179,9 +1372,11 @@ run('visible-copy', async (t) => {
       passages.push({ id, part: 'description', items: [text('#detail-desc')] });
     }
     dump('rhythm: the 31 profiles', passages.map((x) => `${x.id} ${x.part}: ${x.items.join(' || ')}`));
-    const unread = passages.filter((x) => !x.items.length || x.items.some((i) => !i)).map((x) => `${x.id} ${x.part}`);
-    ok('rhythm: all eight passages of all 31 profiles are read as rendered',
-      passages.length === 31 * 8 && unread.length === 0 && errors.length === 0, `${passages.length} passages; empty: ${unread.join(', ')} ${errors.slice(0, 2).join(' | ')}`);
+    const unread = passages.filter((x) => !x.items.length || x.items.some((i) => !i))
+      .filter((x) => !(x.part === 'banter' && !P[x.id].pubBanter)).map((x) => `${x.id} ${x.part}`);
+    ok('rhythm: all eight passages of all 31 profiles are read as rendered, and the banter box, labelled "Pub banter", shows exactly when the profile has a closing line',
+      passages.length === 31 * 8 && unread.length === 0 && banterBoxes.length === 0 && errors.length === 0,
+      `${passages.length} passages; empty: ${unread.join(', ')} ${banterBoxes.slice(0, 3).join(' | ')} ${errors.slice(0, 2).join(' | ')}`);
     const found = passages.flatMap(rhythmProblems);
     t.note('rhythm, problems per rule: ' + RHYTHM_RULES.map(([rule]) => `${rule} ${found.filter((f) => f.rule === rule).length}`).join(', '));
     for (const [rule, label] of RHYTHM_RULES) {
@@ -1198,10 +1393,13 @@ run('visible-copy', async (t) => {
     ok('rhythm: every list kept is in its profile, and each colour list has three items to as many as the identity has colours',
       stale.length === 0 && miscounted.length === 0, [...stale.map((x) => 'not found ' + x), ...miscounted.map((x) => 'miscounted ' + x)].join(' | '));
     // The voice across the 31 profiles: each section keeps its person, no
-    // year is written out, and no joke shape runs from page to page.
-    const voice = voiceProblems(passages);
-    for (const [rule, label] of [['person', 'each section keeps its person: no "we", "us" or "our", and no strength or shadow opening on "You"'],
-      ['years', 'no year written out'], ['shapes', 'no joke shape on more profiles than its limit ("the room", "quietly", "everyone else", acting while others are still at it, a closing line turning on ", and")']]) {
+    // year is written out, no joke shape or office prop runs from page to
+    // page, and not every page ends on a joke.
+    const voice = voiceProblems([...passages, ...extras]);
+    for (const [rule, label] of [['person', 'each section keeps its person: no "we", "us" or "our", and no strength or shadow opening on "You" or "The"'],
+      ['years', 'no year written out'], ['shapes', 'no joke shape on more profiles than its limit ("the room", "quietly", "everyone else", acting while others are still at it, a closing line turning on ", and")'],
+      ['props', 'no office prop on more profiles than its limit (meetings, quarters, favours, emails, the fridge and cake, votes, a crisis, weekdays, "nobody", an X about the X), colleague cards and rules text included'],
+      ['banter', `a closing line on at most ${BANTER_PROFILES} profiles`]]) {
       const hits = voice.filter((v) => v.rule === rule);
       ok(`voice: ${label} (all 31 profiles)`, hits.length === 0, hits.slice(0, 4).map((v) => v.detail).join(' | '));
     }
@@ -1258,7 +1456,7 @@ run('visible-copy', async (t) => {
       ['Treats "is this okay?" as a question for someone else\'s department.', {}],
       ['Your White and Blue spells cost {1} less; opponents\' spells cost {1} more.', {}],
       ['Whenever Alesha attacks, pay {W/B}{W/B}: return a creature card with power 2 or less from graveyard, tapped and attacking.', {}],
-      ['FOUR-COLOR (No Red)', {}],
+      ['FOUR-COLOUR (No Red)', {}],
       ['Round 1 tested only enemy pairs, colours that oppose each other.', { scoring: false }],
       ['One two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty twenty-one twenty-two twenty-three twenty-four twenty-five.', {}],
     ];
@@ -1295,7 +1493,7 @@ run('visible-copy', async (t) => {
       // a lead-in breaks a run of short sentences
       { id: 'X', part: 'banter', items: ['You treat quarterly planning like D-Day. Months on, the intensity is exhausting. Relax for one minute and stop talking.'] },
       // a card's modes
-      { id: 'YORE', part: 'commander description', items: ['When Breya enters, create two 1/1 thopter tokens. Then pay {2} and sacrifice two artifacts for various effects: 3 damage to a player or planeswalker, -4/-4 to a creature, or gain 5 life.'] },
+      { id: 'YORE', part: 'commander description', kept: ['3 damage to a player or planeswalker, -4/-4 to a creature, or gain 5 life'], items: ['When Breya enters, create two 1/1 thopter tokens. Then pay {2} and sacrifice two artifacts for various effects: 3 damage to a player or planeswalker, -4/-4 to a creature, or gain 5 life.'] },
       // "but" far from a negative is no antithesis; a list of jobs is no rhythm
       { id: 'X', part: 'shadows', list: true, items: ["Treats people who haven't put in their hours as a regrettable but tolerable feature of the workplace.", 'Adapts slowly, and is surprised when the world has changed.', 'Will apply the letter of a rule in an emergency it was never written for.'] },
       { id: 'X', part: 'roles', prose: false, items: ['Strategy, Research, Analytics, Architecture, Policy Analysis, Forecasting'] },
@@ -1305,25 +1503,53 @@ run('visible-copy', async (t) => {
       rhythmFlagged.length === 0, rhythmFlagged.join(' | '));
 
     // The line checker (sections 6 and 9), on Dimir's bars (blue 78, black 64,
-    // green 31: black well clear of green), and on a close pair.
+    // green 31: black 33 points clear of green), on a close pair (black 60,
+    // green 50: 10 points) and on five colours 66 to 52 (14 points), with
+    // the lines the pages carried before the gaps were in points.
     const dimir = { U: 0.78, B: 0.64, G: 0.31, W: 0.22, R: 0.11 }, close = { U: 0.7, B: 0.6, G: 0.5, W: 0.2, R: 0.1 };
+    const five = { W: 0.66, U: 0.62, B: 0.58, R: 0.55, G: 0.52 };
+    const nameOf = (id) => h.RESULT_COPY.names[id];
     const lineSamples = [
-      ['Fairly clear. Your nearest neighbour is next door.', dimir, ['2 sentences', 'an old line', 'names no colour']],
-      ['Blue was 14 points ahead of black.', dimir, ['a number']],
-      ['Red and white were well behind your colours.', dimir, ['names no colour']],
-      ['The nearest colour outside yours was green, well behind black.', close, ['"well" for']],
-      ['Green tied with black, the lower of your two colours.', close, ['"level" for']],
-      ['The nearest colour outside yours was green, about one answer behind black.', dimir, ['"about one answer" for']],
+      ['DIMIR', 'Fairly clear. Your nearest neighbour is next door.', dimir, ['2 sentences', 'an old line', 'names no colour']],
+      ['DIMIR', 'Green came next, 14 points behind black.', dimir, ['gives 14 points for bars 33 points apart']],
+      ['DIMIR', 'Green came next, 40% behind black.', dimir, ['a number that is not a gap in points', 'a percentage']],
+      ['DIMIR', 'Red and white were well behind your colours.', dimir, ['names no colour']],
+      ['DIMIR', 'The nearest colour outside yours was green, well behind black.', close, ['"well" for a gap of 10 points']],
+      ['DIMIR', 'Green tied with black, the lower of your two colours.', close, ['"level" for bars 10 points apart']],
+      ['DIMIR', 'Green nearly made it in, 10 points behind black.', close, ['"nearly made it in" for a gap of 10 points']],
+      ['DIMIR', 'Green came next, behind black.', close, ['a gap of 10 points left uncounted']],
+      ['DIMIR', 'Green came next, 10 point behind black.', close, ['"10 point"']],
+      ['DIMIR', 'The nearest colour outside yours was green, about one answer behind black.', dimir, ['counts in answers']],
+      ['WUBRG', 'All five colours finished within two answers of each other.', five, ['counts in answers', 'a gap of 14 points left uncounted']],
+      ['MONO-B', 'Black led white by about one answer.', { B: 0.86, W: 0.81, U: 0.2, R: 0.1, G: 0.1 }, ['counts in answers']],
     ];
-    const lineMissed = lineSamples.filter(([line, act, want]) => !want.every((w) => lineProblems(line, 'DIMIR', act, P, 'Dimir').join(' | ').includes(w)))
-      .map(([line, act]) => `${line}: ${lineProblems(line, 'DIMIR', act, P, 'Dimir')}`);
-    ok('the line checker flags an old line, a number, no colour of the result, and a gap the bars do not show', lineMissed.length === 0, lineMissed.join(' | '));
+    const lineMissed = lineSamples.filter(([id, line, act, want]) => !want.every((w) => lineProblems(line, id, act, P, nameOf(id)).join(' | ').includes(w)))
+      .map(([id, line, act]) => `${line}: ${lineProblems(line, id, act, P, nameOf(id))}`);
+    ok('the line checker flags an old line, a gap in answers or one the bars do not print, a percentage, "10 point", no colour of the result, and a gap left uncounted', lineMissed.length === 0, lineMissed.join(' | '));
     const lineClean = [
-      ['Blue and black were well clear of the other three colours.', dimir],
-      ['The nearest colour outside yours was green, one or two answers behind black.', close],
-      ['This link shows Dimir without the answers behind it.', { W: 0, U: 0, B: 0, R: 0, G: 0 }],
-    ].filter(([line, act]) => lineProblems(line, 'DIMIR', act, P, 'Dimir').length).map(([line, act]) => `${line}: ${lineProblems(line, 'DIMIR', act, P, 'Dimir')}`);
-    ok('the line checker passes a line true to its bars, and a bare link\'s line naming the identity', lineClean.length === 0, lineClean.join(' | '));
+      ['DIMIR', 'Blue and black were well clear of the other three colours.', dimir],
+      ['DIMIR', 'Green came next, 10 points behind black.', close],
+      ['DIMIR', 'Green nearly made it in, 1 point behind black.', { U: 0.7, B: 0.6, G: 0.59, W: 0.2, R: 0.1 }],
+      ['WUBRG', 'All five colours finished within 14 points of each other.', five],
+      ['DIMIR', 'This link shows Dimir without the answers behind it.', { W: 0, U: 0, B: 0, R: 0, G: 0 }],
+    ].filter(([id, line, act]) => lineProblems(line, id, act, P, nameOf(id)).length)
+      .map(([id, line, act]) => `${line}: ${lineProblems(line, id, act, P, nameOf(id))}`);
+    ok('the line checker passes lines true to their bars in points, and a bare link\'s line naming the identity', lineClean.length === 0, lineClean.join(' | '));
+    // The unit checker, on next door's old reasons and on this round's.
+    const unitSamples = [
+      [['Your white was about one answer short.'], 5, 'counts in answers'],
+      [['Green was less than an answer short.'], 4, 'counts in answers'],
+      [['Your white was 4 points short.'], 5, 'gives 4 points for bars 5 points apart'],
+      [['Your white was 1 points short.'], 1, '"1 points"'],
+      [['White was 52% short.'], 52, 'a percentage'],
+    ].filter(([texts, gap, flag]) => !unitProblems(texts, gap).join(' | ').includes(flag)).map(([texts, gap]) => `${texts}: ${unitProblems(texts, gap)}`);
+    ok('the unit checker flags a gap in answers, a count the bars do not print, "1 points" and a percentage', unitSamples.length === 0, unitSamples.join(' | '));
+    const unitClean = [
+      ...unitProblems(['White nearly made it in, 5 points behind red.', 'Your white was 5 points short.', 'Red was the lowest of your three colours.',
+        'This link shows Dimir without the answers behind it.', 'White and blue were well behind your three colours, but your answers fitted more than one result.'], 5),
+      ...unitProblems(['Black was the lower of your two colours, 1 point ahead of green.'], 1),
+    ];
+    ok('the unit checker passes gaps in points that match the bars, "1 point", and "answers" that count nothing', unitClean.length === 0, unitClean.join(' | '));
 
     // The colleague-card checker (section 9), on the paragraphs and labels
     // readers caught, and on the cards that replaced them.
@@ -1340,34 +1566,58 @@ run('visible-copy', async (t) => {
       'All five colours are in your result, so none is missing.'].filter((x) => gapProblems(x).length);
     ok('the colleague-card checker passes the cards that replaced them', gapClean.length === 0, gapClean.join(' | '));
 
-    // The next-door checker (section 9), on the pages the second readers saw
-    // and on the pages that replaced them. Abzan, Still shuffling: blue
-    // less than an answer behind green.
+    // The next-door checker (section 9), on the pages the second and third
+    // readers saw and on the pages that replaced them.
     const N = h.RESULT_COPY.names;
-    const abzanOld = [{ dir: 'up', id: 'WITCH', head: 'Splash blue: Four-colour (no red).', why: 'Your blue was one answer short.' },
-      { dir: 'down', id: 'ORZHOV', head: 'Cut the Forests: Orzhov.', why: 'Green only just made the cut.' }];
-    const abzanOldLine = 'The nearest colour outside yours was blue, less than an answer behind green.';
+    const row = (dir, id, head, why) => ({ dir, id, head, why });
     const doorSamples = [
-      ['ABZAN', abzanOldLine, abzanOld, true, 'counts less than an answer'],
-      ['MONO-G', 'Green was well ahead of every other colour.', [{ dir: 'up', id: 'SELESNYA', head: 'Add white: Selesnya.', why: 'White was well short.' }], false, 'head "Add white'],
-      ['WUBRG', 'White was your highest colour and green your lowest, one or two answers apart.',
-        [{ dir: 'down', id: 'YORE', head: 'Cut the Forests: Four-colour (no green).', why: 'Green only just made the cut.' }], true, 'five colours'],
-      ['DIMIR', 'Green tied with black, the lower of your two colours.', [{ dir: 'up', id: 'SULTAI', head: 'Splash green: Sultai.', why: 'Your green was less than an answer short.' },
-        { dir: 'down', id: 'MONO-U', head: 'Cut the Swamps: Mono-Blue.', why: 'Black tied with green.' }], true, 'disagree about a tie'],
-      ['TEMUR', 'White nearly made it in, about one answer behind red.', [{ dir: 'up', id: 'INK', head: 'Splash white: Four-colour (no black).', why: 'Your white was about one answer short.' },
-        { dir: 'down', id: 'SIMIC', head: 'Cut the Mountains: Simic.', why: 'Red made the cut by about one answer.' }], true, 'the down row counts again'],
+      // the second readers' Abzan: the gap counted two ways, and "only just made the cut"
+      ['ABZAN', 'The nearest colour outside yours was blue, less than an answer behind green.', [row('up', 'WITCH', 'Splash blue: Four-colour (no red).', 'Your blue was one answer short.'),
+        row('down', 'ORZHOV', 'Cut the Forests: Orzhov.', 'Green only just made the cut.')], true, 'the down row says "Green only just made the cut."'],
+      ['MONO-G', 'Green was well ahead of every other colour.', [row('up', 'SELESNYA', 'Add white: Selesnya.', 'White was 52 points short.')], false, 'head "Add white'],
+      ['WUBRG', 'All five colours finished within two answers of each other.', [row('down', 'YORE', 'Cut the Forests: Four-colour (no green).', 'Green was your lowest colour.')], true, 'five colours'],
+      ['DIMIR', 'Green tied with black, the lower of your two colours.', [row('up', 'SULTAI', 'Splash green: Sultai.', 'Your green was 4 points short.'),
+        row('down', 'MONO-U', 'Cut the Swamps: Mono-Blue.', 'Black tied with green.')], true, 'disagree about a tie'],
+      ['TEMUR', 'White nearly made it in, 5 points behind red.', [row('up', 'INK', 'Splash white: Four-colour (no black).', 'Your white was 5 points short.'),
+        row('down', 'SIMIC', 'Cut the Mountains: Simic.', 'Red was the lowest of your three colours, 5 points ahead of white.')], true, 'the down row counts again'],
+      // the third readers: Simic's blue at 80% called "your lowest colour"; Bant's "made the cut easily"
+      ['SIMIC', 'White nearly made it in, 5 points behind blue.', [row('up', 'BANT', 'Splash white: Bant.', 'Your white was 5 points short.'),
+        row('down', 'MONO-G', 'Cut the Islands: Mono-Green.', 'Blue was your lowest colour.')], true, 'the down row says "Blue was your lowest colour."'],
+      ['BANT', 'Black and red were well behind your three colours.', [row('up', 'WITCH', 'Splash black: Four-colour (no red).', 'Your black was well short.'),
+        row('down', 'AZORIUS', 'Cut the Forests: Azorius.', 'Green made the cut easily.')], true, 'the down row says "Green made the cut easily."'],
+      ['BANT', 'Black and red were well behind your three colours.', [row('up', 'WITCH', 'Splash black: Four-colour (no red).', 'Your black was well short.'),
+        row('down', 'AZORIUS', 'Cut the Forests: Azorius.', 'Green was the lowest of your three colours, 40 points ahead of black.')], true, 'the up row does not say how far short'],
+      ['SULTAI', 'White and red were well behind your three colours.', [row('up', 'WITCH', 'Splash white: Four-colour (no red).', 'Your white was 40 points short.'),
+        row('down', 'GOLGARI', 'Cut the Islands: Golgari.', 'Blue was the lowest of your three colours.')], true, 'the down row does not say how far ahead'],
+      ['DIMIR', 'Green nearly made it in, 4 points behind black.', [row('up', 'SULTAI', 'Splash green: Sultai.', 'Your green was 4 points short.'),
+        row('down', 'MONO-U', 'Cut the Swamps: Mono-Blue.', 'Black was the lowest of your three colours.')], true, 'does not name its colour as the lower of your two colours'],
     ];
     const doorMissed = doorSamples.filter(([id, line, rows, player, flag]) => !doorProblems(rows, line, id, P, N, player).join(' | ').includes(flag))
       .map(([id, line, rows, player]) => `${id}: ${doorProblems(rows, line, id, P, N, player).join('; ') || 'nothing'}`);
-    ok('the next-door checker flags a gap counted two ways, a down row counting it again, a colon headline in plain mode, five colours "made the cut" and a tie said once', doorMissed.length === 0, doorMissed.join(' | '));
+    ok('the next-door checker flags "made the cut", "your lowest colour", a colon headline in plain mode, a down row counting again or not saying how far ahead, an up row with no gap, the wrong count of colours and a tie said once', doorMissed.length === 0, doorMissed.join(' | '));
     const doorClean = [
-      ['ABZAN', 'Blue nearly made it in, less than an answer behind green.', [{ dir: 'up', id: 'WITCH', head: 'Splash blue: Four-colour (no red).', why: 'Your blue was less than an answer short.' },
-        { dir: 'down', id: 'ORZHOV', head: 'Cut the Forests: Orzhov.', why: 'Green was your lowest colour.' }], true],
-      ['MONO-G', 'Green was well ahead of every other colour.', [{ dir: 'up', id: 'SELESNYA', head: "With white as well, you'd be Selesnya.", why: 'White was well short.' }], false],
-      ['WUBRG', 'All five colours finished within two answers of each other.', [{ dir: 'down', id: 'YORE', head: "Without green, you'd be Four-colour (no green).", why: 'Green was your lowest colour.' }], false],
+      ['ABZAN', 'Blue nearly made it in, 3 points behind green.', [row('up', 'WITCH', 'Splash blue: Four-colour (no red).', 'Your blue was 3 points short.'),
+        row('down', 'ORZHOV', 'Cut the Forests: Orzhov.', 'Green was the lowest of your three colours.')], true],
+      ['MONO-G', 'Green was well ahead of every other colour.', [row('up', 'SELESNYA', "With white as well, you'd be Selesnya.", 'White was 52 points short.')], false],
+      ['SULTAI', 'White and red were well behind your three colours.', [row('up', 'WITCH', 'Splash white: Four-colour (no red).', 'Your white was 40 points short.'),
+        row('down', 'GOLGARI', 'Cut the Islands: Golgari.', 'Blue was the lowest of your three colours, 40 points ahead of white.')], true],
+      ['DIMIR', 'Green came next, 14 points behind black.', [row('up', 'SULTAI', "With green as well, you'd be Sultai.", 'Green was 14 points short.'),
+        row('down', 'MONO-U', "Without black, you'd be Mono-Blue.", 'Black was the lower of your two colours.')], false],
+      ['WUBRG', 'All five colours finished within 14 points of each other.', [row('down', 'YORE', "Without green, you'd be Four-colour (no green).", 'Green was the lowest of your five colours.')], false],
     ].filter(([id, line, rows, player]) => doorProblems(rows, line, id, P, N, player).length)
       .map(([id, line, rows, player]) => `${id}: ${doorProblems(rows, line, id, P, N, player).join('; ')}`);
-    ok('the next-door checker passes rows that count the gap as the line does', doorClean.length === 0, doorClean.join(' | '));
+    ok('the next-door checker passes rows that give the gap in points and name the dropped colour as the lowest of yours', doorClean.length === 0, doorClean.join(' | '));
+
+    // The card-opening checker (section 9), on the old cards' shape and on
+    // cards built differently.
+    const openingSamples = cardOpeningProblems({
+      A: ['Talk to them when one thing happens.', 'Talk to them before another.'],
+      B: ['Talk to them when x.'], C: ['Talk to them when y.'], D: ['Talk to them when z.'], E: ['Talk to them when w.'], F: ['Talk to them when v.'],
+    });
+    ok('the card-opening checker flags two cards on one page opening alike, and one opening on more than six cards',
+      openingSamples.some((p) => p.includes('A: two cards open on "talk"')) && openingSamples.some((p) => p.includes('"talk" opens 7 cards')), openingSamples.join(' | '));
+    const openingClean = cardOpeningProblems({ A: ['Show them the draft.', 'Ask them why.'], B: ['Ask them how.', "They'll know."] });
+    ok('the card-opening checker passes cards that open differently', openingClean.length === 0, openingClean.join(' | '));
 
     // The voice checker (section 16), on lines the second readers saw.
     const rulesFound = (passages) => [...new Set(voiceProblems(passages).map((v) => v.rule))].sort().join();
@@ -1377,8 +1627,14 @@ run('visible-copy', async (t) => {
       [[{ id: 'ORZHOV', part: 'shadows', list: true, items: ['Did a colleague a small favour in 2022, and has been collecting on it since.'] }], 'years'],
       [['MONO-U', 'NAYA', 'INK'].map((id) => ({ id, part: 'shadows', list: true, items: ['Quietly grades the room.'] })), 'shapes'],
       [['GRUUL', 'BOROS', 'GLINT'].map((id) => ({ id, part: 'strengths', list: true, items: ['Closes the deal while the others are still arranging the call.'] })), 'shapes'],
+      // the third readers' notes that switched voice, and their office props
+      [[{ id: 'MONO-G', part: 'shadows', list: true, items: ['The transition was discussed in March, and is still being discussed in October.'] }], 'person'],
+      [['MONO-B', 'IZZET'].map((id) => ({ id, part: 'shadows', list: true, items: ['Wins quarters in a way that makes the next quarter harder.'] })), 'props'],
+      [[{ id: 'AZORIUS', part: 'colleague cards', items: ['Call on them when the meeting about the meeting has been booked.'] }], 'props'],
+      [['MONO-W', 'AZORIUS'].map((id) => ({ id, part: 'banter', items: ["You've been asked to stop quoting the office fridge policy by paragraph number."] })), 'props'],
+      [Array.from({ length: 23 }, (x, i) => ({ id: 'P' + i, part: 'banter', items: ['You did a thing.'] })), 'banter'],
     ].filter(([passages, rule]) => !rulesFound(passages).includes(rule)).map(([passages, rule]) => `${passages[0].items[0]}: wanted ${rule}, got ${rulesFound(passages)}`);
-    ok('the voice checker flags "we", a shadow on "You", a year and a joke shape on several pages', voiceSamples.length === 0, voiceSamples.join(' | '));
+    ok('the voice checker flags "we", a shadow on "You" or "The", a year, a joke shape or an office prop on several pages, and a closing line on too many', voiceSamples.length === 0, voiceSamples.join(' | '));
     const voiceClean = voiceProblems([
       { id: 'BOROS', part: 'shadows', list: true, items: ["Treats 'let's just send an email' as a form of moral cowardice."] },
       { id: 'IZZET', part: 'strengths', list: true, items: ['Will rebuild a system at 11pm because they thought of a better way at 10:47pm.'] },
