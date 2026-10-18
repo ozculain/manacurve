@@ -10992,34 +10992,34 @@ const RESULT_COPY = {
   // Bracketed reminder text prints in italics, as on a card; mana is in braces.
   rules: {
     'MONO-W': "Vigilance. Other creatures you control get +1/+1. When this creature leaves the battlefield, its rules don't.",
-    'MONO-U': 'Flash. Hexproof from feedback. At the beginning of your upkeep, you may reconsider. If you do, reconsider again.',
+    'MONO-U': 'Flash. Hexproof from feedback. At the beginning of your upkeep, you may reconsider.',
     'MONO-B': 'Menace, lifelink. You may pay life rather than mana. Goodwill you gain lasts until end of turn.',
-    'MONO-R': 'Trample, haste. At the beginning of the end step, sacrifice this creature. Back Thursday.',
+    'MONO-R': 'Trample, haste. At the beginning of the end step, sacrifice this creature.',
     'MONO-G': "Reach. You don't lose unspent mana as steps and phases end. Spells that change things have suspend 7.",
-    AZORIUS: 'Spells your opponents cast cost {1} more to cast and need a countersignature. So do yours.',
-    DIMIR: "Whenever a player says something, surveil 1. You have shroud. (You can't be the target of spells, abilities or friends.)",
+    AZORIUS: 'Spells your opponents cast cost {1} more to cast and need a countersignature.',
+    DIMIR: 'Whenever a player says something, surveil 1. You have shroud.',
     RAKDOS: 'Unleash. At the beginning of your upkeep, if nothing went wrong last turn, something does.',
-    GRUUL: 'Riot. Trample. This creature attacks each combat if able. Meetings count as combat.',
-    SELESNYA: "Convoke. You can't sacrifice creatures. Not even that one.",
-    ORZHOV: "Extort. Whenever a player accepts help from you, they get a debt counter. Players with debt counters can't attack you. Everyone has one.",
+    GRUUL: 'Riot. Trample. This creature attacks each combat if able.',
+    SELESNYA: "Convoke. You can't sacrifice creatures.",
+    ORZHOV: "Extort. Whenever a player accepts help from you, they get a debt counter. Players with debt counters can't attack you.",
     IZZET: 'Whenever a spell you control is countered, draw two cards. Whenever one resolves, start another.',
-    GOLGARI: 'Deathtouch. Undergrowth — This creature gets +1/+1 for each dead project in your graveyard.',
+    GOLGARI: 'Deathtouch. This creature gets +1/+1 for each dead project in your graveyard.',
     SIMIC: "Evolve. This creature can't attack while it could still be improved.",
     BOROS: 'First strike. Mentor. Whenever an injustice is alleged, attack. Check the facts after combat.',
-    BANT: "Exalted. If you would attack, you may draw a card instead. You've never had a better hand.",
-    ESPER: "Flying. Creatures you control are artifacts in addition to their other types. (They've noticed.)",
+    BANT: 'Exalted. If you would attack, you may draw a card instead.',
+    ESPER: 'Flying. Creatures you control are artifacts in addition to their other types.',
     GRIXIS: 'Haste. Creatures you control get +2/+0. At the beginning of your end step, one of them leaves for a calmer deck.',
-    JUND: 'Trample. Sacrifice another creature: This creature gets +1/+0 until end of turn. It knew what the job was.',
-    NAYA: 'Battle cry, battle cry, battle cry. Other creatures you control have haste.',
+    JUND: 'Trample. Sacrifice another creature: This creature gets +1/+0 until end of turn.',
+    NAYA: 'Battle cry. Other creatures you control have haste.',
     ABZAN: "Vigilance. Outlast {1}{W}. Creatures you control get +1/+1 for each year they've been with you.",
-    JESKAI: "Prowess. Mentor. Every other creature has lesser power than this one. You've checked.",
+    JESKAI: 'Prowess. Mentor. Every other creature has lesser power than this one.',
     SULTAI: "Exploit. Whenever another player's idea resolves, you may gain control of it. At the beginning of next year, they notice.",
-    MARDU: "Haste. Whenever this creature attacks, return a creature card from your graveyard to the battlefield tapped and attacking. It's had a rest.",
+    MARDU: 'Haste. Whenever this creature attacks, return a creature card from your graveyard to the battlefield tapped and attacking.',
     TEMUR: "Trample. This spell can't be countered. At the beginning of your upkeep, shuffle your plan into your library.",
-    WITCH: "Vigilance, deathtouch, lifelink. This creature can't have or gain haste. It was arriving on schedule anyway.",
+    WITCH: "Vigilance, deathtouch, lifelink. This creature can't have or gain haste.",
     YORE: 'Flying. Whenever an artifact you control works, sacrifice it and build a better one.',
     GLINT: "Trample, cascade. Phasing (When the bill arrives, treat this creature as though it doesn't exist.)",
-    DUNE: "Vigilance, haste. You can't scry, and you've never once wanted to.",
+    DUNE: "Vigilance, haste. You can't scry.",
     INK: 'Vigilance. At the beginning of your end step, each player draws a card. Opponents draw two.',
     WUBRG: 'Changeling. You have every ability. Each works at a fifth of its strength.'
   },
@@ -11031,23 +11031,17 @@ const RESULT_COPY = {
   // "17 Island") fill the rest, split by the bars. {lands} is the comma list.
   manaBase: {
     line: '{total} lands: {lands}.',
-    // Mono: 36 basics and a utility land with a joke. The joke goes when a
-    // maybeboard line follows, so the block keeps one joke.
+    // Mono: 36 basics and a utility land. {joke} is filled from monoJokes,
+    // empty since Plain profiles and pages: the line carries no joke.
     monoLine: '{total} lands: {count} {basic} and {utility}{joke}.',
-    monoJokes: {
-      'MONO-W': ', for staffing the subcommittee',
-      'MONO-U': ", for reading ahead, which you'd have done anyway",
-      'MONO-B': ', which pays out in proportion to what you already own',
-      'MONO-R': ', so nothing has to wait its turn',
-      'MONO-G': " you've had since 1998"
-    },
+    monoJokes: {},
     // Four and five colours: the shocks and Triomes inside the colours,
     // counted rather than named. Five colours keep their 13 basics unsplit.
     counted: { 4: 'six shocks, four Triomes', 5: 'all ten shocks, all ten Triomes' },
-    fiveBasics: 'and {count} basics, mostly for the Cultivate',
+    fiveBasics: 'and {count} basics',
     // The up neighbour's land, outside the 37 and replacing nothing, by how
     // far short its colour was; "well" short gets no maybeboard line.
-    maybeboard: { one: 'Maybeboard: {land}, just in case.', few: "Maybeboard: {land}. It's been there a while." }
+    maybeboard: { one: 'Maybeboard: {land}.', few: 'Maybeboard: {land}.' }
   },
 
   // [3] Slot words for the next-door lines: {colour} / {Colour} and {lands}.
@@ -11691,7 +11685,7 @@ function splitBasics(colours, act, n) {
 }
 
 // "37 lands: Command Tower, Watery Grave, Polluted Delta, Drowned Catacomb,
-// 17 Island, 16 Swamp. Maybeboard: Zagoth Triome, just in case."
+// 17 Island, 16 Swamp. Maybeboard: Zagoth Triome."
 // The deck: a guild is Command Tower, the shock, fetch and check; three
 // colours are Command Tower, the Triome and three shocks; four and five are
 // Command Tower, Mana Confluence, City of Brass and Exotic Orchard, then the
