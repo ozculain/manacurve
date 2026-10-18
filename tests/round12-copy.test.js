@@ -32,7 +32,10 @@ const ROOT = args.htmlPath ? path.dirname(args.htmlPath) : tool.ROOT;
 const fixture = JSON.parse(fs.readFileSync(tool.FIXTURE, 'utf-8'));
 
 // The Round 1 and 2 items that show a hint under the stem, and which one. Every other item shows none.
-const HINTS = { 'A-WB-W01': 'TEAM', 'A-WB-W05': 'COLLEAGUE', 'A-WR-W11': 'TEAM', 'AL-BR-02': 'COLLEAGUE', 'AL-BR-06': 'MANAGER', 'AL-GW-04': 'TEAM' };
+// The items rewritten for real stakes say "your boss" or "someone you work with", so no hint about
+// clubs or housemates waters their stakes down; the items below still show theirs, and TEAM is
+// also shown under Round 3 stems.
+const HINTS = { 'AL-BR-02': 'COLLEAGUE', 'AL-BR-06': 'MANAGER', 'AL-GW-04': 'TEAM' };
 // Items per pool and pair, Magic items included: what Round 1's six-per-pair draw and Round 2's
 // two-per-pair draw are made from, and what the golden fixture's seeded paths depend on.
 const COUNTS = {
@@ -192,7 +195,7 @@ run('round12-copy', async (t) => {
   {
     const wrong = live.items.filter((i) => (i.hintKey || null) !== (HINTS[i.id] || null))
       .map((i) => `${i.id} shows ${i.hintKey || 'none'}, expected ${HINTS[i.id] || 'none'}`);
-    ok('C5a the hints under the stems: TEAM on three items, COLLEAGUE on two, MANAGER on one, none on any other item (Magic items included)',
+    ok('C5a the hints under the stems: TEAM on one item, COLLEAGUE on one, MANAGER on one, none on any other item (Magic items included)',
       wrong.length === 0, list(wrong));
     const keyOfHint = (hint) => Object.keys(live.CONTEXT_HINTS).find((k) => live.CONTEXT_HINTS[k].hint === hint);
     const shown = new Set(live.items.map((i) => i.hintKey).filter(Boolean));
@@ -233,7 +236,7 @@ run('round12-copy', async (t) => {
     ok(`C6b Round 2's renderer shows all ${poolAlly.length} POOL_ALLY items, and all ${poolA.length} POOL_A items as enemy retests, as written`,
       poolAlly.length === 50 && bad2.length === 0 && errors.length === 0, list(bad2.concat(errors)));
     const hinted = poolA.concat(poolAlly).filter((q) => hintOf(q.sc, q.id)).map((q) => q.id).sort().join();
-    ok('C6c in the page, the same six items show a hint, and no Magic item does', hinted === Object.keys(HINTS).sort().join(), hinted);
+    ok('C6c in the page, the same three items show a hint, and no Magic item does', hinted === Object.keys(HINTS).sort().join(), hinted);
     win.close();
   }
   for (const gaming of [false, true]) {
