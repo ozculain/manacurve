@@ -4,6 +4,90 @@ Newest first. Dates are when the work was committed.
 
 ## 2026-10-18
 
+### Result screens: third naive-reader round
+
+The 31 result screens went back to three naive readers, as a player and as a
+non-player sees them. Pages read as written by a person rose from 70 to 83 of
+93 and flags fell from 261 to 147: vague 46, repeats itself 27, contradicts
+itself 19, a forced joke 12, machine-written 12, insulting 10, too long 10,
+jargon 7, no sense 4. The line under the label counted in answers above bars
+that print percentages, so "All five colours finished within two answers of
+each other" sat over bars 14 points apart. Next door's "Blue was your lowest
+colour" sat beside a blue bar of 80%, and "Green made the cut easily" sat in
+the slot for the colour you would drop. Strengths and shadows are notes with
+no subject, and the closing line under them switched to "You ...": readers
+had the page as text, lost the box's "Pub banter" label, and saw every page
+end on a joke. The colleague cards opened the same way for each colour on
+every page ("Talk to them when ...", "Check with them before ..."), and the
+same office props came round (the meeting about the meeting, a vote about a
+vote, the fridge and cake rules, reply-all, quarters, favours).
+
+- Units (`RESULT_COPY.confidence`, `RESULT_COPY_VERSION` 6). Every gap is in
+  points, the difference between two bars as printed: "White nearly made it
+  in, 5 points behind red.", "Black led white by 5 points.", "All five
+  colours finished within 14 points of each other." The thresholds stay one
+  answer (8 points) for "nearly made it in" and three (25) for "well". Next
+  door gives the same gaps in the same unit.
+- Next door (`RESULT_COPY.nextDoor`). The up row says how far short the
+  added colour was ("Your white was 5 points short."; "well short" is gone).
+  The down row names the dropped colour as the lowest of yours: "Red was the
+  lowest of your three colours.", "Black was the lower of your two colours."
+  When the line under the label said only "well behind", it also says how far
+  that colour was ahead of the nearest one outside: "Blue was the lowest of
+  your three colours, 40 points ahead of white."
+- Banter. The box's label is text, not a CSS `::before`, so a copied page or
+  a screen reader keeps it, and 11 profiles have no closing line and no box
+  (Mono-Black, Mono-Green, Azorius, Golgari, Grixis, Jund, Naya, Mardu,
+  Four-colour without white and without blue, Five-colour), among them the
+  eight flagged as insulting or forced. Three are new: Mono-White's dress
+  code, Dimir's "You know who's leaving before their manager does.", Bant's
+  lunch order. The share Card falls back to the description.
+- Who to bring in (`COLOR_GAPS`). 66 of the 75 lines are new, built
+  differently from one another: no opening word on more than six cards, none
+  twice on a page, none echoing its own page (Gruul's manual, Rakdos's
+  restlessness, Boros's facts). Five colours: "Every colour is in your
+  result, so there's no gap to fill. Before a big decision, ask someone with
+  one strong view to argue it hard." The legend's dashed line is "one of your
+  colours and a missing colour that pulls against it."
+- Profiles (`data.js`). Every flagged line is cut or rewritten. Strengths and
+  shadows went from 218 to 204: 154 word for word, 50 new or rewritten. The
+  five notes that had their own subject ("The transition was discussed in
+  March") are cut or rewritten as notes about the person. Seven philosophies
+  changed (Mono-Green, Selesnya, Orzhov, Dimir, Rakdos, four-colour without
+  green and without black), eight taglines ("Ambition Without Apology",
+  "Together, Slowly", "Rules That Pay", "Knowing More Than You Say", "The
+  Long Game", "Everybody In", "Whatever Works", "All of the Above") and seven
+  lists of roles. FOUR-COLOR and FIVE-COLOR are FOUR-COLOUR and FIVE-COLOUR,
+  as the rest of the page spells them. Across what a result page says about
+  an identity, meetings went from 13 profiles to 6, quarters 5 to 1, favours
+  4 to 2, emails and reply-all 6 to 3, a crisis 5 to 3; the fridge, the cake
+  and the vote are gone.
+- Commander. Six rules-text jokes no longer repeat the card below them
+  (Mono-White's +2/+2, K'rrik's life, Omnath's mana, Augustin's tax, Samut's
+  haste) or say nothing (Esper's artifacts: "Your decisions can't be
+  overturned by a show of hands."). Eight descriptions are rewritten in words
+  ("one white mana" for {W}): the five readers found too long or senseless
+  (Meren, Alesha, Samut, Trostani, Breya), Augustin's, which repeated its
+  joke, and Rakdos's and Karador's, for their symbols. Four and five colours
+  count their basics as one number ("six shocks, four Triomes and 23
+  basics").
+- 13 link previews in `r/` are rebuilt. Not changed: ids, data keys,
+  colours, commanders, scoring and the question pools; the golden fixture
+  does not move.
+- Tests: `tests/visible-copy.test.js` (149 checks, 11 new) holds every gap in
+  the line under the label and next door to points, the gap between the two
+  bars as printed, never answers; next door's down row to "the lowest of
+  your N colours", never "your lowest colour" or "made the cut", with the gap
+  only where the line did not count it; the colleague cards to varied
+  openings; the page to none of the third readers' flagged lines
+  (`ROUND3_FLAGGED`); and the 31 profiles to limits on office props
+  (`PROP_LIMITS`), no list note opening on "The", the banter box and its label
+  on profiles with a closing line, and closing lines on 22 profiles at most.
+  Run against the previous build it fails 19 of its 149 checks.
+  `render.test.js` and `seed.test.js` follow the new copy.
+- Not done: these pages have not had a reader of their own. Taglines still
+  mostly read "X Through Y".
+
 ### Result screens: second naive-reader round
 
 The 31 result screens, rendered to text as a player and as a non-player sees
