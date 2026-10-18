@@ -2910,7 +2910,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
             </div>
             <div class="mc-tcg__art" id="tcg-art"></div>
             <div class="mc-tcg__typeline">
-              <span>Personality — <span id="tcg-typeline-name">…</span></span>
+              <span>Personality · <span id="tcg-typeline-name">…</span></span>
               <span class="mc-tcg__set" id="tcg-conf"></span>
             </div>
             <div class="mc-tcg__text">
@@ -3177,7 +3177,6 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
         </div>
         <span style="min-width: 80px;"></span>
       </div>
-      <p class="mc-flavor" style="font-size: 15px; color: var(--ink-muted); margin: 14px 0 0;">Communication, conflict, and de-escalation.</p>
     </div>
 
     <!-- YOUR COLORS (personalized, shown when user has results) -->
@@ -3360,7 +3359,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
             <span class="mc-pip is-lit" data-color="B" aria-label="B"></span>
             <h4 class="mc-heading-md">Community vs. Self-Interest</h4>
           </div>
-          <p style="font-size: 13.5px; color: var(--ink-muted); font-family: var(--f-body); line-height: 1.6; margin: 8px 0 4px;"><strong style="color: var(--gilt); font-family: var(--f-display); letter-spacing: 0.12em; text-transform: uppercase; font-size: 11px;">Source:</strong> White prioritizes team, Black prioritizes self</p>
+          <p style="font-size: 13.5px; color: var(--ink-muted); font-family: var(--f-body); line-height: 1.6; margin: 8px 0 4px;"><strong style="color: var(--gilt); font-family: var(--f-display); letter-spacing: 0.12em; text-transform: uppercase; font-size: 11px;">Source:</strong> White prioritises team, Black prioritises self</p>
           <p style="font-size: 13.5px; color: var(--ink); font-family: var(--f-body); line-height: 1.6; margin: 4px 0 0;"><strong style="color: var(--gilt); font-family: var(--f-display); letter-spacing: 0.12em; text-transform: uppercase; font-size: 11px;">Resolution:</strong> Clarify when each value applies ("our people first" = Black's tribe, broader community = White's fairness)</p>
         </div>
         
@@ -3372,7 +3371,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
             <h4 class="mc-heading-md">Planning vs. Action</h4>
           </div>
           <p style="font-size: 13.5px; color: var(--ink-muted); font-family: var(--f-body); line-height: 1.6; margin: 8px 0 4px;"><strong style="color: var(--gilt); font-family: var(--f-display); letter-spacing: 0.12em; text-transform: uppercase; font-size: 11px;">Source:</strong> Blue wants more analysis, Red wants to act now</p>
-          <p style="font-size: 13.5px; color: var(--ink); font-family: var(--f-body); line-height: 1.6; margin: 4px 0 0;"><strong style="color: var(--gilt); font-family: var(--f-display); letter-spacing: 0.12em; text-transform: uppercase; font-size: 11px;">Resolution:</strong> Time-box planning phase, then execute with learning loops</p>
+          <p style="font-size: 13.5px; color: var(--ink); font-family: var(--f-body); line-height: 1.6; margin: 4px 0 0;"><strong style="color: var(--gilt); font-family: var(--f-display); letter-spacing: 0.12em; text-transform: uppercase; font-size: 11px;">Resolution:</strong> Time-box planning, then execute and adjust as you go</p>
         </div>
         
         <div style="background: var(--inset); padding: 18px 22px; border: 1px solid var(--gilt-line);">
@@ -12247,11 +12246,11 @@ function showShareScreen() {
   if (closestEl) {
     const runnerUpId = state.result.round3Data?.runnerUp?.id;
     const runnerUpProfile = runnerUpId ? PROFILES[runnerUpId] : null;
-    const closestName = runnerUpProfile?.name
+    // The identity's sentence-case name ("Dimir", "Four-colour (no red)"), as the result page writes it.
+    const closestName = (runnerUpProfile ? identityName(runnerUpId) : '')
       || (state.activationSorted && state.activationSorted[1] && { W: 'White', U: 'Blue', B: 'Black', R: 'Red', G: 'Green' }[state.activationSorted[1][0]])
       || '';
-    // Title-case the identity name so 'DIMIR' renders as 'Dimir' per the v4 polish note.
-    closestEl.textContent = closestName.charAt(0).toUpperCase() + closestName.slice(1).toLowerCase();
+    closestEl.textContent = closestName;
   }
 
   document.getElementById('sc-conf').textContent = RESULT_COPY.labels[confidenceLevel()].word;
@@ -12285,7 +12284,7 @@ function showShareScreen() {
   const tcgArt = document.getElementById('tcg-art'); if (tcgArt) tcgArt.style.backgroundImage = `url('images/commanders/${state.result.identity}.jpg')`;
   const tcgMana = document.getElementById('tcg-mana');
   if (tcgMana && p.colors) tcgMana.innerHTML = p.colors.map(c => `<span class="mc-pip is-lit" data-color="${c}"></span>`).join('');
-  const tcgTypelineName = document.getElementById('tcg-typeline-name'); if (tcgTypelineName) tcgTypelineName.textContent = p.name;
+  const tcgTypelineName = document.getElementById('tcg-typeline-name'); if (tcgTypelineName) tcgTypelineName.textContent = identityName(state.result.identity);
   // The Card's set-symbol slot holds no confidence word: a collector number in
   // player mode ("MC1 • EN • 009/031", the set code carrying the scoring
   // version), nothing otherwise.
@@ -12321,7 +12320,7 @@ function showShareScreen() {
 }
 
 const FORMAT_HINTS = {
-  card:      '<strong>CARD</strong> · rules text + flavor. Best for the magic-savvy.',
+  card:      '<strong>CARD</strong> · rules text + flavour. Best for the Magic-savvy.',
   scorecard: '<strong>SCORECARD</strong> · profile bars are the hero. Best for Slack and LinkedIn.',
   story:     '<strong>STORY</strong> · one line, big. Best for Instagram and Twitter.',
 };
@@ -12379,7 +12378,7 @@ async function downloadShareImage() {
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   } catch (e) {
     console.error('Download failed:', e);
-    alert('Image export failed — check console.');
+    alert('Image export failed. Check the console.');
   }
 }
 
@@ -12393,7 +12392,7 @@ async function copyShareImage() {
     }
   } catch (e) {
     console.error('Copy image failed:', e);
-    alert('Copy image failed — your browser may not support image clipboard. Try Download.');
+    alert('Copy image failed. Your browser may not support copying images. Try Download.');
   }
 }
 
@@ -12725,8 +12724,9 @@ function personalizeInteractions() {
   if (!yourContent) return;
   let content = '<div style="font-size: 14px; color: #d0d0d0; line-height: 1.7;">';
   
-  content += '<p class="mb-16"><strong>Your strongest colors are:</strong> ';
-  content += p.colors.map(c => ['White','Blue','Black','Red','Green'][['W','U','B','R','G'].indexOf(c)]).join(' and ');
+  content += '<p class="mb-16"><strong>Your strongest colours are:</strong> ';
+  const colourList = p.colors.map(c => ['White','Blue','Black','Red','Green'][['W','U','B','R','G'].indexOf(c)]);
+  content += colourList.length > 1 ? colourList.slice(0, -1).join(', ') + ' and ' + colourList[colourList.length - 1] : colourList.join('');
   content += '.</p>';
   
   content += '<p class="mb-12"><strong>This means you naturally:</strong></p>';
@@ -12736,7 +12736,7 @@ function personalizeInteractions() {
   const colorTraits = {
     W: 'Value team coordination and fairness',
     U: 'Seek optimal strategies through analysis',
-    B: 'Prioritize results and self-advocacy',
+    B: 'Prioritise results and self-advocacy',
     R: 'Trust your instincts and act quickly',
     G: 'Prefer proven approaches and patience'
   };
