@@ -32,10 +32,18 @@ const ROOT = args.htmlPath ? path.dirname(args.htmlPath) : tool.ROOT;
 const fixture = JSON.parse(fs.readFileSync(tool.FIXTURE, 'utf-8'));
 
 // The Round 1 and 2 items that show a hint under the stem, and which one. Every other item shows none.
-// The items rewritten for real stakes say "your boss" or "someone you work with", so no hint about
-// clubs or housemates waters their stakes down; the two kept items below still show theirs, and TEAM
-// is still shown under Round 3 stems.
-const HINTS = { 'AL-BR-02': 'COLLEAGUE', 'AL-BR-06': 'MANAGER' };
+// Every item still set at work or in a business carries one, so someone without a job can answer:
+// JOB ("a job you've had, or the kind you'd want") and BUSINESS ("as you would if it were yours")
+// keep the stakes a job or a business of your own. AL-BR-02 and AL-BR-06 keep COLLEAGUE and MANAGER,
+// and TEAM is still shown under Round 3 stems.
+const HINTS = {
+  'A-WB-W01': 'JOB', 'A-WB-W05': 'JOB', 'A-WB-PSY': 'JOB', 'A-WB-PSY3': 'JOB', 'A-UR-W03': 'JOB',
+  'A-GU-W10': 'JOB', 'A-GU-PSY': 'JOB', 'A-WR-W07': 'JOB', 'A-WR-W09': 'JOB', 'A-WR-HET': 'JOB',
+  'A-WR-PSY2': 'JOB', 'A-BG-REV': 'JOB', 'A-BG-PSY2': 'JOB', 'AL-WU-06': 'JOB', 'AL-UB-PSY': 'JOB',
+  'AL-BR-05': 'JOB', 'AL-RG-01': 'JOB',
+  'A-UR-HET': 'BUSINESS', 'A-BG-W08': 'BUSINESS', 'A-BG-W12': 'BUSINESS', 'AL-UB-03': 'BUSINESS',
+  'AL-BR-02': 'COLLEAGUE', 'AL-BR-06': 'MANAGER',
+};
 // Items per pool and pair, Magic items included: what Round 1's six-per-pair draw and Round 2's
 // two-per-pair draw are made from, and what the golden fixture's seeded paths depend on.
 const COUNTS = {
@@ -195,7 +203,7 @@ run('round12-copy', async (t) => {
   {
     const wrong = live.items.filter((i) => (i.hintKey || null) !== (HINTS[i.id] || null))
       .map((i) => `${i.id} shows ${i.hintKey || 'none'}, expected ${HINTS[i.id] || 'none'}`);
-    ok('C5a the hints under the stems: COLLEAGUE on one item, MANAGER on one, none on any other item (Magic items included)',
+    ok('C5a the hints under the stems: JOB on 17 items, BUSINESS on 4, COLLEAGUE on one, MANAGER on one, none on any other item (Magic items included)',
       wrong.length === 0, list(wrong));
     const keyOfHint = (hint) => Object.keys(live.CONTEXT_HINTS).find((k) => live.CONTEXT_HINTS[k].hint === hint);
     const shown = new Set(live.items.map((i) => i.hintKey).filter(Boolean));
@@ -236,7 +244,7 @@ run('round12-copy', async (t) => {
     ok(`C6b Round 2's renderer shows all ${poolAlly.length} POOL_ALLY items, and all ${poolA.length} POOL_A items as enemy retests, as written`,
       poolAlly.length === 50 && bad2.length === 0 && errors.length === 0, list(bad2.concat(errors)));
     const hinted = poolA.concat(poolAlly).filter((q) => hintOf(q.sc, q.id)).map((q) => q.id).sort().join();
-    ok('C6c in the page, the same two items show a hint, and no Magic item does', hinted === Object.keys(HINTS).sort().join(), hinted);
+    ok(`C6c in the page, the same ${Object.keys(HINTS).length} items show a hint, and no Magic item does`, hinted === Object.keys(HINTS).sort().join(), hinted);
     win.close();
   }
   for (const gaming of [false, true]) {

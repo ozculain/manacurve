@@ -4,6 +4,66 @@ Newest first. Dates are when the work was committed.
 
 ## 2026-10-18
 
+### Persona check of all questions
+
+The real-stakes rewrite below had checked itself. This is a second reader's
+check of every question in Rounds 1 to 3 against the author's three rules:
+something real at stake for "you", two answers a capable person of that
+colour would choose and admit to, and a situation where the colours act
+differently.
+
+- Blind first. A script printed every question with no ids, colours, pairs
+  or identity keys, in a seeded order with the answers shuffled, and each was
+  rated before the sources were opened. Of the 111 Round 1 and 2 items, 2 put
+  nothing concrete at stake (Restless, Wrong Call), 2 put little at stake for
+  "you" (Festival Committee, Cliquey League), 4 had one answer every sensible
+  reader takes (The Scan, Smallholding, Builders, Buying a Car), 1 had an
+  answer the stem rules out (Your Clients) and 1 offered two answers with the
+  same reason (Choosing a School). In Round 3, 105 of the 378 options read as
+  jokes, caricatures or confessions, two generic stems put little at stake,
+  and all 40 `POOL_B` and `POOL_C` stems were set at work.
+- Then a capable person of each colour, the guilds of each pair, and the
+  author as Black-Blue-Red on every item with one of those colours. 24 Round 1
+  and 2 items failed. On 6 the keyed answer was not the capable choice: a
+  Black player holds out when a developer needs every signature, uses a
+  survey selectively, and joins a testing team unless there is a reason to
+  stay out; a Blue buyer offers on a fast-selling house before the survey; a
+  White candidate applies fairly rather than handing the job to a staff vote.
+  On 6 one answer cost nothing, so every colour took it. Nothing was at stake
+  on 4. On 7 an answer drew another colour for its own reason (caution,
+  politeness, accuracy or belonging), and 1 was incoherent. All 24 are fixed.
+  Four milder cases are kept, with a note in the audit: Interview, Parish
+  Council, Your Ruling and Cheating Rumour.
+- Work: 33 of the 91 ordinary items were at work or in a business. Ten now
+  have stakes anyone has: a speech at a brother's wedding, an ex and a shared
+  flat, a restored house, a rent, a mother's money, a planning application, a
+  house done up with friends, a first book, a craft, an ex asking to try
+  again. The 23 left at work (25%) each show a hint. JOB ("Not working right
+  now? Answer for a job you've had, or the kind you'd want.") is on 17 and
+  BUSINESS on 4; COLLEAGUE and MANAGER stay on one each. Their patterns match
+  those stems only, so Round 3 still shows its 15 hints. The four older hints
+  are shorter and no longer lists.
+- Round 3: 226 of the 378 options are rewritten as what a capable person of
+  that identity would do, checked against each identity's philosophy in
+  `PROFILES`. Gone are the slow clap, the arm wrestle, the pub, "explodes
+  least", the tribunal in triplicate, "take over their half" and the
+  Black-Blue-Red options that read as rudeness or petty revenge. Three-beat
+  fragments became sentences. 31 of the 48 stems now put something at stake
+  for "you": a project with your name on it, a bonus, a league final, a
+  house bid, a family business, a club or a charity you built. The unhinted
+  pool stems left the office; the hinted ones keep "your team".
+- Rounds 1 and 2: 34 items changed (19 stems, 2 labels, 37 answers). Ids,
+  pairs, weights, answer colours, identity keys and item order are as they
+  were, so the seeded draws and `tests/fixtures/golden.json` do not move.
+  `tests/fixtures/round12-keys.json` lists no kept items and is untouched.
+  `tests/round12-copy.test.js` lists the 23 items that show a hint.
+- Instrument version 6: `INSTRUMENT_VERSION` is 6 and a result built now
+  writes `i=6`. The contract line, `tests/play.test.js`, the tests README
+  and the simulator's constant (a commit of its own) say so.
+- Not measured: whether players land closer to how they see themselves. The
+  audit, with the blind ratings and every failure, is kept out of the
+  repository.
+
 ### Round 1 and 2 items: real stakes
 
 The author, who plays Black-Blue-Red, took the live quiz and came out White 56,
