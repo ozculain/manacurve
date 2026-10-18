@@ -18,7 +18,8 @@ Agreed before the scoring branch (Phase 1) and the presentation branch (Phase 2)
 ```
 
 - `state.activationSorted` stays `[[colour, 0..1], ...]` sorted descending. In release 1 the bars show activation, not posterior marginals.
-- The bars allow the identity: whatever the engine, `identity` is one whose colours are the top bars, give or take half an answer (below).
+- Each bar is how often the colour was picked when it was offered (Even bars and Five-colour): every answered Round 1 and Round 2 item, Round 2's enemy re-tests included, counts its weight `q.w` once for the colour chosen and once in the denominator of both colours in its pair, and "Neither" counts in neither (`barsFromTallies`). After Round 1, and in an early result, the bars count Round 1's answers alone. No smoothing; a colour never answered shows 50%. Before, each colour's enemy-pair and ally-pair rates were averaged with equal weight, so two Round 2 answers counted as much as ten Round 1 answers.
+- The bars allow the identity: whatever the engine, `identity` is one whose colours are the top bars as the results screen prints them (whole percentages), ties allowed, or Five-colour when the five print within `FIVE_COLOUR_BAND` points of each other (below).
 - Confidence is computed only by scoring code and written to `result.confidence`. Presentation maps it to a display label and a base-rate sentence; it never recomputes it. Until Phase 5 measures real results the sentence carries no figure and is the same for every `scoringVersion`; Phase 5's figures will be keyed by it.
 - The neighbourhood ("next door") is derived from the five activation values only, so it renders for old links.
 
@@ -31,12 +32,12 @@ Agreed before the scoring branch (Phase 1) and the presentation branch (Phase 2)
 
 ### The name matches the bars (both engines)
 
-- An identity's distance from the bars, `barsMargin(id, state.activationSorted)`, in bar units: the strongest colour it leaves out minus the weakest colour it holds, or, when it holds all five, 50% (the line next door draws for five colours) minus the weakest. `barsAllow(id)` is that distance at most `BARS_TOLERANCE`, 1/24: half an answer, an answer being about 1/12 of a bar (`ONE_ANSWER_BY_VERSION`).
+- An identity's distance from the bars, `barsMargin(id, state.activationSorted)`, in printed points, on the bars as the results screen prints them (`barsShown`: `Math.round(bar * 100)`, the numbers a shared link carries in `p`): the strongest colour it leaves out minus the weakest colour it holds, or, when it holds all five, the spread of the five (strongest minus weakest) minus `FIVE_COLOUR_BAND`, 20. `barsAllow(id)` is that distance at most 0: no colour the identity leaves out prints above a colour it holds (ties allowed), and Five-colour needs the five printed within 20 points. (Until Even bars and Five-colour the distance was in bar units, with half an answer of tolerance, `BARS_TOLERANCE`, and 50% as the line for Five-colour, which no real five-colour respondent's bars reached.) On any bars the top bars one to four deep are allowed, so Round 3 always has four identities to play.
 - Engine 2 seeds Round 3 with the four identities the bars allow that the Round 1 + Round 2 posterior rates highest (so `round3Data.allScores` and `allResults` hold only such identities), and reports the one of them the final posterior rates highest, the record rule acting among them. The posterior itself is unchanged by the bars, and `confidence` is still the reported identity's posterior.
 - Engine 1 reports its tournament winner when the bars allow it; otherwise the best candidate they allow in its standings, or, if none, the identity of the top bars as wide as the winner (narrower, for five colours, until the bars allow it), with `confidence` LOW and the tournament's pick as `round3Data.runnerUp`.
-- The early-result offer is made only for an identity the Round 1 bars, which an early result shows, allow. A session that reached Round 3 on an earlier build finishes on one the bars allow too (engine 2: the best such candidate by posterior, or the best such identity of all 31 at 0-0).
+- The early-result offer is made only for an identity the Round 1 bars, which an early result shows, allow. A session that reached Round 3 on an earlier build finishes on one the bars allow too, read from the bars it saved, which are the ones its results screen shows (engine 2: the best such candidate by posterior, or the best such identity of all 31 at 0-0).
 - `round3Data.loopBrokenByBars` is true only when engine 1 re-ranked a Round 3 cycle by the bars and that pick stood; engine 2's posterior decides inside a cycle, so under engine 2 it is always false. The results screen no longer describes how a result was reached (Plain screens), so nothing shown reads it; it records what happened.
-- `tests/simulate.js` counts a result its bars do not allow as a contract violation.
+- `tests/simulate.js` counts a result its printed bars do not allow, or an early offer the printed Round 1 bars do not allow, as a contract violation.
 
 ## Engine switch
 
