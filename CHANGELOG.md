@@ -4,6 +4,79 @@ Newest first. Dates are when the work was committed.
 
 ## 2026-10-18
 
+### Questions rewritten from naive readers
+
+Five naive readers on three models read the plain text of every question,
+with no colours, no answer key and no idea what the quiz measures, and said
+what each one asks, which answer most people would pick, whether anyone would
+hesitate and what kind of person picks each answer; a blind step matched
+those people to the five colours. 53 of the 111 Round 1 and 2 questions
+failed: one answer was the obviously decent or sensible one (26), little was
+at stake (13), the split was lopsided (10), or an answer's motive read as
+another colour's (Red read as Black 16 times, Blue and Green as White 14 and
+11 times). Where a Black answer lied or hid (the survey, the successor, the
+developer, the hidden mistake) the other answer became the decent one. In
+Round 3 both readers flagged 35 of the 378 options as obviously best, a
+confession or a joke, and the lists of 31 held near-duplicates. Every reader
+said the set reads as built to a template: a short decision and a neat
+reason, reasons that are sayings nobody says aloud, the same hint lines, the
+same themes.
+
+- Rounds 1 and 2: all 111 items changed (67 stems, 33 labels, 203 of the 222
+  answers). Both answers are now ones a decent, sensible person could pick,
+  with something real at stake, and each motive is its own colour's: Red
+  acts on feeling, conviction or freedom, never for advantage; Blue wants to
+  understand and get it right, never fairness; Green is patience, acceptance,
+  tradition and roots, never fairness; Black is ambition a capable person
+  would admit to, never a trick or a confession; White is fairness, rules,
+  duty and the group. The items where Black lied or hid are rebuilt so both
+  sides are open (the developer is a street selling together, the successor
+  an offer from the boss), and the ones failed for low stakes now risk a
+  home, a career, a child's schooling or a family's money.
+- The template: 58% of the Round 1 and 2 answers, and most Round 3 options,
+  are now the choice in plain words, with no reason. The reasons left are
+  about the situation, never a saying, and no answer ends on one. Answers run
+  from two words to twenty and take different shapes: an action, words said
+  aloud, a reason first, a condition. "I'd rather" and "rather than" are
+  gone, and Round 3 no longer joins two actions with "and" as a rule.
+- Themes: no contrast appears in more than four or five items. Informal
+  against formal groups is down from seven to three and speaking up now
+  against holding back from about ten to five; tradition against change and
+  checking first against leaping are four or five each. Where readers said
+  they would do both answers, the stem now forces a choice (one evening, one
+  fix, one free week, a deadline today).
+- Hints: none. `CONTEXT_HINTS` is empty. Before, 23 Round 1 and 2 items and
+  15 Round 3 stems showed one of six lines. A first cut to nine lines, each
+  in its own words, still read to every reader as patches stuck on the work
+  questions, and every stem is a situation anyone can picture. The Round 3
+  stems that said "your team" now cast you in a role. The mechanism stays.
+- Round 3: all 35 flagged options are rewritten, and 366 of the 378 changed.
+  In each list of 31 every identity has its own move, read from its
+  philosophy in `PROFILES`; the clusters readers saw (own it, attack the
+  leader, build a cleaner version, take a week) are split up, and the
+  aphoristic endings are gone. 21 of the 48 stems changed: the four that put
+  little at stake (a skill to learn, a process that works, a vague shortcut,
+  a club's decision rules) now have something riding on them, MTG_STALL
+  names the title at stake, and the Magic items say "games group" for
+  "playgroup".
+- Checked before handing over: five fresh readers read a first version of
+  this rewrite, and their flags shaped a second pass. The second version has
+  not had a full read of its own.
+- Unchanged: every id, pair, weight, answer colour, identity key and order,
+  so the seeded draws and `tests/fixtures/golden.json` do not move, and both
+  key fixtures are untouched.
+- Tests: `tests/round12-copy.test.js` expects no hinted item and gains C5c,
+  no hint line repeated; `tests/play.test.js` checks that no live Round 3
+  stem shows a hint, and adds one for the test alone so the eyebrow line is
+  still exercised.
+- Instrument version 7: `INSTRUMENT_VERSION` is 7 and a result built now
+  writes `i=7`. The contract line, the simulator's constant,
+  `tests/play.test.js` and the tests README say so.
+- Not done: the comment in `showTournamentQuestion` still says 15 of the 48
+  stems show a hint; it is outside this change. About a fifth of Round 1 and
+  2 items still sit at work, and the twenty Magic items still lean on the
+  game's words, which non-players flag.
+
 ### Profile rhythm
 
 Plain profiles and pages took the em dashes and tacked-on jokes out of the
