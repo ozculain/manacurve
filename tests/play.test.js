@@ -976,8 +976,9 @@ run('play', async (t) => {
   // The items and screens changed (the Phase 3 copy, then the Round 1 and 2 copy,
   // then the plain screens seen while answering, then the Round 1 and 2 items
   // rewritten for real stakes, then the persona check of all questions, then the
-  // questions rewritten from naive readers, then their second naive-reader round), so a
-  // result built now is instrument 8 and its link says i=8; a link without i still means 1
+  // questions rewritten from naive readers, then their second naive-reader round, then the
+  // Red answers rewritten as conviction and the counter's "of up to"), so a
+  // result built now is instrument 9 and its link says i=9; a link without i still means 1
   // (tests/seed.test.js).
   {
     const { win, h, errors } = await page();
@@ -985,16 +986,16 @@ run('play', async (t) => {
     playThrough(h, win, () => {});
     await waitForResults(win);
     const url = h.buildResultURL();
-    ok('P10a INSTRUMENT_VERSION is 8, a finished quiz carries it, and its link ends s=2&i=8',
-      win.eval('INSTRUMENT_VERSION') === 8 && !!h.state.result && h.state.result.instrumentVersion === 8 && /\/r\/[A-Z0-9-]+\.html\?p=[\d,]+&c=\w+&a=consumer&s=2&i=8$/.test(url), url);
+    ok('P10a INSTRUMENT_VERSION is 9, a finished quiz carries it, and its link ends s=2&i=9',
+      win.eval('INSTRUMENT_VERSION') === 9 && !!h.state.result && h.state.result.instrumentVersion === 9 && /\/r\/[A-Z0-9-]+\.html\?p=[\d,]+&c=\w+&a=consumer&s=2&i=9$/.test(url), url);
     // An early result (the offer taken) carries it as well
     h.restart();
     begin(h);
     h.state.activationSorted = [['U', 0.82], ['B', 0.7], ['G', 0.3], ['W', 0.2], ['R', 0.1]];
     win.earlyConfidenceData = { identity: 'DIMIR', confidence: 0.95 };
     win.showResultsEarly();
-    ok('P10b an early result is instrument 8 too, and its link says i=8',
-      h.state.result.earlyTermination === true && h.state.result.instrumentVersion === 8 && /&s=2&i=8$/.test(h.buildResultURL()), h.buildResultURL());
+    ok('P10b an early result is instrument 9 too, and its link says i=9',
+      h.state.result.earlyTermination === true && h.state.result.instrumentVersion === 9 && /&s=2&i=9$/.test(h.buildResultURL()), h.buildResultURL());
     ok('P10c no errors', errors.length === 0, errors.slice(0, 3).join(' | '));
     win.close();
   }
