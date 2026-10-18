@@ -18,6 +18,7 @@ Agreed before the scoring branch (Phase 1) and the presentation branch (Phase 2)
 ```
 
 - `state.activationSorted` stays `[[colour, 0..1], ...]` sorted descending. In release 1 the bars show activation, not posterior marginals.
+- The bars allow the identity: whatever the engine, `identity` is one whose colours are the top bars, give or take half an answer (below).
 - Confidence is computed only by scoring code and written to `result.confidence`. Presentation maps it to a display label and a base-rate sentence; it never recomputes it. Until Phase 5 measures real results the sentence carries no figure and is the same for every `scoringVersion`; Phase 5's figures will be keyed by it.
 - The neighbourhood ("next door") is derived from the five activation values only, so it renders for old links.
 
@@ -27,6 +28,15 @@ Agreed before the scoring branch (Phase 1) and the presentation branch (Phase 2)
 - `posterior` covers all 31 identities and folds in Rounds 1 to 3 (Round 1 only for an early result).
 - The reported identity is the Round 3 candidate with the highest posterior, not necessarily the one with the best win-loss record, unless that candidate has a losing Round 3 record (fewer wins than losses) and a posterior less than 3 times the runner-up's, or 16 times when it won no match; then it is the best candidate by posterior without a losing record (Phase 1: Round 3 weight). So `allResults` and `round3Data.allScores` put the reported identity first and the others in posterior order (`allResults[i][1].combined` is the posterior and each `allScores` entry gains `posterior`), `round3Data.runnerUp` is the next in that order, and `round3Data.gap`, still the win-loss difference between the two, can be negative. In simulation at p = 0.8 the reported identity had the best or tied-best record about 90% of the time (85% before that rule; engine 1: about 92%) and a losing record about 1% of the time (6% before); the rest is where the line "finished with the best record" (`displayFinalDetermination`) would not be true. Presentation now says, for `scoringVersion` 2, that the identity won on the weight of all the answers, and says so when its record was not the best; version 1 results keep the old line.
 - Both engines set `scoringVersion` and `instrumentVersion`. A session saved before engine 2 existed resumes on engine 1, and its finished result is labelled 1 and 1.
+
+### The name matches the bars (both engines)
+
+- An identity's distance from the bars, `barsMargin(id, state.activationSorted)`, in bar units: the strongest colour it leaves out minus the weakest colour it holds, or, when it holds all five, 50% (the line next door draws for five colours) minus the weakest. `barsAllow(id)` is that distance at most `BARS_TOLERANCE`, 1/24: half an answer, an answer being about 1/12 of a bar (`ONE_ANSWER_BY_VERSION`).
+- Engine 2 seeds Round 3 with the four identities the bars allow that the Round 1 + Round 2 posterior rates highest (so `round3Data.allScores` and `allResults` hold only such identities), and reports the one of them the final posterior rates highest, the record rule acting among them. The posterior itself is unchanged by the bars, and `confidence` is still the reported identity's posterior.
+- Engine 1 reports its tournament winner when the bars allow it; otherwise the best candidate they allow in its standings, or, if none, the identity of the top bars as wide as the winner (narrower, for five colours, until the bars allow it), with `confidence` LOW and the tournament's pick as `round3Data.runnerUp`.
+- The early-result offer is made only for an identity the Round 1 bars, which an early result shows, allow. A session that reached Round 3 on an earlier build finishes on one the bars allow too (engine 2: the best such candidate by posterior, or the best such identity of all 31 at 0-0).
+- `round3Data.loopBrokenByBars` is true only when engine 1 re-ranked a Round 3 cycle by the bars and that pick stood; the results screen says the bars broke the loop only then (engine 2's posterior decides inside a cycle). A saved result without the field keeps the sentence on engine 1 only.
+- `tests/simulate.js` counts a result its bars do not allow as a contract violation.
 
 ## Engine switch
 
