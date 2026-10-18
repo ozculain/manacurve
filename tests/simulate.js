@@ -7,7 +7,7 @@
 // Usage: node tests/simulate.js [--n 200] [--p 0.8[,0.9,...]] [--neither 0.05] [--seed 1[,2,...]]
 //          [--model ideal|misspecified|mixed | --models both|all|a,b] [--engine 2 | --engine 1,2]
 //          [--r3 page,q=0.85,tour,...] [--gaming] [--workers auto] [--out tests/out/simulation.json]
-//          [path/to/another/index.html]
+//          [--five-band 20] [--rows] [path/to/another/index.html]
 'use strict';
 const fs = require('fs');
 const path = require('path');
@@ -31,7 +31,7 @@ const engineUrl =(engine) => (engine === 1 ? 'http://localhost/?engine=1' : 'htt
 // ---------- CLI ----------
 function fail(msg) { console.error(msg); process.exit(2); }
 function parseArgs(argv) {
-  const o = { n: 200, p: [0.8], neither: 0.05, seeds: [1], workers: 0, models: ['ideal'], engines: [DEFAULT_ENGINE], gaming: false, out: null, r3: null, htmlPath: null, dataPath: null };
+  const o = { n: 200, p: [0.8], neither: 0.05, seeds: [1], workers: 0, models: ['ideal'], engines: [DEFAULT_ENGINE], gaming: false, rows: false, out: null, r3: null, htmlPath: null, dataPath: null, fiveBand: null };
   const num = (k, v) => { const x = Number(v); if (v === undefined || v === '' || !Number.isFinite(x)) fail('Bad value for --' + k); return x; };
   for (let i = 0; i < argv.length; i++) {
     // Another build's index.html (its data.js beside it), as the page tests take one.
@@ -40,6 +40,7 @@ function parseArgs(argv) {
     }
     const k = argv[i].replace(/^--/, '');
     if (k === 'gaming') { o.gaming = true; continue; } // a flag: takes no value
+    if (k === 'rows') { o.rows = true; continue; }     // a flag: takes no value
     const v = argv[++i];
     if (['n', 'neither', 'workers'].includes(k)) o[k] = num(k, v);
     else if (k === 'seed' || k === 'seeds') o.seeds = String(v).split(',').map((x) => num('seed', x));
@@ -49,6 +50,9 @@ function parseArgs(argv) {
     else if (k === 'engine' || k === 'engines') o.engines = v === 'both' ? [...ENGINES] : String(v).split(',').map((x) => num('engine', x));
     else if (k === 'r3') { if (!v) fail('Bad value for --r3'); o.r3 = String(v).split(',').map(parseVariant); }
     else if (k === 'out') { if (!v) fail('Bad value for --out'); o.out = path.resolve(v); }
+    // The Five-colour band the checks and the report assume, for a build that
+    // uses another one (the page's FIVE_COLOUR_BAND; default below).
+    else if (k === 'five-band') { o.fiveBand = num(k, v); if (!(o.fiveBand >= 0 && o.fiveBand <= 100)) fail('--five-band is in printed points, 0 to 100'); }
     else fail('Unknown option ' + argv[i - 1]);
   }
   for (const m of o.models) if (!MODEL_NAMES.includes(m)) fail(`Unknown model "${m}"; expected ${MODEL_NAMES.join(', ')}, or --models both or all`);
@@ -245,6 +249,7 @@ const share = (k, n) => (n ? k / n : null);
 
 async function main(opts) {
   const t0 = Date.now();
+  if (opts.fiveBand !== null) FIVE_COLOUR_BAND = opts.fiveBand;
   const vm = require('vm');
   const sandbox = {}; vm.createContext(sandbox);
   vm.runInContext(fs.readFileSync(opts.dataPath || path.join(ROOT, 'data.js'), 'utf-8') + '\n;this.__P = PROFILES;', sandbox);
@@ -294,7 +299,12 @@ async function main(opts) {
   for (const g of groups) {
     const config = { ...configs[g.cis[0]], seed: opts.seeds.length === 1 ? opts.seeds[0] : opts.seeds.join(',') };
     if (!opts.r3) {
-      reports.push(summarise({ config, opts, ids, colorsOf, runs: g.cis.flatMap(runsOf), meta }));
+      const runs = g.cis.flatMap(runsOf);
+      const report = summarise({ config, opts, ids, colorsOf, runs, meta });
+      // --rows: each respondent's seed, true identity, index and result, so two
+      // builds run on the same respondents can be compared pair by pair.
+      if (opts.rows) report.rows = runs.map((r) => [configs[r.ci].seed, r.trueId, r.idx, r.recovered]);
+      reports.push(report);
       continue;
     }
     let first = null;
@@ -368,27 +378,35 @@ function neighbourhood(resultId, activation, colorsOf, idOfColors) {
   return set.filter(Boolean);
 }
 
-// How far a result is from the story its bars tell, in bar units (0..1): the
-// strongest colour it leaves out minus the weakest colour it holds, or, when
-// it holds all five, 50% (the line next door draws for five) minus the
-// weakest. Written out here, not read from the page, so the check does not
-// lean on the code it checks. With shown, on the bars as the results screen
-// prints them (whole percentages).
-const BARS_TOLERANCE = 1 / 24; // the page's BARS_TOLERANCE: half an answer
+// How far a result is from the story its bars tell (docs/SCORING_CONTRACT.md,
+// "The name matches the bars"): the strongest colour it leaves out minus the
+// weakest colour it holds, or, when it holds all five, the spread of the five
+// (strongest minus weakest) minus FIVE_COLOUR_BAND. Written out here, not read
+// from the page, so the check does not lean on the code it checks. On the bars
+// as the results screen prints them (whole percentages, finalShown, recorded
+// on the page as it prints them), in points: over 0 breaks the contract. On
+// the bars behind them (finalActivation, 3 dp), in bar units, the report also
+// gives how often it is over one answer and over half an answer.
+let FIVE_COLOUR_BAND = 20;     // the page's FIVE_COLOUR_BAND, in printed points (--five-band sets another)
 const ONE_ANSWER = 1 / 12;     // the page's ONE_ANSWER_BY_VERSION
 const BARS_ROUNDING = 0.001;   // finalActivation is recorded to 3 dp
-function barsMargin(resultId, activation, colorsOf, shown = false) {
+function barsMargin(resultId, bars, colorsOf, band) {
   const lit = colorsOf[resultId];
   if (!lit) return Infinity;
-  const act = Object.fromEntries(activation || []);
-  const bar = (c) => (shown ? Math.round(100 * (act[c] || 0)) / 100 : act[c] || 0);
+  const bar = (c) => bars[c] || 0;
   const out = WUBRG.filter((c) => !lit.includes(c));
   const weakestIn = Math.min(...lit.map(bar));
-  return out.length ? Math.max(...out.map(bar)) - weakestIn : 0.5 - weakestIn;
+  return out.length ? Math.max(...out.map(bar)) - weakestIn : Math.max(...lit.map(bar)) - weakestIn - band;
 }
+const printed = (shown) => Object.fromEntries(WUBRG.map((c, i) => [c, (shown || [])[i] || 0]));
+const printedText = (shown) => WUBRG.map((c, i) => c + (shown || [])[i]).join(' ');
+const rawMargin = (r, colorsOf) => barsMargin(r.recovered, Object.fromEntries(r.finalActivation || []), colorsOf, FIVE_COLOUR_BAND / 100);
+const printedMargin = (r, colorsOf) => barsMargin(r.recovered, printed(r.finalShown), colorsOf, FIVE_COLOUR_BAND);
+const spreadOf = (shown) => Math.max(...shown) - Math.min(...shown);
 
 // state.result must carry the contract's fields (docs/SCORING_CONTRACT.md),
-// and the bars must allow its identity.
+// the printed bars must allow its identity, and the Round 1 bars, which an
+// early result shows, the identity an early offer makes.
 function contractProblems(r, engine, colorsOf) {
   const bad = [];
   if (!r.recovered) bad.push('no identity');
@@ -400,11 +418,15 @@ function contractProblems(r, engine, colorsOf) {
     else if (Math.abs(r.posteriorSum - 1) > 1e-9) bad.push('posterior sums to ' + r.posteriorSum);
   }
   if (r.recovered) {
-    const m = barsMargin(r.recovered, r.finalActivation, colorsOf);
-    if (m > BARS_TOLERANCE + BARS_ROUNDING) {
-      const bars = WUBRG.map((c) => c + Math.round(100 * (Object.fromEntries(r.finalActivation || [])[c] || 0))).join(' ');
-      bad.push(`${r.recovered} under bars ${bars} (${(100 * m).toFixed(1)} points from them; the bars allow ${(100 * BARS_TOLERANCE).toFixed(1)})`);
+    const m = printedMargin(r, colorsOf);
+    if (m > 0) {
+      bad.push(`${r.recovered} under bars ${printedText(r.finalShown)} (${colorsOf[r.recovered].length === 5
+        ? `a spread of ${spreadOf(r.finalShown)} points; Five-colour needs ${FIVE_COLOUR_BAND} or less`
+        : `a colour it leaves out prints ${m} points above one it holds`})`);
     }
+  }
+  if (r.earlyOffer && r.earlyOfferId && barsMargin(r.earlyOfferId, printed(r.r1Shown), colorsOf, FIVE_COLOUR_BAND) > 0) {
+    bad.push(`early offer of ${r.earlyOfferId} under Round 1 bars ${printedText(r.r1Shown)}`);
   }
   return bad;
 }
@@ -464,14 +486,37 @@ function summarise({ config, opts, ids, colorsOf, runs, meta }) {
     if (bad.length) { contract.violations++; if (contract.examples.length < 5) contract.examples.push(`${r.trueId} #${r.idx}: ${bad.join(', ')}`); }
   }
   // The result against its own bars: more than one answer or half an answer
-  // from the story they tell, or any colour shown out of order (an unlit bar
-  // printed above a lit one, or a lit bar below 50% when all five are lit).
-  const margins = runs.map((r) => barsMargin(r.recovered, r.finalActivation, colorsOf));
+  // from the story they tell, or against them as printed (an unlit bar printed
+  // above a lit one, or, for Five-colour, the five printed further apart than
+  // FIVE_COLOUR_BAND), which breaks the contract.
+  const margins = runs.map((r) => rawMargin(r, colorsOf));
   const bars = {
     overOneAnswer: share(margins.filter((m) => m > ONE_ANSWER + BARS_ROUNDING).length, runs.length),
     overHalfAnswer: share(margins.filter((m) => m > ONE_ANSWER / 2 + BARS_ROUNDING).length, runs.length),
-    shownOutOfOrder: share(runs.filter((r) => barsMargin(r.recovered, r.finalActivation, colorsOf, true) > 1e-9).length, runs.length),
+    shownOutOfOrder: share(runs.filter((r) => printedMargin(r, colorsOf) > 0).length, runs.length),
   };
+  // Five-colour: how often the true five-colour respondents get it (recall),
+  // how often a Five-colour result is right (precision), how often it is given,
+  // where the true five-colour respondents go otherwise, and how often the
+  // printed bars are flat enough to allow it. spread*: the printed spread
+  // (strongest bar minus weakest), counted 0 to 100, of the true five-colour
+  // respondents and of everyone else, so another band can be read off.
+  const fiveId = ids.find((id) => colorsOf[id].length === 5);
+  const fiveTrue = runs.filter((r) => r.trueId === fiveId), fiveGiven = runs.filter((r) => r.recovered === fiveId);
+  const widthOf = (id) => (colorsOf[id] ? colorsOf[id].length : 0);
+  const histogram = (rs) => { const hst = new Array(101).fill(0); rs.forEach((r) => { hst[spreadOf(r.finalShown)]++; }); return hst; };
+  const fiveColour = {
+    truth: fiveTrue.length, given: fiveGiven.length, right: fiveGiven.filter((r) => r.trueId === fiveId).length,
+    truthToFour: share(fiveTrue.filter((r) => widthOf(r.recovered) === 4).length, fiveTrue.length),
+    truthToThreeOrFewer: share(fiveTrue.filter((r) => widthOf(r.recovered) <= 3).length, fiveTrue.length),
+    flat: share(runs.filter((r) => spreadOf(r.finalShown) <= FIVE_COLOUR_BAND).length, runs.length),
+    flatTruth: share(fiveTrue.filter((r) => spreadOf(r.finalShown) <= FIVE_COLOUR_BAND).length, fiveTrue.length),
+    band: FIVE_COLOUR_BAND,
+    spreadTruth: histogram(fiveTrue), spreadOthers: histogram(runs.filter((r) => r.trueId !== fiveId)),
+  };
+  fiveColour.recall = share(fiveColour.right, fiveColour.truth);
+  fiveColour.precision = share(fiveColour.right, fiveColour.given);
+  fiveColour.share = share(fiveColour.given, runs.length);
   const params = { model: config.model, engine: config.engine, n: opts.n, p: config.p, neither: config.neither, seed: config.seed, gaming: config.gaming };
   if (config.r3) params.round3Q = config.q === null ? 'page' : config.q;
   if (config.calibration) params.calibration = config.calibration;
@@ -489,6 +534,7 @@ function summarise({ config, opts, ids, colorsOf, runs, meta }) {
     earlyOfferShare: earlyOffer.share,
     earlyOffer,
     bars,
+    fiveColour,
     byType, guilds, perIdentity, topConfusions, confidence, contract,
     pageErrorCount: meta.errors.length,
     pageErrors: meta.errors.slice(0, 20),
@@ -579,7 +625,10 @@ function textReport(report, ids, meta) {
   L.push(`Round 1 alone (candidate #1):  ${pct(report.round1AloneExact)}`);
   L.push(`Enemy-pair guilds / allied:    ${pct(report.guilds.enemy.exact)} / ${pct(report.guilds.allied.exact).trim()}`);
   L.push(`Neighbourhood coverage:        ${pct(report.neighbourhoodCoverage)}   (truth is the result, +strongest unlit or -weakest lit colour)`);
-  L.push(`Result against its bars:       ${pct(report.bars.overOneAnswer)} over one answer, ${pct(report.bars.overHalfAnswer).trim()} over half an answer, ${pct(report.bars.shownOutOfOrder).trim()} shown out of order`);
+  L.push(`Result against its bars:       ${pct(report.bars.overOneAnswer)} over one answer, ${pct(report.bars.overHalfAnswer).trim()} over half an answer, ${pct(report.bars.shownOutOfOrder).trim()} against them as printed`);
+  const F = report.fiveColour;
+  L.push(`Five-colour:                   ${pct(F.recall)} recall (${F.right}/${F.truth}), precision ${pct(F.precision).trim()} (${F.right}/${F.given}), given to ${pct(F.share).trim()} of results`);
+  L.push(`                               true five-colour to a four ${pct(F.truthToFour).trim()}, to three colours or fewer ${pct(F.truthToThreeOrFewer).trim()}; printed bars within ${F.band} points: ${pct(F.flat).trim()} of all, ${pct(F.flatTruth).trim()} of true five-colour`);
   L.push(`Early-result offer shown:      ${pct(report.earlyOffer.share)}   precision ${pct(report.earlyOffer.precision).trim()} (${report.earlyOffer.correct}/${report.earlyOffer.count} offered identities right)`);
   L.push('');
   L.push('Confidence labels       count   share   accuracy');
@@ -654,7 +703,15 @@ function textComparison(reports, ids, meta, opts) {
   L.push(head('Result against its bars'));
   L.push(row('  over one answer', r => r.bars.overOneAnswer));
   L.push(row('  over half an answer', r => r.bars.overHalfAnswer));
-  L.push(row('  shown out of order', r => r.bars.shownOutOfOrder));
+  L.push(row('  against them as printed', r => r.bars.shownOutOfOrder));
+  L.push('');
+  L.push(head(`Five-colour (band ${FIVE_COLOUR_BAND} points)`));
+  L.push(row('  recall (true five given five)', r => r.fiveColour.recall));
+  L.push(row('  precision (five given, right)', r => r.fiveColour.precision));
+  L.push(row('  given to (share of results)', r => r.fiveColour.share));
+  L.push(row('  true five given a four', r => r.fiveColour.truthToFour));
+  L.push(row('  printed bars within the band', r => r.fiveColour.flat));
+  L.push(row('  ...of true five-colour', r => r.fiveColour.flatTruth));
   L.push('');
   L.push(head('Confidence labels'));
   for (const k of LABELS) L.push(row(`  ${k} share`, r => (r.confidence[k] || { share: 0 }).share));
@@ -680,13 +737,16 @@ function textComparison(reports, ids, meta, opts) {
 // ---------- Text: summary across p ----------
 function textAcrossP(reports, opts) {
   const L = ['Exact recovery by p (type averages)'];
-  L.push('  ' + 'p'.padEnd(6) + 'model'.padEnd(14) + 'engine'.padEnd(8) + TYPES.map(t => t.toUpperCase().padStart(8)).join('') + 'OVERALL'.padStart(10) + 'HIGH'.padStart(8) + 'MOD'.padStart(8) + 'LOW'.padStart(8) + 'BARS'.padStart(8));
+  L.push('  ' + 'p'.padEnd(6) + 'model'.padEnd(14) + 'engine'.padEnd(8) + TYPES.map(t => t.toUpperCase().padStart(8)).join('') + 'OVERALL'.padStart(10) + 'HIGH'.padStart(8) + 'MOD'.padStart(8) + 'LOW'.padStart(8)
+    + 'NEXT'.padStart(8) + 'BARS'.padStart(8) + 'PRINT'.padStart(8) + '5 REC'.padStart(8) + '5 PREC'.padStart(8));
   const acc = (r, k) => (r.confidence[k] ? r.confidence[k].accuracy : null);
   for (const p of opts.p) for (const r of reports.filter(x => x.params.p === p)) {
     L.push('  ' + String(p).padEnd(6) + r.params.model.padEnd(14) + String(r.params.engine).padEnd(8) + TYPES.map(t => pct(r.byType[t].exact).padStart(8)).join('') + pct(r.overallExact).padStart(10)
-      + LABELS.map(k => pct(acc(r, k)).padStart(8)).join('') + pct(r.bars.overHalfAnswer).padStart(8));
+      + LABELS.map(k => pct(acc(r, k)).padStart(8)).join('') + pct(r.neighbourhoodCoverage).padStart(8) + pct(r.bars.overHalfAnswer).padStart(8) + pct(r.bars.shownOutOfOrder).padStart(8)
+      + pct(r.fiveColour.recall).padStart(8) + pct(r.fiveColour.precision).padStart(8));
   }
-  L.push('  (HIGH / MOD / LOW: accuracy of each confidence label; BARS: results over half an answer from their bars)');
+  L.push('  (HIGH / MOD / LOW: accuracy of each confidence label; NEXT: neighbourhood coverage; BARS: results over half an answer from');
+  L.push(`  their bars; PRINT: against them as printed, which breaks the contract; 5 REC / 5 PREC: Five-colour recall and precision, band ${FIVE_COLOUR_BAND})`);
   return L.join('\n');
 }
 

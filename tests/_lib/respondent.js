@@ -195,6 +195,10 @@ const MODEL_NAMES = Object.keys(MODELS);
 
 const round = (x, dp) => { const f = 10 ** dp; return Math.round(x * f) / f; };
 const roundActivation = (sorted) => (sorted || []).map(([c, v]) => [c, round(v, 3)]);
+// The bars as the results screen prints them, in WUBRG order: whole percentages,
+// Math.round(bar * 100) on the page's own values (rounding the 3 dp record
+// again could land a near tie on the other side of a half point).
+const printedBars = (sorted) => { const a = Object.fromEntries(sorted || []); return WUBRG.map((c) => Math.round((a[c] || 0) * 100)); };
 
 // params: { model = 'ideal', p, neither, seed, audience = 'consumer', gaming = false, calibration }
 // gaming sets the page's gaming toggle (state.gamingFamiliar), which lets the
@@ -226,7 +230,8 @@ function runRespondent(win, trueId, idx, params, { trace = false } = {}) {
   }
   const rc = h.state.round1Candidates;
   const round1Pick = rc && rc[0] ? rc[0].id : null;
-  const out = { trueId, idx };
+  // The Round 1 bars as printed, which an early offer is held to.
+  const out = { trueId, idx, r1Shown: printedBars(h.state.activationSorted) };
   if (trace) {
     out.r1 = (rc || []).map(c => [c.id, round(c.s1, 6)]);
     out.r1Activation = roundActivation(h.state.activationSorted);
@@ -263,6 +268,7 @@ function runRespondent(win, trueId, idx, params, { trace = false } = {}) {
   // What the simulator checks and reports beyond recovery: the final activation
   // (the neighbourhood is read from it) and the result's contract fields.
   out.finalActivation = roundActivation(h.state.activationSorted);
+  out.finalShown = printedBars(h.state.activationSorted);
   if (r) {
     out.scoringVersion = r.scoringVersion;
     out.instrumentVersion = r.instrumentVersion;
@@ -282,4 +288,4 @@ function runRespondent(win, trueId, idx, params, { trace = false } = {}) {
   return out;
 }
 
-module.exports = { MODELS, MODEL_NAMES, MIS, MIXED, jaccard, chooseOption, similarity, calibrateMisspecified, signalAt, runRespondent, round, roundActivation };
+module.exports = { MODELS, MODEL_NAMES, MIS, MIXED, jaccard, chooseOption, similarity, calibrateMisspecified, signalAt, runRespondent, round, roundActivation, printedBars };
