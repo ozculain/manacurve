@@ -910,7 +910,7 @@ run('visible-copy', async (t) => {
     dump(`question screen (${modeName})`, blocks);
     const problems = blocks.flatMap((b) => problemsIn(b, { PROFILES: h.PROFILES, questions: true }).map((p) => `${p} in "${b}"`));
     ok(`question screen's own lines, with the progress line and the undo's confirm (${modeName}): plain`,
-      problems.length === 0 && blocks.includes("That's 10 done, 35 to go.") && blocks.includes('Undo your last answer? You get one per round.'), problems.join(' | ') || blocks.join(' / '));
+      problems.length === 0 && blocks.includes('10 answered, 35 to go.') && blocks.includes('Undo your last answer? You get one per round.'), problems.join(' | ') || blocks.join(' / '));
     win.close();
   }
 

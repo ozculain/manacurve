@@ -12,9 +12,9 @@ the front page and the screens between questions they flagged lines that
 wink, sell, describe the software to itself or use Magic words a non-player
 cannot follow, several of them unanimously. Those lines now say what happens
 and stop, in the register of the two lines the readers praised ("Keeps it
-plain. Same 31 results." and "None of these. Show me all 31."). Scoring is
-unchanged: no random draw is added or dropped, and
-`tests/fixtures/golden.json` does not move.
+plain. Same 31 results." and "None of these. Show me all 31."), except two
+whose rewrites lost a blind test (below). Scoring is unchanged: no random
+draw is added or dropped, and `tests/fixtures/golden.json` does not move.
 
 - Welcome: the bold line is "A personality test based on the card game
   Magic: The Gathering. You don't need to have played it." All four read the
@@ -31,26 +31,28 @@ unchanged: no random draw is added or dropped, and
   Constructed or Blind Draft; the code keeps the mode names.
 - Under every question: "Which is more like you?" All four called "Choose
   the response more like you." survey-speak.
-- Every ten answers: "That's 10 done, 35 to go." (was "10 answered, 35 to
-  go."). The same numbers, shown at the same answers.
 - No round names. The question label reads "Round 1", "Round 2" and "Round
   3" ("Round 3: Tiebreaker" as before), and How This Works titles its rows
   the same way. "First Impressions", "Refinement" and "Final Determination"
   read as a consultancy deck.
-- Before Round 3: "Your answers so far point to one of four results. The
-  last few questions decide which." The old line ("Four results are still in
-  the running. You'll compare them two at a time.") read as a betting-shop
-  board and as software describing itself. The new line stands on its own,
-  since screen readers skip the face-down cards. With one result left (the
-  old engine only): "Your answers so far point to one result."
 - The early offer after Round 1: "You can see your result now. If you keep
   going, the rest of the quiz checks it, and it may change." All four called
   "We can call it now, or you can keep going for a firmer result." sales
   talk, with statistics language straight after the not-science disclaimer.
   It says "the rest of the quiz" because Round 2 is sometimes empty.
+- Blind test: two more fresh readers compared the 18 old and new lines in
+  random order. The new lines won 17 to 6 on "a person wrote it" and were
+  preferred in 77% of decided pairs. Both readers preferred the old line in
+  two pairs, and those stay as they were: the progress line ("10 answered,
+  35 to go.", "shorter, which suits a progress line"; the rewrite, "That's
+  10 done, 35 to go.", gets chatty if repeated) and the line before Round 3
+  ("Four results are still in the running. You'll compare them two at a
+  time.", "plain and says what happens next"; the rewrite read as dramatic),
+  with its one-result variant.
 - Kept: Rule 0, the title, the taglines, "Played Magic?", "Not really" and
-  its note, the work-mode link, the undo, "Round 1 done." and the other
-  transitions, "Start Round 3", "Keep going" and "Show my result".
+  its note, the work-mode link, the undo, the progress line, "Round 1 done."
+  and the other transitions, the line before Round 3, "Start Round 3", "Keep
+  going" and "Show my result".
 - Not touched: the resume offer on the welcome screen ("You have an
   assessment in progress (Round 2, Question 4)") has the same fault, but it
   is built outside `PLAY_COPY` and the readers never saw it. The pre-result
@@ -60,15 +62,13 @@ unchanged: no random draw is added or dropped, and
   and result-screen work, which change the instrument too.
 - Tests: `tests/play.test.js` (98 checks) holds the new words, checks the
   bold line (P4b2), keeps "Constructed" and "Blind Draft" off the preflight
-  in both states (P3c), and fails if any line the readers flagged comes back
-  in `PLAY_COPY`, on the welcome or the preflight, in a round label or in the
-  progress line (P5c2). Run against the previous build it fails 18 of its 98
-  checks. `tests/visible-copy.test.js` follows the new progress line, and the
+  in both states (P3c), and fails if any other line the readers flagged comes
+  back in `PLAY_COPY`, on the welcome or the preflight, or in a round label
+  (P5c2). Run against the previous build it fails 9 of its 98 checks. The
   tests README says what `play.test.js` now holds.
-- Not measured in a browser. The progress line is three characters longer
-  and the question line eleven shorter. The early offer and the Round 3 line
-  are longer and may take another line on a phone; both screens have room to
-  spare.
+- Not measured in a browser. The question line is eleven characters
+  shorter; the early offer is longer and may take another line on a phone,
+  on a screen with room to spare.
 
 ### Red answers: conviction, not impulse
 

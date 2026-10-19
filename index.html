@@ -5832,8 +5832,10 @@ function updateLikelihood(stage) {
 // screens between questions were rewritten from four fresh readers (19 October
 // 2026): a line says what happens and stops, with no wink, no sales line, no
 // software narrating itself and no Magic word a non-player cannot follow
-// (tests/play.test.js keeps the lines they flagged out). The results page's
-// share and table strings are still marked PROVISIONAL.
+// (tests/play.test.js keeps the lines they flagged out). Two flagged lines
+// stayed: the progress line and the line before Round 3, whose rewrites lost
+// a blind test against them. The results page's share and table strings are
+// still marked PROVISIONAL.
 // Variants: "player" strings show when state.gamingFamiliar is on; "plain"
 // strings show to everyone else, and the workplace audience always gets plain
 // (isPlayerMode).
@@ -5906,10 +5908,9 @@ const PLAY_COPY = {
   // After answers 10, 20 and 40 (not 30, which ends Round 1, and not on the
   // first question of a round, which a transition has just introduced), one
   // line above the next question: how far through the quiz the player is, by
-  // the one counter, said the way a person says it ("That's 10 done, 35 to
-  // go."). The same line in every mode.
+  // the one counter. The same line in every mode.
   beats: {
-    progress: "That's {answered} done, {left} to go.",
+    progress: '{answered} answered, {left} to go.',
   },
 
   // The undo: "Free mulligan" for players, "Undo" for everyone else; the rest
@@ -5946,16 +5947,15 @@ const PLAY_COPY = {
   },
 
   // Before Round 3 (after Round 2, or after Round 1 when Round 2 had nothing
-  // to ask): one face-down card per result Round 3 plays, which are only
-  // decoration (screen readers skip them), and one line under them that
-  // stands on its own: what the answers point to and what is left.
+  // to ask): one face-down card per result still in the running, which are
+  // only decoration, and one line under them.
   interstitial: {
     title: 'Round 3',
-    // {n}: how many results Round 3 plays, as a word mid-sentence (four under
-    // the likelihood engine; the old engine can bring fewer)
-    line: 'Your answers so far point to one of {n} results. The last few questions decide which.',
-    lineOne: 'Your answers so far point to one result.',
-    count: { 2: 'two', 3: 'three', 4: 'four' },
+    // {n}: how many results Round 3 plays, as a word (four under the
+    // likelihood engine; the old engine can bring fewer)
+    line: "{n} results are still in the running. You'll compare them two at a time.",
+    lineOne: 'One result is still in the running.',
+    count: { 2: 'Two', 3: 'Three', 4: 'Four' },
     continue: 'Start Round 3',
   },
 
