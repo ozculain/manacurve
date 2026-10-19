@@ -2498,10 +2498,13 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
         <button onclick="restart()" class="mc-btn mc-btn--primary mc-seed-banner__cta">Take the test yourself ›</button>
       </div>
 
-      <!-- Workplace disclaimer banner (audience-aware) -->
+      <!-- Workplace disclaimer banner (audience-aware). Since 19 October 2026 it
+           says what it always said in a person's words: "no reliability or
+           validity data behind it" and "start a conversation about working
+           styles" read as a compliance form. -->
       <div id="workplace-disclaimer" style="display: none; margin-bottom: 28px; padding: 18px 22px; background: var(--inset); border: 1px dashed var(--gilt-soft); font-family: var(--f-body); font-size: 14px; color: var(--ink-muted); line-height: 1.6;">
         <span class="mc-eyebrow mc-eyebrow--gilt" style="display: inline-block; margin-bottom: 6px;">⚠ Work mode</span><br>
-        This profile has no reliability or validity data behind it. Use it for fun and to start a conversation about working styles. Do not use it for hiring, promotion or any other decision about a person.
+        Nobody has tested this, so there's no evidence that it's reliable or that it measures what it says. Use it for fun, or to get people talking about how they like to work. Don't use it to hire or promote anyone, or for any other decision about a person.
       </div>
 
       <!-- Hidden compat anchors (legacy IDs that JS still writes to but are now redundant — banner above carries the visible values). -->
@@ -2679,7 +2682,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
             </div>
           </div>
           <div class="mc-relations-detail" id="relations-detail">
-            <!-- Populated by renderRelations(): who to bring in, one card per missing colour -->
+            <!-- Populated by renderRelations(): who to ask, one card per missing colour -->
           </div>
         </div>
 
@@ -2687,9 +2690,9 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
              the banner (#res-banner-share); a second Share here read as a
              duplicate. The words are the audience's (renderFrameLabels). -->
         <div style="display:flex;gap:12px;margin-top:32px;flex-wrap:wrap;">
-          <button class="mc-btn mc-btn--primary" id="res-image-btn" onclick="showShareScreen()">Make an image</button>
+          <button class="mc-btn mc-btn--primary" id="res-image-btn" onclick="showShareScreen()">Save it as a picture</button>
           <button class="mc-btn" id="res-breakdown-btn" onclick="toggleBreakdown()">Show the workings</button>
-          <button class="mc-btn mc-btn--ghost" id="res-retake-btn" onclick="restart()">Retake</button>
+          <button class="mc-btn mc-btn--ghost" id="res-retake-btn" onclick="restart()">Start again</button>
         </div>
       </div>
 
@@ -2903,7 +2906,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
       </div>
 
       <div class="mc-warning" style="margin-top: 32px;">
-        <div class="mc-warning__label" id="res-warning-label">⚠ Not For Official Use</div>
+        <div class="mc-warning__label" id="res-warning-label">⚠ Not for official use.</div>
         <p style="font-family: var(--f-body); font-size: 13px; line-height: 1.6; color: var(--ink-muted); margin-bottom: 8px;">It is not validated and it is not science. We're telling you for legal reasons, and also because it's true and it's started to bother us.</p>
         <p style="font-family: var(--f-body); font-size: 13px; line-height: 1.6; color: var(--ink-muted); margin-bottom: 0;">Do not use this for hiring, firing or any other decision about a person.</p>
       </div>
@@ -3147,7 +3150,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
             </svg>
           </div>
 
-          <!-- Who to bring in (consumer mode: "Who to ask"): the colour cards, from COLOR_GAPS (renderExplorerRelations) -->
+          <!-- Who to ask: the colour cards, from COLOR_GAPS (renderExplorerRelations) -->
           <div class="mc-relations-detail" id="explorer-relations-detail" style="margin-bottom: 24px;"></div>
 
           <!-- Philosophy -->
@@ -4322,10 +4325,12 @@ const COLOR_STRENGTHS = {
   G: "You can tell when an existing process has wisdom baked in even if no one can articulate why. You restrain the impulse to rebuild what's working. Institutional knowledge survives in you because you didn't discard it as 'legacy'. Pattern recognition across years."
 };
 
-// Who to bring in: one card per colour a result lacks, headed "White
-// colleague" in workplace mode and "White" for everyone else (consumer mode
-// also swaps the lines that spoke like a workplace for COLOR_GAPS_FOR_FUN
-// below), with one line saying when to ask that colleague in. The line
+// Who to ask: one card per colour a result lacks, headed by the colour alone
+// ("White"; workplace mode said "White colleague" until 19 October 2026, and
+// a reader heard it as a racial label), with one line saying when to ask
+// someone strong in that colour. Consumer mode swaps the lines that spoke
+// like a workplace for COLOR_GAPS_FOR_FUN below, and workplace mode the lines
+// that spoke like a manager or a release note for COLOR_GAPS_AT_WORK. The line
 // belongs to the identity, so no two pages print the same card: readers
 // comparing pages saw the same blurb on half of them and took the section
 // for a template. It names a moment from that identity's own working life
@@ -4480,9 +4485,10 @@ const COLOR_GAPS = {
 // the ones above that spoke like a workplace: bring them in, check that, hand
 // them the numbers, costed, the hard thing, write off, the team, a promotion,
 // someone senior. Three readers on a consumer page called the section
-// recruitment-speak sitting beside a hiring warning. Workplace mode keeps
-// COLOR_GAPS as it is. The same rules hold: each line on one page only, no
-// opening word on more than six of the 75 cards or twice on a page.
+// recruitment-speak sitting beside a hiring warning. Workplace mode has its
+// own swaps (COLOR_GAPS_AT_WORK, below). The same rules hold: each line on one
+// page only, no opening word on more than six of the 75 cards or twice on a
+// page.
 const COLOR_GAPS_FOR_FUN = {
   'MONO-U': { W: 'Before you show anyone the plan, let them put it into plain words.' },
   'MONO-B': { G: 'Before you give up something that took years to build for something you want this week, talk to them.' },
@@ -4538,19 +4544,56 @@ const COLOR_GAPS_FOR_FUN = {
   WITCH: { R: 'Leave it to them when a deadline matters more than a better answer.' }
 };
 
-// The copy around the colleague cards, on the result and in the explorer,
-// by audience: consumer mode in plain words, workplace mode as it was. On a
-// consumer result page the heading is the section's divider
-// (RESULT_COPY.frame.others), so the cards open on the line under it.
-const COLOR_GAPS_COPY = {
-  heading: { consumer: 'Who to ask', workplace: 'Who to bring in' },
-  sub: {
-    result: { consumer: "Find someone strong in each colour you haven't got.", workplace: 'Colleagues strong in the colours outside yours.' },
-    explorer: { consumer: "People strong in the colours this type doesn't have.", workplace: "Colleagues strong in the colours this type doesn't hold." }
+// Workplace mode (19 October 2026) gets these lines in place of the ones in
+// COLOR_GAPS that spoke like a manager handing out work or a release note:
+// bring them in, put them in charge of, put them on, give them the job, send
+// them, hand them the numbers, commit the team, write off, a quick win, the
+// hierarchy, "goes live" and "ship it". Eleven are the consumer page's plain
+// lines; three are work's own. Mono-Green's keeps "the people who joined
+// last" (the consumer line says "whoever arrived last"). Selesnya's and
+// Orzhov's put "them" first, because a reader of the consumer wording took
+// "show them" for showing everyone and "let them" for the person held back;
+// Orzhov's says "the pecking order", which its own philosophy names, for
+// "the hierarchy". The rest of COLOR_GAPS was already plain at work ("Book an
+// hour with them", "a restructure", "someone senior", "under review") and
+// stays. The same rules hold as above.
+const COLOR_GAPS_AT_WORK = {
+  'MONO-B': { G: 'Before you give up something that took years to build for something you want this week, talk to them.' },
+  'MONO-G': {
+    W: 'Check with them whether the way things have always been done is fair to the people who joined last.',
+    U: 'When the usual way stops giving the usual results, find out from them why.',
+    R: 'Leave anything that has to change this week to them.'
   },
-  // Each card's head beside its pip: the colour alone in consumer mode. One
-  // reader heard "White colleague" as a racial label; nobody talks like that.
-  head: { consumer: '{colour}', workplace: '{colour} colleague' },
+  AZORIUS: { R: 'Give them any decision that has been stuck for weeks.' },
+  SELESNYA: {
+    U: 'Show them any plan that everyone loves and nobody has added up.',
+    R: "Take them with you when you finally have to tell someone something they won't like."
+  },
+  ORZHOV: { R: 'Let them make a noise when the pecking order is holding back someone who is clearly right.' },
+  RAKDOS: { U: 'Let them test the exciting plan before you go ahead.' },
+  SIMIC: { R: 'Let them call it finished when it nearly is and you want another week.' },
+  ESPER: { R: 'Ask them to talk to whoever your plan has upset.' },
+  GRIXIS: { G: "Talk it over with them before you give up on someone you'll need next year." },
+  MARDU: { U: 'Get them to pick holes in the plan before you commit everyone to it.' },
+  WITCH: { R: 'Leave it to them when a deadline matters more than a better answer.' }
+};
+
+// The copy around the colour cards, on the result and in the explorer. Since
+// 19 October 2026 both audiences read the same words: workplace mode's
+// "Who to bring in", "Colleagues strong in the colours outside yours" and
+// "White colleague" read as an HR form, and the last as a racial label. On a
+// consumer result page the heading is the section's divider
+// (RESULT_COPY.frame.others), so the cards open on the line under it;
+// workplace mode's divider names the whole section, so its cards keep the
+// heading.
+const COLOR_GAPS_COPY = {
+  heading: { consumer: 'Who to ask', workplace: 'Who to ask' },
+  sub: {
+    result: { consumer: "Find someone strong in each colour you haven't got.", workplace: "Find someone strong in each colour you haven't got." },
+    explorer: { consumer: "People strong in the colours this type doesn't have.", workplace: "People strong in the colours this type doesn't have." }
+  },
+  // Each card's head beside its pip: the colour alone.
+  head: { consumer: '{colour}', workplace: '{colour}' },
   // Five colours have no card to show. The line that stood in ("None of the
   // five colours is missing from your result.") read as machine-written.
   five: {
@@ -4563,7 +4606,8 @@ const COLOR_GAPS_COPY = {
 // audience's words.
 function gapCardsHTML(id, missing) {
   const aud = audienceKey();
-  const lines = { ...(COLOR_GAPS[id] || {}), ...(aud === 'consumer' ? COLOR_GAPS_FOR_FUN[id] || {} : {}) };
+  const swaps = aud === 'consumer' ? COLOR_GAPS_FOR_FUN : COLOR_GAPS_AT_WORK;
+  const lines = { ...(COLOR_GAPS[id] || {}), ...(swaps[id] || {}) };
   return missing.map(c => `<div class="mc-gap-card" data-color="${c}">
         <span class="mc-pip is-lit mc-gap-card__pip" data-color="${c}" aria-hidden="true"></span>
         <div class="mc-gap-card__body">
@@ -4603,7 +4647,7 @@ function renderRelations() {
   const legendEnemy = document.getElementById('rel-legend-enemy');
   if (legendEnemy) legendEnemy.classList.toggle('hidden', !document.querySelector('#screen-results .rel-edge-enemy.is-lit-enemy'));
 
-  // The right-column detail: who to bring in, one card per missing colour,
+  // The right-column detail: who to ask, one card per missing colour,
   // or for five colours one plain paragraph. A consumer page's divider over
   // the section already says "Who to ask", so the column has no heading.
   const el = document.getElementById('relations-detail');
@@ -10747,8 +10791,10 @@ function getOverviewContent(id) {
   profile.str.slice(0, 3).forEach(s => {
     html += `<li>• ${s}</li>`;
   });
-  html += `</ul>
-      <p style="font-size: 13px; color: #808090; margin-top: 12px; font-style: italic;">See Workplace tab for all ${profile.str.length} strengths</p>
+  // Every profile has three strengths and three shadows since 19 October
+  // 2026, so the pointer to the rest prints only for a profile with more.
+  html += `</ul>${profile.str.length > 3 ? `
+      <p style="font-size: 13px; color: #808090; margin-top: 12px; font-style: italic;">See Workplace tab for all ${profile.str.length} strengths</p>` : ''}
     </div>
   </div>`;
   
@@ -10763,8 +10809,8 @@ function getOverviewContent(id) {
   profile.weak.slice(0, 3).forEach(w => {
     html += `<li>• ${w}</li>`;
   });
-  html += `</ul>
-      <p style="font-size: 13px; color: #808090; margin-top: 12px; font-style: italic;">See Workplace tab for all ${profile.weak.length} shadows</p>
+  html += `</ul>${profile.weak.length > 3 ? `
+      <p style="font-size: 13px; color: #808090; margin-top: 12px; font-style: italic;">See Workplace tab for all ${profile.weak.length} shadows</p>` : ''}
     </div>
   </div>`;
   
@@ -11302,7 +11348,11 @@ function revealResults() {
 // below the profile on a consumer page are sentences and plain actions too
 // (19 October 2026), and an appeal records the sentence it was shown.
 // Workplace mode's status words, headings and buttons became plain words the
-// same day, still in 7; a workplace appeal records the new status word.
+// same day, still in 7; a workplace appeal records the new status word. Later
+// the same day workplace mode's strengths and shadows were said to the
+// reader, its colour cards lost "Who to bring in" and "White colleague", and
+// its picture button, Retake, legend, switcher label, disclaimer heading and
+// peek took the consumer page's words; still 7.
 const RESULT_COPY_VERSION = 7;
 
 const RESULT_COPY = {
@@ -11477,10 +11527,16 @@ const RESULT_COPY = {
   // workplace mode's headings and buttons are the consumer page's words too
   // (a reader heard its old ones as an HR form and a dashboard), apart from
   // the divider over the colour wheel, which sits above the cards' own
-  // heading there. Its legend, picture button, Retake and disclaimer
-  // heading are as they were. Where a consumer label became a sentence, it
-  // is styled as one (.mc-said). The picture button never says "share": the
-  // banner's Share is the one Share on the page. (Not in the drafts.)
+  // heading there. Later that day its legend, picture button ("Make an
+  // image"), Retake, switcher label ("Page style") and disclaimer heading
+  // ("Not For Official Use") followed: the same words had read to consumer
+  // readers as a slide deck and a settings panel. The dashed line's key is
+  // workplace mode's own: two readers found "pulls against a missing
+  // colour" unclear, and the consumer page still says it. Where a label
+  // became a sentence, it is styled as one (.mc-said): in both audiences for
+  // the switcher, on a consumer page only for the closing line's label
+  // (workplace mode hides that box). The picture button never says "share":
+  // the banner's Share is the one Share on the page. (Not in the drafts.)
   frame: {
     // The heading over the jobs, which follow in sentence case (rolesFor). Two
     // blind readers preferred it to the sentence tried in its place.
@@ -11492,21 +11548,22 @@ const RESULT_COPY = {
     // divider names the whole section.
     others: { consumer: 'Who to ask', workplace: 'Your colours and the rest' },
     // The key to the colour wheel; each line shows only when its kind of line is drawn.
-    legendAlly: { consumer: 'A solid line means two of your colours get on.', workplace: 'Solid line: two of your colours that get on.' },
-    legendEnemy: { consumer: 'A dashed line means one of yours pulls against a missing colour.', workplace: 'Dashed line: one of your colours and a missing colour that pulls against it.' },
+    legendAlly: { consumer: 'A solid line means two of your colours get on.', workplace: 'A solid line means two of your colours get on.' },
+    legendEnemy: { consumer: 'A dashed line means one of yours pulls against a missing colour.', workplace: "A dashed line means one of your colours doesn't get on with a colour you haven't got." },
     // The label on the closing-line box (consumer mode only; workplace mode hides the box).
     banter: { consumer: 'Your friends would put it like this.', workplace: 'Pub banter' },
-    image: { consumer: 'Save it as a picture', workplace: 'Make an image' },
+    image: { consumer: 'Save it as a picture', workplace: 'Save it as a picture' },
     breakdown: { consumer: 'Show the workings', workplace: 'Show the workings' },
     breakdownHide: { consumer: 'Hide the workings', workplace: 'Hide the workings' },
-    retake: { consumer: 'Start again', workplace: 'Retake' },
+    retake: { consumer: 'Start again', workplace: 'Start again' },
     explore: { consumer: 'See all 31 results', workplace: 'See all 31 results' },
     interactions: { consumer: 'See how the colours get on', workplace: 'See how the colours get on' },
-    // The page-style switcher's label. Workplace mode keeps PLAY_COPY's
-    // (results.themeLabel); the three theme names stay as they are.
-    themeLabel: { consumer: 'Change how the page looks.', workplace: null },
+    // The page-style switcher's label, over PLAY_COPY's (results.themeLabel,
+    // "Page style"), which fills it on load; the three theme names stay as
+    // they are.
+    themeLabel: { consumer: 'Change how the page looks.', workplace: 'Change how the page looks.' },
     // The disclaimer box at the foot of the result. The welcome screen has its own.
-    warning: { consumer: '⚠ Not for official use.', workplace: '⚠ Not For Official Use' }
+    warning: { consumer: '⚠ Not for official use.', workplace: '⚠ Not for official use.' }
   },
 
   // [4] The bars: the title by mode; the caption by audience.
@@ -11695,14 +11752,15 @@ const RESULT_COPY = {
       plain: "If this isn't quite you, try one colour more or less.",
       workplace: 'The results one colour away from yours.'
     },
-    // The peek's heading and its appeal button, by audience: a consumer page
-    // has no "Label: value" headings or buttons.
-    peekHeading: { consumer: "Here's {identity}.", workplace: 'Next door: {identity}' },
+    // The peek's heading and its appeal button, by audience: no page has
+    // "Label: value" headings or buttons (workplace mode's "Next door: Sultai"
+    // and "Appeal: I'm Sultai" went on 19 October 2026).
+    peekHeading: { consumer: "Here's {identity}.", workplace: "Here's {identity}." },
     peekNote: {
       player: 'The ruling stands unless you appeal.',
       plain: 'Your result stays the same unless you appeal.'
     },
-    button: { consumer: 'Make it {identity}', workplace: "Appeal: I'm {identity}" },
+    button: { consumer: 'Make it {identity}', workplace: 'Make it {identity}' },
     after: {
       player: 'Overturned on appeal. The original ruling stays on the record.',
       plain: 'Appeal noted. Your original result is kept too.'
@@ -11805,14 +11863,13 @@ function audienceKey() {
 
 // The headings, labels and buttons around the profile, in the audience's
 // words (RESULT_COPY.frame). The breakdown button says what its next tap
-// does. On a consumer page the labels that are sentences there (the
-// closing-line box's label, the page-style switcher's) are styled as
-// sentences (.mc-said); workplace mode's labels keep their label style, and
-// its switcher's label comes from PLAY_COPY.
+// does. The labels that are sentences are styled as sentences (.mc-said):
+// the page-style switcher's in both audiences, the closing-line box's on a
+// consumer page (workplace mode hides the box, and its label stays a label).
 function renderFrameLabels() {
   const F = RESULT_COPY.frame, aud = audienceKey();
   const set = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
-  const said = (id) => { const el = document.getElementById(id); if (el) el.classList.toggle('mc-said', aud === 'consumer'); };
+  const said = (id, on = aud === 'consumer') => { const el = document.getElementById(id); if (el) el.classList.toggle('mc-said', on); };
   set('roles-title', F.roles[aud]);
   set('detail-roles-title', F.detailRoles[aud]);
   set('res-others-title', F.others[aud]);
@@ -11827,7 +11884,7 @@ function renderFrameLabels() {
   set('res-explore-btn', F.explore[aud]);
   set('res-interactions-btn', F.interactions[aud]);
   set('theme-switch-label', F.themeLabel[aud] || playCopyAt('results.themeLabel'));
-  said('theme-switch-label');
+  said('theme-switch-label', true);
   set('res-warning-label', F.warning[aud]);
 }
 
@@ -13053,16 +13110,16 @@ function showShareScreen() {
   if (tcgConf) tcgConf.textContent = isPlayerMode() ? collectorNumber(state.result.identity) : '';
   const tcgRules = document.getElementById('tcg-rules');
   if (tcgRules) {
-    if (audience !== 'workplace' && p.you && p.you.length) {
-      // Consumer mode: the first two `you` lines, as the result page prints
-      // them, with no keyword over them. Two fit the Card's text box with the
-      // flavour line under them on all 31 (measured in a browser at the share
-      // studio's 400px); a third pushes the flavour line out on most.
-      tcgRules.innerHTML = p.you.slice(0, 2).map(line => `<li>${htmlText(line)}</li>`).join('');
-    } else {
-      const headers = ['Vigilance', 'Resilience', 'Strategic Patience']; // placeholder ability headers
-      tcgRules.innerHTML = (p.str || []).slice(0, 3).map((line, i) => `<li><strong>${headers[i] || 'Strength'}</strong>${line}</li>`).join('');
-    }
+    // The first two lines the result page prints about you, as it prints
+    // them, with no keyword over them: the `you` lines in consumer mode, the
+    // strengths in workplace mode. Two fit the Card's text box with the
+    // flavour line under them on all 31 in both modes (measured in a browser
+    // with the page's fonts, at the share studio's 400px); a third `you`
+    // line pushed the flavour line out on most. Workplace mode once printed
+    // three strengths under placeholder keywords ("Vigilance", "Resilience",
+    // "Strategic Patience") that matched none of them.
+    const lines = audience !== 'workplace' && p.you && p.you.length ? p.you : (p.str || []);
+    tcgRules.innerHTML = lines.slice(0, 2).map(line => `<li>${htmlText(line)}</li>`).join('');
   }
   const tcgFlavor = document.getElementById('tcg-flavor');
   if (tcgFlavor) tcgFlavor.textContent = audience === 'workplace' ? (p.philosophy || '') : (p.pubBanter || p.desc || '');

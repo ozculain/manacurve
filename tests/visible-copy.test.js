@@ -83,15 +83,15 @@
 // card rewards ...", "... worth it", "The team finds you ..."), and the same
 // em dash, rhetorical question and banned words; the rules are spelt out
 // above rhythmProblems. It also holds the voice across the 31 (above
-// voiceProblems): no "we", "us" or "our", no strength or shadow opening on
-// "You" or "The", no year written out, no joke shape ("the room", "quietly",
-// acting while others are still at it, a closing line turning on ", and")
-// or office prop (meetings, quarters, favours, emails, the fridge and cake,
-// votes, a crisis, weekdays, "nobody", an X about the X) on more profiles
-// than its limit, and a closing line on 22 profiles at most, each in a box
-// labelled "Your friends would put it like this." (once "Pub banter"). Jokes,
-// dramatic colons and a neat closing line in
-// other words cannot be caught by a pattern; they are left to review. The
+// voiceProblems): no "we", "us" or "our", "you" in every strength and shadow
+// and none opening on "The", no year written out, no joke shape ("the room",
+// "quietly", acting while others are still at it, a closing line turning on
+// ", and") or office prop (meetings, quarters, favours, emails, the fridge
+// and cake, votes, a crisis, weekdays, "nobody", an X about the X) on more
+// profiles than its limit, and a closing line on 22 profiles at most, each
+// in a box labelled "Your friends would put it like this." (once "Pub
+// banter"). Jokes, dramatic colons and a neat closing line in other words
+// cannot be caught by a pattern; they are left to review. The
 // checkers themselves are tested last, on the paragraph a player saw on a
 // phone before these rules existed, on the profiles' old passages and on the
 // pages the second and third readers saw.
@@ -102,6 +102,11 @@
 // word from the game, Mono-Blue opening on the author's two lines) and to the
 // voice rules ("you" in every line); it reads strengths and shadows from the
 // explorer, which still prints them, as do the dossier and workplace mode.
+// Since "Workplace pages in the second person" (CHANGELOG) the strengths and
+// shadows speak to the reader too, where they were anecdotes about some
+// colleague: section 16 holds them to traitProblems (three of each, no two of
+// a profile's six lines opening on the same word, "You" and "Your" as one)
+// and to the voice rules ("you" in every line).
 // The author's two lines (AUTHOR_LINES) are read past by the dash and list
 // rules, as an identity name is. Section 9 also fails a consumer page that
 // prints a work heading or label ("Natural Roles", "White colleague" ...), one
@@ -111,7 +116,11 @@
 // a consumer peek whose heading or appeal button is a "Label: value".
 // Section 6 fails a workplace page, with the workings open, that prints one
 // of the status words, headings or buttons its reader heard as an app or an
-// HR form ("Locked in", "Natural Roles", "View Full Breakdown" ...).
+// HR form ("Locked in", "Natural Roles", "View Full Breakdown" ...), or one
+// of the labels it kept after the consumer page dropped them ("Who to bring
+// in", "White colleague", "Make an image", "Retake" ...), or the old work-mode
+// box. Section 9 holds workplace mode's colour cards to the consumer cards'
+// rules.
 // Usage: node tests/visible-copy.test.js [--dump] [path/to/index.html]
 const { bootPage, pageArgs, whenReady, isVisible, EXPOSE } = require('./_lib/load');
 const { run } = require('./_lib/report');
@@ -653,14 +662,16 @@ const listItems = (text) => text.split(/,\s*(?:(?:and|or)\s+)?|\s+(?:and|or)\s+/
 // pages saw the same joke shapes on page after page (the room, quietly,
 // acting while everyone else is still at something, exact years, a closing
 // line that turns on ", and") and the person drifting within a page, from
-// "you" to "they" to a sudden "we". The philosophy and the closing line say
-// "you", the strengths and shadows describe a person with no subject, and
-// nothing says "we". A rule fails on:
-//   - person: "we", "us" or "our" anywhere; a strength or shadow that opens
-//     on "You" or "Your", or on "The" (a note about something else: "The
-//     transition was discussed in March", "The team has, collectively,
-//     stopped scheduling"), which the third readers saw switch the list's
-//     voice
+// "you" to "they" to a sudden "we". The philosophy, the closing line, the
+// `you` lines and, since "Workplace pages in the second person", the
+// strengths and shadows say "you", and nothing says "we". A rule fails on:
+//   - person: "we", "us" or "our" anywhere; a strength or shadow with no
+//     "you" in it (they once described a person with no subject, and the
+//     author's own note says an office anecdote about some colleague makes
+//     the reader a bystander), or one that opens on "The" (a note about
+//     something else: "The transition was discussed in March", "The team
+//     has, collectively, stopped scheduling"), which the third readers saw
+//     switch the list's voice
 //   - years: a year written out (1998, 2034)
 //   - shapes: more profiles than SHAPE_LIMITS allows using one shape, across
 //     the philosophy, strengths, shadows, closing line and description
@@ -706,7 +717,10 @@ function voiceProblems(passages) {
     const all = x.items.join(' ');
     const we = /\b(?:we|us|our)\b/i.exec(all);
     if (we) add('person', `${x.id} ${x.part}: "${we[0]}" in "${all.slice(0, 70)}"`);
-    if (x.list && ['strengths', 'shadows'].includes(x.part)) x.items.filter((i) => /^(?:you|your|the)\b/i.test(i)).forEach((i) => add('person', `${x.id} ${x.part} opens on "${i.split(' ')[0]}": "${i}"`));
+    if (x.list && ['strengths', 'shadows'].includes(x.part)) {
+      x.items.filter((i) => /^the\b/i.test(i)).forEach((i) => add('person', `${x.id} ${x.part} opens on "${i.split(' ')[0]}": "${i}"`));
+      x.items.filter((i) => !SPEAKS_TO_YOU.test(i)).forEach((i) => add('person', `${x.id} ${x.part}: no "you" in "${i}"`));
+    }
     if (x.part === 'you') x.items.filter((i) => !SPEAKS_TO_YOU.test(i)).forEach((i) => add('person', `${x.id} you: no "you" in "${i}"`));
     const year = /\b(?:1[89]|20)\d\d\b/.exec(all);
     if (year) add('years', `${x.id} ${x.part}: ${year[0]} in "${all.slice(0, 70)}"`);
@@ -758,6 +772,29 @@ function youProblems(byId) {
   if ('MONO-U' in byId && JSON.stringify((byId['MONO-U'] || []).slice(0, 2)) !== JSON.stringify(AUTHOR_LINES)) add('author', `MONO-U opens on ${JSON.stringify((byId['MONO-U'] || []).slice(0, 2))}`);
   return out;
 }
+// ---------- the strengths and shadows (section 16) ----------
+// CHANGELOG, "Workplace pages in the second person". Each profile's
+// strengths and shadows, as the explorer prints them (workplace mode and the
+// dossier print the same lines), and a check fails on:
+//   - count: other than three strengths and three shadows
+//   - opening: two of a profile's six lines opening on the same word, "You"
+//     and "Your" counting as one (a contraction counts as its word)
+// "You" in every line and no line on "The" are the voice rules' (person).
+const traitOpener = (line) => { const w = opener(line); return /^(?:you|your|yours|yourself)$/.test(w) ? 'you' : w; };
+function traitProblems(byId) {
+  const out = [];
+  const add = (rule, detail) => out.push({ rule, detail });
+  for (const [id, { str, weak }] of Object.entries(byId)) {
+    if (str.length !== 3 || weak.length !== 3) add('count', `${id}: ${str.length} strengths, ${weak.length} shadows`);
+    const seen = new Map();
+    for (const line of [...str, ...weak]) {
+      const w = traitOpener(line);
+      if (seen.has(w)) add('opening', `${id}: "${seen.get(w)}" / "${line}"`);
+      else seen.set(w, line);
+    }
+  }
+  return out;
+}
 // The "Not For Official Use" box, in both modes: the author's line first,
 // word for word, then the one about hiring and firing.
 const AUTHOR_DISCLAIMER = "It is not validated and it is not science. We're telling you for legal reasons, and also because it's true and it's started to bother us.";
@@ -772,8 +809,9 @@ const BANTER_LABEL = 'Your friends would put it like this.';
 // deck under the rewritten profiles (CHANGELOG, "Result pages: the labels
 // below the profile"): the status words, the self-help heading, the Title
 // Case buttons, the colon key and headlines, the footnote caption. Workplace
-// mode keeps its legend, picture button, Retake, switcher label and
-// disclaimer heading.
+// mode keeps the headings over its strengths and shadows, the bars' caption
+// and next door's line; since "Workplace pages in the second person" it
+// prints none of the others (WORKPLACE_GONE).
 const CONSUMER_GONE = [/^Strengths$/, /^Shadows$/, /^Natural Roles$/, /^Working With Others$/, /^Who to bring in$/, /^View Full Breakdown$/, /^Make an image$/,
   /^(?:White|Blue|Black|Red|Green) colleague$/, /^Colleagues strong in\b/,
   /^Locked in$/, /^Leaning$/, /^Still shuffling$/, /^Who you need around you$/, /^Make a picture$/,
@@ -784,9 +822,14 @@ const CONSUMER_GONE = [/^Strengths$/, /^Shadows$/, /^Natural Roles$/, /^Working 
 // as an app's or an HR form's (CHANGELOG, "Result pages: the last flagged
 // lines, the workplace labels and eight taglines"). No page prints them now:
 // section 6 holds the workplace page to it with the workings open, and
-// tests/render.test.js holds the words that replaced them.
+// tests/render.test.js holds the words that replaced them. Then the labels
+// workplace mode kept after the consumer page dropped them, and the old
+// work-mode box (CHANGELOG, "Workplace pages in the second person").
 const WORKPLACE_GONE = [/^Locked in$/, /^Leaning$/, /^Still shuffling$/, /^Natural Roles$/, /^Natural roles$/,
-  /^Working With Others$/, /^View Full Breakdown$/, /^Hide Full Breakdown$/, /^Explore All 31 Types$/, /^How Colours Interact$/];
+  /^Working With Others$/, /^View Full Breakdown$/, /^Hide Full Breakdown$/, /^Explore All 31 Types$/, /^How Colours Interact$/,
+  /^Who to bring in$/, /^(?:White|Blue|Black|Red|Green) colleague$/, /^Colleagues strong in\b/, /^Make an image$/, /^Retake$/,
+  /^Page style$/, /^⚠ Not For Official Use$/, /^Solid line: /, /^Dashed line: /, /^Next door: /, /^Appeal: /,
+  /reliability or validity data/, /conversation about working styles/];
 
 // ---------- collecting what is on screen ----------
 // Not prose for these rules: the identity's own content, the commander block
@@ -1047,7 +1090,7 @@ run('visible-copy', async (t) => {
       win.toggleBreakdown();
       const page = visibleBlocks(win, screen, { exclude: [] });
       const old = page.filter((b) => WORKPLACE_GONE.some((re) => re.test(b)));
-      ok(`result: ${st.name}: none of the old status words, headings or buttons, with the workings open ("Locked in", "Natural Roles", "Hide Full Breakdown" ...)`,
+      ok(`result: ${st.name}: none of the old status words, headings, buttons or labels, with the workings open ("Locked in", "Natural Roles", "Who to bring in", "Make an image" ...)`,
         page.includes('Hide the workings') && old.length === 0, old.join(' | ') || page.filter((b) => /workings/i.test(b)).join(' | '));
     }
     win.close();
@@ -1065,9 +1108,10 @@ run('visible-copy', async (t) => {
     const d = win.document;
     d.querySelector('#next-door-chips .mc-nextdoor__chip[data-id="SULTAI"]').click();
     checkScreen(`result: a peek next door (${mode})`, win, d.getElementById('screen-results'), h.PROFILES);
-    // A consumer peek has no "Label: value" heading or button (workplace
-    // mode keeps "Next door: Sultai" and "Appeal: I'm Sultai").
-    if (mode !== 'workplace') {
+    // A peek has no "Label: value" heading or button, in any mode (workplace
+    // mode's "Next door: Sultai" and "Appeal: I'm Sultai" went on 19 October
+    // 2026).
+    {
       const head = ((d.querySelector('.mc-nextdoor__panel-head') || {}).textContent || '').trim();
       const button = (d.getElementById('appeal-btn').textContent || '').trim();
       ok(`result: a peek next door (${mode}): the heading and the appeal button are a sentence and a plain action`,
@@ -1222,7 +1266,7 @@ run('visible-copy', async (t) => {
     // The theme switcher is its label and three names: the notes about Card
     // Frames ("keeps the colours hidden until your result", "keeps the page
     // plain during the quiz") read to first-time readers as settings text.
-    // On a consumer page the label is a sentence ("Page style" in workplace mode).
+    // The label is a sentence (in workplace mode too, since it said "Page style").
     const sw = visibleBlocks(win, d.getElementById('theme-switch'), { exclude: [] }).join(' / ');
     if (sw !== 'Change how the page looks. / Gilded Hall / Card Frames / Borderless') legendIssues.push(`theme switcher "${sw}"`);
     ok(`result (${modeName}): the line under the label is confidenceLine's, true to the bars, for all 31 on seven bar shapes`, lineIssues.length === 0 && errors.length === 0,
@@ -1250,6 +1294,45 @@ run('visible-copy', async (t) => {
     const openings = cardOpeningProblems(cardsByPage);
     ok(`colleague cards: no opening word on more than ${CARD_OPENINGS} of the 75 cards, and none twice on one page (all 31)`,
       Object.keys(cardsByPage).length === 31 && openings.length === 0, openings.slice(0, 4).join(' | '));
+  }
+  // Workplace mode's cards (CHANGELOG, "Workplace pages in the second
+  // person"): COLOR_GAPS with its own swaps (COLOR_GAPS_AT_WORK), held to the
+  // consumer page's rules: one card per missing colour, headed by the colour
+  // alone, none of the traits readers caught and no sentence on "You", each
+  // line on one page only, no opening word on more than six cards or twice on
+  // a page.
+  {
+    const { win, h, errors } = await page();
+    const d = win.document, P = h.PROFILES;
+    h.selectAudience('workplace');
+    const s = h.state;
+    s.gamingFamiliar = true;
+    const issues = [], workLines = {}, workPages = {};
+    for (const id of Object.keys(P)) {
+      s.result = { identity: id, confidence: 'MODERATE', allResults: [], scoringVersion: 2, instrumentVersion: 4, round3Data: {} };
+      s.activationSorted = sorted(barsFor(P[id].colors, 0.4));
+      s.responses = new Array(30).fill({ c: P[id].colors[0] });
+      s.neitherCount = 1;
+      s.qualityFlags = CLEAN_FLAGS;
+      s.disclaimerAcknowledged = true;
+      h.showResults();
+      const missing = ['W', 'U', 'B', 'R', 'G'].filter((c) => !P[id].colors.includes(c));
+      const cards = [...d.querySelectorAll('#relations-detail .mc-gap-card')];
+      const heads = cards.map((card) => ((card.querySelector('.mc-gap-card__head') || {}).textContent || '').trim());
+      const gaps = cards.map((card) => ((card.querySelector('.mc-gap-card__gap') || {}).textContent || '').trim());
+      if (cards.length !== missing.length || gaps.some((x) => !x)) issues.push(`${id}: ${cards.length} cards for ${missing.length} colours`);
+      if (heads.join() !== missing.map((c) => ({ W: 'White', U: 'Blue', B: 'Black', R: 'Red', G: 'Green' })[c]).join()) issues.push(`${id}: heads ${heads.join(', ')}`);
+      gaps.forEach((x) => (workLines[x] = workLines[x] || new Set()).add(id));
+      workPages[id] = gaps;
+      for (const b of visibleBlocks(win, d.getElementById('relations-detail'), { exclude: [] })) {
+        issues.push(...gapProblems(b).map((p) => `${id}: ${p}`), ...contentProblems(b, { PROFILES: P }).map((p) => `${id}: ${p}`));
+      }
+    }
+    issues.push(...Object.entries(workLines).filter(([, ids]) => ids.size > 1).map(([x, ids]) => `"${x}" on ${[...ids].join(', ')}`));
+    issues.push(...cardOpeningProblems(workPages));
+    ok(`colour cards (workplace): one per missing colour, headed by the colour alone, none of the traits readers caught and no sentence on "You", each of the ${Object.keys(workLines).length} lines on one page only, no opening word on more than ${CARD_OPENINGS} cards or twice on a page (all 31)`,
+      Object.keys(workLines).length === 75 && issues.length === 0 && errors.length === 0, issues.slice(0, 4).join(' | ') || errors.slice(0, 2).join(' | '));
+    win.close();
   }
   for (const audience of ['consumer', 'workplace']) {
     const { win, h, errors } = await page();
@@ -1536,8 +1619,17 @@ run('visible-copy', async (t) => {
       const hits = youFound.filter((v) => v.rule === rule);
       ok(`you: ${label} (all 31 profiles, ${Object.values(youByPage).flat().length} lines)`, Object.keys(youByPage).length === 31 && hits.length === 0, hits.slice(0, 4).map((v) => v.detail).join(' | '));
     }
+    // The strengths and shadows as the explorer printed them, held to their own rules.
+    const part = (id, name) => (passages.find((x) => x.id === id && x.part === name) || { items: [] }).items;
+    const traitsByPage = Object.fromEntries(Object.keys(P).map((id) => [id, { str: part(id, 'strengths'), weak: part(id, 'shadows') }]));
+    const traitFound = traitProblems(traitsByPage);
+    for (const [rule, label] of [['count', 'three strengths and three shadows'],
+      ['opening', 'no two of a profile\'s six lines open on the same word ("You" and "Your" are one)']]) {
+      const hits = traitFound.filter((v) => v.rule === rule);
+      ok(`strengths and shadows: ${label} (all 31 profiles)`, Object.keys(traitsByPage).length === 31 && hits.length === 0, hits.slice(0, 4).map((v) => v.detail).join(' | '));
+    }
     const voice = voiceProblems([...passages, ...extras]);
-    for (const [rule, label] of [['person', 'each section keeps its person: no "we", "us" or "our", no strength or shadow opening on "You" or "The", and "you" in every `you` line'],
+    for (const [rule, label] of [['person', 'each section keeps its person: no "we", "us" or "our", "you" in every strength, shadow and `you` line, and no strength or shadow opening on "The"'],
       ['years', 'no year written out'], ['shapes', 'no joke shape on more profiles than its limit ("the room", "quietly", "everyone else", acting while others are still at it, a closing line turning on ", and")'],
       ['props', 'no office prop on more profiles than its limit (meetings, quarters, favours, emails, the fridge and cake, votes, a crisis, weekdays, "nobody", an X about the X), colleague cards and rules text included'],
       ['banter', `a closing line on at most ${BANTER_PROFILES} profiles`]]) {
@@ -1778,7 +1870,9 @@ run('visible-copy', async (t) => {
     const rulesFound = (passages) => [...new Set(voiceProblems(passages).map((v) => v.rule))].sort().join();
     const voiceSamples = [
       [[{ id: 'WITCH', part: 'banter', items: ['We threw you a surprise party once, mostly as an experiment. You thanked us.'] }], 'person'],
-      [[{ id: 'DIMIR', part: 'shadows', list: true, items: ['You know things and never say how.'] }], 'person'],
+      // the office anecdote about some colleague, where a strength or shadow
+      // should speak to the reader
+      [[{ id: 'MONO-G', part: 'shadows', list: true, items: ['Has politely outlasted three reorgs and the people who proposed them.'] }], 'person'],
       [[{ id: 'ORZHOV', part: 'shadows', list: true, items: ['Did a colleague a small favour in 2022, and has been collecting on it since.'] }], 'years'],
       [['MONO-U', 'NAYA', 'INK'].map((id) => ({ id, part: 'shadows', list: true, items: ['Quietly grades the room.'] })), 'shapes'],
       [['GRUUL', 'BOROS', 'GLINT'].map((id) => ({ id, part: 'strengths', list: true, items: ['Closes the deal while the others are still arranging the call.'] })), 'shapes'],
@@ -1791,14 +1885,25 @@ run('visible-copy', async (t) => {
       // the office anecdote about some colleague, where a `you` line should be
       [[{ id: 'DIMIR', part: 'you', list: true, items: ['Has spotted three of the last five problems first.'] }], 'person'],
     ].filter(([passages, rule]) => !rulesFound(passages).includes(rule)).map(([passages, rule]) => `${passages[0].items[0]}: wanted ${rule}, got ${rulesFound(passages)}`);
-    ok('the voice checker flags "we", a shadow on "You" or "The", a `you` line with no "you", a year, a joke shape or an office prop on several pages, and a closing line on too many', voiceSamples.length === 0, voiceSamples.join(' | '));
+    ok('the voice checker flags "we", a strength or shadow with no "you" or on "The", a `you` line with no "you", a year, a joke shape or an office prop on several pages, and a closing line on too many', voiceSamples.length === 0, voiceSamples.join(' | '));
     const voiceClean = voiceProblems([
-      { id: 'BOROS', part: 'shadows', list: true, items: ["Treats 'let's just send an email' as a form of moral cowardice."] },
-      { id: 'IZZET', part: 'strengths', list: true, items: ['Will rebuild a system at 11pm because they thought of a better way at 10:47pm.'] },
-      { id: 'BANT', part: 'strengths', list: true, items: ["Asks the quietest person in the room first, and changes the plan when they're right."] },
+      { id: 'BOROS', part: 'shadows', list: true, items: ["You treat 'let's just send an email' as a form of moral cowardice."] },
+      { id: 'IZZET', part: 'strengths', list: true, items: ['At 11pm you rebuild a system because you thought of a better way at 10:47pm.'] },
+      { id: 'BANT', part: 'strengths', list: true, items: ["You ask the quietest person in the room first, and change the plan when they're right."] },
       { id: 'MONO-U', part: 'you', list: true, items: [...AUTHOR_LINES, 'People come to you upset and go away informed.'] },
     ]);
-    ok('the voice checker passes a quoted "let\'s", a time of night, one page with "the room" and `you` lines that open on "You"', voiceClean.length === 0, voiceClean.map((v) => v.detail).join(' | '));
+    ok('the voice checker passes a quoted "let\'s", a time of night, one page with "the room", and strengths, shadows and `you` lines said to "you"', voiceClean.length === 0, voiceClean.map((v) => v.detail).join(' | '));
+
+    // The strengths-and-shadows checker (section 16), on made-up pages.
+    const traitRules = (byId) => [...new Set(traitProblems(byId).map((v) => v.rule))].sort().join();
+    const traitSamples = [
+      [{ X: { str: ['You read the brief.', 'People ask you first.'], weak: ['A rule you keep can outlive its reason.', 'If you must, you will.', 'Exceptions make you uneasy.'] } }, 'count'],
+      [{ X: { str: ['You read the brief.', 'People ask you first.', 'When the figures change, so do you.'], weak: ['Your desk is tidy.', 'If you must, you will.', 'Exceptions make you uneasy.'] } }, 'opening'],
+      [{ X: { str: ['People ask you first.', 'When the figures change, so do you.', 'Rules you write get followed.'], weak: ['People wait for you.', 'If you must, you will.', 'Exceptions make you uneasy.'] } }, 'opening'],
+    ].filter(([byId, rule]) => !traitRules(byId).includes(rule)).map(([byId, rule]) => `${JSON.stringify(byId)}: wanted ${rule}, got ${traitRules(byId)}`);
+    ok('the strengths-and-shadows checker flags two strengths, and two lines on one page opening alike ("You" and "Your" as one)', traitSamples.length === 0, traitSamples.join(' | '));
+    const traitClean = traitProblems({ X: { str: ['You read the brief.', 'People ask you first.', 'When the figures change, so do you.'], weak: ['A rule you keep can outlive its reason.', 'If you must, you will.', 'Exceptions make you uneasy.'] } });
+    ok('the strengths-and-shadows checker passes three of each that open differently', traitClean.length === 0, traitClean.map((v) => v.detail).join(' | '));
 
     // The `you` checker (section 16), on made-up pages and on the author's.
     const youRules = (byId) => [...new Set(youProblems(byId).map((v) => v.rule))].sort().join();

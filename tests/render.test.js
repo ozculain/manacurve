@@ -215,9 +215,12 @@ const BARS_CAPTION = {
 };
 // The words around the profile by audience (RESULT_COPY.frame): checked by
 // text, so a change is a decision. Since 19 October 2026 workplace mode says
-// its headings and buttons in the consumer page's words too, apart from the
-// divider over the colour wheel; its legend, picture button, Retake, switcher
-// label and disclaimer heading are as they were.
+// its headings, buttons, legend, switcher label and disclaimer heading in the
+// consumer page's words too ("Make an image", "Retake", "Page style", "Not
+// For Official Use" and the colon key went), apart from the divider over the
+// colour wheel, which names the whole section there, and the dashed line's
+// key, which two readers found unclear in the consumer wording ("pulls
+// against a missing colour").
 const CONSUMER_FRAME = {
   'roles-title': "Jobs you'd be good at",
   'res-others-title': 'Who to ask',
@@ -235,16 +238,20 @@ const CONSUMER_FRAME = {
 const WORKPLACE_FRAME = {
   'roles-title': "Jobs you'd be good at",
   'res-others-title': 'Your colours and the rest',
-  'res-image-btn': 'Make an image',
+  'res-image-btn': 'Save it as a picture',
   'res-breakdown-btn': 'Show the workings',
-  'res-retake-btn': 'Retake',
+  'res-retake-btn': 'Start again',
   'res-explore-btn': 'See all 31 results',
   'res-interactions-btn': 'See how the colours get on',
-  'theme-switch-label': 'Page style',
-  'res-warning-label': '⚠ Not For Official Use',
-  'rel-legend-ally-text': 'Solid line: two of your colours that get on.',
-  'rel-legend-enemy-text': 'Dashed line: one of your colours and a missing colour that pulls against it.',
+  'theme-switch-label': 'Change how the page looks.',
+  'res-warning-label': '⚠ Not for official use.',
+  'rel-legend-ally-text': 'A solid line means two of your colours get on.',
+  'rel-legend-enemy-text': "A dashed line means one of your colours doesn't get on with a colour you haven't got.",
 };
+// The box at the top of a workplace page: what it always said, in a person's
+// words (it once read "no reliability or validity data behind it").
+const WORK_MODE_BOX = "⚠ Work mode Nobody has tested this, so there's no evidence that it's reliable or that it measures what it says. "
+  + "Use it for fun, or to get people talking about how they like to work. Don't use it to hire or promote anyone, or for any other decision about a person.";
 
 function checkRender(win, h, c, audience, player, threw, errors) {
   const d = win.document, p = h.PROFILES[c.id], problems = [];
@@ -277,33 +284,39 @@ function checkRender(win, h, c, audience, player, threw, errors) {
     need(!visible('res-cmd-aside') && text('cmd-desc-aside') === '' && el('res-roles-grid').style.gridTemplateColumns === '1fr', 'commander block shown outside player mode, or the roles not at full width');
   }
   // Consumer mode: the profile's `you` lines, one list with no heading, where
-  // Strengths and Shadows stood. Workplace mode keeps the two columns.
+  // Strengths and Shadows stood. Workplace mode keeps the two columns, three
+  // lines each, and the box at the top in a person's words.
   if (audience === 'workplace') {
     need(visible('res-traits') && !visible('res-you'), 'workplace mode should show strengths and shadows, not the you lines');
-    need(d.querySelectorAll('#strengths li').length === p.str.length && p.str.length > 0, 'strengths list');
-    need(d.querySelectorAll('#weaknesses li').length === p.weak.length && p.weak.length > 0, 'shadows list');
+    const lis = (id) => [...d.querySelectorAll(`#${id} li`)].map((li) => li.textContent);
+    need(JSON.stringify(lis('strengths')) === JSON.stringify(p.str) && p.str.length === 3, 'strengths list');
+    need(JSON.stringify(lis('weaknesses')) === JSON.stringify(p.weak) && p.weak.length === 3, 'shadows list');
+    const box = text('workplace-disclaimer').replace(/\s+/g, ' ');
+    need(box === WORK_MODE_BOX, `work-mode box "${box}"`);
   } else {
     const you = [...d.querySelectorAll('#res-you li')].map((li) => li.textContent);
     need(visible('res-you') && !visible('res-traits') && JSON.stringify(you) === JSON.stringify(p.you) && you.length >= 2 && you.length <= 4,
       `the you lines in place of strengths and shadows: ${JSON.stringify(you)}`);
   }
   // The headings, labels, buttons and colour cards around the profile, in the
-  // audience's words (RESULT_COPY.frame, COLOR_GAPS_COPY): on a consumer page
-  // a label that became a sentence is styled as one (.mc-said), and the
-  // colour cards have no heading of their own (the divider says "Who to ask").
+  // audience's words (RESULT_COPY.frame, COLOR_GAPS_COPY): a label that became
+  // a sentence is styled as one (.mc-said), and on a consumer page the colour
+  // cards have no heading of their own (the divider says "Who to ask"); in
+  // workplace mode they keep it, under a divider that names the section. Each
+  // card is headed by its colour alone, in both audiences.
   const aud = audience === 'workplace' ? 'workplace' : 'consumer';
   const frame = aud === 'consumer' ? CONSUMER_FRAME : WORKPLACE_FRAME;
   const wrongFrame = Object.entries(frame).filter(([id, want]) => el(id) && text(id) !== want).map(([id]) => `${id} "${text(id)}"`);
   need(wrongFrame.length === 0 && Object.keys(frame).every((id) => el(id)), 'frame labels: ' + wrongFrame.join(' / '));
   // The jobs heading is a heading in both audiences and keeps its heading style.
   const styled = ['roles-title', 'res-counter-label', 'theme-switch-label', 'conf-badge'].filter((id) => el(id).classList.contains('mc-said'));
-  need(JSON.stringify(styled) === JSON.stringify(aud === 'consumer' ? ['res-counter-label', 'theme-switch-label', 'conf-badge'] : []),
+  need(JSON.stringify(styled) === JSON.stringify(aud === 'consumer' ? ['res-counter-label', 'theme-switch-label', 'conf-badge'] : ['theme-switch-label']),
     `sentence styling on ${JSON.stringify(styled)} (${aud})`);
   const cardHeading = d.querySelector('#relations-detail .mc-relations-detail__heading');
-  need(aud === 'consumer' ? !cardHeading : !!cardHeading && cardHeading.textContent.trim() === 'Who to bring in', `colour cards' own heading "${cardHeading ? cardHeading.textContent : ''}"`);
+  need(aud === 'consumer' ? !cardHeading : !!cardHeading && cardHeading.textContent.trim() === 'Who to ask', `colour cards' own heading "${cardHeading ? cardHeading.textContent : ''}"`);
   const heads = [...d.querySelectorAll('#relations-detail .mc-gap-card__head')].map((x) => x.textContent.trim());
   const missingColours = ['W', 'U', 'B', 'R', 'G'].filter((col) => !p.colors.includes(col));
-  const wantHeads = missingColours.map((col) => h.COLOR_DISPLAY[col] + (aud === 'workplace' ? ' colleague' : ''));
+  const wantHeads = missingColours.map((col) => h.COLOR_DISPLAY[col]);
   need(JSON.stringify(heads) === JSON.stringify(wantHeads), `colour card heads ${JSON.stringify(heads)} != ${JSON.stringify(wantHeads)}`);
   for (const id of ['roles', 'res-desc', 'identity-exp', 'share-preview']) real(id);
   need(!el('conf-exp'), 'the old confidence explanation (#conf-exp) is back');
@@ -760,11 +773,12 @@ run('render', async (t) => {
     player: { peekNote: 'The ruling stands unless you appeal.', after: 'Overturned on appeal. The original ruling stays on the record.' },
     plain: { peekNote: 'Your result stays the same unless you appeal.', after: 'Appeal noted. Your original result is kept too.' },
   };
-  // The peek's heading and the appeal button: sentences and plain actions on
-  // a consumer page, as they were in workplace mode.
+  // The peek's heading and the appeal button: a sentence and a plain action
+  // in both audiences (workplace mode's "Next door: Sultai" and "Appeal: I'm
+  // Sultai" went on 19 October 2026).
   const PEEK = {
     consumer: { heading: (n) => `Here's ${n}.`, button: (n) => `Make it ${n}` },
-    workplace: { heading: (n) => `Next door: ${n}`, button: (n) => `Appeal: I'm ${n}` },
+    workplace: { heading: (n) => `Here's ${n}.`, button: (n) => `Make it ${n}` },
   };
   for (const [audience, player] of [['consumer', true], ['consumer', false], ['workplace', true]]) {
     const { win, h, errors, threw } = await renderCase(DIMIR, audience, player, seed++);
@@ -928,14 +942,14 @@ run('render', async (t) => {
       if (/leaning|moderate|confidence|locked in|shuffling|came close|something else/i.test(card.textContent)) problems.push('a confidence word is on the Card');
       if (text(win, 'tcg-name') !== 'DIMIR' || text(win, 'sc-name') !== 'DIMIR') problems.push('share images should show the verdict: ' + text(win, 'tcg-name'));
       if (/on appeal|sultai/i.test(card.textContent + d.getElementById('share-scorecard').textContent + d.getElementById('share-mani').textContent)) problems.push('the appeal reached a share image');
-      // The Card's rules text: the first two `you` lines with no keyword over
-      // them in consumer mode (two fit the Card), three strengths under their
-      // keywords in workplace mode.
+      // The Card's rules text: the first two lines the result page prints
+      // about you, with no keyword over them (two fit the Card): the `you`
+      // lines in consumer mode, the strengths in workplace mode, which once
+      // printed three under placeholder keywords ("Vigilance" ...).
       const rules = [...d.querySelectorAll('#tcg-rules li')];
       const P = win.__h.PROFILES;
-      const rulesRight = audience === 'workplace'
-        ? rules.length === 3 && rules.every((li, i) => li.querySelector('strong') && li.textContent.endsWith(P.DIMIR.str[i]))
-        : JSON.stringify(rules.map((li) => li.textContent)) === JSON.stringify(P.DIMIR.you.slice(0, 2)) && !d.querySelector('#tcg-rules strong');
+      const wantRules = audience === 'workplace' ? P.DIMIR.str.slice(0, 2) : P.DIMIR.you.slice(0, 2);
+      const rulesRight = JSON.stringify(rules.map((li) => li.textContent)) === JSON.stringify(wantRules) && !d.querySelector('#tcg-rules strong');
       if (!rulesRight) problems.push('the Card\'s rules text: ' + JSON.stringify(rules.map((li) => li.textContent)));
       if (errors.length) problems.push('errors: ' + errors.slice(0, 2).join(' | '));
       const label = [extra.scoringVersion && 'scoring v' + extra.scoringVersion, extra.appeal && 'appealed'].filter(Boolean).map((s) => ', ' + s).join('');

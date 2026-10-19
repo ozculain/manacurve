@@ -824,7 +824,7 @@ run('play', async (t) => {
       !!share && d.querySelector('.mc-result__banner-meta').contains(share) && row.contains(share) && row.classList.contains('mc-result__name-row') && /Share/.test(share.textContent),
       share ? share.textContent : 'missing');
     // The one Share on the page: the action row's "Share my result" read to
-    // naive readers as a duplicate and is gone ("Make an image" stays).
+    // naive readers as a duplicate and is gone ("Save it as a picture" stays).
     const shares = [...d.querySelectorAll('#screen-results button')].filter((b) => /\bshare\b/i.test(b.textContent) && !b.closest('.hidden'));
     const copied = [];
     Object.defineProperty(win.navigator, 'clipboard', { configurable: true, value: { writeText: async (x) => { copied.push(x); } } });
