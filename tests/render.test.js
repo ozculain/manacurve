@@ -1018,4 +1018,23 @@ run('render', async (t) => {
     t.ok(`the breakdown button and the explorer's jobs heading (${audience})`, !threw && errors.length === 0 && JSON.stringify(said) === JSON.stringify(want), JSON.stringify(said));
     win.close();
   }
+
+  // Work mode promises no roasting: the explorer's "Behind your back" box and
+  // the dossier's "What They Say Behind Your Back" show in consumer mode only,
+  // as the result page's closing-line box does.
+  for (const audience of ['consumer', 'workplace']) {
+    const { win, errors, threw } = await renderCase(DIMIR, audience, false, seed++);
+    const d = win.document;
+    win.showExplorer();
+    win.showDetail('MONO-W');
+    const box = d.getElementById('detail-banter').closest('.mc-fun-only');
+    const boxShown = !!box && win.getComputedStyle(box).display !== 'none';
+    win.openModal('MONO-W');
+    const dossierBanter = /What They Say Behind Your Back/.test(d.getElementById('modal-body').textContent);
+    win.closeModal();
+    const want = audience === 'consumer';
+    t.ok(`banter in the explorer and the dossier: ${want ? 'shown' : 'hidden'} (${audience})`, !threw && errors.length === 0 && boxShown === want && dossierBanter === want,
+      `explorer box ${boxShown ? 'shown' : 'hidden'}, dossier banter ${dossierBanter ? 'shown' : 'hidden'}`);
+    win.close();
+  }
 });
