@@ -4,6 +4,12 @@ Newest first. Dates are when the work was committed.
 
 ## 2026-10-19
 
+### Instrument 11, and the old Round 3 situations in plain home settings
+
+One version bump for the night's copy changes: result pages in the second person, the question lines readers flagged, the front page and interface strings, and the Round 3 rewrite below. `INSTRUMENT_VERSION` is 11 and a result built now writes `i=11`; the contract line, the simulator's constant, `tests/play.test.js` and the tests README say so. Scoring is unchanged (`tests/fixtures/golden.json` does not move).
+
+- Round 3: 38 of the 48 older short situations in `POOL_B` and `POOL_C` (163 lines) are rewritten in home, money, family and neighbour settings with a concrete snag each, after a fresh reader judged 34 of 93 situations machine-made, 53 small-stakes and 30 as needing a role. Owners, option keys and order are unchanged, so `tests/fixtures/round3-keys.json` does not move and `tools/round3-coverage.js` gives the same coverage. Checked blind: two readers given old and new lines in random order judged the new ones a person's writing 242 to 3 and preferred them in 94% of decided pairs; a fresh read of all 93 went from 35 to 83 read as a person's, machine-made 34 to 6 (the 31-answer lists), needing a role 30 to 0.
+
 ### Front page and the screens between questions: fresh readers
 
 Four fresh readers (a Commander player, a GP who has never played, a
