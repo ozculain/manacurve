@@ -11,7 +11,7 @@
 //
 // Where it goes.
 //   ROUND2_SCENARIOS   data.js     8 generic scenarios, 31 options each. Stem: `context`.
-//   POOL_B, POOL_C     index.html  30 + 55 authored scenarios. Stem: `sc`; options: r[] = {t, g}.
+//   POOL_B, POOL_C     index.html  38 + 85 authored scenarios. Stem: `sc`; options: r[] = {t, g}.
 // Nothing else in either file is touched: the tool splices new string literals into the old
 // lines, keeps each source's quoting, leaves every other byte alone and reorders nothing.
 //
