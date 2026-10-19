@@ -5872,14 +5872,16 @@ const PLAY_COPY = {
     length: 'Up to {questions} questions, about {minutes} minutes.',
     question: 'Played Magic?',
     yes: 'Yes',
-    yesNote: 'Adds the Magic jokes and a few Magic questions.',
+    yesNote: 'Adds a few Magic questions and puts your result in Magic terms.',
     no: 'Not really',
     noNote: 'Keeps it plain. Same 31 results.',
     // The two links under the answers. Off: the link is the whole line. On: a
-    // line saying what changed, then the link back.
-    constructedOff: "Rather see each answer's colours? Play Constructed.",
-    constructedOn: 'Constructed: colours on every answer. Easier to steer, so a little less telling.',
-    constructedUndo: 'Back to Blind Draft',
+    // line saying what changed, then the link back. The colours link switches
+    // Constructed mode on and off; it says what it does, not the format's name,
+    // since everyone sees it, including people about to say they never played.
+    constructedOff: "Show me each answer's colours as I go.",
+    constructedOn: 'Colours on every answer. Easier to steer, so the result tells you a little less.',
+    constructedUndo: 'Hide the colours',
     workOff: 'Taking this at work?',
     workOn: "Work mode: no roasting, nothing you'd mind your manager reading.",
     workUndo: 'Undo',

@@ -268,8 +268,8 @@ run('play', async (t) => {
         && textOf(win, 'preflight-question') === 'Played Magic?' && answers.length === 2
         && answers[0].querySelector('.mc-mode__title').textContent === 'Yes' && answers[1].querySelector('.mc-mode__title').textContent === 'Not really',
       textOf(win, 'preflight-question') + ' / ' + answers.map((a) => a.textContent.trim()).join(' | '));
-    ok('P3a2 what each answer does, in the reviewed words: Yes adds the Magic jokes and a few Magic questions; Not really keeps it plain, same 31 results',
-      answers[0].querySelector('.mc-mode__desc').textContent === 'Adds the Magic jokes and a few Magic questions.'
+    ok('P3a2 what each answer does: Yes "Adds a few Magic questions and puts your result in Magic terms."; Not really "Keeps it plain. Same 31 results."',
+      answers[0].querySelector('.mc-mode__desc').textContent === 'Adds a few Magic questions and puts your result in Magic terms.'
         && answers[1].querySelector('.mc-mode__desc').textContent === 'Keeps it plain. Same 31 results.',
       answers.map((a) => a.querySelector('.mc-mode__desc').textContent).join(' | '));
     ok('P3b the old four-grid is gone from the preflight (no mode, audience or theme cards, no gaming toggle)',
@@ -277,14 +277,18 @@ run('play', async (t) => {
     const modeLink = d.getElementById('preflight-mode-link');
     const workLink = d.getElementById('preflight-work-link');
     const modeOff = modeLink.textContent;
+    // The format names mean nothing to someone who has never played, and everyone sees this screen
+    const formatNames = /constructed|blind draft/i;
+    const plainOff = !formatNames.test(pf.textContent);
     modeLink.click();
     const constructedOn = h.state.mode === 'constructed' && d.body.dataset.mode === 'constructed' && modeLink.dataset.on === 'true';
     const modeOnText = modeLink.textContent, modeUndo = modeLink.querySelector('.mc-textlink__undo');
+    const plainOn = !formatNames.test(pf.textContent);
     modeLink.click();
-    ok('P3c Blind Draft is the default; "Rather see each answer\'s colours? Play Constructed." switches to Constructed, says what changed, and goes back',
-      modeOff === "Rather see each answer's colours? Play Constructed." && constructedOn && h.state.mode === 'draft' && modeLink.textContent === modeOff
-        && modeOnText === 'Constructed: colours on every answer. Easier to steer, so a little less telling. Back to Blind Draft'
-        && !!modeUndo && modeUndo.textContent === 'Back to Blind Draft', `${modeOff} / ${modeOnText}`);
+    ok('P3c the colours stay hidden by default (Blind Draft); "Show me each answer\'s colours as I go." switches to Constructed, says what changed, and hides them again, and the preflight never names either format',
+      modeOff === "Show me each answer's colours as I go." && constructedOn && h.state.mode === 'draft' && modeLink.textContent === modeOff
+        && modeOnText === 'Colours on every answer. Easier to steer, so the result tells you a little less. Hide the colours'
+        && !!modeUndo && modeUndo.textContent === 'Hide the colours' && plainOff && plainOn, `${modeOff} / ${modeOnText}`);
     const workOff = workLink.textContent;
     workLink.click();
     const workOn = h.state.audience === 'workplace' && d.body.dataset.audience === 'workplace' && workLink.dataset.on === 'true';
