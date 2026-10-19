@@ -9,7 +9,10 @@
 //     (tests/fixtures/round3-keys.json). Scoring reads the keys and never the words, so the
 //     golden fixture does not move with a rewording; a changed key set is a change to the
 //     instrument and is made on purpose.
-//  4. The guards themselves, on small made-up sources: each rule flags what it should and
+//  4. Every pair of identities the bars can bring into one Round 3 with at most one tie has a
+//     short situation (POOL_B or POOL_C), so a 31-answer list is met only when a pair's one
+//     situation was used earlier in the same Round 3.
+//  5. The guards themselves, on small made-up sources: each rule flags what it should and
 //     nothing else, and tools/apply-round3-copy.js reads a draft, refuses a bad one, writes the
 //     quoting each source uses and changes nothing the second time.
 // The fixture is rewritten only when a scenario or an identity key is added or removed on
@@ -46,10 +49,10 @@ const inGroup = (id, group) => (group === tool.GENERIC ? !id.startsWith('POOL_')
 const optionCount = live.scenarios.reduce((n, s) => n + s.options.length, 0);
 
 // The fixture has to describe the Round 3 set this repository ships, or the checks below mean little.
-t.ok('the fixture holds 8 generic, 30 POOL_B and 55 POOL_C scenarios',
-  GROUPS.map((g) => fixtureIds.filter((id) => inGroup(id, g)).length).join() === '8,30,55');
-t.ok('the live sources hold 93 scenarios and 543 options (8 x 31 generic, 90 POOL_B, 205 POOL_C)',
-  live.scenarios.length === 93 && optionCount === 543,
+t.ok('the fixture holds 8 generic, 38 POOL_B and 85 POOL_C scenarios',
+  GROUPS.map((g) => fixtureIds.filter((id) => inGroup(id, g)).length).join() === '8,38,85');
+t.ok('the live sources hold 131 scenarios and 666 options (8 x 31 generic, 112 POOL_B, 306 POOL_C)',
+  live.scenarios.length === 131 && optionCount === 666,
   `${live.scenarios.length} scenarios, ${optionCount} options`);
 
 // 1. The 15-word cap
@@ -72,7 +75,7 @@ t.ok('every stem and option is a non-empty string and no key repeats within a sc
 {
   const liveKeys = keysOf(live);
   const gone = fixtureIds.filter((id) => !(id in liveKeys)), added = Object.keys(liveKeys).filter((id) => !(id in fixture));
-  t.ok('the same 93 scenarios as the fixture', gone.length === 0 && added.length === 0,
+  t.ok('the same 131 scenarios as the fixture', gone.length === 0 && added.length === 0,
     `missing: ${list(gone)}; new: ${list(added)}; update the fixture only if that is on purpose`);
   for (const group of GROUPS) {
     const bad = [];
@@ -88,7 +91,45 @@ t.ok('every stem and option is a non-empty string and no key repeats within a sc
   t.ok('each generic scenario has one option for each of the 31 identities in PROFILES', short.length === 0, list(short));
 }
 
-// ---------- 4. the guards, on made-up sources ----------
+// 4. Every pair a Round 3 can bring together with at most one tie in the bars has a short situation.
+// The line-up holds only identities the bars allow (barsAllow: no colour an identity leaves out prints
+// above one it holds; Five-colour when the five print close together). Two identities can meet when
+// some order of the five bars, ties included, allows both. With one tie at most, that is a pair one
+// inside the other, two of one width that differ by a single colour, or Five-colour with any other.
+{
+  const COLOURS = ['W', 'U', 'B', 'R', 'G'];
+  const orders = []; // every order of the five bars, ties included, as levels (0 the highest)
+  (function fill(lv) {
+    if (lv.length === 5) { const n = new Set(lv).size; if ([...Array(n).keys()].every((k) => lv.includes(k))) orders.push(lv); return; }
+    for (let l = 0; l < 5; l++) fill([...lv, l]);
+  })([]);
+  const allows = (lv, id) => {
+    const held = live.PROFILES[id].colors || [];
+    if (held.length === 5) return true;
+    const level = (c) => lv[COLOURS.indexOf(c)];
+    return Math.max(...held.map(level)) <= Math.min(...COLOURS.filter((c) => !held.includes(c)).map(level));
+  };
+  const written = new Set();
+  for (const s of live.scenarios) {
+    if (s.group === tool.GENERIC) continue;
+    const owner = /\.([A-Z-]+)\[/.exec(s.id)[1];
+    for (const o of s.options) if (o.key !== owner) written.add([owner, o.key].sort().join(' v '));
+  }
+  const ids = Object.keys(live.PROFILES);
+  let meeting = 0;
+  const missing = [];
+  for (let i = 0; i < ids.length; i++) {
+    for (let j = i + 1; j < ids.length; j++) {
+      if (!orders.some((lv) => new Set(lv).size >= 4 && allows(lv, ids[i]) && allows(lv, ids[j]))) continue;
+      meeting++;
+      if (!written.has([ids[i], ids[j]].sort().join(' v '))) missing.push(ids[i] + ' v ' + ids[j]);
+    }
+  }
+  t.ok(`every pair the bars can bring into one Round 3 with at most one tie has a short situation (${meeting} pairs)`,
+    meeting === 260 && missing.length === 0, `${meeting} pairs; without a situation: ${list(missing)}`);
+}
+
+// ---------- 5. the guards, on made-up sources ----------
 // Four identities, a generic scenario and MTG_STALL (data.js), three pool scenarios (index.html), and
 // a draft for them in the shape of section 1 of the copy drafts file.
 const MINI_DATA = `const PROFILES = { 'MONO-W': { name: 'MONO-WHITE' }, AZORIUS: { name: 'AZORIUS' }, DIMIR: { name: 'DIMIR' }, INK: { name: 'FOUR-COLOR (No Black)' } };

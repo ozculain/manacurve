@@ -954,7 +954,7 @@ run('play', async (t) => {
     if (isVisible(win, 'screen-early-offer')) h.continueToRound2();
     finishRound(h, 2);
     h.continueToStage2();
-    win.eval('getPoolScenarioForMatchup = function () { return window.__scenario; }'); // render each of the 93 in the live Round 3
+    win.eval('getPoolScenarioForMatchup = function () { return window.__scenario; }'); // render each of the 131 in the live Round 3
     const hintOf = win.eval('getContextHint');
     const liveHinted = live.scenarios.filter((sc) => hintOf(sc.stem, sc.id)).map((sc) => sc.id);
     // A hint for the test alone, under ETHICS, so the eyebrow's hint line is still exercised.
@@ -978,8 +978,8 @@ run('play', async (t) => {
       } else if (!eyebrow.classList.contains('hidden') || eyebrow.textContent !== '') problems.push('the eyebrow is not hidden');
       if (problems.length) bad.push(sc.id + ': ' + problems.join(', '));
     }
-    ok('P9c all 93 Round 3 stems: shown once in the stem line, the hint (when there is one) in the eyebrow above it, the eyebrow hidden when there is none',
-      live.scenarios.length === 93 && bad.length === 0, bad.slice(0, 3).join(' | '));
+    ok('P9c all 131 Round 3 stems: shown once in the stem line, the hint (when there is one) in the eyebrow above it, the eyebrow hidden when there is none',
+      live.scenarios.length === 131 && bad.length === 0, bad.slice(0, 3).join(' | '));
     ok('P9d no live Round 3 stem shows a hint, and the one added for the test shows under ETHICS alone',
       liveHinted.length === 0 && hinted.length === 1 && hinted[0] === 'ETHICS', `live: ${liveHinted.join(' ')}; with the test hint: ${hinted.join(' ')}`);
     // Back to a real question afterwards: the eyebrow and the hint class come off with the next Round 1 quiz
