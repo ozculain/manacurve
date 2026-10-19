@@ -2309,7 +2309,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
 
         <div class="mc-typeline">
           <span class="mc-typeline__diamond"></span>
-          <span id="instr">Choose Your Approach</span>
+          <span id="instr">Which is <strong>more like you</strong>?</span>
           <span class="mc-typeline__diamond"></span>
         </div>
 
@@ -5887,11 +5887,12 @@ const PLAY_COPY = {
     workUndo: 'Undo',
   },
 
-  // The instruction line under each question, by round (HTML).
+  // The line under each question, by round (HTML): the question a person
+  // would ask, with "more like you" kept, since neither answer has to fit.
   stems: {
-    1: 'Choose the response <strong>more like you</strong>.',
-    2: 'Choose the response <strong>more like you</strong>.',
-    3: 'Choose the response <strong>more like you</strong>.',
+    1: 'Which is <strong>more like you</strong>?',
+    2: 'Which is <strong>more like you</strong>?',
+    3: 'Which is <strong>more like you</strong>?',
   },
   // Round 3's tiebreak marker, in the question label
   round3: { tiebreak: 'Tiebreaker' },
@@ -5899,9 +5900,10 @@ const PLAY_COPY = {
   // After answers 10, 20 and 40 (not 30, which ends Round 1, and not on the
   // first question of a round, which a transition has just introduced), one
   // line above the next question: how far through the quiz the player is, by
-  // the one counter. The same line in every mode.
+  // the one counter, said the way a person says it ("That's 10 done, 35 to
+  // go."). The same line in every mode.
   beats: {
-    progress: '{answered} answered, {left} to go.',
+    progress: "That's {answered} done, {left} to go.",
   },
 
   // The undo: "Free mulligan" for players, "Undo" for everyone else; the rest

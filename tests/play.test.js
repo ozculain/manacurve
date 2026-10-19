@@ -404,10 +404,10 @@ run('play', async (t) => {
     }));
     const shown = seen.filter((x) => x.beat);
     const wrongPlace = shown.filter((x) => ![11, 21, 41].includes(x.num)).map((x) => x.num);
-    const wrongWords = shown.filter((x) => x.beat !== `${x.num - 1} answered, ${x.real - x.num + 1} to go.`
+    const wrongWords = shown.filter((x) => x.beat !== `That's ${x.num - 1} done, ${x.real - x.num + 1} to go.`
       || (x.num < 31 && x.real !== x.tot)).map((x) => `${x.num}:"${x.beat}"`);
-    ok('P5a the progress line shows above the question after answers 10, 20 and 40 (never 30), and reads "10 answered, 35 to go." by the quiz\'s real length (the counter\'s total in Round 1)',
-      seen.length > 40 && shown.length >= 2 && wrongPlace.length === 0 && wrongWords.length === 0 && shown[0].beat === '10 answered, 35 to go.',
+    ok('P5a the progress line shows above the question after answers 10, 20 and 40 (never 30), and reads "That\'s 10 done, 35 to go." by the quiz\'s real length (the counter\'s total in Round 1)',
+      seen.length > 40 && shown.length >= 2 && wrongPlace.length === 0 && wrongWords.length === 0 && shown[0].beat === "That's 10 done, 35 to go.",
       `lines at ${shown.map((x) => x.num)} wrong=${wrongPlace} words=${wrongWords.slice(0, 2)}`);
     const leaks = seen.filter((x) => COLOUR_WORDS.test(x.label + ' ' + x.beat)).map((x) => x.num);
     ok('P5b the stage label and the progress line never name a colour during the rounds', leaks.length === 0 && errors.length === 0, leaks.join(',') + errors.slice(0, 2).join(' | '));
@@ -441,8 +441,8 @@ run('play', async (t) => {
         lines.push(`${a} | ${again} | ${b}`);
         win.close();
       }
-      ok('P5p plain, player and workplace modes show the same line, the same again on a re-render: "10 answered, 35 to go.", then "20 answered, 25 to go."',
-        lines.every((x) => x === '10 answered, 35 to go. | 10 answered, 35 to go. | 20 answered, 25 to go.'), lines.join(' / '));
+      ok('P5p plain, player and workplace modes show the same line, the same again on a re-render: "That\'s 10 done, 35 to go.", then "That\'s 20 done, 25 to go."',
+        lines.every((x) => x === "That's 10 done, 35 to go. | That's 10 done, 35 to go. | That's 20 done, 25 to go."), lines.join(' / '));
     }
     {
       // A Round 2 of 40 questions makes the total 30 + 40 + 6 = 76: the line counts from the counter's own total
@@ -450,7 +450,7 @@ run('play', async (t) => {
       begin(h);
       const later = lineAfter(win, h, 40);
       ok('P5q the line counts from the counter\'s computed total once a round\'s real length is known (40 answered of 76)',
-        later === '40 answered, 36 to go.' && win.eval('quizLengths().total') === 76, `40:"${later}"`);
+        later === "That's 40 done, 36 to go." && win.eval('quizLengths().total') === 76, `40:"${later}"`);
       win.close();
     }
     {
@@ -478,7 +478,7 @@ run('play', async (t) => {
       h.state.tournament.questionCount = 1; // 30 + 9 + 1 = 40 answers, mid-round
       win.renderQuizBeat();
       ok('P5u answer 40 ending Round 2 skips the line (a transition follows); answer 40 mid-round shows it, with 5 to go',
-        !endsRound && isVisible(win, 'q-beat') && textOf(win, 'q-beat') === '40 answered, 5 to go.', `endsRound=${endsRound} "${textOf(win, 'q-beat')}"`);
+        !endsRound && isVisible(win, 'q-beat') && textOf(win, 'q-beat') === "That's 40 done, 5 to go.", `endsRound=${endsRound} "${textOf(win, 'q-beat')}"`);
       win.close();
     }
     {
@@ -486,13 +486,13 @@ run('play', async (t) => {
       const { win, h } = await page();
       begin(h);
       for (let i = 0; i < 10; i++) answerOne(h); // the tenth: the next question carries the line
-      const had = isVisible(win, 'q-beat') && textOf(win, 'q-beat') === '10 answered, 35 to go.';
+      const had = isVisible(win, 'q-beat') && textOf(win, 'q-beat') === "That's 10 done, 35 to go.";
       win.document.getElementById('mulligan-btn').click();
       win.document.getElementById('mulligan-yes').click();
       const undone = !isVisible(win, 'q-beat') && h.state.qNum === 9;
       answerOne(h);
       ok('P5v undoing the tenth answer takes the line back with it, and answering again shows it again',
-        had && undone && isVisible(win, 'q-beat') && textOf(win, 'q-beat') === '10 answered, 35 to go.', `had=${had} undone=${undone}`);
+        had && undone && isVisible(win, 'q-beat') && textOf(win, 'q-beat') === "That's 10 done, 35 to go.", `had=${had} undone=${undone}`);
       win.close();
     }
   }
