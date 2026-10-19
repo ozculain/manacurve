@@ -4,6 +4,46 @@ Newest first. Dates are when the work was committed.
 
 ## 2026-10-19
 
+### Workplace pages: eight lines a manager might mind
+
+A second reader of the merged workplace pages flagged eight lines that a
+reasonable person would mind their manager reading, and one job that was a
+consultancy phrase.
+
+- Five philosophies now describe the same habit without the part a manager
+  would act on. They are shared by every page and by the link previews, so
+  they changed everywhere. Mono-Black's "You look after your own interests
+  and assume other people are doing the same." is now "You go into most
+  conversations knowing what you want to come out with.", and its second
+  sentence is "Somebody has to look out for you, and you see no point
+  waiting for a volunteer." Rakdos opens on "Closing time, to you, is the
+  start of the negotiations." where "You treat most rules as someone else's
+  attempt to stop your evening." stood. Jund walks away from "a deal" where
+  it walked away from "a business or a friendship". Four-colour without
+  white says "you'll say so, out loud" of a rule that only protects whoever
+  wrote it, where it went round the rule. Dimir's is now "You listen more
+  than you talk, and you notice what people leave out. What you hear is
+  usually worth more than what you'd have said." The four preview pages
+  whose first sentence changed were rebuilt.
+- Four-colour without white's shadow "Permission tends to come up once
+  you're already halfway through." is now "By the time the brief is signed
+  off, you're on your second draft of something slightly different."
+- Gruul's White card in workplace mode asks "which of the rules you find
+  slow are there to keep people safe", where it asked about them "before you
+  ignore one". The consumer page keeps its line.
+- Bant's "Executive Leadership in slow-growth sectors" is now "Charity
+  Director", a job, which consumer mode no longer needs to hide.
+- Work mode hides the banter everywhere. The result page's box was already
+  hidden, and its workplace label, "Pub banter", is now the consumer page's
+  sentence. The explorer's "Behind your back" box and the dossier's "What
+  They Say Behind Your Back" now hide as well: both showed work-mode readers
+  the harshest banter in the product ("They'll burn down the whole project
+  for the drama").
+- `tests/render.test.js` checks that the explorer and the dossier hide the
+  banter in work mode, and `tests/visible-copy.test.js` fails a workplace
+  page that prints "Pub banter". Scoring and `tests/fixtures/golden.json`
+  are untouched.
+
 ### Workplace pages in the second person
 
 Workplace mode still showed the old result page. Its strengths and shadows

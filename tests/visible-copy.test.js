@@ -823,13 +823,14 @@ const CONSUMER_GONE = [/^Strengths$/, /^Shadows$/, /^Natural Roles$/, /^Working 
 // lines, the workplace labels and eight taglines"). No page prints them now:
 // section 6 holds the workplace page to it with the workings open, and
 // tests/render.test.js holds the words that replaced them. Then the labels
-// workplace mode kept after the consumer page dropped them, and the old
-// work-mode box (CHANGELOG, "Workplace pages in the second person").
+// workplace mode kept after the consumer page dropped them, the old
+// work-mode box (CHANGELOG, "Workplace pages in the second person"), and the
+// banter's labels, which work mode hides with the banter.
 const WORKPLACE_GONE = [/^Locked in$/, /^Leaning$/, /^Still shuffling$/, /^Natural Roles$/, /^Natural roles$/,
   /^Working With Others$/, /^View Full Breakdown$/, /^Hide Full Breakdown$/, /^Explore All 31 Types$/, /^How Colours Interact$/,
   /^Who to bring in$/, /^(?:White|Blue|Black|Red|Green) colleague$/, /^Colleagues strong in\b/, /^Make an image$/, /^Retake$/,
   /^Page style$/, /^⚠ Not For Official Use$/, /^Solid line: /, /^Dashed line: /, /^Next door: /, /^Appeal: /,
-  /reliability or validity data/, /conversation about working styles/];
+  /reliability or validity data/, /conversation about working styles/, /^Pub banter$/, /Behind Your Back/i];
 
 // ---------- collecting what is on screen ----------
 // Not prose for these rules: the identity's own content, the commander block

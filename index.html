@@ -461,6 +461,8 @@ body[data-audience="workplace"] .mc-warning__label { color: var(--ink-muted); }
 .mc-result__banter-label { position: absolute; top: -10px; left: 24px; background: var(--canvas); padding: 0 12px; font-family: var(--f-display); text-transform: uppercase; letter-spacing: 0.32em; font-size: 10px; color: var(--gilt); }
 .mc-result__banter p { font-family: var(--f-flavor); font-style: italic; font-size: 18px; line-height: 1.6; color: var(--ink-muted); }
 body[data-audience="workplace"] .mc-result__banter { display: none; }
+/* The explorer's "Behind your back" box: work mode promises no roasting. */
+body[data-audience="workplace"] .mc-fun-only { display: none; }
 
 /* CONFIDENCE BADGE */
 .mc-confidence { display: inline-flex; align-items: center; gap: 10px; padding: 6px 14px; border: 1px solid var(--gilt-line); font-family: var(--f-ui); text-transform: uppercase; letter-spacing: 0.2em; font-size: 10px; color: var(--ink-muted); }
@@ -4556,7 +4558,10 @@ const COLOR_GAPS_FOR_FUN = {
 // Orzhov's says "the pecking order", which its own philosophy names, for
 // "the hierarchy". The rest of COLOR_GAPS was already plain at work ("Book an
 // hour with them", "a restructure", "someone senior", "under review") and
-// stays. The same rules hold as above.
+// stays. Gruul's White card is work's own too (a later reader of the
+// workplace pages): COLOR_GAPS has you asking which rules keep people safe
+// "before you ignore one", which takes it as read that you ignore them, and
+// work mode asks about the rules you find slow. The same rules hold as above.
 const COLOR_GAPS_AT_WORK = {
   'MONO-B': { G: 'Before you give up something that took years to build for something you want this week, talk to them.' },
   'MONO-G': {
@@ -4573,6 +4578,7 @@ const COLOR_GAPS_AT_WORK = {
   RAKDOS: { U: 'Let them test the exciting plan before you go ahead.' },
   SIMIC: { R: 'Let them call it finished when it nearly is and you want another week.' },
   ESPER: { R: 'Ask them to talk to whoever your plan has upset.' },
+  GRUUL: { W: 'Ask them which of the rules you find slow are there to keep people safe.' },
   GRIXIS: { G: "Talk it over with them before you give up on someone you'll need next year." },
   MARDU: { U: 'Get them to pick holes in the plan before you commit everyone to it.' },
   WITCH: { R: 'Leave it to them when a deadline matters more than a better answer.' }
@@ -11131,7 +11137,8 @@ function getWorkplaceContent(id) {
     </div>
   </div>`;
   
-  if (profile.pubBanter) {
+  // The banter, consumer mode only: work mode promises no roasting.
+  if (profile.pubBanter && audienceKey() !== 'workplace') {
     html += `<div class="info-box stress">
       <div class="box-header">
         <span class="text-20">🍺</span>
@@ -11618,8 +11625,10 @@ const RESULT_COPY = {
     // The key to the colour wheel; each line shows only when its kind of line is drawn.
     legendAlly: { consumer: 'A solid line means two of your colours get on.', workplace: 'A solid line means two of your colours get on.' },
     legendEnemy: { consumer: 'A dashed line means one of yours pulls against a missing colour.', workplace: "A dashed line means one of your colours doesn't get on with a colour you haven't got." },
-    // The label on the closing-line box (consumer mode only; workplace mode hides the box).
-    banter: { consumer: 'Your friends would put it like this.', workplace: 'Pub banter' },
+    // The label on the closing-line box (consumer mode only; workplace mode
+    // hides the box, as it hides the explorer's and the dossier's banter).
+    // Workplace mode's label said "Pub banter" until 19 October 2026.
+    banter: { consumer: 'Your friends would put it like this.', workplace: 'Your friends would put it like this.' },
     image: { consumer: 'Save it as a picture', workplace: 'Save it as a picture' },
     breakdown: { consumer: 'Show the workings', workplace: 'Show the workings' },
     breakdownHide: { consumer: 'Hide the workings', workplace: 'Hide the workings' },
@@ -11882,7 +11891,7 @@ const ROLES_HIDDEN_FOR_FUN = [
   'General Counsel', 'Senior Management', 'HR Leadership', 'Strategic HR', 'Legal/Compliance',
   'Corporate Development', 'Corporate Strategy', 'Institutional Investing', 'Sovereign Wealth',
   'Patient Capital', 'Distressed Asset Acquisition', 'Portfolio Management', 'Insolvency Practice',
-  'Executive Leadership in slow-growth sectors', 'M&A', 'VC/PE'
+  'M&A', 'VC/PE'
 ];
 
 // One answer moves a colour's bar by about a twelfth: Round 1 asks twelve
