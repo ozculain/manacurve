@@ -22,7 +22,7 @@ const match = (a, b, winner, i) => ({
 const alt = (id, s1, s2, wins, losses) => [id, { s1, s2, combined: s1, wins, losses, isTournament: true }];
 
 // Page constants the checks read back (they are top-level consts, not window properties).
-const PAGE_EXPOSE = [...EXPOSE, 'RESULT_COPY', 'ROLES_HIDDEN_FOR_FUN', 'MANA_BASE_LANDS', 'manaBaseLine'];
+const PAGE_EXPOSE = [...EXPOSE, 'RESULT_COPY', 'ROLES_HIDDEN_FOR_FUN', 'MANA_BASE_LANDS', 'manaBaseLine', 'COLOR_DISPLAY'];
 
 // typeline: what the card's typeline must say in player mode (section 8: the
 // commander's printed type line); rules: its rules text (section 2).
@@ -225,8 +225,26 @@ function checkRender(win, h, c, audience, player, threw, errors) {
   } else {
     need(!visible('res-cmd-aside') && text('cmd-desc-aside') === '' && el('res-roles-grid').style.gridTemplateColumns === '1fr', 'commander block shown outside player mode, or the roles not at full width');
   }
-  need(d.querySelectorAll('#strengths li').length === p.str.length && p.str.length > 0, 'strengths list');
-  need(d.querySelectorAll('#weaknesses li').length === p.weak.length && p.weak.length > 0, 'shadows list');
+  // Consumer mode: the profile's `you` lines, one list with no heading, where
+  // Strengths and Shadows stood. Workplace mode keeps the two columns.
+  if (audience === 'workplace') {
+    need(visible('res-traits') && !visible('res-you'), 'workplace mode should show strengths and shadows, not the you lines');
+    need(d.querySelectorAll('#strengths li').length === p.str.length && p.str.length > 0, 'strengths list');
+    need(d.querySelectorAll('#weaknesses li').length === p.weak.length && p.weak.length > 0, 'shadows list');
+  } else {
+    const you = [...d.querySelectorAll('#res-you li')].map((li) => li.textContent);
+    need(visible('res-you') && !visible('res-traits') && JSON.stringify(you) === JSON.stringify(p.you) && you.length >= 2 && you.length <= 4,
+      `the you lines in place of strengths and shadows: ${JSON.stringify(you)}`);
+  }
+  // The headings, buttons and colour cards around the profile, in the
+  // audience's words (RESULT_COPY.frame, COLOR_GAPS_COPY).
+  const F = h.RESULT_COPY.frame, aud = audience === 'workplace' ? 'workplace' : 'consumer';
+  need(text('roles-title') === F.roles[aud] && text('res-others-title') === F.others[aud] && text('res-image-btn') === F.image[aud]
+    && text('res-breakdown-btn') === F.breakdown[aud], `frame labels "${text('roles-title')}" / "${text('res-others-title')}" / "${text('res-image-btn')}" / "${text('res-breakdown-btn')}"`);
+  const heads = [...d.querySelectorAll('#relations-detail .mc-gap-card__head')].map((x) => x.textContent.trim());
+  const missingColours = ['W', 'U', 'B', 'R', 'G'].filter((col) => !p.colors.includes(col));
+  const wantHeads = missingColours.map((col) => h.COLOR_DISPLAY[col] + (aud === 'workplace' ? ' colleague' : ''));
+  need(JSON.stringify(heads) === JSON.stringify(wantHeads), `colour card heads ${JSON.stringify(heads)} != ${JSON.stringify(wantHeads)}`);
   for (const id of ['roles', 'res-desc', 'identity-exp', 'share-preview']) real(id);
   need(!el('conf-exp'), 'the old confidence explanation (#conf-exp) is back');
   need(el('conf-badge').dataset.level === c.confidence.toLowerCase(), 'confidence badge level');
@@ -677,17 +695,24 @@ run('render', async (t) => {
     const lis = (node) => (node ? [...node.querySelectorAll('li')].map((li) => li.textContent) : []);
     const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
     const pageIsDimir = () => text(win, 'res-id') === P.DIMIR.name && text(win, 'identity-exp') === P.DIMIR.philosophy.trim()
-      && same(lis(el('strengths')), P.DIMIR.str) && same(lis(el('weaknesses')), P.DIMIR.weak);
+      && (audience === 'workplace' ? same(lis(el('strengths')), P.DIMIR.str) && same(lis(el('weaknesses')), P.DIMIR.weak) : same(lis(el('res-you')), P.DIMIR.you));
 
-    // Peek under the Sultai row: its philosophy, strengths and shadows and its
-    // own appeal button, with nothing on the page changed.
+    // Peek under the Sultai row: its philosophy and its `you` lines (in
+    // workplace mode its strengths and shadows) and its own appeal button,
+    // with nothing on the page changed.
     chip('SULTAI').click();
     const sp = panelOf('SULTAI');
     need(open(sp) && !open(panelOf('MONO-U')) && !shown('next-door-panel'), 'the peek should open under its own row only');
     need((sp.querySelector('.mc-nextdoor__panel-head') || {}).textContent === 'Next door: Sultai' && sp.textContent.includes(copy.peekNote), 'peek heading and note');
     need(((sp.querySelector('.mc-nextdoor__peek-philosophy') || {}).textContent || '').trim() === P.SULTAI.philosophy.trim(), 'peek did not show the neighbour\'s philosophy');
-    const columns = sp.querySelectorAll('.mc-nextdoor__peek-traits > div');
-    need(columns.length === 2 && same(lis(columns[0]), P.SULTAI.str) && same(lis(columns[1]), P.SULTAI.weak), 'peek did not show the neighbour\'s strengths and shadows');
+    if (audience === 'workplace') {
+      const columns = sp.querySelectorAll('.mc-nextdoor__peek-traits > div');
+      need(columns.length === 2 && same(lis(columns[0]), P.SULTAI.str) && same(lis(columns[1]), P.SULTAI.weak) && !sp.querySelector('.mc-nextdoor__peek-you'),
+        'the workplace peek did not show the neighbour\'s strengths and shadows');
+    } else {
+      need(same(lis(sp.querySelector('.mc-nextdoor__peek-you')), P.SULTAI.you) && !sp.querySelector('.mc-nextdoor__peek-traits') && !/Strengths|Shadows/.test(sp.textContent),
+        'the peek did not show the neighbour\'s you lines alone');
+    }
     need(sp.contains(el('appeal-btn')) && text(win, 'appeal-btn') === "Appeal: I'm Sultai", `appeal button "${text(win, 'appeal-btn')}"`);
     need(sp.contains(el('peek-back-btn')) && text(win, 'peek-back-btn') === 'Back to Dimir', 'way back from the peek');
     need(sp.textContent.includes("Your appeal isn't included when you share.") === (audience === 'workplace'), 'workplace privacy note under the appeal button');
@@ -713,7 +738,7 @@ run('render', async (t) => {
     el('appeal-btn').click();
     const a = h.state.result.appeal || {};
     need(h.state.result.identity === 'DIMIR', 'the verdict was overwritten');
-    need(a.chosen === 'SULTAI' && JSON.stringify(a.shown) === '["SULTAI","MONO-U"]' && a.copyVersion === 6
+    need(a.chosen === 'SULTAI' && JSON.stringify(a.shown) === '["SULTAI","MONO-U"]' && a.copyVersion === 7
       && a.labelShown === 'Leaning' && Number.isFinite(a.timeToAppealMs) && a.timeToAppealMs >= 0, 'appeal record ' + JSON.stringify(a));
     need(text(win, 'res-id') === P.SULTAI.name && text(win, 'res-tag') === P.SULTAI.tag && text(win, 'identity-exp') === P.SULTAI.philosophy.trim(), 'appealed identity not on screen');
     need(!playerCopy || (text(win, 'res-typeline') === 'Legendary Creature — Snake Shaman' && text(win, 'res-rules') === h.RESULT_COPY.rules.SULTAI),
@@ -818,6 +843,15 @@ run('render', async (t) => {
       if (/leaning|moderate|confidence|locked in|shuffling/i.test(card.textContent)) problems.push('a confidence word is on the Card');
       if (text(win, 'tcg-name') !== 'DIMIR' || text(win, 'sc-name') !== 'DIMIR') problems.push('share images should show the verdict: ' + text(win, 'tcg-name'));
       if (/on appeal|sultai/i.test(card.textContent + d.getElementById('share-scorecard').textContent + d.getElementById('share-mani').textContent)) problems.push('the appeal reached a share image');
+      // The Card's rules text: the first two `you` lines with no keyword over
+      // them in consumer mode (two fit the Card), three strengths under their
+      // keywords in workplace mode.
+      const rules = [...d.querySelectorAll('#tcg-rules li')];
+      const P = win.__h.PROFILES;
+      const rulesRight = audience === 'workplace'
+        ? rules.length === 3 && rules.every((li, i) => li.querySelector('strong') && li.textContent.endsWith(P.DIMIR.str[i]))
+        : JSON.stringify(rules.map((li) => li.textContent)) === JSON.stringify(P.DIMIR.you.slice(0, 2)) && !d.querySelector('#tcg-rules strong');
+      if (!rulesRight) problems.push('the Card\'s rules text: ' + JSON.stringify(rules.map((li) => li.textContent)));
       if (errors.length) problems.push('errors: ' + errors.slice(0, 2).join(' | '));
       const label = [extra.scoringVersion && 'scoring v' + extra.scoringVersion, extra.appeal && 'appealed'].filter(Boolean).map((s) => ', ' + s).join('');
       t.ok(`share Card exports (${theme}, ${audience}, player mode ${player ? 'on' : 'off'}${label})`, problems.length === 0, problems.join('; '));

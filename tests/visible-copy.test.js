@@ -93,6 +93,17 @@
 // checkers themselves are tested last, on the paragraph a player saw on a
 // phone before these rules existed, on the profiles' old passages and on the
 // pages the second and third readers saw.
+// Since "Result pages in the second person" (CHANGELOG) a consumer result
+// page prints each profile's `you` lines where Strengths and Shadows stood.
+// Section 16 reads them from the result page and holds them to youProblems
+// (two to four a page, no line opening like the one above it, no colour, no
+// word from the game, Mono-Blue opening on the author's two lines) and to the
+// voice rules ("you" in every line); it reads strengths and shadows from the
+// explorer, which still prints them, as do the dossier and workplace mode.
+// The author's two lines (AUTHOR_LINES) are read past by the dash and list
+// rules, as an identity name is. Section 9 also fails a consumer page that
+// prints a work heading or label ("Natural Roles", "White colleague" ...) or
+// whose disclaimer box does not open on the author's line.
 // Usage: node tests/visible-copy.test.js [--dump] [path/to/index.html]
 const { bootPage, pageArgs, whenReady, isVisible, EXPOSE } = require('./_lib/load');
 const { run } = require('./_lib/report');
@@ -116,6 +127,18 @@ const SCORING_WORDS = [
 const BANNED = [...PHRASES, ...SCORING_WORDS];
 const US_SPELLING = /\b(?:color|favor|flavor|behavior|honor\b|center\b|rigor\b|fervor|math\b|outmaneuver|(?:analy|organi|recogni|reali|priori|optimi|summari|emphasi|minimi|maximi|apologi|categori|characteri|personali|paraly)z)/i;
 const NOT_X_ITS_Y = /\b(?:not|isn't|aren't|wasn't)\b[^.?!]*?[,;:]\s*(?:it's|it is|but)\b/i;
+
+// The author's own lines (CHANGELOG, "Result pages in the second person"):
+// Mono-Blue's first two `you` lines, kept word for word. The second carries
+// the one em dash a page may print and the first has a list in it; the
+// checkers read past both, as they read past an identity name. Anywhere else
+// an em dash still fails.
+const AUTHOR_LINES = [
+  'You like to understand a thing before you act, which is sensible, and to understand it completely, which is where the trouble starts.',
+  "You're nearly always right — nearly always a little too late to be any use.",
+];
+// A block as the checkers read it: in an author's line the dash reads as a comma.
+const pastAuthorLines = (text) => AUTHOR_LINES.reduce((t, line) => t.split(line).join(line.replace(' — ', ', ')), String(text));
 
 // Identity codes in capitals: the PROFILES keys (MONO-U ... WUBRG), and the
 // capitalised profile names a sentence could pick up (MONO-BLUE, FOUR-COLOUR ...).
@@ -165,7 +188,7 @@ function problemsIn(text, { PROFILES, questions = false } = {}) {
 const WHEEL_WORDS = ['enemy pair', 'ally pair'];
 const TYPE_LINE = /^Legendary (?:Artifact )?Creature — [A-Z][a-z]+(?: [A-Z][a-z]+)*$/;
 function contentProblems(text, { PROFILES, scoring = true, codes = false } = {}) {
-  let t = text;
+  let t = pastAuthorLines(text);
   if (PROFILES) for (const p of Object.values(PROFILES)) t = t.split(p.name).join(' ');
   const out = [];
   const lower = t.toLowerCase();
@@ -587,13 +610,13 @@ function runsOf(list, key) {
 function rhythmProblems({ id, part, items, list = false, prose = true, kept: own = [] }) {
   const out = [];
   const add = (rule, detail) => out.push({ rule, at: `${id} ${part}`, detail });
-  const all = items.join(' ');
+  const all = pastAuthorLines(items.join(' '));
   for (const [re, name] of RHYTHM_BANNED) { const m = re.exec(all); if (m) add('banned', `${name} in "${all.slice(Math.max(0, m.index - 30), m.index + 30)}"`); }
   if (!prose) return out;
   const seq = items.flatMap(sentences);
   for (const r of runsOf(seq, (s) => opener(s) || null)) add('openings', `${r.length} open on "${opener(r[0])}": ${r.join(' / ')}`);
   for (const r of runsOf(seq, (s) => (words(s).length <= SHORT_SENTENCE ? shapeOf(s) : null))) add('short', `${r.length} short, ${shapeOf(r[0])}: ${r.join(' / ')}`);
-  const kept = [...(COLOUR_LISTS[id] || []), ...(CARD_MODES[id] || []), ...own];
+  const kept = [...(COLOUR_LISTS[id] || []), ...(CARD_MODES[id] || []), ...own, ...AUTHOR_LINES];
   for (const s of seq) {
     for (const [re, name] of RHYTHM_ANTITHESIS) if (re.test(s)) add('antithesis', `${name}: "${s}"`);
     const keep = kept.map((k) => [s.indexOf(k), k.length]).filter(([i]) => i >= 0);
@@ -657,9 +680,11 @@ const PROP_LIMITS = [
   ['"nobody"', /\bnobody\b/i, 10],
   ['an X about the X', /\b(\w{4,}) (?:about|for selecting|on whether to hold) (?:the|a|an) \1s?\b/i, 0],
 ];
-const PROP_PARTS = ['tagline', 'philosophy', 'strengths', 'shadows', 'banter', 'rules', 'colleague cards'];
+const PROP_PARTS = ['tagline', 'philosophy', 'you', 'strengths', 'shadows', 'banter', 'rules', 'colleague cards'];
 const BANTER_TWISTS = 5; // closing lines that turn on ", and"
 const BANTER_PROFILES = 22; // profiles with a closing line at all
+// A `you` line speaks to the reader: it has "you" or "your" in it.
+const SPEAKS_TO_YOU = /\byou(?:r|rs|rself|['’](?:re|ve|d|ll))?\b/i;
 function voiceProblems(passages) {
   const out = [];
   const add = (rule, detail) => out.push({ rule, detail });
@@ -667,11 +692,12 @@ function voiceProblems(passages) {
     const all = x.items.join(' ');
     const we = /\b(?:we|us|our)\b/i.exec(all);
     if (we) add('person', `${x.id} ${x.part}: "${we[0]}" in "${all.slice(0, 70)}"`);
-    if (x.list) x.items.filter((i) => /^(?:you|your|the)\b/i.test(i)).forEach((i) => add('person', `${x.id} ${x.part} opens on "${i.split(' ')[0]}": "${i}"`));
+    if (x.list && ['strengths', 'shadows'].includes(x.part)) x.items.filter((i) => /^(?:you|your|the)\b/i.test(i)).forEach((i) => add('person', `${x.id} ${x.part} opens on "${i.split(' ')[0]}": "${i}"`));
+    if (x.part === 'you') x.items.filter((i) => !SPEAKS_TO_YOU.test(i)).forEach((i) => add('person', `${x.id} you: no "you" in "${i}"`));
     const year = /\b(?:1[89]|20)\d\d\b/.exec(all);
     if (year) add('years', `${x.id} ${x.part}: ${year[0]} in "${all.slice(0, 70)}"`);
   }
-  const prose = passages.filter((x) => ['philosophy', 'strengths', 'shadows', 'banter', 'description'].includes(x.part));
+  const prose = passages.filter((x) => ['philosophy', 'you', 'strengths', 'shadows', 'banter', 'description'].includes(x.part));
   for (const [name, re, limit] of SHAPE_LIMITS) {
     const ids = [...new Set(prose.filter((x) => x.items.some((i) => re.test(i))).map((x) => x.id))];
     if (ids.length > limit) add('shapes', `${name} on ${ids.length} profiles (at most ${limit}): ${ids.join(', ')}`);
@@ -688,13 +714,53 @@ function voiceProblems(passages) {
   return out;
 }
 
+// ---------- the `you` lines (section 16) ----------
+// CHANGELOG, "Result pages in the second person". Each profile's `you` lines,
+// as the consumer result page renders them, in place of Strengths and
+// Shadows: two to four lines, said to the reader's face (voiceProblems holds
+// that), and a check fails on:
+//   - count: fewer than two lines or more than four
+//   - opening: a line that opens on the same word as the line above it (a
+//     contraction counts as its word: You and You're are one), unless both
+//     are the author's
+//   - colour: a colour's name (the card and the commander already do that job)
+//   - magic: a word from the game (mana, spell, creature, card ...)
+//   - author: Mono-Blue not opening on the author's two lines, word for word
+// The em dash, banned words, sentence length, antithesis and lists are held by
+// the content and rhythm checkers, which read past the author's lines.
+const YOU_COLOUR = /\b(?:white|blue|black|red|green)\b/i;
+const YOU_MAGIC = /\b(?:mana|spells?|creatures?|graveyards?|commanders?|planeswalkers?|battlefield|decks?|mulligans?|sideboard|cards?)\b/i;
+function youProblems(byId) {
+  const out = [];
+  const add = (rule, detail) => out.push({ rule, detail });
+  for (const [id, lines] of Object.entries(byId)) {
+    if (lines.length < 2 || lines.length > 4) add('count', `${id}: ${lines.length} lines`);
+    lines.forEach((line, i) => {
+      if (i > 0 && opener(line) === opener(lines[i - 1]) && !(AUTHOR_LINES.includes(line) && AUTHOR_LINES.includes(lines[i - 1]))) add('opening', `${id}: "${lines[i - 1]}" / "${line}"`);
+      if (YOU_COLOUR.test(line)) add('colour', `${id}: "${line}"`);
+      if (YOU_MAGIC.test(line)) add('magic', `${id}: "${line}"`);
+    });
+  }
+  if ('MONO-U' in byId && JSON.stringify((byId['MONO-U'] || []).slice(0, 2)) !== JSON.stringify(AUTHOR_LINES)) add('author', `MONO-U opens on ${JSON.stringify((byId['MONO-U'] || []).slice(0, 2))}`);
+  return out;
+}
+// The "Not For Official Use" box, in both modes: the author's line first,
+// word for word, then the one about hiring and firing.
+const AUTHOR_DISCLAIMER = "It is not validated and it is not science. We're telling you for legal reasons, and also because it's true and it's started to bother us.";
+const HIRING_LINE = 'Do not use this for hiring, firing or any other decision about a person.';
+// Work wording a consumer result page no longer prints (CHANGELOG, "Result
+// pages in the second person"): the old headings, the colour cards' old label
+// and the old buttons. Workplace mode keeps them.
+const CONSUMER_GONE = [/^Strengths$/, /^Shadows$/, /^Natural Roles$/, /^Working With Others$/, /^Who to bring in$/, /^View Full Breakdown$/, /^Make an image$/,
+  /^(?:White|Blue|Black|Red|Green) colleague$/, /^Colleagues strong in\b/];
+
 // ---------- collecting what is on screen ----------
 // Not prose for these rules: the identity's own content, the commander block
 // and the colour cards (a separate decision), and nothing hidden.
 const CONTENT = [
-  '#res-id', '#res-tag', '#res-banner-commander', '#res-idcard', '#identity-exp', '#strengths', '#weaknesses',
+  '#res-id', '#res-tag', '#res-banner-commander', '#res-idcard', '#identity-exp', '#res-you', '#strengths', '#weaknesses',
   '#res-counter-section', '#res-desc', '#roles', '#cmd-name-aside', '#cmd-desc-aside', '#res-mana-base',
-  '#relations-detail', '.mc-nextdoor__peek-philosophy', '.mc-nextdoor__peek-traits', '#share-preview',
+  '#relations-detail', '.mc-nextdoor__peek-philosophy', '.mc-nextdoor__peek-you', '.mc-nextdoor__peek-traits', '#share-preview',
 ];
 const BLOCK = new Set(['P', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'LI', 'UL', 'OL', 'BUTTON', 'SECTION', 'LABEL', 'TD', 'TH', 'BR']);
 const SKIP = new Set(['SCRIPT', 'STYLE', 'SVG', 'svg', 'TEMPLATE']);
@@ -1094,6 +1160,11 @@ run('visible-copy', async (t) => {
       // readers flagged, no scoring version outside the methodology, one Share.
       const page = visibleBlocks(win, d.getElementById('screen-results'), { exclude: [] });
       pageIssues.push(...screenProblems(page, d, win).map((p) => `${id}: ${p}`));
+      // A consumer page: none of the work headings, labels or buttons, and the
+      // author's disclaimer line above the one about hiring and firing.
+      pageIssues.push(...page.filter((b) => CONSUMER_GONE.some((re) => re.test(b))).map((b) => `${id}: "${b}" on a consumer page`));
+      const warn = page.findIndex((b) => b === AUTHOR_DISCLAIMER);
+      if (warn < 0 || page[warn + 1] !== HIRING_LINE) pageIssues.push(`${id}: the disclaimer reads ${JSON.stringify(page.slice(Math.max(0, warn), warn + 2))}`);
     }
     // The theme switcher is its label and three names: the notes about Card
     // Frames ("keeps the colours hidden until your result", "keeps the page
@@ -1112,7 +1183,7 @@ run('visible-copy', async (t) => {
     ok(`result (${modeName}): one colleague card per missing colour, each with a line, none of the traits readers caught and no sentence on "You", for all 31`,
       gapIssues.length === 0, gapIssues.slice(0, 4).join(' | '));
     ok(`result (${modeName}): the legend names only the lines drawn, and the theme switcher is its label and three names`, legendIssues.length === 0, legendIssues.slice(0, 4).join(' | '));
-    ok(`result (${modeName}): none of the lines the second and third readers flagged, no scoring version outside the methodology and one Share, for all 31`,
+    ok(`result (${modeName}): none of the lines the second and third readers flagged, no scoring version outside the methodology, one Share, none of the work headings ("Strengths", "Natural Roles", "White colleague" ...) and the author's disclaimer line above the hiring line, for all 31`,
       pageIssues.length === 0, pageIssues.slice(0, 4).join(' | '));
     win.close();
   }
@@ -1164,7 +1235,9 @@ run('visible-copy', async (t) => {
     h.selectAudience('consumer');
     const s = h.state;
     s.gamingFamiliar = true;
-    const PARTS = ['#res-tag', '#res-banner-commander', '#res-rules', '#res-collector', '#identity-exp', '#strengths', '#weaknesses',
+    // A consumer page: the `you` lines, where strengths and shadows stood
+    // (the explorer and the dossier, sections 11 and 12, still print those).
+    const PARTS = ['#res-tag', '#res-banner-commander', '#res-rules', '#res-collector', '#identity-exp', '#res-you',
       '#res-counter-section', '#roles', '#cmd-name-aside', '#cmd-desc-aside', '#res-mana-base', '#relations-detail'];
     const problems = [], typelines = [];
     let parts = 0;
@@ -1355,8 +1428,7 @@ run('visible-copy', async (t) => {
       passages.push(
         { id, part: 'tagline', items: [text('#res-tag')], prose: false },
         { id, part: 'philosophy', items: [text('#identity-exp')] },
-        { id, part: 'strengths', items: lines('#strengths li'), list: true },
-        { id, part: 'shadows', items: lines('#weaknesses li'), list: true },
+        { id, part: 'you', items: hidden(win, d.getElementById('res-you')) ? [] : lines('#res-you li'), list: true },
         { id, part: 'banter', items: [boxShown ? text('#res-counter') : ''] },
         { id, part: 'roles', items: [text('#roles')], prose: false },
         { id, part: 'commander description', items: [text('#cmd-desc-aside')] },
@@ -1366,16 +1438,23 @@ run('visible-copy', async (t) => {
         { id, part: 'colleague cards', items: lines('#relations-detail .mc-gap-card__gap'), prose: false },
       );
     }
+    // The explorer: the description, and the strengths and shadows that the
+    // consumer result page no longer prints but the explorer, the dossier and
+    // workplace mode still do.
     win.showExplorer();
     for (const id of Object.keys(P)) {
       win.showDetail(id);
-      passages.push({ id, part: 'description', items: [text('#detail-desc')] });
+      passages.push(
+        { id, part: 'description', items: [text('#detail-desc')] },
+        { id, part: 'strengths', items: lines('#detail-strengths li'), list: true },
+        { id, part: 'shadows', items: lines('#detail-shadows li'), list: true },
+      );
     }
     dump('rhythm: the 31 profiles', passages.map((x) => `${x.id} ${x.part}: ${x.items.join(' || ')}`));
     const unread = passages.filter((x) => !x.items.length || x.items.some((i) => !i))
       .filter((x) => !(x.part === 'banter' && !P[x.id].pubBanter)).map((x) => `${x.id} ${x.part}`);
-    ok('rhythm: all eight passages of all 31 profiles are read as rendered, and the banter box, labelled "Pub banter", shows exactly when the profile has a closing line',
-      passages.length === 31 * 8 && unread.length === 0 && banterBoxes.length === 0 && errors.length === 0,
+    ok('rhythm: all nine passages of all 31 profiles are read as rendered (the `you` lines from the result page, strengths and shadows from the explorer), and the banter box, labelled "Pub banter", shows exactly when the profile has a closing line',
+      passages.length === 31 * 9 && unread.length === 0 && banterBoxes.length === 0 && errors.length === 0,
       `${passages.length} passages; empty: ${unread.join(', ')} ${banterBoxes.slice(0, 3).join(' | ')} ${errors.slice(0, 2).join(' | ')}`);
     const found = passages.flatMap(rhythmProblems);
     t.note('rhythm, problems per rule: ' + RHYTHM_RULES.map(([rule]) => `${rule} ${found.filter((f) => f.rule === rule).length}`).join(', '));
@@ -1395,8 +1474,16 @@ run('visible-copy', async (t) => {
     // The voice across the 31 profiles: each section keeps its person, no
     // year is written out, no joke shape or office prop runs from page to
     // page, and not every page ends on a joke.
+    // The `you` lines as the result page printed them, held to their own rules.
+    const youByPage = Object.fromEntries(passages.filter((x) => x.part === 'you').map((x) => [x.id, x.items]));
+    const youFound = youProblems(youByPage);
+    for (const [rule, label] of [['count', 'two to four lines on each page'], ['opening', 'no line opens on the same word as the line above it, but the author\'s two'],
+      ['colour', 'no colour named'], ['magic', 'no word from the game (mana, spell, card ...)'], ['author', 'Mono-Blue opens on the author\'s two lines, word for word']]) {
+      const hits = youFound.filter((v) => v.rule === rule);
+      ok(`you: ${label} (all 31 profiles, ${Object.values(youByPage).flat().length} lines)`, Object.keys(youByPage).length === 31 && hits.length === 0, hits.slice(0, 4).map((v) => v.detail).join(' | '));
+    }
     const voice = voiceProblems([...passages, ...extras]);
-    for (const [rule, label] of [['person', 'each section keeps its person: no "we", "us" or "our", and no strength or shadow opening on "You" or "The"'],
+    for (const [rule, label] of [['person', 'each section keeps its person: no "we", "us" or "our", no strength or shadow opening on "You" or "The", and "you" in every `you` line'],
       ['years', 'no year written out'], ['shapes', 'no joke shape on more profiles than its limit ("the room", "quietly", "everyone else", acting while others are still at it, a closing line turning on ", and")'],
       ['props', 'no office prop on more profiles than its limit (meetings, quarters, favours, emails, the fridge and cake, votes, a crisis, weekdays, "nobody", an X about the X), colleague cards and rules text included'],
       ['banter', `a closing line on at most ${BANTER_PROFILES} profiles`]]) {
@@ -1459,10 +1546,14 @@ run('visible-copy', async (t) => {
       ['FOUR-COLOUR (No Red)', {}],
       ['Round 1 tested only enemy pairs, colours that oppose each other.', { scoring: false }],
       ['One two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty twenty-one twenty-two twenty-three twenty-four twenty-five.', {}],
+      // the author's two lines, em dash and all
+      [AUTHOR_LINES.join(' '), {}],
     ];
     const contentFlagged = contentClean.map(([x, opts]) => [x, contentProblems(x, { PROFILES: P, ...opts })])
       .filter(([, found]) => found.length).map(([x, found]) => `${x}: ${found}`);
-    ok('the content checker passes a quoted question, mana symbols, an identity name, the methodology\'s own words and a 25-word sentence',
+    const strayDash = contentProblems("You're nearly always right — and you know it.", { PROFILES: P }).join(' | ');
+    ok('the content checker flags an em dash outside the author\'s lines', strayDash.includes('em dash'), strayDash);
+    ok('the content checker passes a quoted question, mana symbols, an identity name, the methodology\'s own words, a 25-word sentence and the author\'s lines',
       contentFlagged.length === 0 && TYPE_LINE.test('Legendary Creature — Human Ninja') && !TYPE_LINE.test('Personality — Dimir'), contentFlagged.join(' | '));
 
     // The rhythm checker (section 16), on passages the profiles carried before
@@ -1497,9 +1588,13 @@ run('visible-copy', async (t) => {
       // "but" far from a negative is no antithesis; a list of jobs is no rhythm
       { id: 'X', part: 'shadows', list: true, items: ["Treats people who haven't put in their hours as a regrettable but tolerable feature of the workplace.", 'Adapts slowly, and is surprised when the world has changed.', 'Will apply the letter of a rule in an emergency it was never written for.'] },
       { id: 'X', part: 'roles', prose: false, items: ['Strategy, Research, Analytics, Architecture, Policy Analysis, Forecasting'] },
+      // the author's two lines, with their list and their dash
+      { id: 'MONO-U', part: 'you', list: true, items: [...AUTHOR_LINES, 'People come to you upset and go away informed.'] },
     ];
     const rhythmFlagged = rhythmClean.filter((x) => rulesOf(x).length).map((x) => `${x.id} ${x.part}: ${rhythmProblems(x).map((f) => f.detail).join('; ')}`);
-    ok('the rhythm checker passes two openings or two short sentences in a row, a lead-in, a card\'s modes and a list of jobs',
+    const strayList = rulesOf({ id: 'X', part: 'you', list: true, items: ['You like a thing before you act, which is fine, and to like it completely.'] });
+    ok('the rhythm checker flags the author\'s list shape in anyone else\'s line', strayList.includes('lists'), strayList.join());
+    ok('the rhythm checker passes two openings or two short sentences in a row, a lead-in, a card\'s modes, a list of jobs and the author\'s lines',
       rhythmFlagged.length === 0, rhythmFlagged.join(' | '));
 
     // The line checker (sections 6 and 9), on Dimir's bars (blue 78, black 64,
@@ -1633,14 +1728,30 @@ run('visible-copy', async (t) => {
       [[{ id: 'AZORIUS', part: 'colleague cards', items: ['Call on them when the meeting about the meeting has been booked.'] }], 'props'],
       [['MONO-W', 'AZORIUS'].map((id) => ({ id, part: 'banter', items: ["You've been asked to stop quoting the office fridge policy by paragraph number."] })), 'props'],
       [Array.from({ length: 23 }, (x, i) => ({ id: 'P' + i, part: 'banter', items: ['You did a thing.'] })), 'banter'],
+      // the office anecdote about some colleague, where a `you` line should be
+      [[{ id: 'DIMIR', part: 'you', list: true, items: ['Has spotted three of the last five problems first.'] }], 'person'],
     ].filter(([passages, rule]) => !rulesFound(passages).includes(rule)).map(([passages, rule]) => `${passages[0].items[0]}: wanted ${rule}, got ${rulesFound(passages)}`);
-    ok('the voice checker flags "we", a shadow on "You" or "The", a year, a joke shape or an office prop on several pages, and a closing line on too many', voiceSamples.length === 0, voiceSamples.join(' | '));
+    ok('the voice checker flags "we", a shadow on "You" or "The", a `you` line with no "you", a year, a joke shape or an office prop on several pages, and a closing line on too many', voiceSamples.length === 0, voiceSamples.join(' | '));
     const voiceClean = voiceProblems([
       { id: 'BOROS', part: 'shadows', list: true, items: ["Treats 'let's just send an email' as a form of moral cowardice."] },
       { id: 'IZZET', part: 'strengths', list: true, items: ['Will rebuild a system at 11pm because they thought of a better way at 10:47pm.'] },
       { id: 'BANT', part: 'strengths', list: true, items: ["Asks the quietest person in the room first, and changes the plan when they're right."] },
+      { id: 'MONO-U', part: 'you', list: true, items: [...AUTHOR_LINES, 'People come to you upset and go away informed.'] },
     ]);
-    ok('the voice checker passes a quoted "let\'s", a time of night and one page with "the room"', voiceClean.length === 0, voiceClean.map((v) => v.detail).join(' | '));
+    ok('the voice checker passes a quoted "let\'s", a time of night, one page with "the room" and `you` lines that open on "You"', voiceClean.length === 0, voiceClean.map((v) => v.detail).join(' | '));
+
+    // The `you` checker (section 16), on made-up pages and on the author's.
+    const youRules = (byId) => [...new Set(youProblems(byId).map((v) => v.rule))].sort().join();
+    const youSamples = [
+      [{ X: ['You keep the receipts.'] }, 'count'],
+      [{ X: ['You keep the receipts.', "You're never wrong about money.", 'People ask you first.'] }, 'opening'],
+      [{ X: ['You see red at the first queue-jumper.', 'People step back.'] }, 'colour'],
+      [{ X: ['You count the cards in your hand twice.', 'People let you deal.'] }, 'magic'],
+      [{ 'MONO-U': ['You read the manual.', 'People ask you things.'] }, 'author'],
+    ].filter(([byId, rule]) => !youRules(byId).includes(rule)).map(([byId, rule]) => `${JSON.stringify(byId)}: wanted ${rule}, got ${youRules(byId)}`);
+    ok('the you checker flags one line, two lines opening alike, a colour, a word from the game, and Mono-Blue without the author\'s lines', youSamples.length === 0, youSamples.join(' | '));
+    const youClean = youProblems({ 'MONO-U': [...AUTHOR_LINES, 'People come to you upset and go away informed.'], X: ['You keep the receipts.', 'People ask you first.', "You're never wrong about money."] });
+    ok('the you checker passes the author\'s two lines opening alike, and lines that open differently', youClean.length === 0, youClean.map((v) => v.detail).join(' | '));
     win.close();
   }
 });

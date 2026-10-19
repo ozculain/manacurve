@@ -454,6 +454,9 @@ body[data-audience="workplace"] .mc-warning__label { color: var(--ink-muted); }
 .mc-result__list li { font-family: var(--f-body); font-size: 15px; color: var(--ink); padding: 10px 0 10px 24px; border-bottom: 1px dashed var(--rule); position: relative; }
 .mc-result__list li::before { content: "✦"; position: absolute; left: 0; color: var(--gilt); opacity: 0.7; }
 .mc-result__list li:last-child { border-bottom: 0; }
+/* Consumer mode: the profile's `you` lines, one list under no heading where
+   Strengths and Shadows stood (workplace mode keeps those two columns). */
+.mc-result__you { margin: 32px 0; max-width: 760px; }
 .mc-result__banter { margin: 32px 0; padding: 32px; background: var(--inset); border: 1px solid var(--gilt-line); position: relative; }
 .mc-result__banter-label { position: absolute; top: -10px; left: 24px; background: var(--canvas); padding: 0 12px; font-family: var(--f-display); text-transform: uppercase; letter-spacing: 0.32em; font-size: 10px; color: var(--gilt); }
 .mc-result__banter p { font-family: var(--f-flavor); font-style: italic; font-size: 18px; line-height: 1.6; color: var(--ink-muted); }
@@ -1974,6 +1977,8 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
 .mc-nextdoor__peek-traits .mc-result__col-title { margin-bottom: 4px; }
 .mc-nextdoor__peek-traits .mc-result__list li { font-size: 14px; padding: 7px 0 7px 22px; }
 @media (max-width: 560px) { .mc-nextdoor__peek-traits { grid-template-columns: 1fr; } }
+.mc-nextdoor__peek-you { margin-bottom: 14px; }
+.mc-nextdoor__peek-you.mc-result__list li { font-size: 14px; padding: 7px 0 7px 22px; }
 
 /* "(on appeal)" after the name; tap or hover for where it started */
 .mc-result__name-row { display: flex; align-items: baseline; gap: 6px 14px; flex-wrap: wrap; }
@@ -2192,6 +2197,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
       <!-- Warning seal -->
       <div class="mc-warning">
         <div class="mc-warning__label">⚠ Not For Official Use</div>
+        <p style="font-family: var(--f-body); font-size: 13px; line-height: 1.6; color: var(--ink-muted); margin-bottom: 8px;">It is not validated and it is not science. We're telling you for legal reasons, and also because it's true and it's started to bother us.</p>
         <p style="font-family: var(--f-body); font-size: 13px; line-height: 1.6; color: var(--ink-muted); margin-bottom: 0;">Do not use this for hiring, firing or any other decision about a person.</p>
       </div>
 
@@ -2542,7 +2548,12 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
              mode the card's typeline above replaces its text. -->
         <div class="mc-typeline"><span class="mc-typeline__diamond"></span><span class="mc-typeline__label" id="res-personality">Personality <span style="opacity:0.6;">·</span> <span id="res-typeline-name">…</span></span><span class="mc-typeline__diamond"></span></div>
 
-        <!-- Strengths / Shadows grid (Claude Design's mc-result__grid) -->
+        <!-- Consumer mode: the profile's `you` lines (PROFILES.you), one list,
+             no heading. Workplace mode hides it and shows the Strengths /
+             Shadows grid below instead (renderIdentitySections). -->
+        <ul class="mc-result__list mc-result__you" id="res-you"></ul>
+
+        <!-- Strengths / Shadows grid (Claude Design's mc-result__grid), workplace mode only -->
         <div class="mc-result__grid" id="res-traits">
           <div>
             <div class="mc-result__col-title">Strengths</div>
@@ -2565,7 +2576,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
         </div>
 
         <!-- res-desc kept as a hidden compat anchor — populated by showResults but not surfaced
-             (the Strengths/Shadows columns already say the same thing more sharply). -->
+             (the lines above already say the same thing more sharply). -->
         <p id="res-desc" style="display:none"></p>
 
         <!-- Type-line divider before the role/commander block -->
@@ -2576,7 +2587,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
              card is named once, as the banner's art credit. -->
         <div id="res-roles-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;">
           <div>
-            <div class="mc-result__col-title">Natural Roles</div>
+            <div class="mc-result__col-title" id="roles-title">Natural Roles</div>
             <p class="mc-body" style="color:var(--ink);font-size:15px;line-height:1.7;" id="roles">Roles</p>
           </div>
           <div id="res-cmd-aside">
@@ -2606,8 +2617,8 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
           <button type="button" class="mc-nextdoor__all" id="next-door-all" onclick="openAppealExplorer()"></button>
         </section>
 
-        <!-- Working With Others — pentagon diagram + per-colour callouts -->
-        <div class="mc-typeline" style="margin-top: 36px;"><span class="mc-typeline__diamond"></span>Working With Others<span class="mc-typeline__diamond"></span></div>
+        <!-- Working With Others (consumer mode: "Who you need around you") — pentagon diagram + per-colour callouts -->
+        <div class="mc-typeline" style="margin-top: 36px;"><span class="mc-typeline__diamond"></span><span id="res-others-title">Working With Others</span><span class="mc-typeline__diamond"></span></div>
         <div class="mc-relations-wrap">
           <div class="mc-relations-svg-wrap">
             <!-- Pentagon: all-SVG so vertex symbols sit at EXACT viewBox coords. -->
@@ -2663,8 +2674,8 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
              the banner (#res-banner-share); a second Share here read as a
              duplicate. -->
         <div style="display:flex;gap:12px;margin-top:32px;flex-wrap:wrap;">
-          <button class="mc-btn mc-btn--primary" onclick="showShareScreen()">Make an image</button>
-          <button class="mc-btn" onclick="document.getElementById('legacy-detail').classList.toggle('hidden'); this.textContent = document.getElementById('legacy-detail').classList.contains('hidden') ? 'View Full Breakdown' : 'Hide Full Breakdown';">View Full Breakdown</button>
+          <button class="mc-btn mc-btn--primary" id="res-image-btn" onclick="showShareScreen()">Make an image</button>
+          <button class="mc-btn" id="res-breakdown-btn" onclick="toggleBreakdown()">View Full Breakdown</button>
           <button class="mc-btn mc-btn--ghost" onclick="restart()">Retake</button>
         </div>
       </div>
@@ -2879,6 +2890,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
 
       <div class="mc-warning" style="margin-top: 32px;">
         <div class="mc-warning__label">⚠ Not For Official Use</div>
+        <p style="font-family: var(--f-body); font-size: 13px; line-height: 1.6; color: var(--ink-muted); margin-bottom: 8px;">It is not validated and it is not science. We're telling you for legal reasons, and also because it's true and it's started to bother us.</p>
         <p style="font-family: var(--f-body); font-size: 13px; line-height: 1.6; color: var(--ink-muted); margin-bottom: 0;">Do not use this for hiring, firing or any other decision about a person.</p>
       </div>
     </div>
@@ -3121,7 +3133,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
             </svg>
           </div>
 
-          <!-- Who to bring in: the colleague cards, from COLOR_GAPS (renderExplorerRelations) -->
+          <!-- Who to bring in (consumer mode: "Who to ask"): the colour cards, from COLOR_GAPS (renderExplorerRelations) -->
           <div class="mc-relations-detail" id="explorer-relations-detail" style="margin-bottom: 24px;"></div>
 
           <!-- Philosophy -->
@@ -3163,7 +3175,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
 
           <!-- Roles -->
           <div>
-            <div class="mc-eyebrow mc-eyebrow--gilt" style="margin-bottom: 8px;">Natural roles</div>
+            <div class="mc-eyebrow mc-eyebrow--gilt" style="margin-bottom: 8px;" id="detail-roles-title">Natural roles</div>
             <p id="detail-roles" class="mc-body" style="font-size: 14.5px; color: var(--ink); line-height: 1.7; margin: 0;"></p>
           </div>
 
@@ -4302,7 +4314,9 @@ const COLOR_STRENGTHS = {
 };
 
 // Who to bring in: one card per colour a result lacks, headed "White
-// colleague", with one line saying when to ask that colleague in. The line
+// colleague" in workplace mode and "White" for everyone else (consumer mode
+// also swaps the lines that spoke like a workplace for COLOR_GAPS_FOR_FUN
+// below), with one line saying when to ask that colleague in. The line
 // belongs to the identity, so no two pages print the same card: readers
 // comparing pages saw the same blurb on half of them and took the section
 // for a template. It names a moment from that identity's own working life
@@ -4453,10 +4467,79 @@ const COLOR_GAPS = {
   }
 };
 
-// The copy around the colleague cards, on the result and in the explorer.
+// Consumer mode (anyone not in workplace mode) gets these lines in place of
+// the ones above that spoke like a workplace: bring them in, check that, hand
+// them the numbers, costed, the hard thing, write off, the team, a promotion,
+// someone senior. Three readers on a consumer page called the section
+// recruitment-speak sitting beside a hiring warning. Workplace mode keeps
+// COLOR_GAPS as it is. The same rules hold: each line on one page only, no
+// opening word on more than six of the 75 cards or twice on a page.
+const COLOR_GAPS_FOR_FUN = {
+  'MONO-U': { W: 'Before you show anyone the plan, let them put it into plain words.' },
+  'MONO-B': { G: 'Before you give up something that took years to build for something you want this week, talk to them.' },
+  'MONO-R': {
+    W: "Tell them what you're planning while it's still easy to change.",
+    U: 'Have a cup of tea with them the day before you start.'
+  },
+  'MONO-G': {
+    W: 'Ask them if the way things have always been done is fair to whoever arrived last.',
+    U: 'When the usual way stops giving the usual results, find out from them why.',
+    B: "If a big change is coming, they'll work out where it leaves you.",
+    R: 'Leave anything that has to change this week to them.'
+  },
+  AZORIUS: {
+    R: 'Give them any decision that has been stuck for weeks.',
+    G: 'Hear them out before a group that has always run on trust gets a rulebook.'
+  },
+  SELESNYA: {
+    U: 'When everyone loves a plan and nobody has added up what it costs, show them.',
+    R: "Take them with you when you finally have to tell someone something they won't like."
+  },
+  ORZHOV: {
+    R: 'When the people in charge are blocking someone who is clearly right, let them make a noise about it.',
+    G: "If every kindness around you now comes with a price, they'll notice first."
+  },
+  IZZET: { B: 'Go to them when your best experiment needs money and someone important behind it.' },
+  GRUUL: { B: 'Take their advice on who matters when things turn political.' },
+  RAKDOS: {
+    U: 'Let them test the exciting plan before you go ahead.',
+    G: "Agree with them what's worth keeping before the next upheaval."
+  },
+  GOLGARI: { W: "They'll tell you who gets hurt when something is shut down." },
+  SIMIC: {
+    W: 'Walk them through how it works as if they were new, and see where they get lost.',
+    R: 'Let them call it finished when it nearly is and you want another week.'
+  },
+  ESPER: { R: 'Ask them to talk to whoever your plan has upset.' },
+  GRIXIS: {
+    W: "Find out from them what it's like to have you in charge.",
+    G: "Talk it over with them before you give up on someone you'll need next year."
+  },
+  JUND: { W: 'Sit down with them now and then to hear how everyone around you is holding up.' },
+  NAYA: {
+    U: 'Once everyone is fired up, get them to turn the energy into a plan.',
+    B: "They'll find out if everyone wants the same thing, or just the loudest."
+  },
+  ABZAN: { R: 'Hand them anything people have been talking about for longer than anyone can remember.' },
+  JESKAI: {
+    B: 'If your best work keeps going unnoticed, they can get it seen.',
+    G: 'Listen to them when everyone might need a rest more than another round of practice.'
+  },
+  MARDU: { U: 'Get them to pick holes in the plan before you commit everyone to it.' },
+  WITCH: { R: 'Leave it to them when a deadline matters more than a better answer.' }
+};
+
+// The copy around the colleague cards, on the result and in the explorer,
+// by audience: consumer mode in plain words, workplace mode as it was.
 const COLOR_GAPS_COPY = {
-  heading: 'Who to bring in',
-  sub: { result: 'Colleagues strong in the colours outside yours.', explorer: "Colleagues strong in the colours this type doesn't hold." },
+  heading: { consumer: 'Who to ask', workplace: 'Who to bring in' },
+  sub: {
+    result: { consumer: "People strong in the colours you don't have.", workplace: 'Colleagues strong in the colours outside yours.' },
+    explorer: { consumer: "People strong in the colours this type doesn't have.", workplace: "Colleagues strong in the colours this type doesn't hold." }
+  },
+  // Each card's head beside its pip: the colour alone in consumer mode. One
+  // reader heard "White colleague" as a racial label; nobody talks like that.
+  head: { consumer: '{colour}', workplace: '{colour} colleague' },
   // Five colours have no card to show. The line that stood in ("None of the
   // five colours is missing from your result.") read as machine-written.
   five: {
@@ -4465,13 +4548,15 @@ const COLOR_GAPS_COPY = {
   }
 };
 
-// One card per missing colour: the head and the identity's own line.
+// One card per missing colour: the head and the identity's own line, in the
+// audience's words.
 function gapCardsHTML(id, missing) {
-  const lines = COLOR_GAPS[id] || {};
+  const aud = audienceKey();
+  const lines = { ...(COLOR_GAPS[id] || {}), ...(aud === 'consumer' ? COLOR_GAPS_FOR_FUN[id] || {} : {}) };
   return missing.map(c => `<div class="mc-gap-card" data-color="${c}">
         <span class="mc-pip is-lit mc-gap-card__pip" data-color="${c}" aria-hidden="true"></span>
         <div class="mc-gap-card__body">
-          <div class="mc-gap-card__head">${COLOR_DISPLAY[c]} colleague</div>
+          <div class="mc-gap-card__head">${htmlText(fillCopy(COLOR_GAPS_COPY.head[aud], { colour: COLOR_DISPLAY[c] }))}</div>
           <div class="mc-gap-card__gap">${htmlText(lines[c] || '')}</div>
         </div>
       </div>`).join('');
@@ -4511,12 +4596,12 @@ function renderRelations() {
   // or for five colours one plain paragraph.
   const el = document.getElementById('relations-detail');
   if (!el) return;
-  const G = COLOR_GAPS_COPY;
-  let html = `<div class="mc-relations-detail__heading">${G.heading}</div>`;
+  const G = COLOR_GAPS_COPY, aud = audienceKey();
+  let html = `<div class="mc-relations-detail__heading">${G.heading[aud]}</div>`;
   if (missing.length === 0) {
     html += `<div class="mc-relations-detail__empty">${G.five.result}</div>`;
   } else {
-    html += `<div class="mc-relations-detail__sub">${G.sub.result}</div>
+    html += `<div class="mc-relations-detail__sub">${G.sub.result[aud]}</div>
       ${gapCardsHTML(state.result.identity, missing)}`;
   }
   el.innerHTML = html;
@@ -11128,7 +11213,12 @@ function revealResults() {
 // 6: Result screens, third naive-reader round (18 October 2026): gaps are in
 // points, as the bars print them, and the down row names the dropped colour
 // as the lowest of yours ("Red was the lowest of your three colours.").
-const RESULT_COPY_VERSION = 6;
+// 7: Result pages in the second person (19 October 2026): consumer pages show
+// each profile's `you` lines where Strengths and Shadows stood, a peek next
+// door shows the neighbour's, every philosophy is rewritten, and the headings
+// and colour cards around them are in plain words (RESULT_COPY.frame,
+// COLOR_GAPS_COPY). Workplace mode keeps strengths, shadows and its headings.
+const RESULT_COPY_VERSION = 7;
 
 const RESULT_COPY = {
   // One sentence-case name per identity, for use inside sentences. [3]
@@ -11282,6 +11372,21 @@ const RESULT_COPY = {
     neither: 'You chose neither quite often, so this result rests on fewer answers.'
   },
 
+  // The headings and buttons around the profile, by audience (renderFrameLabels):
+  // consumer mode in words a person would say, workplace mode as it was. Three
+  // readers on a consumer page heard "Natural Roles" as sorting people into
+  // job titles, "Working With Others" as an appraisal form and "View Full
+  // Breakdown" as a dashboard. The picture button never says "share": the
+  // banner's Share is the one Share on the page. (Not in the drafts.)
+  frame: {
+    roles: { consumer: "Jobs you'd be good at", workplace: 'Natural Roles' },
+    detailRoles: { consumer: "Jobs you'd be good at", workplace: 'Natural roles' },
+    others: { consumer: 'Who you need around you', workplace: 'Working With Others' },
+    image: { consumer: 'Make a picture', workplace: 'Make an image' },
+    breakdown: { consumer: 'Show the workings', workplace: 'View Full Breakdown' },
+    breakdownHide: { consumer: 'Hide the workings', workplace: 'Hide Full Breakdown' }
+  },
+
   // [4] The bars: the title by mode, one caption for both.
   barsTitle: { player: 'Your Mana Pool', plain: 'Your colours' },
   barsCaption: 'How often you picked each colour when it was offered.',
@@ -11426,7 +11531,8 @@ const RESULT_COPY = {
 
   // [9] Appeal the ruling, from the Next door rows. Each row has its own peek
   // and appeal: the first tap on a row opens a panel under it with that
-  // neighbour's philosophy, strengths and shadows; the panel's own button is
+  // neighbour's philosophy and its `you` lines (in workplace mode its
+  // strengths and shadows, under peekColumns); the panel's own button is
   // the second, separate tap, which appeals: the page shows the appealed
   // identity marked "(on appeal)" and the link gains &f=<ID> (not in
   // workplace mode, where the appeal stays private).
@@ -11451,8 +11557,8 @@ const RESULT_COPY = {
     markNote: 'Originally {original}. You appealed.',
     // Workplace mode, under the appeal button.
     workplaceNote: "Your appeal isn't included when you share.",
-    // Not in the drafts: the peek's column titles (the page's own), the way
-    // back from a peek, and the all-31 picker's bar.
+    // Not in the drafts: the peek's column titles (the page's own, workplace
+    // mode only), the way back from a peek, and the all-31 picker's bar.
     peekColumns: { str: 'Strengths', weak: 'Shadows' },
     back: 'Back to {identity}',
     pickPrompt: 'Pick the one that sounds like you.',
@@ -11528,6 +11634,32 @@ function isPlayerMode() {
 
 function copyVariant(entry) {
   return isPlayerMode() ? entry.player : entry.plain;
+}
+
+// The audience the page speaks to, for copy split by audience rather than by
+// player mode: 'workplace', or 'consumer' for everyone else.
+function audienceKey() {
+  return (state.audience || 'consumer') === 'workplace' ? 'workplace' : 'consumer';
+}
+
+// The headings and buttons around the profile, in the audience's words
+// (RESULT_COPY.frame). The breakdown button says what its next tap does.
+function renderFrameLabels() {
+  const F = RESULT_COPY.frame, aud = audienceKey();
+  const set = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
+  set('roles-title', F.roles[aud]);
+  set('detail-roles-title', F.detailRoles[aud]);
+  set('res-others-title', F.others[aud]);
+  set('res-image-btn', F.image[aud]);
+  const detail = document.getElementById('legacy-detail');
+  set('res-breakdown-btn', (!detail || detail.classList.contains('hidden') ? F.breakdown : F.breakdownHide)[aud]);
+}
+
+function toggleBreakdown() {
+  const detail = document.getElementById('legacy-detail');
+  if (!detail) return;
+  detail.classList.toggle('hidden');
+  renderFrameLabels();
 }
 
 function identityName(id) {
@@ -11848,29 +11980,45 @@ function fillTraitList(listId, items) {
   });
 }
 
-// The card (player mode), philosophy, strengths and shadows of the identity
-// on screen. A peek next door never touches them: it opens under its row.
+// Whether a profile shows its `you` lines: everywhere but workplace mode,
+// which keeps strengths and shadows (work mode promises no roasting).
+function showsYouLines(prof) {
+  return audienceKey() !== 'workplace' && !!(prof && prof.you && prof.you.length);
+}
+
+// The card (player mode), philosophy, and the `you` lines (consumer mode) or
+// strengths and shadows (workplace mode) of the identity on screen. A peek
+// next door never touches them: it opens under its row.
 function renderIdentitySections(id) {
   const prof = PROFILES[id];
   if (!prof) return;
   document.getElementById('identity-exp').textContent = generateIdentityExplanation(id, state.activationSorted || []);
   renderIdentityCard(id);
+  const you = showsYouLines(prof);
+  fillTraitList('res-you', you ? prof.you : []);
+  document.getElementById('res-you').classList.toggle('hidden', !you);
+  document.getElementById('res-traits').classList.toggle('hidden', you);
   fillTraitList('strengths', prof.str);
   fillTraitList('weaknesses', prof.weak);
+  renderFrameLabels();
 }
 
-// A peek: the neighbour's philosophy, strengths and shadows, then its own
-// appeal button (the second, separate tap) and the way back.
+// A peek: the neighbour's philosophy and `you` lines (workplace mode: its
+// strengths and shadows), then its own appeal button (the second, separate
+// tap) and the way back.
 function peekPanelHTML(id) {
   const A = RESULT_COPY.appeal, prof = PROFILES[id], name = identityName(id);
   const list = (items) => (items || []).map(t => `<li>${htmlText(t)}</li>`).join('');
+  const traits = showsYouLines(prof)
+    ? `<ul class="mc-result__list mc-nextdoor__peek-you">${list(prof.you)}</ul>`
+    : `<div class="mc-nextdoor__peek-traits">`
+      + `<div><div class="mc-result__col-title">${htmlText(A.peekColumns.str)}</div><ul class="mc-result__list">${list(prof.str)}</ul></div>`
+      + `<div><div class="mc-result__col-title">${htmlText(A.peekColumns.weak)}</div><ul class="mc-result__list">${list(prof.weak)}</ul></div>`
+      + `</div>`;
   return `<div class="mc-nextdoor__panel-head">${htmlText(fillCopy(A.peekHeading, { identity: name }))}</div>`
     + `<p class="mc-nextdoor__panel-note">${htmlText(copyVariant(A.peekNote))}</p>`
     + `<p class="mc-nextdoor__peek-philosophy">${htmlText(generateIdentityExplanation(id, state.activationSorted || []))}</p>`
-    + `<div class="mc-nextdoor__peek-traits">`
-    + `<div><div class="mc-result__col-title">${htmlText(A.peekColumns.str)}</div><ul class="mc-result__list">${list(prof.str)}</ul></div>`
-    + `<div><div class="mc-result__col-title">${htmlText(A.peekColumns.weak)}</div><ul class="mc-result__list">${list(prof.weak)}</ul></div>`
-    + `</div>`
+    + traits
     + `<div class="mc-nextdoor__actions">`
     + `<button type="button" class="mc-btn mc-btn--primary" id="appeal-btn" onclick="appealTo('${id}')">${htmlText(fillCopy(A.button, { identity: name }))}</button>`
     + `<button type="button" class="mc-btn mc-btn--ghost" id="peek-back-btn" onclick="endPeek()">${htmlText(fillCopy(A.back, { identity: identityName(resultShownId()) }))}</button>`
@@ -12714,8 +12862,16 @@ function showShareScreen() {
   if (tcgConf) tcgConf.textContent = isPlayerMode() ? collectorNumber(state.result.identity) : '';
   const tcgRules = document.getElementById('tcg-rules');
   if (tcgRules) {
-    const headers = ['Vigilance', 'Resilience', 'Strategic Patience']; // placeholder ability headers
-    tcgRules.innerHTML = (p.str || []).slice(0, 3).map((line, i) => `<li><strong>${headers[i] || 'Strength'}</strong>${line}</li>`).join('');
+    if (audience !== 'workplace' && p.you && p.you.length) {
+      // Consumer mode: the first two `you` lines, as the result page prints
+      // them, with no keyword over them. Two fit the Card's text box with the
+      // flavour line under them on all 31 (measured in a browser at the share
+      // studio's 400px); a third pushes the flavour line out on most.
+      tcgRules.innerHTML = p.you.slice(0, 2).map(line => `<li>${htmlText(line)}</li>`).join('');
+    } else {
+      const headers = ['Vigilance', 'Resilience', 'Strategic Patience']; // placeholder ability headers
+      tcgRules.innerHTML = (p.str || []).slice(0, 3).map((line, i) => `<li><strong>${headers[i] || 'Strength'}</strong>${line}</li>`).join('');
+    }
   }
   const tcgFlavor = document.getElementById('tcg-flavor');
   if (tcgFlavor) tcgFlavor.textContent = audience === 'workplace' ? (p.philosophy || '') : (p.pubBanter || p.desc || '');
@@ -13015,6 +13171,7 @@ function showDetail(id) {
   fillList(document.getElementById('detail-shadows'), p.weak);
 
   document.getElementById('detail-roles').textContent = p.roles || '';
+  document.getElementById('detail-roles-title').textContent = RESULT_COPY.frame.detailRoles[audienceKey()];
 
   // ── PENTAGON LENS — the actual insight machinery ──────────────────────
   renderExplorerRelations(id);
@@ -13054,15 +13211,15 @@ function renderExplorerRelations(identityKey) {
   const el = document.getElementById('explorer-relations-detail');
   if (!el) return;
 
-  const G = COLOR_GAPS_COPY;
+  const G = COLOR_GAPS_COPY, aud = audienceKey();
   if (missing.length === 0) {
-    el.innerHTML = `<div class="mc-relations-detail__heading">${G.heading}</div>
+    el.innerHTML = `<div class="mc-relations-detail__heading">${G.heading[aud]}</div>
       <div class="mc-relations-detail__sub">${G.five.explorer}</div>`;
     return;
   }
 
-  el.innerHTML = `<div class="mc-relations-detail__heading">${G.heading}</div>
-    <div class="mc-relations-detail__sub">${G.sub.explorer}</div>
+  el.innerHTML = `<div class="mc-relations-detail__heading">${G.heading[aud]}</div>
+    <div class="mc-relations-detail__sub">${G.sub.explorer[aud]}</div>
     ${gapCardsHTML(identityKey, missing)}`;
 }
 
