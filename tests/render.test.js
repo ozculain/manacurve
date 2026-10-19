@@ -641,6 +641,8 @@ run('render', async (t) => {
         'Dimir won on the weight of all your answers, though not with the best record in this round (1W-2L). Grixis came next (3W-0L).'],
       ['engine 2, the winner shares the best record', DIMIR.result, 2,
         'Dimir won on the weight of all your answers (2W-1L in this round). Grixis came next (2W-1L).'],
+      ['engine 3 (the default) says it the same way', DIMIR.result, 3,
+        'Dimir won on the weight of all your answers (2W-1L in this round). Grixis came next (2W-1L).'],
       ['engine 1 keeps its line', DIMIR.result, 1,
         'DIMIR finished with the best record (2W-1L), ahead of GRIXIS (2W-1L).'],
     ];

@@ -5,7 +5,7 @@
 // handlers and scoring code (unchanged). The respondent models live in
 // tests/_lib/respondent.js.
 // Usage: node tests/simulate.js [--n 200] [--p 0.8[,0.9,...]] [--neither 0.05] [--seed 1[,2,...]]
-//          [--model ideal|misspecified|mixed | --models both|all|a,b] [--engine 2 | --engine 1,2]
+//          [--model ideal|misspecified|mixed | --models both|all|a,b] [--engine 3 | --engine 1,2,3]
 //          [--r3 page,q=0.85,tour,...] [--gaming] [--workers auto] [--out tests/out/simulation.json]
 //          [--five-band 20] [--rows] [path/to/another/index.html]
 'use strict';
@@ -18,9 +18,10 @@ const ROOT = path.resolve(__dirname, '..');
 const { bootPage } = require('./_lib/load');
 const { runRespondent, calibrateMisspecified, signalAt, MIXED, MODEL_NAMES } = require('./_lib/respondent');
 
-// The page's default engine; ?engine=1 selects the win-rate engine for one release.
-const ENGINES = [1, 2];
-const DEFAULT_ENGINE = 2;
+// The page's default engine (3); ?engine=1 selects the win-rate engine and ?engine=2
+// the likelihood engine with Round 3 answers weighed as in scoring version 2, for one release.
+const ENGINES = [1, 2, 3];
+const DEFAULT_ENGINE = 3;
 // The instrument version the page stamps on a finished result (INSTRUMENT_VERSION in
 // index.html): 10 since the Red answers were rewritten as conviction and the counter said
 // "of up to" (9 for Round 3's short situations for the matchups players meet, 8 for the
@@ -28,7 +29,7 @@ const DEFAULT_ENGINE = 2;
 // questions rewritten from naive readers, 6 for the persona check of all questions, 5 for the Round 1 and 2 real-stakes items, 4 for the
 // Plain screens copy, 3 for the Round 1 and 2 copy rewrite, 2 for the Phase 3 quiz copy).
 const INSTRUMENT_VERSION = 10;
-const engineUrl =(engine) => (engine === 1 ? 'http://localhost/?engine=1' : 'http://localhost/');
+const engineUrl = (engine) => (engine === DEFAULT_ENGINE ? 'http://localhost/' : `http://localhost/?engine=${engine}`);
 
 // ---------- CLI ----------
 function fail(msg) { console.error(msg); process.exit(2); }
@@ -49,7 +50,7 @@ function parseArgs(argv) {
     else if (k === 'p') o.p = String(v).split(',').map((x) => num('p', x));
     else if (k === 'model') o.models = [String(v)];
     else if (k === 'models') o.models = v === 'both' ? ['ideal', 'misspecified'] : v === 'all' ? [...MODEL_NAMES] : String(v).split(',');
-    else if (k === 'engine' || k === 'engines') o.engines = v === 'both' ? [...ENGINES] : String(v).split(',').map((x) => num('engine', x));
+    else if (k === 'engine' || k === 'engines') o.engines = v === 'all' ? [...ENGINES] : String(v).split(',').map((x) => num('engine', x));
     else if (k === 'r3') { if (!v) fail('Bad value for --r3'); o.r3 = String(v).split(',').map(parseVariant); }
     else if (k === 'out') { if (!v) fail('Bad value for --out'); o.out = path.resolve(v); }
     // The Five-colour band the checks and the report assume, for a build that
@@ -58,9 +59,9 @@ function parseArgs(argv) {
     else fail('Unknown option ' + argv[i - 1]);
   }
   for (const m of o.models) if (!MODEL_NAMES.includes(m)) fail(`Unknown model "${m}"; expected ${MODEL_NAMES.join(', ')}, or --models both or all`);
-  for (const e of o.engines) if (!ENGINES.includes(e)) fail(`Unknown engine "${e}"; expected ${ENGINES.join(' or ')}, or --engine 1,2`);
+  for (const e of o.engines) if (!ENGINES.includes(e)) fail(`Unknown engine "${e}"; expected ${ENGINES.join(', ')}, or a list such as --engine 2,3`);
   for (const p of o.p) if (p < 0 || p > 1) fail('--p values must lie between 0 and 1');
-  if (o.r3 && o.engines.some((e) => e !== 2)) fail('--r3 varies engine 2 only; drop --engine 1');
+  if (o.r3 && o.engines.some((e) => e < 2)) fail('--r3 varies the likelihood engine (2 or 3) only; drop --engine 1');
   if (o.htmlPath && !fs.existsSync(o.htmlPath)) fail('No such build: ' + o.htmlPath);
   o.n = Math.max(1, Math.floor(o.n));
   o.p = [...new Set(o.p)];
@@ -104,12 +105,14 @@ function parseArgs(argv) {
 // questions it asks for and the result all follow it:
 //   jaccard  the sign of a match for identity S from Jaccard similarity: +1
 //            when the winner's colours are closer to S's, -1 when the loser's
-//            are, 0 on a tie (the page's own model; the default sign)
+//            are, 0 on a tie (the page's sign, on engines 2 and 3; the default)
 //   symdiff  the sign from the colours where the winner and loser differ: the
 //            share of them on which S agrees with the winner minus the share
 //            on which it agrees with the loser, so -1 to +1, and a split is 0
 //   qg=A:B   q averaged over A, A + 0.05, ..., B instead of the page's
-//            ROUND3_Q_GRID (q=X with any of these parts: q fixed at X)
+//            ROUND3_Q_GRID (q=X with any of these parts: q fixed at X); so on
+//            the current build jaccard is engine 3 and jaccard+qg=0.55:0.9 is
+//            engine 2
 //   own      a match counts only for the two identities that played it
 //   cap=X    no identity's Round 3 term more than X nats below the best one's
 // A sign s weighs a match as P(winner | S) = 1/2 + (q - 1/2) s, which is the
@@ -203,7 +206,7 @@ function round3ModelLogLik(win, matchHistory, model) {
 // the global scope, so these wrappers see every call.
 function installRound3Hooks(win) {
   const loglik = win.round3LogLikelihoods, decide = win.applyPosteriorDecision;
-  if (typeof loglik !== 'function' || typeof decide !== 'function') throw new Error('--r3 needs engine 2 (round3LogLikelihoods, applyPosteriorDecision) in this build');
+  if (typeof loglik !== 'function' || typeof decide !== 'function') throw new Error('--r3 needs the likelihood engine (round3LogLikelihoods, applyPosteriorDecision) in this build');
   win.round3LogLikelihoods = function (matchHistory, opts) {
     const model = win.__simR3 ? win.__simR3.model : null;
     if (!model) return loglik(matchHistory, opts);

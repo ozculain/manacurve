@@ -23,7 +23,8 @@
 //  4. An appealed link (&f=) opens on the appealed identity, marked, with the
 //     verdict kept in state.result.identity; an unusable f is ignored.
 //  5. Scoring and instrument versions (&s= &i=) and the appeal round-trip
-//     through a link; old links read as version 1; workplace links drop f.
+//     through a link; a version 2 and a version 3 link open as their own
+//     versions; old links read as version 1; workplace links drop f.
 //  6. Everything that shows or copies the link uses the preview-page form: the
 //     share text, Web Share, the clipboard fallback, Copy Link; the three share
 //     images carry the bare site address, never a link in the old form.
@@ -332,6 +333,24 @@ run('seed', async ({ ok }) => {
     if (errors.length) problems.push('errors: ' + errors.slice(0, 2).join(' | '));
     ok('s, i and f round-trip through a link ' + url.replace(/^https?:\/\/[^/]+\//, ''), problems.length === 0, problems.join('; '));
     win.close();
+  }
+  {
+    // A link opens as the scoring version that built it: a version 2 link (Round 3 read
+    // by Jaccard similarity) and a version 3 link with the same identity and bars show
+    // the same result and next door, each with its own version at the foot of the
+    // methodology, and re-share with their own s.
+    const seen = {};
+    for (const s of [2, 3]) {
+      const { win, h, errors } = await openLink(`?r=DIMIR&p=8,94,83,60,0&c=low&a=consumer&s=${s}&i=10`);
+      const r = h.state.result || {};
+      seen[s] = { s: r.scoringVersion, rows: JSON.stringify(nextDoorRows(win)), foot: (win.document.getElementById('res-version') || {}).textContent || '',
+        url: h.buildResultURL(), errors: errors.length };
+      win.close();
+    }
+    const [v2, v3] = [seen[2], seen[3]];
+    ok('a version 2 link and a version 3 link open as their own versions, alike in everything else',
+      v2.s === 2 && v3.s === 3 && v2.rows === v3.rows && v2.rows.includes('GRIXIS') && v2.foot.includes('2') && !v2.foot.includes('3') && v3.foot.includes('3') && !v3.foot.includes('2')
+        && /&s=2&i=10$/.test(v2.url) && /&s=3&i=10$/.test(v3.url) && !v2.errors && !v3.errors, JSON.stringify(seen));
   }
   {
     // Old links carry no versions: they read as 1, and links rebuilt from them say so, in the

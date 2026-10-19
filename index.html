@@ -4202,8 +4202,9 @@ function clearSession() {
 function restoreSession(snapshot) {
   Object.assign(state, snapshot);
   // Snapshots saved before scoring engine 2 existed came from engine 1: finish
-  // them there, and label a finished one as engine 1's.
-  if (state.scoringEngine !== 1 && state.scoringEngine !== 2) state.scoringEngine = 1;
+  // them there, and label a finished one as engine 1's. One saved on engine 2
+  // or 3 finishes on that engine, Round 3 included.
+  if (!SCORING_ENGINES.includes(state.scoringEngine)) state.scoringEngine = 1;
   if (state.result && state.result.scoringVersion === undefined) {
     state.result.scoringVersion = 1;
     state.result.instrumentVersion = 1;
@@ -5501,13 +5502,18 @@ window.addEventListener('DOMContentLoaded', function() {
 // ============================================================================
 // SCORING ENGINE: version switch and the likelihood engine
 // ============================================================================
-// Two engines score the same answers. Engine 2, the likelihood engine below, is
-// the default. Engine 1, the win-rate engine (analyseGapBasedPatterns ->
-// generateCandidatesGapBased, then calculateRefinedActivation ->
-// recalculateCandidates), stays reachable for one release with ?engine=1 in the
-// URL. Both write the state.result shape in docs/SCORING_CONTRACT.md, tagged
-// with scoringVersion and instrumentVersion.
-const SCORING_VERSION = 2;
+// Three engines score the same answers. Engine 3, the likelihood engine below,
+// is the default. Engine 2 is the same engine with Round 3 answers weighed as
+// in scoring version 2 (ROUND3_Q_GRID_BY_VERSION): it finishes any session that
+// started on it, and ?engine=2 in the URL selects it for one release. Engine 1,
+// the win-rate engine (analyseGapBasedPatterns -> generateCandidatesGapBased,
+// then calculateRefinedActivation -> recalculateCandidates), stays reachable
+// for one release with ?engine=1. All three write the state.result shape in
+// docs/SCORING_CONTRACT.md, tagged with scoringVersion (the engine that built
+// the result) and instrumentVersion. Elsewhere, a comment that says engine 2
+// means the likelihood engine, so engine 3 as well, unless it is about how
+// much a Round 3 answer weighs.
+const SCORING_VERSION = 3;
 const INSTRUMENT_VERSION = 10; // the current items and screens (9: before the Red answers were rewritten as conviction and the counter said "of up to"; 8: before Round 3's short situations for the matchups players meet; 7: before the second naive-reader round of the questions; 6: before the questions were rewritten from naive readers; 5: before the persona check of all questions; 4: before the Round 1 and 2 real-stakes items; 3: before the Plain screens copy; 2: before the Round 1 and 2 copy rewrite; 1: before the Phase 3 copy and flow, and links without i)
 
 // THE BARS (both engines). The results screen draws five bars
@@ -5623,21 +5629,31 @@ function topBarsIdentity(k, activationSorted = state.activationSorted) {
 }
 
 // Read once, at load: restart() strips the query string, and a page must not
-// switch engine between one assessment and the next.
+// switch engine between one assessment and the next. ?engine=1 or ?engine=2
+// selects an earlier engine; anything else, the current one.
+const SCORING_ENGINES = [1, 2, 3];
 const SCORING_ENGINE_OVERRIDE = (function () {
-  try { return new URLSearchParams(location.search).get('engine') === '1' ? 1 : null; }
+  try {
+    const e = Number(new URLSearchParams(location.search).get('engine'));
+    return SCORING_ENGINES.includes(e) && e !== SCORING_VERSION ? e : null;
+  }
   catch (e) { return null; }
 })();
 
 // The engine for the assessment in progress. startAssessment pins it on the
-// state, so a resumed session finishes on the engine it started with.
+// state, so a resumed session finishes on the engine it started with, and its
+// result carries that engine's number as its scoringVersion. Engines 2 and 3
+// are the likelihood engine (likelihoodEngine()).
 function scoringEngine() {
-  if (state && (state.scoringEngine === 1 || state.scoringEngine === 2)) return state.scoringEngine;
+  if (state && SCORING_ENGINES.includes(state.scoringEngine)) return state.scoringEngine;
   return SCORING_ENGINE_OVERRIDE || SCORING_VERSION;
+}
+function likelihoodEngine() {
+  return scoringEngine() >= 2;
 }
 
 // ----------------------------------------------------------------------------
-// LIKELIHOOD ENGINE (scoringVersion 2)
+// LIKELIHOOD ENGINE (scoringVersion 2 and 3)
 // Every Round 1 and Round 2 item is a forced choice between two options, each
 // written for one colour. If the respondent's identity is the colour set S and
 // exactly one of the two colours is in S, they pick that one with probability p
@@ -5656,8 +5672,9 @@ function scoringEngine() {
 // Round 3 adds a term of the same kind: each matchup is a forced choice between
 // two identities, and under S the respondent picks the one whose colours are
 // closer to S (Jaccard similarity) with probability q, or flips a coin when
-// both are equally close; q is averaged over ROUND3_Q_GRID. With a uniform
-// prior over the 31 identities, the posterior is the normalised likelihood.
+// both are equally close; q is averaged over ROUND3_Q_GRID (engine 2: over its
+// own, wider grid, ROUND3_Q_GRID_BY_VERSION). With a uniform prior over the 31
+// identities, the posterior is the normalised likelihood.
 // Confidence is the posterior of the reported identity, read against
 // CONFIDENCE_HIGH_POSTERIOR and CONFIDENCE_MODERATE_POSTERIOR.
 // ----------------------------------------------------------------------------
@@ -5668,7 +5685,40 @@ const LIKELIHOOD_P_GRID = [0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9];
 // produce for colours outside their identity too. Accuracy barely moves between
 // 2.5 and 4; the confident end (HIGH labels, the early offer) is where it helps.
 const PAIR_LOGLIK_CAP = 2.5;
-const ROUND3_Q_GRID = [0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9];
+// How much one Round 3 answer counts: the q it is read at is averaged over
+// ROUND3_Q_GRID. Scoring version 3 averages it over 0.55 to 0.75. Version 2
+// averaged it over 0.55 to 0.9, and engine 2 still does
+// (ROUND3_Q_GRID_BY_VERSION). There one answer moved the two identities in it
+// about a nat apart, against at most 2.5 nats for a whole colour pair of six
+// questions in Rounds 1 and 2 (PAIR_LOGLIK_CAP), and a player whose Rounds 1
+// and 2 gave Grixis 84 to 86% and Dimir 12%, under bars of U94 B83 R60 W8 G0,
+// was told Dimir after four Round 3 answers, in two runs out of two. Now an
+// answer moves them about 0.6 nats. Measured with tests/simulate.js --r3 page,
+// qg=0.55:0.75 (n = 100 per identity, seeds 3 and 4, ideal / misspecified
+// respondents, compared on the same respondents): exact recovery moves -0.2
+// to +0.1 points, within two paired standard errors (0.4 to 0.5). A result
+// whose colours are a proper subset of the Round 1 + 2 leader's falls from
+// 16.6 / 24.5% to 14.5 / 21.7% at p = 0.8 and from 29.4 / 34.7% to 27.2 /
+// 32.4% at p = 0.65; one that leaves out a colour printed at 50 or more and 25
+// or more above every other colour it leaves out, from 4.0 / 5.1% to 3.4 /
+// 4.4% (p = 0.8) and 2.2 / 2.9% to 1.8 / 2.5%. Every confidence label is right
+// more often (p = 0.8: HIGH 92.8 to 93.6 / 82.3 to 86.0%, MODERATE 84.1 to
+// 86.7 / 71.3 to 75.7%, LOW 56.0 to 57.9 / 41.8 to 43.5%), and HIGH is given
+// less often (11.7 to 8.1% / 14.0 to 9.5% of results). Results with a losing
+// Round 3 record rise from 1.4 / 0.7% to 1.7 / 1.0%, and results without the
+// best Round 3 record from 9.6 / 11.2% to 13.1 / 15.4%. Monos and four-colour
+// identities give up 2 to 4 points of recovery to three-colour ones and
+// guilds. Grids ending at 0.8 or 0.7 make the same trade, smaller or larger,
+// and the mixed population moves the same way (recovery +0.1 / +0.0, nested
+// results -2.1 / -2.5 at p = 0.65 / 0.8). The other ways tried cut the nested
+// results as far or further but lost recovery beyond two standard errors
+// somewhere: reading a match by the colours its two identities differ on
+// (ideal respondents -1.6 points at p = 0.8, misspecified +2.1), that with
+// this grid (-1.4), counting a match only for the two identities that played
+// it (-1.1 to -3.2), and capping Round 3's swing between any two identities
+// at 1.5 nats (-0.7 to -0.9). CHANGELOG, "Round 3 counts for less".
+const ROUND3_Q_GRID = [0.55, 0.6, 0.65, 0.7, 0.75];
+const ROUND3_Q_GRID_BY_VERSION = { 2: [0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9], 3: ROUND3_Q_GRID };
 const CONFIDENCE_HIGH_POSTERIOR = 0.7;     // reported identity's posterior >= 0.7: HIGH
 const CONFIDENCE_MODERATE_POSTERIOR = 0.5; // 0.5 to 0.7: MODERATE; below 0.5: LOW
 const EARLY_OFFER_POSTERIOR = 0.9;         // the early-result offer after Round 1 needs this
@@ -5689,6 +5739,9 @@ const ROUND3_CANDIDATE_COUNT = 4;          // Round 3 plays the top four by post
 // than two standard errors at p = 0.8; fixing Round 3's discrimination
 // (ROUND3_Q_GRID) at one q from 0.65 to 0.95 instead at best halved losing
 // records within that accuracy, and made HIGH and MODERATE labels less accurate.
+// (Those figures are scoring version 2's. On version 3's lower grid the rule
+// leaves losing records on 1.7 / 1.0% of results at p = 0.8 and 1.4 / 1.2% at
+// p = 0.65, and no result that won no match.)
 const ROUND3_LOSING_RECORD_MARGIN = 3;     // fewer wins than losses: 3 times the runner-up's posterior
 const ROUND3_NO_WINS_MARGIN = 16;          // no win in any match it played: 16 times
 
@@ -5740,9 +5793,11 @@ function identityJaccard(aColors, bColors) {
   return inter / (aColors.length + bColors.length - inter);
 }
 
-// { identity: log-likelihood } of the Round 3 choices, marginalised over q.
+// { identity: log-likelihood } of the Round 3 choices, marginalised over q on
+// the grid of scoring version opts.version (ROUND3_Q_GRID_BY_VERSION; the
+// current version's, ROUND3_Q_GRID, by default). opts.qGrid replaces it.
 function round3LogLikelihoods(matchHistory, opts = {}) {
-  const grid = opts.qGrid || ROUND3_Q_GRID;
+  const grid = opts.qGrid || ROUND3_Q_GRID_BY_VERSION[opts.version] || ROUND3_Q_GRID;
   const matches = (matchHistory || []).filter(m => m && m.winner && m.loser
     && PROFILES[m.winner.id] && PROFILES[m.loser.id]);
   const out = {};
@@ -7261,7 +7316,7 @@ function showResultsEarly() {
   const data = window.earlyConfidenceData;
   
   // Set result without Round 2 data
-  if (scoringEngine() === 2) {
+  if (likelihoodEngine()) {
     // The offer's confidence is the Round 1 posterior of the offered identity.
     state.result = {
       identity: data.identity,
@@ -7269,7 +7324,7 @@ function showResultsEarly() {
       earlyTermination: true,
       allResults: [],
       s2Data: null,
-      scoringVersion: 2,
+      scoringVersion: scoringEngine(),
       instrumentVersion: INSTRUMENT_VERSION,
       posterior: { ...((state.likelihood && state.likelihood.posterior) || { [data.identity]: 1 }) }
     };
@@ -7755,7 +7810,7 @@ function finishS1Likelihood() {
 }
 
 function finishS1() {
-  if (scoringEngine() === 2) { finishS1Likelihood(); return; }
+  if (likelihoodEngine()) { finishS1Likelihood(); return; }
   // Engine 1 (win-rate), unchanged.
   // NEW: Use gap-based analysis
   const analysis = analyseGapBasedPatterns();
@@ -8284,7 +8339,7 @@ function finishRefinement() {
   // Recalculate candidates with refined data. Engine 2: the top four
   // identities by the Round 1 + Round 2 posterior among those the bars,
   // final from here on, allow (barsAllow).
-  const refinedCandidates = scoringEngine() === 2
+  const refinedCandidates = likelihoodEngine()
     ? posteriorCandidates(updateLikelihood('round2').posterior, ROUND3_CANDIDATE_COUNT, id => barsAllow(id))
     : recalculateCandidates(adjustedActivation);
   
@@ -8709,11 +8764,12 @@ function applyContextAgreementGuard(result) {
   return { color: worst ? worst[0] : null, agreement: ca.overall };
 }
 
-// Engine 2: the posterior from Rounds 1 and 2 and the Round 3 matches played so far.
+// Engines 2 and 3: the posterior from Rounds 1 and 2 and the Round 3 matches
+// played so far, Round 3 weighed on the engine's own grid (ROUND3_Q_GRID_BY_VERSION).
 function combinedPosterior(tournament) {
   const evidence = likelihoodEvidence();
   const logLik = identityLogLikelihoods(evidence);
-  const round3LogLik = round3LogLikelihoods(tournament.matchHistory);
+  const round3LogLik = round3LogLikelihoods(tournament.matchHistory, { version: scoringEngine() });
   const total = {};
   Object.keys(logLik).forEach(id => { total[id] = logLik[id] + round3LogLik[id]; });
   return { evidence, logLik, round3LogLik, posterior: posteriorFromLogLik(total) };
@@ -9048,7 +9104,7 @@ function finishRound3Tournament() {
   // two candidates, whenever the leader's posterior is still short of HIGH.
   if (!tournament.tiebreakAdded && tournament.termReason?.reason !== 'CLINCHED') {
     let provisional, wantTiebreak;
-    if (scoringEngine() === 2) {
+    if (likelihoodEngine()) {
       const post = combinedPosterior(tournament).posterior;
       const ranked = rankCandidatesByPosterior(tournament, post);
       provisional = { winner: ranked[0], runnerUp: ranked[1] };
@@ -9086,7 +9142,7 @@ function finishRound3Tournament() {
 
   const result = getTournamentWinner(state.tournament);
   // Engine 2: the final posterior picks the identity and sets the confidence.
-  const decision = scoringEngine() === 2 ? applyPosteriorDecision(result, state.tournament) : null;
+  const decision = likelihoodEngine() ? applyPosteriorDecision(result, state.tournament) : null;
   // Engine 1: the tournament winner, held to the bars (engine 2 already is).
   const heldToBars = !decision && holdWinnerToBars(result, state.tournament);
 
@@ -9135,7 +9191,7 @@ function finishRound3Tournament() {
     identity: result.winner.id,
     confidence: result.confidence,
     allResults: allResults,
-    scoringVersion: decision ? 2 : 1,
+    scoringVersion: scoringEngine(),
     instrumentVersion: INSTRUMENT_VERSION,
     ...(decision ? { posterior: decision.posterior } : {}),
     round3Data: {
@@ -11500,11 +11556,12 @@ const ROLES_HIDDEN_FOR_FUN = [
 // enemy-pair questions per colour, so a bar gap of 8 points is about one
 // answer. Next-door margins and the mana base's equal counts use this. [3]
 // The conversion is set once per scoring version, so a link renders the
-// reasons it was shared with; both engines so far draw the same Round 1-2 bars.
+// reasons it was shared with; all three engines so far draw the same Round 1-2
+// bars (version 3 changed only how Round 3 is read).
 // Since "Even bars and Five-colour" a bar also counts the colour's Round 2
 // answers, three or four more, so an answer is nearer a fifteenth; the twelfth
 // stays, so links shared before then still read as they did.
-const ONE_ANSWER_BY_VERSION = { 1: 1 / 12, 2: 1 / 12 };
+const ONE_ANSWER_BY_VERSION = { 1: 1 / 12, 2: 1 / 12, 3: 1 / 12 };
 // [3] Margin cut-offs, in answers: up to one answer is "one", up to three
 // (two or three answers) is "few", anything wider is "well".
 const NEXT_DOOR_MARGINS = { one: 1, few: 3 };
