@@ -4567,10 +4567,13 @@ const COLOR_GAPS_FOR_FUN = {
 // people, four-colour without blue's "Before you skip the checks" and
 // Dimir's news "you've known for weeks". A fourth reading added Mardu's
 // Green card, which now gives the colleague's strength where it had you
-// asking the same people "for another all-nighter". The same rules hold as
-// above.
+// asking the same people "for another all-nighter", and a fifth the rest of
+// the cards that took a failing of yours as read (the step "you're about to
+// skip", a clever move that "costs you people's trust", promises you need
+// reminding of): each now gives the colleague's strength. The same rules
+// hold as above.
 const COLOR_GAPS_AT_WORK = {
-  'MONO-B': { G: 'Before you give up something that took years to build for something you want this week, talk to them.' },
+  'MONO-B': { G: 'They know what took years to build, and what it would cost to lose.' },
   'MONO-G': {
     W: 'Check with them whether the way things have always been done is fair to the people who joined last.',
     U: 'When the usual way stops giving the usual results, find out from them why.',
@@ -4579,22 +4582,47 @@ const COLOR_GAPS_AT_WORK = {
   AZORIUS: { R: 'Give them any decision that has been stuck for weeks.' },
   SELESNYA: {
     U: 'Show them any plan that everyone loves and nobody has added up.',
-    R: "Take them with you when you finally have to tell someone something they won't like."
+    B: "They'll say out loud what a popular decision is costing.",
+    R: "Take them with you when you have to tell someone something they won't like."
   },
-  ORZHOV: { R: 'Let them make a noise when the pecking order is holding back someone who is clearly right.' },
-  RAKDOS: { U: 'Let them test the exciting plan before you go ahead.' },
-  SIMIC: { R: 'Let them call it finished when it nearly is and you want another week.' },
-  ESPER: { R: 'Ask them to talk to whoever your plan has upset.' },
-  GRUUL: { W: 'Ask them which of the rules you find slow are there to keep people safe.' },
+  ORZHOV: {
+    R: 'Let them make a noise when the pecking order is holding back someone who is clearly right.',
+    G: 'They notice who on the team needs looking after.'
+  },
+  DIMIR: {
+    W: 'Ask them what people will expect to be told, and when.',
+    R: 'When something needs saying in front of everyone, let them say it.',
+    G: 'Run a plan past them to hear how it will land with the people in it.'
+  },
+  IZZET: { W: "Find out from them who will use the prototype every day, and what they'll need." },
+  GRUUL: {
+    W: 'Ask them which of the rules you find slow are there to keep people safe.',
+    U: 'Get them to walk the plan through step by step before you start.'
+  },
+  RAKDOS: {
+    W: 'Before anything is taken down, have them list who was relying on it.',
+    U: 'Let them test the exciting plan before you go ahead.'
+  },
+  GOLGARI: { R: "They're the ones to set a date when something needs to happen." },
+  SIMIC: { R: 'Let them say when something is finished enough to send.' },
+  BOROS: { U: 'Have them check the facts before anyone takes a side.' },
+  ESPER: { R: 'Ask them to talk to the people your plan affects most.' },
+  GRIXIS: {
+    W: 'Ask them how the team is finding the pace.',
+    G: "Talk to them about who you'll need next year."
+  },
   SULTAI: { W: 'Ask them how your plan looks to the people who only see the first year of it.' },
-  DIMIR: { R: 'When something needs saying in front of everyone, let them say it.' },
-  DUNE: { U: 'Give them ten minutes with the figures before anything goes out.' },
-  GRIXIS: { G: "Talk it over with them before you give up on someone you'll need next year." },
   MARDU: {
     U: 'Get them to pick holes in the plan before you commit everyone to it.',
     G: 'They can tell when a team needs a night off.'
   },
-  WITCH: { R: 'Leave it to them when a deadline matters more than a better answer.' }
+  TEMUR: {
+    W: 'Ask them who a change of plan will affect, before you make it.',
+    B: "They'll know who backed the old plan, and how to bring them along to the new one."
+  },
+  WITCH: { R: 'Leave it to them when a deadline matters more than a better answer.' },
+  GLINT: { W: "They're good at keeping track of what's been promised to whom." },
+  DUNE: { U: 'Give them ten minutes with the figures before anything goes out.' }
 };
 
 // The copy around the colour cards, on the result and in the explorer. Since
