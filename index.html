@@ -2159,8 +2159,9 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
         <svg class="mc-corner mc-corner--bl"><use href="#fleuron"/></svg>
         <svg class="mc-corner mc-corner--br"><use href="#fleuron"/></svg>
 
-        <!-- The round names and the length line come from PLAY_COPY, the length
-             from the same total the one counter starts from. -->
+        <!-- The round titles ("Round 1" ..., roundLabel) and the length line come
+             from PLAY_COPY, the length from the same total the one counter
+             starts from. -->
         <p class="mc-how__length" id="how-length" data-copy="welcome.howLength"></p>
         <div class="mc-how">
           <div class="mc-how__num">I</div>
@@ -2293,7 +2294,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
         <span id="connector-2-3" class="round-connector"></span>
         <span id="connector-3-4" class="round-connector"></span>
         <span id="round-label-left">Round 1</span>
-        <span id="round-label-right">→ Refinement → Final → Results</span>
+        <span id="round-label-right">→ Round 2 → Round 3 → Results</span>
         <div id="progress-container"><div id="prog-s1"></div><div id="prog-s2"></div><div id="prog-s3"></div></div>
       </div>
 
@@ -5853,10 +5854,11 @@ function updateLikelihood(stage) {
 const QUIZ_LENGTH = { round1: 30, round2: 9, round3: 6, minutes: 8 };
 
 const PLAY_COPY = {
-  // PROVISIONAL. Round names, wherever a round is named (the question label and
-  // the fold). Round 1 no longer says "Enemy Pairs", which described the
-  // mechanism.
-  rounds: { 1: 'First Impressions', 2: 'Refinement', 3: 'Final Determination' },
+  // Round names: none. A round is "Round 1", "Round 2", "Round 3" wherever it
+  // is named (the question label and How This Works; roundLabel). A name put
+  // back here shows as "Round 1: <name>". The old names ("First Impressions",
+  // "Refinement", "Final Determination") read as a consultancy deck.
+  rounds: {},
 
   welcome: {
     rule0: "Rule 0: it's a bit of fun, not science.",
@@ -6001,9 +6003,10 @@ function prefersReducedMotion() {
   catch (e) { return false; }
 }
 
-// Fills the markup's data-copy elements, and How This Works' round names, from
-// PLAY_COPY and the one counter's own total (the lengths the counter starts
-// from: Round 1, and the estimates for Rounds 2 and 3). Runs once, on load.
+// Fills the markup's data-copy elements, and How This Works' round titles
+// ("Round 1" ..., as the question label names them), from PLAY_COPY and the
+// one counter's own total (the lengths the counter starts from: Round 1, and
+// the estimates for Rounds 2 and 3). Runs once, on load.
 function applyPlayCopy() {
   const total = quizLengths().total;
   const vars = { minutes: quizMinutes(total), questions: total };
@@ -6013,7 +6016,7 @@ function applyPlayCopy() {
   });
   [1, 2, 3].forEach(n => {
     const name = document.getElementById('how-name-' + n);
-    if (name) name.textContent = roundName(n);
+    if (name) name.textContent = roundLabel(n);
   });
   renderPreflightLinks();
 }
@@ -6801,7 +6804,7 @@ function showQ() {
       return;
     }
     // Legacy fallback
-    document.getElementById('stage-label').textContent = 'Round 3: Final Determination';
+    document.getElementById('stage-label').textContent = roundLabel(3);
     const _lnR3 = document.getElementById('mc-loyalty-num'); if (_lnR3) _lnR3.dataset.round = '3';
     return;
   } else {

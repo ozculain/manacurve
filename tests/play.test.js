@@ -5,8 +5,9 @@
 //      fixed height, and plinths drop to about 20px (the CSS rules; jsdom
 //      cannot lay out, so the fit itself is checked in a browser)
 //   2. one counter across the whole quiz ("x of up to 45", higher only when a
-//      round's real length makes the quiz longer), never reset; no "Enemy Pairs" in the
-//      round labels; How This Works, the preflight and the early offer agree
+//      round's real length makes the quiz longer), never reset; the round labels
+//      are "Round 1" to "Round 3", with no names; How This Works, the preflight
+//      and the early offer agree
 //   3. the one-question preflight ("Played Magic?"), its two links, and the
 //      theme switcher on the results page
 //   4. the welcome: Rule 0 under the title, the start under the lead line with
@@ -185,9 +186,9 @@ run('play', async (t) => {
       drops.length === 0 && /^Question \d+ of up to \d+$/.test(win.document.querySelector('.mc-q__count').textContent.replace(/\s+/g, ' ').trim()),
       drops.join(', ') || win.document.querySelector('.mc-q__count').textContent);
     const labels = [...new Set(seen.map((x) => x.label))];
-    ok('P2d round labels keep the round names, and "Enemy Pairs" is gone',
-      labels.includes('Round 1: ' + P.rounds[1]) && labels.includes('Round 2: Refinement') && labels.some((l) => l.startsWith('Round 3: Final Determination'))
-        && labels.every((l) => !/enemy/i.test(l)), labels.join(' | '));
+    ok('P2d round labels are "Round 1", "Round 2" and "Round 3" ("Round 3: Tiebreaker" for a tiebreak), with no round names and no "Enemy Pairs"',
+      labels.includes('Round 1') && labels.includes('Round 2') && labels.includes('Round 3')
+        && labels.every((l) => /^Round [123](: Tiebreaker)?$/.test(l)) && Object.keys(P.rounds).length === 0, labels.join(' | '));
     ok('P2e no console or jsdom errors over the journey', errors.length === 0, errors.slice(0, 3).join(' | '));
     win.close();
   }
@@ -197,9 +198,9 @@ run('play', async (t) => {
     const { win, h } = await page();
     const howNames = [1, 2, 3].map((n) => textOf(win, 'how-name-' + n));
     const welcomeText = win.document.getElementById('screen-welcome').textContent;
-    ok('P2f How This Works gives one length line for the whole quiz, the counter\'s own total (45), with the three rounds under it and no "Enemy Pairs"',
+    ok('P2f How This Works gives one length line for the whole quiz, the counter\'s own total (45), with "Round 1", "Round 2" and "Round 3" under it (no round names) and no "Enemy Pairs"',
       textOf(win, 'how-length') === 'Up to 45 questions over three rounds.' && !win.document.querySelector('.mc-how__count')
-        && !/enemy pairs/i.test(welcomeText) && howNames.join('|') === 'First Impressions|Refinement|Final Determination',
+        && !/enemy pairs/i.test(welcomeText) && howNames.join('|') === 'Round 1|Round 2|Round 3',
       textOf(win, 'how-length') + ' ' + howNames.join('|'));
     ok('P2g the preflight says "up to 45 questions, about 8 minutes" (a clinch can end the quiz early), and nothing says 15 minutes',
       textOf(win, 'preflight-length') === 'Up to 45 questions, about 8 minutes.'
