@@ -504,7 +504,7 @@ const PROFILES = {
     cmdDesc:'Your other creatures get +2/+2, and your opponents\' creatures get -2/-2.',
     you:["You give your own family the same answer you'd give a stranger.","When you take on a queue-jumper, whoever is with you suddenly needs to check their phone.","Visitors to your house hear the rules before they're offered a drink."],
     str:["If you draw up the rota, you put yourself on the bad shifts too.","You make decisions where people can see them, so nobody can call them a stitch-up.","When someone junior is taking the blame for a senior mistake, you say so."],
-    weak:["A rule you enforce can outlive its reason by several years.","Where there's no fair answer, you go on looking for one.","Exceptions make you uneasy, including the sensible ones."],
+    weak:["Old rules are harder for you to let go of than for most people.","Where there's no fair answer, you go on looking for one.","Exceptions make you uneasy, including the sensible ones."],
     roles:'HR Leadership, Compliance, Audit, Ethics, Community Management'
   },
   'MONO-U':{
@@ -518,7 +518,7 @@ const PROFILES = {
     cmdDesc:'Urza lets you tap your artifacts for blue mana. For five mana, you shuffle your library and exile the top card, which you may play free until end of turn.',
     you:["You like to understand a thing before you act, which is sensible, and to understand it completely, which is where the trouble starts.","You're nearly always right — nearly always a little too late to be any use.","People come to you upset and go away informed."],
     str:["You go straight to the appendix, which is usually where the problem is.","Spreadsheets you build for your own use end up running the department.","When the figures change, you change your mind without making a speech about it."],
-    weak:["A decision that needed an afternoon can take you a week.","By lunch you've thought through fifteen unlikely problems and not yet the likely one.","Ask you a quick question and you'll give it a complete answer."],
+    weak:["Thirty open tabs is a normal morning for you.","Worst cases are where your mind goes first.","Ask you a quick question and you'll give it a complete answer."],
     roles:'Strategy, Research, Analytics, Architecture, Policy Analysis, Forecasting'
   },
   'MONO-B':{
@@ -532,7 +532,7 @@ const PROFILES = {
     cmdDesc:'K\'rrik lets you pay 2 life instead of black mana, and lifelink heals some of it back.',
     you:["You ask for a discount in shops that don't do discounts.","If someone says they like your coat, you spend the evening working out what they want.","Anyone who owes you knows exactly how much, interest included."],
     str:["You ask for the pay rise in the week you've earned it.","In a negotiation you know what each person needs to walk away with.","Someone has to make the unpopular call, and you don't lose sleep over it."],
-    weak:["Help that comes with nothing attached takes you a while to accept.","Colleagues who aren't keeping score are hard for you to read.","When you win an argument, you win it by more than you needed to."],
+    weak:["Help that comes with nothing attached takes you a while to accept.","Final decisions are ones you'd like to make yourself.","An argument you lost stays with you for days."],
     roles:'Chief Executive, M&A, Private Equity, Turnarounds, Restructuring, Corporate Strategy'
   },
   'MONO-R':{
@@ -546,7 +546,7 @@ const PROFILES = {
     cmdDesc:'Krenko taps to make a 1/1 Goblin for every Goblin you already control.',
     you:["You throw yourself into things completely, for about three weeks.","People love the idea you have at midnight and spend the next fortnight carrying it out.","You say what you feel the second you feel it. A week later you feel something else, and you say that too."],
     str:["When someone says 'somebody should do something', you've usually started.","People know where they stand with you within the first minute.","A tired team will go one more round if you're the one asking."],
-    weak:["Three sentences into a brief, you've decided what the rest of it says.","Your enthusiasm for a project peaks in its first fortnight.","Slow projects tempt you to start again from scratch."],
+    weak:["Instructions longer than a page test your patience, however good they are.","Kick-off meetings are where you're at your happiest.","Slow projects tempt you to start again from scratch."],
     roles:'Startups, Sales, Crisis Response, Creative Industries, Hospitality, Live Events'
   },
   'MONO-G':{
@@ -560,7 +560,7 @@ const PROFILES = {
     cmdDesc:"Omnath doesn't lose green mana as steps and phases end, and grows +1/+1 for each unspent green mana you have.",
     you:["You leave problems alone to sort themselves out. Some of them have been sorting themselves out since the last government.","Your school friends say you haven't changed a bit, which they mean both ways.","New ideas interest you in the way weather in another country does."],
     str:["You know why every odd little rule exists, without looking it up.","Some problems mend if they're left alone, and you can tell which ones.","Anything you set up is still working long after anyone remembers who set it up."],
-    weak:["If a problem might fix itself, you'll give it a few more weeks to try.","New software takes you a year to trust.","Reorganisations come and go, and your desk stays where it was."],
+    weak:["A rushed fix worries you more than the problem it fixes.","New software takes you a year to trust.","Reorganisations come and go, and your desk stays where it was."],
     roles:"Farming, Conservation, Facilities, Estate Management, Mentoring"
   },
   'AZORIUS':{
@@ -574,7 +574,7 @@ const PROFILES = {
     cmdDesc:"Your white and blue spells cost one mana less, and your opponents' spells cost one mana more.",
     you:["You think most rows could be avoided with a decent system, so your household now has a complaints procedure.","When the bill comes, you work out who had what.","If the boiler breaks, you read the warranty before you look at the boiler."],
     str:["After something goes wrong, you write the process that stops it happening twice.","Your notes record who argued against a decision, which saves a second argument later.","Forms you design can't be filled in wrongly, even on purpose."],
-    weak:["Work without a reference number doesn't feel started to you.","In an emergency, you reach for the procedure, even if it was written for a different one.","A problem handled by the book counts as solved, as far as you're concerned."],
+    weak:["Work without a reference number doesn't feel started to you.","In an emergency, your first question is which procedure applies.","By the book is your favourite way to do anything."],
     roles:'COO, Compliance, Strategic Planning, Governance, General Counsel, Risk Management'
   },
   'SELESNYA':{
@@ -588,7 +588,7 @@ const PROFILES = {
     cmdDesc:"You gain life equal to the toughness of each other creature that enters under your control. For three mana, one of them green and one white, Trostani taps to copy a creature token you control.",
     you:["At your own parties you end up in the kitchen with whoever looks left out.","It takes you several lunches to tell anyone bad news.","You remember everyone's birthday, and who forgot yours."],
     str:["On a new starter's first day, you show them where the kettle is.","Teams you put together still get on with each other years later.","If two people want different things, you find the version where neither has to lose."],
-    weak:["A difficult conversation can stay on your list for a whole season.","One unhappy face in a meeting is the thing you take home.","Feedback from you is so kind that people sometimes miss that it was feedback."],
+    weak:["Difficult conversations cost you a night's sleep before they happen.","One unhappy face in a meeting is the thing you take home.","Arguments between other people upset you more than your own."],
     roles:'Chief People Officer, HR, Team Leads, Community Programmes, Volunteer Coordination'
   },
   'ORZHOV':{
@@ -602,7 +602,7 @@ const PROFILES = {
     cmdDesc:'When Obzedat enters, an opponent loses 2 life and you gain 2. It can leave at your end step and return at your next upkeep with haste.',
     you:["Interest-free loans from you come with a mention in your speech at the borrower's wedding, along with the amount.","You know how things should be done, and so, shortly, will the host.","The rules you enforce hardest happen to be the ones that suit you, which you put down to judgement."],
     str:["Rules you write get followed without anyone having to chase.","When there's no budget for something, you know who to ask.","You remember who decided what, long after everyone else has forgotten."],
-    weak:["A favour you do goes on a list in your head, with the date.","Before you back a new idea, you want to know who's paying for it.","If someone goes over their manager's head, it bothers you, even when they were right."],
+    weak:["Who reports to whom is something you could draw from memory.","Before you back a new idea, you want to know who's paying for it.","If someone goes over their manager's head, it bothers you, even when they were right."],
     roles:"COO, Finance, Law, Private Banking, Estate Planning, Senior Management, Institutional Investing"
   },
   'DIMIR':{
@@ -616,7 +616,7 @@ const PROFILES = {
     cmdDesc:'Yuriko swaps in for an unblocked attacker. When your Ninjas hit a player, you reveal your top card and put it in your hand. Each opponent loses life equal to its mana value.',
     you:["You're a closed book with very good hearing.","Half of what you know, people told you without meaning to.","You answer every straight question truthfully, just rarely the one that was asked."],
     str:["You usually see a problem coming a week before anyone mentions it.","A seating plan tells you who has fallen out with whom.","People tell you things in confidence, and it stays that way."],
-    weak:["Information comes to you faster than you can find a use for it.","Colleagues find you hard to read, and you take that as a compliment.","Notes you take are written so only you can read them."],
+    weak:["Information comes to you faster than you can find a use for it.","Colleagues find you hard to read, and you take that as a compliment.","Shorthand only you can read fills your notebooks."],
     roles:'Strategic Planning, M&A, Competitive Intelligence, Negotiation, Investigative Journalism'
   },
   'IZZET':{
@@ -630,7 +630,7 @@ const PROFILES = {
     cmdDesc:'Can\'t be countered. Whenever you draw a card, deal 1 damage to any target. Whenever a player casts an instant or sorcery spell, you draw a card.',
     you:["You'll solve any problem brilliantly, sometimes even the one people had.","Your best idea of the week arrives at one in the morning. So does the message telling someone about it.","Once you've got something working, it goes in a drawer."],
     str:["You try the thing that probably won't work, in case it does.","Every brief has a contradiction somewhere, and you find it on the first read.","At eleven at night you'll rebuild something because you've thought of a better way."],
-    weak:["Of the three projects you have on the go, one is usually on fire.","Polish is the part of the job you'd happily hand to someone else.","When you're off sick, the team finds out how much of your work is in your head."],
+    weak:["Three projects at once feels about right to you.","Polish is the part of the job you'd happily hand to someone else.","Whiteboards near you fill up within the hour."],
     roles:'R&D, Product Development, Startups, Quant Research'
   },
   'GRUUL':{
@@ -644,7 +644,7 @@ const PROFILES = {
     cmdDesc:'Whenever Borborygmos deals combat damage to a player, reveal the top three cards: lands go to your hand, the rest to your graveyard. Discard a land card: 3 damage to any target.',
     you:["Five minutes after losing your temper, you've forgotten all about it.","Thank-yous tend to miss you, because by the time anyone thinks of one you've already gone.","You make up your mind about people on the spot, and it takes them years to change it."],
     str:["When a discussion starts going round in circles, you call time on it.","Broken things get sent your way, and they come back working.","Your instinct for what will work is right more often than the plan is."],
-    weak:["Paperwork waits until you've run out of other things to do.","Detail is the part you hand over to someone else.","A fix from you is fast, and now and then it needs doing again."],
+    weak:["Long forms make you restless.","Big-picture talk suits you better than the small print.","A quick fix appeals to you more than a long report on the problem."],
     roles:"Emergency Services, Sport, Field Engineering, Sales, Operations"
   },
   'RAKDOS':{
@@ -658,7 +658,7 @@ const PROFILES = {
     cmdDesc:'You can cast Rakdos only after an opponent has lost life this turn. Your creature spells then cost one mana less for each life your opponents have lost this turn.',
     you:["You always do what you say you'll do, even the things you only said for a laugh.","At funerals, someone has to keep an eye on you.","You tell a great story about your worst nights out, and some of the people in them have asked you to stop."],
     str:["Dull training days come back to life when you put your hand up.","You say out loud what the rest of the team was thinking.","When a launch goes badly, you can turn it into a story people want to hear."],
-    weak:["Jokes come to you at moments that needed someone to be serious.","Out-of-office replies from you are more entertaining than they need to be.","Plans for next year struggle to hold your attention this year."],
+    weak:["Very serious occasions at work make you want to laugh.","Out-of-office replies from you are more entertaining than they need to be.","Five-year plans make you itch."],
     roles:'Entertainment, Live Music, Nightlife, Activism, Creative Direction'
   },
   'GOLGARI':{
@@ -672,7 +672,7 @@ const PROFILES = {
     cmdDesc:"Each time another of your creatures dies, you get an experience counter. At your end step, you choose a creature card in your graveyard. It returns to the battlefield if its mana value is no more than your experience counters, and to your hand if not.",
     you:["You can tell a couple are finished months before they can, and you've usually worked out who's keeping the dog.","Bad news doesn't upset you much, which upsets people.","Most disasters you've seen before, so you can tell people how long theirs will last."],
     str:["Months before a project is cancelled, you can tell it's dying.","If a project has to close, you see it through to the last invoice.","Nothing goes in the skip until you've had a look through it."],
-    weak:["Your files include a folder of things that might come in useful, and it's the biggest one.","Whenever something new launches, you're already wondering how it will end.","Patience is your answer to most problems, including some that needed one email."],
+    weak:["Your files include a folder of things that might come in useful, and it's the biggest one.","Whenever something new launches, you're already wondering how it will end.","Problems that solve themselves are your favourite kind."],
     roles:"Conservation, Turnarounds, Archives, Insolvency Practice"
   },
   'SIMIC':{
@@ -686,7 +686,7 @@ const PROFILES = {
     cmdDesc:'Tap Vannifar and sacrifice another creature: search for a creature with mana value exactly 1 more, and put it onto the battlefield.',
     you:["If a thing could be made slightly better, you can't leave it alone, even when it's in someone else's kitchen and they're standing in it.","Your jobs round the house are always nearly finished.","Each change you make is too small for anyone to mind, which is how nobody can find the scissors."],
     str:["A small change you make can save the team an hour a week.","Any process you inherit gets a little better every month, until nobody remembers the original.","Problems you fix stay fixed, because you tested the fix."],
-    weak:["Some of what you improve was never the slow part.","If a draft could still be better, you find it hard to send.","Your to-do list has more improvements on it than jobs."],
+    weak:["Anything that works is, to you, a first draft.","If a draft could still be better, you find it hard to send.","Your to-do list has more improvements on it than jobs."],
     roles:'Product Management, Process Improvement, Biotech, UX Research, Platform Engineering'
   },
   'BOROS':{
@@ -700,7 +700,7 @@ const PROFILES = {
     cmdDesc:'Whenever Aurelia attacks for the first time each turn, untap all your creatures and gain an additional combat phase.',
     you:["You'll stand up for anyone who's been wronged, including a few people who were fine about it until you got involved.","The council knows your handwriting.","When a parcel goes missing, you want a name."],
     str:["You'll tell the person responsible that it isn't fair, to their face.","When something goes badly wrong, people ring you first.","Once you've backed someone, you stay with them when it gets awkward."],
-    weak:["Small injustices make you as loud as big ones do.","A polite request for more detail is enough to put your guard up.","Within a week of meeting someone, you've decided which side they're on."],
+    weak:["Small injustices bother you as much as big ones, and you say so.","Neutral is a position you find hard to take.","First impressions count for a lot with you."],
     roles:"Campaigning, Trade Unions, Law Enforcement, Crisis Management, Military"
   },
   'BANT':{
@@ -714,7 +714,7 @@ const PROFILES = {
     cmdDesc:'Whenever a creature you control attacks alone, it gets +1/+1 (exalted) and double strike.',
     you:["Every decision you make still makes sense five years later, which is roughly when it gets made.","Two friends who've fallen out will sooner or later find themselves at dinner at yours, sat next to each other.","If you're put on the spot, you ring round first."],
     str:["You ask the quietest person their view first, and change the plan if they're right.","Any team you run is in better shape when you leave it.","A slow decision and a stuck one look different to you, and you wait out the first."],
-    weak:["Decisions that have to be made today, without asking anyone, are hard for you.","If everyone has agreed, you take that as a sign it will work.","Every disagreement gets one more meeting from you."],
+    weak:["Decisions that have to be made today, without asking anyone, are hard for you.","If everyone has agreed, you take that as a sign it will work.","Consensus is worth a few extra days to you."],
     roles:'Charity Director, Strategic HR, Headteacher, Policy Development, Mediation, Public Service'
   },
   'ESPER':{
@@ -728,7 +728,7 @@ const PROFILES = {
     cmdDesc:'When Sharuum enters, you may return an artifact card from your graveyard to the battlefield.',
     you:["Every invitation you send has a finish time on it.","You leave nothing to chance, and very little to anyone else.","Things run smoothly when you're in charge, which is always."],
     str:["You read the whole budget, including the lines marked 'other'.","If something needs approving, you know the quickest proper route.","Before you decide, you can say exactly what the decision will cost."],
-    weak:["News that someone is upset about your plan reaches you last.","A crisis that arrives before the figures do can leave you stuck.","Complaints about how something felt get a revised procedure from you."],
+    weak:["Control of a project is hard for you to give away.","A crisis without figures is your least favourite kind.","Feelings are harder for you to put in a plan than figures."],
     roles:"Finance Director, Chief Compliance Officer, Auditing, Actuarial Work, Intelligence Analysis, Public Policy"
   },
   'GRIXIS':{
@@ -742,7 +742,7 @@ const PROFILES = {
     cmdDesc:'Every player draws an extra card in their draw step, and whenever an opponent draws, Nekusar deals them 1 damage.',
     you:["At a dinner party you win every argument and call it a good evening.","The last man who sold you a car needed a sit-down afterwards.","You'll apologise for your tone by explaining why you were right."],
     str:["You get a lot done with very few people.","By the time a negotiation starts, you've worked out the other side's lowest price.","Pressure makes you sharper, which is useful in the last week of a deal."],
-    weak:["Sentiment gets very little say in your decisions.","Praise from you comes with the next target attached.","Small talk at the start of a call feels like lost time to you."],
+    weak:["Sentiment gets very little say in your decisions.","Endings are where you start reading a report.","Small talk at the start of a call feels like lost time to you."],
     roles:'Turnaround CEO, Competitive Strategy, High-Stakes Trading, Private Equity'
   },
   'JUND':{
@@ -756,7 +756,7 @@ const PROFILES = {
     cmdDesc:'When you cast Prossh, create X 0/1 Kobolds where X is the mana spent. Sacrifice another creature: Prossh gets +1/+0 until end of turn.',
     you:["You play to win, including against children, who you feel should learn.","Nobody keeps up with you for long. You assume they've stopped trying.","You hear 'that can't be done' as a personal challenge, and you've won some very stupid bets."],
     str:["Projects nobody wanted get finished once you're on them.","When a competitor makes a move, your week gets better.","Set you an impossible target and you'll hit it, if only to prove a point."],
-    weak:["Friendly competitions at work stop being friendly once you've entered.","Help is the last thing you ask for.","A stalled project gets more push from you before it gets a second look."],
+    weak:["Friendly competitions at work stop feeling friendly to you once you've signed up.","Help is the last thing you ask for.","Holidays are something you take, eventually."],
     roles:'Sales, Startups, Professional Sport, Commodity Trading'
   },
   'NAYA':{
@@ -770,7 +770,7 @@ const PROFILES = {
     cmdDesc:"Samut has double strike and gives your other creatures haste. Tap Samut and pay one white mana to untap another creature, so it can act again.",
     you:["You can get a whole street out for a litter pick, though the street would quite like a weekend off.","Sarcasm doesn't work on you, because you assume everyone means it.","Your group holidays have a timetable and a team name."],
     str:["A project its own team has given up on can get going again with you behind it.","You know someone in every department, and you've had a drink with most of them.","When something needs volunteers, you have a list by lunchtime."],
-    weak:["At the end of a long call, you'd like everyone to cheer.","Good ideas, you assume, will win the argument on their own.","Quieter colleagues can struggle to get a word in once you're excited."],
+    weak:["At the end of a long call, you'd like everyone to cheer.","Good ideas, you assume, will win the argument on their own.","Once you're excited about something, the whole floor knows."],
     roles:'Startups, Marketing, Politics, Sales, Event Planning, Community Building'
   },
   'ABZAN':{
@@ -784,7 +784,7 @@ const PROFILES = {
     cmdDesc:'Karador costs one mana less for each creature card in your graveyard. Once during each of your turns, you may cast a creature from your graveyard.',
     you:["Twenty years on, anyone who helped you out can still ask you for a lift to the airport.","Once someone crosses you, you're civil to them at weddings and nowhere else.","You can explain why any new idea won't work, and you're right about a third of the time."],
     str:["You keep promises that were made by people who left years ago.","In a bad year, you know which people will still pick up the phone.","If your team gets something wrong, you do the explaining upstairs."],
-    weak:["A pilot scheme can stay a pilot for years while you make up your mind.","Anyone who lets you down has a lot of work to do to win you back.","To you, anyone who joined in the last two years is still new."],
+    weak:["New schemes have to earn your trust slowly.","Old colleagues still get your first phone call.","To you, anyone who joined in the last two years is still new."],
     roles:"Family Businesses, Local Government, Farming, Politics"
   },
   'JESKAI':{
@@ -798,7 +798,7 @@ const PROFILES = {
     cmdDesc:'Whenever Narset attacks, exile the top four cards of your library. Until end of turn, you may cast the noncreature spells among them for free.',
     you:["You only ever hand things over when they're right. Whoever is waiting has learned to bring a book.","Beginners you teach start on the advanced version, for their own good.","On a lie-in you set the alarm for half eight."],
     str:["Before a presentation, you rehearse it the way other people practise an instrument.","If a plan is a bit dodgy, you fix it before it goes out, without a fuss.","You can tell when a skill has gone rusty, your own included."],
-    weak:["Even correct work gets a second go if you think it could be more correct.","Days off, for you, still include an hour of practice.","A question you didn't prepare for can throw you more than it should."],
+    weak:["Correct work still gets a second look from you.","Days off, for you, still include an hour of practice.","Unrehearsed is not how you like to do anything."],
     roles:'Teaching, Coaching, Consulting, Classical Music, Martial Arts'
   },
   'SULTAI':{
@@ -811,8 +811,8 @@ const PROFILES = {
     cmd:'Sidisi, Brood Tyrant',
     cmdDesc:'When Sidisi enters or attacks, mill 3. Whenever creature cards hit your graveyard from your library, create a 2/2 Zombie.',
     you:["You wait for a friend to buy the new phone and tell you what's wrong with it.","Nobody quite remembers inviting you, but there you always are.","Good ideas have a habit of ending up working for you, and the people who had them never quite see how."],
-    str:["You play a two-year game in which nothing seems to happen for eighteen months.","A long silence on the phone doesn't bother you, and the other side usually fills it.","Early on, you get yourself in with the people who will matter later."],
-    weak:["If a conversation matters, you want to be in it, or have someone there.","Good chances sometimes go past you while you wait for a better one.","Full price is something you only pay when there's no other way."],
+    str:["You play a two-year game in which nothing seems to happen for eighteen months.","A long silence on the phone doesn't bother you, and the other side usually fills it.","Early on, you can tell which people will matter later."],
+    weak:["If a decision is being made, you like to be in the room.","Most of your plans have a waiting stage built in.","Full price is something you only pay when there's no other way."],
     roles:'Property, Investment, Diplomacy, Wine Making, Corporate Development'
   },
   'MARDU':{
@@ -826,7 +826,7 @@ const PROFILES = {
     cmdDesc:"Whenever Alesha attacks, you may pay two mana, each white or black. If you do, a creature card with power 2 or less returns from your graveyard to the battlefield, tapped and attacking.",
     you:["On family walks you're out in front, about a mile ahead of everyone else.","You tell the story of moving house as a triumph, and it was, for everyone who didn't put their back out.","For any job going, you volunteer someone else."],
     str:["You make the call and don't reopen it a week later.","When it all goes wrong, you know who needs telling what, and in which order.","Deadlines the client had already written off get met when you're in charge."],
-    weak:["Because you always go first, nobody else on the team gets the practice.","Christmas to New Year is the only stretch where you slow down.","Half the team is still catching up with a decision you made last week."],
+    weak:["Hard jobs end up on your own list first.","Christmas to New Year is the only stretch where you slow down.","Quick decisions are your normal speed."],
     roles:'Turnarounds, Crisis Management, Sales, Head Chef, Film Production'
   },
   'TEMUR':{
@@ -840,7 +840,7 @@ const PROFILES = {
     cmdDesc:"Neither Surrak nor your creatures can be countered, and your other creatures have trample.",
     you:["You lose interest in a hobby about the time you get good at it.","Your friends write your address in pencil.","Nothing throws you when a plan falls apart, which the people who made the plan find hard to forgive."],
     str:["You learn a new tool over the weekend and teach it to the team on Monday.","Half your best fixes are borrowed from some other line of work.","If one approach isn't working, you've got another one ready."],
-    weak:["Six weeks into a project, you've rebuilt the foundations twice.","Online courses you start outnumber the ones you finish.","By March you've dropped the method you taught the team in January."],
+    weak:["Foundations you laid only last month already look improvable to you.","Online courses are your idea of a good evening.","Every few weeks your desk gets a new layout."],
     roles:"Startups, Research, Product Design, Journalism, Expedition Leading"
   },
   'WITCH':{
@@ -854,7 +854,7 @@ const PROFILES = {
     cmdDesc:'At your end step, proliferate: give each permanent and player you choose another of each kind of counter already on it.',
     you:["With the bus already at the stop, you walk at the same speed.","Other people's emergencies get a fair hearing from you, and then a slot next week.","In the middle of a row, you can quote back exactly what was said, and when."],
     str:["You win long arguments by turning up every time until the other side stops coming.","A ten-year plan in your hands is still on course in year six.","When everyone is panicking, your notes are the ones worth reading afterwards."],
-    weak:["Work that impresses you gets called 'fine'.","Once you've decided, changing your mind takes as long as deciding did.","Quick replies, by your standards, arrive the next working day."],
+    weak:["Work that impresses you gets called 'fine'.","Once you've decided, changing your mind takes as long as deciding did.","Calm replies matter more to you than quick ones."],
     roles:'Operations, Finance, Strategy, Long-term Planning, Pensions, Forestry'
   },
   'YORE':{
@@ -868,7 +868,7 @@ const PROFILES = {
     cmdDesc:"When Breya enters, you get two 1/1 flying Thopters. Pay two mana and sacrifice two artifacts, and Breya can deal 3 damage to a player or give you 5 life.",
     you:["You can't leave anything as it is, and the people who liked it as it was have stopped mentioning it.","Whenever a form asks for any other comments, you have some.","If someone wants a shelf put up, you build them a storage system."],
     str:["You can rebuild a system without switching it off.","Any job you've had to do twice gets automated.","Weak links in a design show up to you before anyone builds it."],
-    weak:["Anything that fits on one slide makes you suspicious.","Work that isn't right yet keeps you at your desk long after the office has emptied.","Old systems that still work aren't safe once you've seen a better one."],
+    weak:["Anything that fits on one slide makes you suspicious.","Work that isn't right yet keeps you at your desk long after the office has emptied.","Old systems that still work look to you like unfinished business."],
     roles:'Tech Startups, Chief Engineer, Systems Architecture, R&D, Founders'
   },
   'GLINT':{
@@ -882,7 +882,7 @@ const PROFILES = {
     cmdDesc:'When Yidris deals combat damage to a player, the spells you cast from your hand that turn gain cascade.',
     you:["You read 'staff only' as a suggestion.","Until it's settled, nobody can say which side you're on, you included.","People bring you the impossible jobs and keep the ordinary ones well away from you."],
     str:["You'll work with anyone, including people you don't much like.","If an answer exists somewhere in the building, you'll find the person who has it.","Once a system stops working, you'll replace it, whoever built it."],
-    weak:["By the time the brief is signed off, you're on your second draft of something slightly different.","When the facts change, your plans change that day, and not everyone hears in time.","Routine jobs drift to the bottom of your list."],
+    weak:["Sign-off always feels slower to you than the work.","When the facts change, your plans change that day.","Routine jobs are the ones you find hardest to start."],
     roles:"Venture Capital, Trading, Startups, Activist Investing, Private Investigation"
   },
   'DUNE':{
@@ -909,7 +909,7 @@ const PROFILES = {
     cmd:'Kynaios and Tiro of Meletis',
     cmdDesc:'At the beginning of your end step, you draw a card. Each player may then put a land onto the battlefield from their hand, and each opponent who didn\'t draws a card.',
     you:["You give everyone the benefit of the doubt, which a few of them have been living on for years.","Somebody who loves you has to say no on your behalf, usually while you're still saying yes.","Things you did on your own, you call a team effort."],
-    str:["You know the night security guard's name, and his dog's.","Before a project starts, you ask the people it's for.","People stop saying 'what's the point' when you're around."],
+    str:["You know the name of everyone who cleans the building.","Before a project starts, you ask the people it's for.","People stop saying 'what's the point' when you're around."],
     weak:["Every good cause you take up reaches the rest of the office as a sign-up sheet.","Office politics passes you by until it lands on your desk.","Anyone who asks for an hour of your time gets one, and plenty of people ask."],
     roles:'Nonprofits, Education, Community Building, Social Enterprise, Cooperative Movement, Public Health'
   },
@@ -924,7 +924,7 @@ const PROFILES = {
     cmdDesc:'Kenrith has an ability in each of the five colours, from giving every creature haste to bringing one back from a graveyard.',
     you:["You can see every side of an argument, and you've been asked more than once to pick one.","By the end of a phone call you've caught the other person's accent.","You know what everyone thinks, apart from you."],
     str:["You can do the technical job on Monday and the people job on Tuesday.","Both sides of a disagreement will trust you to explain them to each other.","When a job falls between two people, you notice it and do it."],
-    weak:["'But what do you think?' is the question you find hardest.","Everyone asks you to cover for them, so your own work waits.","So many teams find you useful that none of them quite claims you."],
+    weak:["'But what do you think?' is the question you find hardest.","Everyone asks you to cover for them, and you usually say yes.","So many teams find you useful that none of them quite claims you."],
     roles:'Consulting, Chief of Staff, Facilitation, Interpreting, General Practice, Portfolio Management'
   }
 };

@@ -4,6 +4,32 @@ Newest first. Dates are when the work was committed.
 
 ## 2026-10-19
 
+### Workplace pages: no failing stated as fact
+
+A fifth reader of work mode flagged five lines that stated a failing at
+work as fact or needed a prop. All 186 strengths and shadows and the 75
+work-mode colour cards were then reread with the readers' own test: would a
+reasonable person mind their manager reading this?
+
+- 53 strengths and shadows changed. A shadow now names the habit as a
+  preference or a quirk and leaves out what it costs at work. Izzet's "Of
+  the three projects you have on the go, one is usually on fire." is now
+  "Three projects at once feels about right to you.", and its "When you're
+  off sick, the team finds out how much of your work is in your head." is
+  now "Whiteboards near you fill up within the hour." Four-colour without
+  white keeps "When the facts change, your plans change that day." and
+  drops "and not everyone hears in time". Mono-Blue's "A decision that
+  needed an afternoon can take you a week." is now "Thirty open tabs is a
+  normal morning for you."
+- The night security guard's dog has gone: four-colour without black's
+  strength is "You know the name of everyone who cleans the building."
+- 18 work-mode colour cards now give the colleague's strength and no
+  longer take a failing of yours as read. "Get them to look for the step
+  you're about to skip." is now "Get them to walk the plan through step by
+  step before you start.", and "Run a clever move past them before it costs
+  you people's trust." is now "Run a plan past them to hear how it will
+  land with the people in it." The consumer pages keep their cards.
+
 ### Workplace and consumer pages: a fourth reading
 
 A fourth reader of work mode flagged four lines a person would not want
