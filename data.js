@@ -533,7 +533,7 @@ const PROFILES = {
     you:["You ask for a discount in shops that don't do discounts.","If someone says they like your coat, you spend the evening working out what they want.","Anyone who owes you knows exactly how much, interest included."],
     str:["You ask for the pay rise in the week you've earned it.","In a negotiation you know what each person needs to walk away with.","Someone has to make the unpopular call, and you don't lose sleep over it."],
     weak:["Help that comes with nothing attached takes you a while to accept.","Colleagues who aren't keeping score are hard for you to read.","When you win an argument, you win it by more than you needed to."],
-    roles:'Executive Leadership, M&A, Private Equity, Turnarounds, Restructuring, Corporate Strategy'
+    roles:'Chief Executive, M&A, Private Equity, Turnarounds, Restructuring, Corporate Strategy'
   },
   'MONO-R':{
     name:'MONO-RED',
@@ -547,7 +547,7 @@ const PROFILES = {
     you:["You throw yourself into things completely, for about three weeks.","People love the idea you have at midnight and spend the next fortnight carrying it out.","You say what you feel the second you feel it. A week later you feel something else, and you say that too."],
     str:["When someone says 'somebody should do something', you've usually started.","People know where they stand with you within the first minute.","A tired team will go one more round if you're the one asking."],
     weak:["Three sentences into a brief, you've decided what the rest of it says.","Your enthusiasm for a project peaks in its first fortnight.","Slow projects tempt you to start again from scratch."],
-    roles:'Startups, Sales, Crisis Response, Creative Industries, Frontline Operations, Live Events'
+    roles:'Startups, Sales, Crisis Response, Creative Industries, Hospitality, Live Events'
   },
   'MONO-G':{
     name:'MONO-GREEN',
@@ -715,7 +715,7 @@ const PROFILES = {
     you:["Every decision you make still makes sense five years later, which is roughly when it gets made.","Two friends who've fallen out will sooner or later find themselves at dinner at yours, sat next to each other.","If you're put on the spot, you ring round first."],
     str:["You ask the quietest person their view first, and change the plan if they're right.","Any team you run is in better shape when you leave it.","A slow decision and a stuck one look different to you, and you wait out the first."],
     weak:["Decisions that have to be made today, without asking anyone, are hard for you.","If everyone has agreed, you take that as a sign it will work.","Every disagreement gets one more meeting from you."],
-    roles:'Charity Director, Strategic HR, Educational Leadership, Policy Development, Mediation, Public Service'
+    roles:'Charity Director, Strategic HR, Headteacher, Policy Development, Mediation, Public Service'
   },
   'ESPER':{
     name:'ESPER',
@@ -742,7 +742,7 @@ const PROFILES = {
     cmdDesc:'Every player draws an extra card in their draw step, and whenever an opponent draws, Nekusar deals them 1 damage.',
     you:["At a dinner party you win every argument and call it a good evening.","The last man who sold you a car needed a sit-down afterwards.","You'll apologise for your tone by explaining why you were right."],
     str:["You get a lot done with very few people.","By the time a negotiation starts, you've worked out the other side's lowest price.","Pressure makes you sharper, which is useful in the last week of a deal."],
-    weak:["Things you call 'just business' are sometimes slightly personal.","Praise from you comes with the next target attached.","Small talk at the start of a call feels like lost time to you."],
+    weak:["Sentiment gets very little say in your decisions.","Praise from you comes with the next target attached.","Small talk at the start of a call feels like lost time to you."],
     roles:'Turnaround CEO, Competitive Strategy, High-Stakes Trading, Private Equity'
   },
   'JUND':{
@@ -812,7 +812,7 @@ const PROFILES = {
     cmdDesc:'When Sidisi enters or attacks, mill 3. Whenever creature cards hit your graveyard from your library, create a 2/2 Zombie.',
     you:["You wait for a friend to buy the new phone and tell you what's wrong with it.","Nobody quite remembers inviting you, but there you always are.","Good ideas have a habit of ending up working for you, and the people who had them never quite see how."],
     str:["You play a two-year game in which nothing seems to happen for eighteen months.","A long silence on the phone doesn't bother you, and the other side usually fills it.","Early on, you get yourself in with the people who will matter later."],
-    weak:["If a conversation matters, you want to be in it, or have someone there.","Good chances sometimes go past you while you wait for a better one.","People find out what you were working towards once you've got it."],
+    weak:["If a conversation matters, you want to be in it, or have someone there.","Good chances sometimes go past you while you wait for a better one.","Full price is something you only pay when there's no other way."],
     roles:'Property, Investment, Diplomacy, Wine Making, Corporate Development'
   },
   'MARDU':{
@@ -827,7 +827,7 @@ const PROFILES = {
     you:["On family walks you're out in front, about a mile ahead of everyone else.","You tell the story of moving house as a triumph, and it was, for everyone who didn't put their back out.","For any job going, you volunteer someone else."],
     str:["You make the call and don't reopen it a week later.","When it all goes wrong, you know who needs telling what, and in which order.","Deadlines the client had already written off get met when you're in charge."],
     weak:["Because you always go first, nobody else on the team gets the practice.","Christmas to New Year is the only stretch where you slow down.","Half the team is still catching up with a decision you made last week."],
-    roles:'Turnarounds, Crisis Management, Sales, Founding Teams, Film Production'
+    roles:'Turnarounds, Crisis Management, Sales, Head Chef, Film Production'
   },
   'TEMUR':{
     name:'TEMUR',
@@ -869,7 +869,7 @@ const PROFILES = {
     you:["You can't leave anything as it is, and the people who liked it as it was have stopped mentioning it.","Whenever a form asks for any other comments, you have some.","If someone wants a shelf put up, you build them a storage system."],
     str:["You can rebuild a system without switching it off.","Any job you've had to do twice gets automated.","Weak links in a design show up to you before anyone builds it."],
     weak:["Anything that fits on one slide makes you suspicious.","Work that isn't right yet keeps you at your desk long after the office has emptied.","Old systems that still work aren't safe once you've seen a better one."],
-    roles:'Tech Startups, Engineering Leadership, Systems Architecture, R&D, Founders'
+    roles:'Tech Startups, Chief Engineer, Systems Architecture, R&D, Founders'
   },
   'GLINT':{
     name:'FOUR-COLOUR (No White)',
@@ -897,7 +897,7 @@ const PROFILES = {
     you:["You start painting a room before you've bought enough paint.","If a group can't decide where to eat, you've already started walking.","Your gut has a lot to answer for."],
     str:["One phone call from you can unstick a decision that's been stuck for a month.","When the team stops joking, you ask what's happened.","If someone has to go first, it's usually you."],
     weak:["Your second draft usually arrives before anyone has read the first.","An answer that needed a spreadsheet is one you trust less.","'Let's sleep on it' sounds to you like 'let's not'."],
-    roles:"Sales, Crisis Response, Live Events, Field Operations, Military"
+    roles:"Sales, Crisis Response, Live Events, Site Manager, Military"
   },
   'INK':{
     name:'FOUR-COLOUR (No Black)',
@@ -910,7 +910,7 @@ const PROFILES = {
     cmdDesc:'At the beginning of your end step, you draw a card. Each player may then put a land onto the battlefield from their hand, and each opponent who didn\'t draws a card.',
     you:["You give everyone the benefit of the doubt, which a few of them have been living on for years.","Somebody who loves you has to say no on your behalf, usually while you're still saying yes.","Things you did on your own, you call a team effort."],
     str:["You know the night security guard's name, and his dog's.","Before a project starts, you ask the people it's for.","People stop saying 'what's the point' when you're around."],
-    weak:["Every good cause you take up reaches the rest of the office as a sign-up sheet.","Office politics passes you by until it lands on your desk.","Pay rises are easier for you to ask for on someone else's behalf."],
+    weak:["Every good cause you take up reaches the rest of the office as a sign-up sheet.","Office politics passes you by until it lands on your desk.","Anyone who asks for an hour of your time gets one, and plenty of people ask."],
     roles:'Nonprofits, Education, Community Building, Social Enterprise, Cooperative Movement, Public Health'
   },
   'WUBRG':{

@@ -2586,9 +2586,9 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
              .mc-result__banter CSS, and on the pages whose profile has no
              banter). Its label is text, not a CSS ::before, so a screen reader
              or a copied page keeps it: without it the line read as the last
-             of the shadows. The label is a sentence (RESULT_COPY.frame.banter). -->
+             of the shadows. The label names it (RESULT_COPY.frame.banter). -->
         <div class="mc-result__banter" id="res-counter-section">
-          <div class="mc-result__banter-label" id="res-counter-label">Your friends would put it like this.</div>
+          <div class="mc-result__banter-label" id="res-counter-label">Behind your back</div>
           <p id="res-counter">Banter</p>
         </div>
 
@@ -4565,7 +4565,10 @@ const COLOR_GAPS_FOR_FUN = {
 // work mode asks about the rules you find slow. So are three more from a
 // third reading, for the same reason: Sultai's plan "being played on"
 // people, four-colour without blue's "Before you skip the checks" and
-// Dimir's news "you've known for weeks". The same rules hold as above.
+// Dimir's news "you've known for weeks". A fourth reading added Mardu's
+// Green card, which now gives the colleague's strength where it had you
+// asking the same people "for another all-nighter". The same rules hold as
+// above.
 const COLOR_GAPS_AT_WORK = {
   'MONO-B': { G: 'Before you give up something that took years to build for something you want this week, talk to them.' },
   'MONO-G': {
@@ -4587,7 +4590,10 @@ const COLOR_GAPS_AT_WORK = {
   DIMIR: { R: 'When something needs saying in front of everyone, let them say it.' },
   DUNE: { U: 'Give them ten minutes with the figures before anything goes out.' },
   GRIXIS: { G: "Talk it over with them before you give up on someone you'll need next year." },
-  MARDU: { U: 'Get them to pick holes in the plan before you commit everyone to it.' },
+  MARDU: {
+    U: 'Get them to pick holes in the plan before you commit everyone to it.',
+    G: 'They can tell when a team needs a night off.'
+  },
   WITCH: { R: 'Leave it to them when a deadline matters more than a better answer.' }
 };
 
@@ -11622,9 +11628,9 @@ const RESULT_COPY = {
   // readers as a slide deck and a settings panel. The dashed line's key is
   // workplace mode's own: two readers found "pulls against a missing
   // colour" unclear, and the consumer page still says it. Where a label
-  // became a sentence, it is styled as one (.mc-said): in both audiences for
-  // the switcher, on a consumer page only for the closing line's label
-  // (workplace mode hides that box). The picture button never says "share":
+  // became a sentence, it is styled as one (.mc-said): the switcher's, in
+  // both audiences. The closing line's label is a name ("Behind your back")
+  // and keeps its label style. The picture button never says "share":
   // the banner's Share is the one Share on the page. (Not in the drafts.)
   frame: {
     // The heading over the jobs, which follow in sentence case (rolesFor). Two
@@ -11640,9 +11646,11 @@ const RESULT_COPY = {
     legendAlly: { consumer: 'A solid line means two of your colours get on.', workplace: 'A solid line means two of your colours get on.' },
     legendEnemy: { consumer: 'A dashed line means one of yours pulls against a missing colour.', workplace: "A dashed line means one of your colours doesn't get on with a colour you haven't got." },
     // The label on the closing-line box (consumer mode only; workplace mode
-    // hides the box, as it hides the explorer's and the dossier's banter).
-    // Workplace mode's label said "Pub banter" until 19 October 2026.
-    banter: { consumer: 'Your friends would put it like this.', workplace: 'Your friends would put it like this.' },
+    // hides the box, as it hides the explorer's and the dossier's banter). It
+    // names what is in the box, as the explorer's box of the same name does:
+    // "Pub banter" labelled the joke, and "Your friends would put it like
+    // this." announced it before it landed (both until 19 October 2026).
+    banter: { consumer: 'Behind your back', workplace: 'Behind your back' },
     image: { consumer: 'Save it as a picture', workplace: 'Save it as a picture' },
     breakdown: { consumer: 'Show the workings', workplace: 'Show the workings' },
     breakdownHide: { consumer: 'Hide the workings', workplace: 'Hide the workings' },
@@ -11954,8 +11962,8 @@ function audienceKey() {
 // The headings, labels and buttons around the profile, in the audience's
 // words (RESULT_COPY.frame). The breakdown button says what its next tap
 // does. The labels that are sentences are styled as sentences (.mc-said):
-// the page-style switcher's in both audiences, the closing-line box's on a
-// consumer page (workplace mode hides the box, and its label stays a label).
+// the page-style switcher's, in both audiences. The closing-line box's label
+// is a name ("Behind your back") and keeps its label style.
 function renderFrameLabels() {
   const F = RESULT_COPY.frame, aud = audienceKey();
   const set = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
@@ -11966,7 +11974,7 @@ function renderFrameLabels() {
   set('rel-legend-ally-text', F.legendAlly[aud]);
   set('rel-legend-enemy-text', F.legendEnemy[aud]);
   set('res-counter-label', F.banter[aud]);
-  said('res-counter-label');
+  said('res-counter-label', false);
   set('res-image-btn', F.image[aud]);
   const detail = document.getElementById('legacy-detail');
   set('res-breakdown-btn', (!detail || detail.classList.contains('hidden') ? F.breakdown : F.breakdownHide)[aud]);

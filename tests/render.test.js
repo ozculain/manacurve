@@ -33,7 +33,7 @@ const CASES = [
     line: 'Red was well ahead of every other colour.',
     typeline: 'Legendary Creature — Goblin Warrior',
     rules: 'Trample, haste. At the beginning of the end step, sacrifice this creature.',
-    rolesForFun: 'Startups, sales, crisis response, creative industries, frontline operations, live events',
+    rolesForFun: 'Startups, sales, crisis response, creative industries, hospitality, live events',
     share: { consumer: "I'm Mono-Red. What are you?", workplace: "I'm Mono-Red. What are you?" },
     manaBase: '37 lands: 36 Mountain and a Hanweir Battlements.',
     nextDoor: {
@@ -233,7 +233,7 @@ const CONSUMER_FRAME = {
   'res-warning-label': '⚠ Not for official use.',
   'rel-legend-ally-text': 'A solid line means two of your colours get on.',
   'rel-legend-enemy-text': 'A dashed line means one of yours pulls against a missing colour.',
-  'res-counter-label': 'Your friends would put it like this.',
+  'res-counter-label': 'Behind your back',
 };
 const WORKPLACE_FRAME = {
   'roles-title': "Jobs you'd be good at",
@@ -310,7 +310,7 @@ function checkRender(win, h, c, audience, player, threw, errors) {
   need(wrongFrame.length === 0 && Object.keys(frame).every((id) => el(id)), 'frame labels: ' + wrongFrame.join(' / '));
   // The jobs heading is a heading in both audiences and keeps its heading style.
   const styled = ['roles-title', 'res-counter-label', 'theme-switch-label', 'conf-badge'].filter((id) => el(id).classList.contains('mc-said'));
-  need(JSON.stringify(styled) === JSON.stringify(aud === 'consumer' ? ['res-counter-label', 'theme-switch-label', 'conf-badge'] : ['theme-switch-label']),
+  need(JSON.stringify(styled) === JSON.stringify(aud === 'consumer' ? ['theme-switch-label', 'conf-badge'] : ['theme-switch-label']),
     `sentence styling on ${JSON.stringify(styled)} (${aud})`);
   const cardHeading = d.querySelector('#relations-detail .mc-relations-detail__heading');
   need(aud === 'consumer' ? !cardHeading : !!cardHeading && cardHeading.textContent.trim() === 'Who to ask', `colour cards' own heading "${cardHeading ? cardHeading.textContent : ''}"`);
@@ -379,7 +379,7 @@ function checkRender(win, h, c, audience, player, threw, errors) {
     // label, which is text so a copied page or a screen reader keeps it; a
     // profile with none shows no box.
     need(banter && (banter.style.display !== 'none') === !!p.pubBanter, `pub banter ${banter && banter.style.display !== 'none' ? 'shown' : 'hidden'} for a profile ${p.pubBanter ? 'with' : 'without'} one`);
-    need(text('res-counter-label') === 'Your friends would put it like this.' && banter.contains(el('res-counter-label')), `banter label "${text('res-counter-label')}"`);
+    need(text('res-counter-label') === 'Behind your back' && banter.contains(el('res-counter-label')), `banter label "${text('res-counter-label')}"`);
     need(disclaimer && disclaimer.style.display === 'none', 'workplace disclaimer shown in consumer mode');
     if (p.pubBanter) real('res-counter');
   }
