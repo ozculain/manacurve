@@ -418,6 +418,16 @@ run('play', async (t) => {
     const named = strings.map((x) => ({ x, kinds: forbiddenIn(h.PROFILES, x) })).filter((y) => y.kinds.length);
     ok('P5c every quiz-screen string (round names, welcome, preflight, stems, progress line, undo, transitions, line-up, early offer) names no colour, basic land or identity',
       strings.length > 45 && named.length === 0, named.map((y) => `${y.kinds}: ${y.x}`).join(' | '));
+    // The lines four fresh readers flagged on the front page and between the
+    // questions (CHANGELOG, "Front page and the screens between questions:
+    // fresh readers"). None may come back, in the copy or on the screens.
+    const FRONT_FLAGGED = ['Yes, really', 'hit collectible', 'Choose the response', ' answered, ', 'call it now', 'firmer result',
+      'still in the running', 'compare them two at a time', 'Play Constructed', 'Magic jokes', 'First Impressions', 'Refinement', 'Final Determination'];
+    const shownText = [...strings, ...seen.map((x) => `${x.label} ${x.beat}`),
+      win.document.getElementById('screen-welcome').textContent, win.document.getElementById('screen-preflight').textContent].join('\n');
+    const back = FRONT_FLAGGED.filter((x) => shownText.includes(x));
+    ok('P5c2 none of the lines the fresh readers flagged comes back: not in PLAY_COPY, on the welcome or the preflight, in a round label or in the progress line',
+      back.length === 0, back.join(' | '));
     win.close();
   }
   {
