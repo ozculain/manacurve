@@ -94,14 +94,33 @@ live in `_lib/respondent.js`, which the golden test shares.
   that build, as the page tests do.
 
 `--r3` (engine 2 only) compares ways of turning the Round 3 answers into the
-reported identity, on the same respondents: `--r3 pm,page,q=0.85`. Each
-comma-separated variant is one of these, or several joined with `+`:
+reported identity, on the same respondents:
+`--r3 page,jaccard,symdiff+qg=0.55:0.75`. Each comma-separated variant is one
+of these, or several joined with `+`:
 
 - `page`: the build as it is.
 - `q=X`: the Round 3 discrimination fixed at X. The page's
   `round3LogLikelihoods` gets `qGrid: [X]` wherever the page passes no grid of
   its own (as built it averages q over `ROUND3_Q_GRID`). The posterior decides
   the tiebreak questions, so each `q` runs the respondents on the page again.
+- Round 3 models, which replace the page's `round3LogLikelihoods` with the
+  simulator's own (`round3ModelLogLik`, written out there so a variant does not
+  lean on the page's code) and so also run the respondents on the page again.
+  A match's sign for identity S is s, from -1 to +1, and S's term for it is
+  log(1 + (2q - 1) s), averaged over q (exactly the page's terms at s = +1, -1
+  and 0):
+  - `jaccard`: s = +1 when the winner's colours are closer to S's by Jaccard
+    similarity, -1 when the loser's are, 0 on a tie: the page's own model, and
+    the sign when none is named, so on this build `jaccard` reproduces `page`
+    exactly.
+  - `symdiff`: s from the colours where the winner and the loser differ: the
+    share of them on which S agrees with the winner minus the share on which it
+    agrees with the loser. A match between identities one colour apart counts
+    in full; a split counts nothing.
+  - `qg=A:B`: q averaged over A, A + 0.05, ..., B instead of the page's
+    `ROUND3_Q_GRID` (with these parts, `q=X` fixes it at X).
+  - `own`: a match counts only for the two identities that played it.
+  - `cap=X`: no identity's Round 3 term more than X nats below the best one's.
 - `pm`: the candidate with the highest final posterior, which engine 2
   reported before `round3RecordRanking`; on the current build, `pm` is the
   "before" and `page` the "after" of that change.
@@ -130,9 +149,27 @@ respondents with two paired standard errors); the reported identity's Round 3
 record (losing, lost every match, of those the ones that lost three or more,
 and how often they were right, not the best record); where the posterior
 maximum and the tournament winner disagree, how
-often each was the true identity; and each label's share and accuracy with
-neighbourhood coverage. The page's functions are wrapped only under `--r3`;
-without it the run is the plain one above.
+often each was the true identity; what Round 3 did to Round 1 and 2's answer
+(below), with the changes in the nested downgrades and in "bars say more" from
+the first variant on the same respondents, with two paired standard errors;
+and each label's share and accuracy with neighbourhood coverage. `--rows` adds
+each variant's results respondent by respondent. The page's functions are
+wrapped only under `--r3`; without it the run is the plain one above.
+
+What Round 3 did to Round 1 and 2's answer, in every report: the lead is the
+first candidate Round 3 played, which on the likelihood engine is the one of
+the four the bars allow that the Round 1 + Round 2 posterior rates highest
+(Round 3 can report no other). The report gives how often the lead was the
+true identity; how often the result is not the lead ("overturned"), and how
+often the result, and the lead, was then right; how often the result's colours
+are a proper subset of the lead's ("nested down") or a proper superset ("nested
+up"), with the same two shares; and how often the bars say more than the name:
+the result leaves out a colour whose printed bar is at least 50 and at least 25
+points above every other colour it leaves out (a result of one to three
+colours; the bars always allow the result with that colour added), with how
+often the result was right. Each respondent's lead, and the Round 1 + Round 2
+posterior's leader over all 31 identities (`r12Top`, `r12Leader`), come from
+`_lib/respondent.js`.
 
 Each report gives exact recovery per identity and per type (final, and Round 1's
 top candidate alone), enemy-pair guilds (Orzhov, Izzet, Golgari, Simic, Boros)

@@ -254,6 +254,17 @@ function runRespondent(win, trueId, idx, params, { trace = false } = {}) {
   }
   if (!h.state.result && h.state.stage !== 3) h.continueToStage2();
 
+  // What Round 3 starts from: the Round 1 + Round 2 posterior's leader over all
+  // 31 identities (engine 2; Round 3 overwrites the record) and the first of the
+  // candidates Round 3 plays, which on engine 2 is the one of them that posterior
+  // rates highest (the top four the bars allow, best first).
+  const lk = h.state.likelihood, t3 = h.state.tournament;
+  if (lk && lk.posterior) {
+    const best = Object.entries(lk.posterior).sort((a, b) => b[1] - a[1])[0];
+    out.r12Leader = best ? best[0] : null;
+  }
+  out.r12Top = t3 && t3.candidates && t3.candidates[0] ? t3.candidates[0].id : null;
+
   // Round 3
   const matchups = [];
   guard = 0;

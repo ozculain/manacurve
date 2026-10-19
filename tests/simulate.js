@@ -98,28 +98,104 @@ function parseArgs(argv) {
 //            the runner-up's (the next candidate by posterior)
 //   losing:M:M0  as losing:M, with M0 in place of M when the posterior maximum
 //            won no match at all
-// Parts combine with '+' (q=0.85+losing:4); several rules are tried in order
-// and the first that changes the result decides it. The rules act after the
-// last answer, so they change no question: they are applied to what the page
-// recorded at its own decision, with the confidence label the page would have
-// given the identity they pick (its posterior, the cycle rule and both caps).
+// Round 3 models, written out here so a variant does not lean on the page's
+// own code; any of these parts replaces the page's round3LogLikelihoods with
+// this file's (round3ModelLogLik), on the page, so the posterior, the tiebreak
+// questions it asks for and the result all follow it:
+//   jaccard  the sign of a match for identity S from Jaccard similarity: +1
+//            when the winner's colours are closer to S's, -1 when the loser's
+//            are, 0 on a tie (the page's own model; the default sign)
+//   symdiff  the sign from the colours where the winner and loser differ: the
+//            share of them on which S agrees with the winner minus the share
+//            on which it agrees with the loser, so -1 to +1, and a split is 0
+//   qg=A:B   q averaged over A, A + 0.05, ..., B instead of the page's
+//            ROUND3_Q_GRID (q=X with any of these parts: q fixed at X)
+//   own      a match counts only for the two identities that played it
+//   cap=X    no identity's Round 3 term more than X nats below the best one's
+// A sign s weighs a match as P(winner | S) = 1/2 + (q - 1/2) s, which is the
+// page's q, 1 - q or 1/2 at s = +1, -1 or 0.
+// Parts combine with '+' (q=0.85+losing:4, symdiff+qg=0.55:0.75); several
+// rules are tried in order and the first that changes the result decides it.
+// The rules act after the last answer, so they change no question: they are
+// applied to what the page recorded at its own decision, with the confidence
+// label the page would have given the identity they pick (its posterior, the
+// cycle rule and both caps).
 const RULES = ['pm', 'tour', 'lostall', 'losing', 'net'];
+const Q_STEP = 0.05;
 function parseVariant(spec) {
-  const v = { name: String(spec).trim(), q: undefined, rules: [] };
+  const v = { name: String(spec).trim(), rules: [] };
+  const model = {};
   for (const part of v.name.split('+')) {
     let m;
     if (part === 'page') continue;
     if ((m = /^q=?(\d*\.?\d+)$/.exec(part))) {
-      v.q = Number(m[1]);
-      if (!(v.q >= 0.5 && v.q < 1)) fail(`--r3 ${part}: q must lie in [0.5, 1)`);
+      model.q = Number(m[1]);
+      if (!(model.q >= 0.5 && model.q < 1)) fail(`--r3 ${part}: q must lie in [0.5, 1)`);
+    } else if (part === 'jaccard' || part === 'symdiff') {
+      if (model.sign) fail(`--r3 ${v.name}: one sign, jaccard or symdiff`);
+      model.sign = part;
+    } else if ((m = /^qg=(\d*\.?\d+):(\d*\.?\d+)$/.exec(part))) {
+      const [lo, hi] = [Number(m[1]), Number(m[2])];
+      if (!(lo >= 0.5 && lo <= hi && hi < 1)) fail(`--r3 ${part}: the grid runs from A to B, 0.5 <= A <= B < 1`);
+      model.grid = [];
+      for (let k = 0; lo + k * Q_STEP <= hi + 1e-9; k++) model.grid.push(Math.round((lo + k * Q_STEP) * 1000) / 1000);
+    } else if (part === 'own') {
+      model.own = true;
+    } else if ((m = /^cap=(\d*\.?\d+)$/.exec(part))) {
+      model.cap = Number(m[1]);
+      if (!(model.cap > 0)) fail(`--r3 ${part}: the cap is in nats, above 0`);
     } else if ((m = /^([a-z]+)(?::(\d*\.?\d+))?(?::(\d*\.?\d+))?$/.exec(part)) && RULES.includes(m[1])) {
       const [margin, margin0] = [m[2], m[3]].map((x) => (x === undefined ? undefined : Number(x)));
       if ([margin, margin0].some((x) => x !== undefined && !(x >= 1))) fail(`--r3 ${part}: a margin is a posterior ratio, at least 1`);
       if (margin0 !== undefined && m[1] !== 'losing') fail(`--r3 ${part}: only losing takes a second margin`);
       v.rules.push({ kind: m[1], margin, margin0 });
-    } else fail(`Unknown --r3 variant "${part}"; expected page, q=X, ${RULES.join(', ')} (optionally rule:M, losing:M:M0), joined with +`);
+    } else fail(`Unknown --r3 variant "${part}"; expected page, q=X, jaccard, symdiff, qg=A:B, own, cap=X, ${RULES.join(', ')} (optionally rule:M, losing:M:M0), joined with +`);
   }
+  if (model.q !== undefined && model.grid) fail(`--r3 ${v.name}: q=X and qg=A:B both set the grid`);
+  // The model the page runs: null for the page's own; { q } for the page's own
+  // function at one q; otherwise this file's, from its parts.
+  model.sim = !!(model.sign || model.grid || model.own || model.cap !== undefined);
+  const key = [model.sign, model.q !== undefined ? 'q=' + model.q : null, model.grid ? `qg=${model.grid[0]}:${model.grid[model.grid.length - 1]}` : null,
+    model.own ? 'own' : null, model.cap !== undefined ? 'cap=' + model.cap : null].filter(Boolean).join('+');
+  v.model = key ? { ...model, key } : null;
+  v.modelKey = key || 'page';
   return v;
+}
+
+// Round 3 log-likelihoods of every identity under a --r3 model, marginalised
+// over its grid, in the shape of the page's round3LogLikelihoods.
+const WUBRG_COLOURS = ['W', 'U', 'B', 'R', 'G'];
+function jaccardOf(a, b) {
+  const inter = a.filter((c) => b.includes(c)).length;
+  return inter / (a.length + b.length - inter);
+}
+function round3Sign(model, S, W, L) {
+  if (model.sign === 'symdiff') {
+    const differ = WUBRG_COLOURS.filter((c) => W.includes(c) !== L.includes(c));
+    if (!differ.length) return 0;
+    const withWinner = differ.filter((c) => S.includes(c) === W.includes(c)).length;
+    return (2 * withWinner - differ.length) / differ.length;
+  }
+  return Math.sign(jaccardOf(W, S) - jaccardOf(L, S));
+}
+// log(2 P(winner | S)): exactly the page's terms at s = +1, -1 and 0.
+const matchTerm = (q, s) => (s === 1 ? Math.log(2 * q) : s === -1 ? Math.log(2 * (1 - q)) : s === 0 ? 0 : Math.log(1 + (2 * q - 1) * s));
+function round3ModelLogLik(win, matchHistory, model) {
+  const P = win.__h.PROFILES;
+  const grid = model.grid || (model.q !== undefined ? [model.q] : win.eval('ROUND3_Q_GRID'));
+  const matches = (matchHistory || []).filter((m) => m && m.winner && m.loser && P[m.winner.id] && P[m.loser.id]);
+  const out = {};
+  for (const id of Object.keys(P)) {
+    const S = P[id].colors;
+    const signs = matches.map((m) => (model.own && m.winner.id !== id && m.loser.id !== id ? 0
+      : round3Sign(model, S, P[m.winner.id].colors, P[m.loser.id].colors)));
+    out[id] = win.logMeanExp(grid.map((q) => signs.reduce((sum, s) => sum + matchTerm(q, s), 0)));
+  }
+  if (model.cap !== undefined) {
+    const top = Math.max(...Object.values(out));
+    for (const id of Object.keys(out)) out[id] = Math.max(out[id], top - model.cap);
+  }
+  return out;
 }
 
 // Installed on a page only when --r3 is given. Top-level functions of the
@@ -129,8 +205,10 @@ function installRound3Hooks(win) {
   const loglik = win.round3LogLikelihoods, decide = win.applyPosteriorDecision;
   if (typeof loglik !== 'function' || typeof decide !== 'function') throw new Error('--r3 needs engine 2 (round3LogLikelihoods, applyPosteriorDecision) in this build');
   win.round3LogLikelihoods = function (matchHistory, opts) {
-    const q = win.__simR3 ? win.__simR3.q : undefined;
-    return loglik(matchHistory, q === undefined || (opts && opts.qGrid) ? opts : Object.assign({}, opts, { qGrid: [q] }));
+    const model = win.__simR3 ? win.__simR3.model : null;
+    if (!model) return loglik(matchHistory, opts);
+    if (model.sim) return round3ModelLogLik(win, matchHistory, model);
+    return loglik(matchHistory, opts && opts.qGrid ? opts : Object.assign({}, opts, { qGrid: [model.q] }));
   };
   // What the page knew when it decided: the tournament winner (finishRound3Tournament
   // asks getTournamentWinner first and hands its result in), every candidate's
@@ -214,7 +292,7 @@ async function workerMain() {
   const bootMs = Date.now() - t;
   const one = (ci, id, i) => {
     const c = configs[ci], win = pages[c.engine].win;
-    if (c.r3) { win.__simR3 = { q: c.q === null ? undefined : c.q }; win.__simR3facts = null; }
+    if (c.r3) { win.__simR3 = { model: c.r3model }; win.__simR3facts = null; }
     const r = { ci, ...runRespondent(win, id, i, c) };
     if (c.r3) r.r3 = round3Facts(win);
     return r;
@@ -258,13 +336,13 @@ async function main(opts) {
   const ids = Object.keys(sandbox.__P);
   const colorsOf = Object.fromEntries(ids.map(id => [id, [...sandbox.__P[id].colors]]));
 
-  // One page configuration per p, model, engine, Round 3 discrimination (with
-  // --r3; null = the page's own) and seed. Rule variants share the run of their q.
-  const qs = opts.r3 ? [...new Set(opts.r3.map((v) => (v.q === undefined ? null : v.q)))] : [null];
+  // One page configuration per p, model, engine, Round 3 model (with --r3;
+  // 'page' = the page's own) and seed. Rule variants share the run of their model.
+  const r3models = opts.r3 ? [...new Map(opts.r3.map((v) => [v.modelKey, v.model])).entries()] : [[null, null]];
   const configs = [];
-  for (const p of opts.p) for (const model of opts.models) for (const engine of opts.engines) for (const q of qs) for (const seed of opts.seeds) {
+  for (const p of opts.p) for (const model of opts.models) for (const engine of opts.engines) for (const [r3key, r3model] of r3models) for (const seed of opts.seeds) {
     const c = { model, p, neither: opts.neither, seed, engine, gaming: opts.gaming };
-    if (opts.r3) Object.assign(c, { r3: true, q });
+    if (opts.r3) Object.assign(c, { r3: true, r3key, r3model });
     // The mixed model is the misspecified one with flatter weights, at the same sharpness.
     if (model !== 'ideal') c.calibration = calibrateMisspecified(p);
     configs.push(c);
@@ -311,21 +389,27 @@ async function main(opts) {
     }
     let first = null;
     for (const v of opts.r3) {
-      const q = v.q === undefined ? null : v.q;
-      const mine = g.cis.filter((ci) => configs[ci].q === q);
+      const mine = g.cis.filter((ci) => configs[ci].r3key === v.modelKey);
       const bySeed = mine.map((ci) => ({ seed: configs[ci].seed, runs: runsOf(ci).map((r) => variantRun(r, v)) }));
       const runs = bySeed.flatMap((s) => s.runs);
-      const report = summarise({ config: { ...config, q }, opts, ids, colorsOf, runs, meta });
+      const report = summarise({ config: { ...config, r3key: v.modelKey }, opts, ids, colorsOf, runs, meta });
       report.variant = v.name;
       report.round3 = round3Summary(runs);
       report.perSeed = bySeed.map((s) => ({ seed: s.seed, overallExact: share(s.runs.filter((r) => r.recovered === r.trueId).length, s.runs.length) }));
-      // The first variant is the reference: the same respondents, scored both ways.
+      if (opts.rows) report.rows = runs.map((r) => [configs[r.ci].seed, r.trueId, r.idx, r.recovered]);
+      // The first variant is the reference: the same respondents, scored both
+      // ways, for exact recovery and the two ways a result can say less than
+      // Round 1 and 2 or the bars (shiftFlags).
       const key = (r) => configs[r.ci].seed + '#' + r.trueId + '#' + r.idx;
-      if (!first) first = new Map(runs.map((r) => [key(r), r.recovered === r.trueId ? 1 : 0]));
-      const d = runs.map((r) => (r.recovered === r.trueId ? 1 : 0) - first.get(key(r)));
-      const mean = d.reduce((a, x) => a + x, 0) / d.length;
-      const sd = Math.sqrt(d.reduce((a, x) => a + (x - mean) ** 2, 0) / Math.max(1, d.length - 1));
-      report.vsFirst = { variant: opts.r3[0].name, diff: mean, se: sd / Math.sqrt(d.length) };
+      const flags = (r) => ({ exact: r.recovered === r.trueId ? 1 : 0, ...shiftFlags(r, colorsOf) });
+      if (!first) first = new Map(runs.map((r) => [key(r), flags(r)]));
+      const paired = (k) => {
+        const d = runs.map((r) => flags(r)[k] - first.get(key(r))[k]);
+        const mean = d.reduce((a, x) => a + x, 0) / d.length;
+        const sd = Math.sqrt(d.reduce((a, x) => a + (x - mean) ** 2, 0) / Math.max(1, d.length - 1));
+        return { diff: mean, se: sd / Math.sqrt(d.length) };
+      };
+      report.vsFirst = { variant: opts.r3[0].name, ...paired('exact'), nestedDown: paired('nestedDown'), barsSayMore: paired('barsSayMore') };
       reports.push(report);
     }
   }
@@ -520,7 +604,7 @@ function summarise({ config, opts, ids, colorsOf, runs, meta }) {
   fiveColour.precision = share(fiveColour.right, fiveColour.given);
   fiveColour.share = share(fiveColour.given, runs.length);
   const params = { model: config.model, engine: config.engine, n: opts.n, p: config.p, neither: config.neither, seed: config.seed, gaming: config.gaming };
-  if (config.r3) params.round3Q = config.q === null ? 'page' : config.q;
+  if (config.r3) params.round3Model = config.r3key || 'page';
   if (config.calibration) params.calibration = config.calibration;
   if (config.model === 'mixed' && config.calibration) params.mixedSignal = signalAt(config.calibration, MIXED);
   return {
@@ -537,9 +621,60 @@ function summarise({ config, opts, ids, colorsOf, runs, meta }) {
     earlyOffer,
     bars,
     fiveColour,
+    shift: shiftSummary(runs, colorsOf),
     byType, guilds, perIdentity, topConfusions, confidence, contract,
     pageErrorCount: meta.errors.length,
     pageErrors: meta.errors.slice(0, 20),
+  };
+}
+
+// What Round 3 did to Round 1 and 2's answer, and whether the result says less
+// than the bars. The leader is r12Top, the first candidate Round 3 played: on
+// engine 2 the one of the four the bars allow that the Round 1 + Round 2
+// posterior rates highest (Round 3 can report no other identity).
+//   overturned     the result is not the leader
+//   nested down    the result's colours are a proper subset of the leader's
+//   nested up      the leader's colours are a proper subset of the result's
+//   bars say more  the result leaves out a colour whose printed bar is at least
+//                  50 and at least 25 points above every other colour it leaves
+//                  out (so a result of one to three colours; the bars always
+//                  allow the result with that colour added)
+const properSubset = (a, b) => a.length < b.length && a.every((c) => b.includes(c));
+function barsSayMoreColour(r, colorsOf) {
+  const lit = colorsOf[r.recovered];
+  if (!lit || !r.finalShown) return null;
+  const bars = printed(r.finalShown);
+  const out = WUBRG.filter((c) => !lit.includes(c)).sort((a, b) => bars[b] - bars[a]);
+  if (out.length < 2) return null;
+  return bars[out[0]] >= 50 && bars[out[0]] - bars[out[1]] >= 25 ? out[0] : null;
+}
+function shiftFlags(r, colorsOf) {
+  const lead = r.r12Top && colorsOf[r.r12Top], got = r.recovered && colorsOf[r.recovered];
+  return {
+    overturned: lead && got && r.recovered !== r.r12Top ? 1 : 0,
+    nestedDown: lead && got && properSubset(got, lead) ? 1 : 0,
+    nestedUp: lead && got && properSubset(lead, got) ? 1 : 0,
+    barsSayMore: barsSayMoreColour(r, colorsOf) ? 1 : 0,
+  };
+}
+function shiftSummary(runs, colorsOf) {
+  const rs = runs.filter((r) => r.r12Top && r.recovered);
+  const idOf = (cols) => Object.keys(colorsOf).find((id) => colorsOf[id].length === cols.length && cols.every((c) => colorsOf[id].includes(c))) || null;
+  const of = (k) => rs.filter((r) => shiftFlags(r, colorsOf)[k]);
+  const right = (xs, f) => share(xs.filter(f).length, xs.length);
+  const resultRight = (r) => r.recovered === r.trueId, leaderRight = (r) => r.r12Top === r.trueId;
+  const over = of('overturned'), down = of('nestedDown'), up = of('nestedUp'), more = of('barsSayMore');
+  return {
+    respondents: rs.length,
+    leaderRight: right(rs, leaderRight),
+    // the Round 1 + Round 2 leader over all 31 is not one the bars allow (so not played)
+    leaderOutsideBars: share(rs.filter((r) => r.r12Leader && r.r12Leader !== r.r12Top).length, rs.length),
+    overturned: share(over.length, rs.length), overturnedRight: right(over, resultRight), overturnedLeaderRight: right(over, leaderRight),
+    nestedDown: share(down.length, rs.length), nestedDownRight: right(down, resultRight), nestedDownLeaderRight: right(down, leaderRight),
+    nestedUp: share(up.length, rs.length), nestedUpRight: right(up, resultRight), nestedUpLeaderRight: right(up, leaderRight),
+    barsSayMore: share(more.length, rs.length), barsSayMoreRight: right(more, resultRight),
+    // ...and how often the result with that colour added is the true identity
+    barsSayMoreAddedRight: right(more, (r) => idOf([...colorsOf[r.recovered], barsSayMoreColour(r, colorsOf)]) === r.trueId),
   };
 }
 
@@ -632,6 +767,10 @@ function textReport(report, ids, meta) {
   L.push(`Five-colour:                   ${pct(F.recall)} recall (${F.right}/${F.truth}), precision ${pct(F.precision).trim()} (${F.right}/${F.given}), given to ${pct(F.share).trim()} of results`);
   L.push(`                               true five-colour to a four ${pct(F.truthToFour).trim()}, to three colours or fewer ${pct(F.truthToThreeOrFewer).trim()}; printed bars within ${F.band} points: ${pct(F.flat).trim()} of all, ${pct(F.flatTruth).trim()} of true five-colour`);
   L.push(`Early-result offer shown:      ${pct(report.earlyOffer.share)}   precision ${pct(report.earlyOffer.precision).trim()} (${report.earlyOffer.correct}/${report.earlyOffer.count} offered identities right)`);
+  const S = report.shift;
+  L.push(`Round 3 against Round 1 + 2:   lead (the first candidate played) right ${pct(S.leaderRight).trim()}; overturned ${pct(S.overturned).trim()} (right ${pct(S.overturnedRight).trim()}, lead was right ${pct(S.overturnedLeaderRight).trim()})`);
+  L.push(`                               nested down ${pct(S.nestedDown).trim()} (lead was right ${pct(S.nestedDownLeaderRight).trim()}), nested up ${pct(S.nestedUp).trim()} (lead was right ${pct(S.nestedUpLeaderRight).trim()})`);
+  L.push(`Bars say more:                 ${pct(S.barsSayMore)}   (a colour left out printed at 50+ and 25+ above the rest left out; result right ${pct(S.barsSayMoreRight).trim()})`);
   L.push('');
   L.push('Confidence labels       count   share   accuracy');
   for (const k of LABELS) {
@@ -715,6 +854,15 @@ function textComparison(reports, ids, meta, opts) {
   L.push(row('  printed bars within the band', r => r.fiveColour.flat));
   L.push(row('  ...of true five-colour', r => r.fiveColour.flatTruth));
   L.push('');
+  L.push(head('Round 3 against Round 1 + 2'));
+  L.push(row('  lead (first candidate) right', r => r.shift.leaderRight));
+  L.push(row('  overturned', r => r.shift.overturned));
+  L.push(row('  ...result right', r => r.shift.overturnedRight));
+  L.push(row('  nested down', r => r.shift.nestedDown));
+  L.push(row('  ...lead was right', r => r.shift.nestedDownLeaderRight));
+  L.push(row('  nested up', r => r.shift.nestedUp));
+  L.push(row('  bars say more', r => r.shift.barsSayMore));
+  L.push('');
   L.push(head('Confidence labels'));
   for (const k of LABELS) L.push(row(`  ${k} share`, r => (r.confidence[k] || { share: 0 }).share));
   for (const k of LABELS) L.push(row(`  ${k} accuracy`, r => (r.confidence[k] ? r.confidence[k].accuracy : null)));
@@ -762,7 +910,7 @@ function textRound3(reports, ids, meta, opts) {
   const seeds = opts.seeds.length;
   const L = [];
   L.push(`Mana Curve respondent simulation, Round 3 decision variants  p=${params.p}  engine=${params.engine}  n=${opts.n}/identity  seeds=${opts.seeds.join(',')}  neither=${params.neither}${gamingNote(base)}`);
-  L.push(`${base.respondents} respondents per row (${ids.length} identities x ${opts.n} x ${seeds} seed${seeds > 1 ? 's' : ''}); ${new Set(reports.map((r) => r.params.round3Q)).size * models.length * base.respondents} simulated in ${meta.elapsedSeconds}s (${meta.workers} workers, boot ${meta.bootSeconds}s)`);
+  L.push(`${base.respondents} respondents per row (${ids.length} identities x ${opts.n} x ${seeds} seed${seeds > 1 ? 's' : ''}); ${new Set(reports.map((r) => r.params.round3Model)).size * models.length * base.respondents} simulated in ${meta.elapsedSeconds}s (${meta.workers} workers, boot ${meta.bootSeconds}s)`);
   for (const cal of [...new Set(reports.map(calibrationLine).filter(Boolean))]) L.push(cal);
   L.push('In percent. OVERALL ±: two binomial standard errors. Δ: minus the first variant on the same respondents, ± two paired standard errors.');
   L.push('PM: the candidate with the highest final posterior. TW: the tournament winner (getTournamentWinner on the same matches).');
@@ -784,6 +932,14 @@ function textRound3(reports, ids, meta, opts) {
       + `  (${f1(share(s.changedRight, s.changed), 0).trim()} / ${f1(share(s.changedPmRight, s.changed), 0).trim()})`; });
   block('PM and TW disagree', '   share  PM right  TW right  neither',
     (r) => { const s = r.round3; return f1(s.disagreeShare, 8) + f1(s.pmRightWhenDisagree, 10) + f1(s.twRightWhenDisagree, 10) + f1(s.neitherRightWhenDisagree, 9); });
+  const delta = (r, k) => (r.variant === r.vsFirst.variant ? ''.padStart(12)
+    : `${((r.vsFirst[k].diff >= 0 ? '+' : '') + (100 * r.vsFirst[k].diff).toFixed(1)).padStart(6)} ±${(200 * r.vsFirst[k].se).toFixed(1).padEnd(4)}`);
+  block('Round 1+2 leader, R3', ' lead ok  overturned (ok / lead was)   down (lead was / ok)        Δ   up (lead was / ok)  bars say more (ok / +1 ok)        Δ',
+    (r) => { const s = r.shift; return f1(s.leaderRight, 8)
+      + f1(s.overturned, 11) + `  (${f1(s.overturnedRight, 0).trim()} / ${f1(s.overturnedLeaderRight, 0).trim()})`.padEnd(15)
+      + f1(s.nestedDown, 7) + `  (${f1(s.nestedDownLeaderRight, 0).trim()} / ${f1(s.nestedDownRight, 0).trim()})`.padEnd(15) + delta(r, 'nestedDown')
+      + f1(s.nestedUp, 6) + `  (${f1(s.nestedUpLeaderRight, 0).trim()} / ${f1(s.nestedUpRight, 0).trim()})`.padEnd(15)
+      + f1(s.barsSayMore, 6) + `  (${f1(s.barsSayMoreRight, 0).trim()} / ${f1(s.barsSayMoreAddedRight, 0).trim()})`.padEnd(15) + delta(r, 'barsSayMore'); });
   const lab = (r, k) => r.confidence[k] || { share: 0, accuracy: null };
   block('Confidence and next door', '  HIGH share acc   MOD share acc   LOW share acc   next door',
     (r) => LABELS.map((k) => f1(lab(r, k).share, 8) + f1(lab(r, k).accuracy, 6) + ' ').join('') + f1(r.neighbourhoodCoverage, 11));
@@ -792,6 +948,10 @@ function textRound3(reports, ids, meta, opts) {
   L.push('two they played before a clinch; right: how many were the true identity; min ratio: the smallest posterior ratio of such an');
   L.push('identity to the best other candidate). not best: below the best wins-minus-losses. changed: the result is not PM (right: the');
   L.push('new result is true; PM was: PM was true and the change lost it).');
+  L.push('lead: the first candidate Round 3 played, the one of the four the Round 1 + 2 posterior rates highest (ok: it is the true');
+  L.push('identity). overturned: the result is not the lead. down: the result\'s colours are a proper subset of the lead\'s; up: the');
+  L.push('reverse. bars say more: the result leaves out a colour printed at 50 or more and 25 or more above every other colour it');
+  L.push('leaves out (+1 ok: the result with that colour added is the true identity). ok: the result is the true identity.');
   const mismatched = reports.reduce((a, r) => a + r.round3.labelMismatches, 0);
   if (mismatched) { L.push(''); L.push(`${mismatched} results carry a label the recorded facts do not give them: the rule variants' labels are suspect.`); }
   const violations = reports.reduce((a, r) => a + r.contract.violations, 0);
@@ -803,12 +963,12 @@ function textRound3AcrossP(reports, opts) {
   const models = [...new Set(reports.map((r) => r.params.model))];
   const cols = [];
   for (const model of models) for (const p of opts.p) cols.push({ model, p });
-  const L = ['Round 3 variants: overall exact / losing-record share / lost-all share, in percent'];
-  L.push('  ' + 'variant'.padEnd(22) + cols.map((c) => `${c.model.slice(0, 7)} p=${c.p}`.padStart(21)).join(''));
+  const L = ['Round 3 variants: overall exact / losing-record share / lost-all share / nested down / bars say more, in percent'];
+  L.push('  ' + 'variant'.padEnd(22) + cols.map((c) => `${c.model.slice(0, 7)} p=${c.p}`.padStart(34)).join(''));
   for (const v of opts.r3) {
     L.push('  ' + v.name.padEnd(22) + cols.map((c) => {
       const r = reports.find((x) => x.variant === v.name && x.params.model === c.model && x.params.p === c.p);
-      return `${f1(r.overallExact, 0)} / ${f1(r.round3.losingShare, 0)} / ${f1(r.round3.lostAllShare, 0)}`.padStart(21);
+      return `${f1(r.overallExact, 0)} / ${f1(r.round3.losingShare, 0)} / ${f1(r.round3.lostAllShare, 0)} / ${f1(r.shift.nestedDown, 0)} / ${f1(r.shift.barsSayMore, 0)}`.padStart(34);
     }).join(''));
   }
   return L.join('\n');
