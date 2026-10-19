@@ -4,6 +4,37 @@ Newest first. Dates are when the work was committed.
 
 ## 2026-10-19
 
+### Round 3: the 31-answer lists, gate pass 4
+
+The fourth gate reading flagged 26 answers in the eight situations that hold
+an answer for each identity, which a player meets in about one Round 3
+question in five hundred and sees two at a time, and one in the stolen-car
+situation, where Gruul's answer said what Golgari's did. All 27 are
+rewritten as a verdict with at most one plain reason. A reread of the eight
+lists against the rulings, checked by blind readers, rewrote 45 more: eleven
+with "quietly", "calmly", "gently", "simply", "plainly" or "properly";
+fifteen tags and sentimental or motivational lines, eight of them flagged by
+an earlier gate ("Turn it into an adventure", "Their energy keeps me going",
+"Rally everyone"); two winks ("half joking", "The sensible people can
+disapprove"); Abzan's invented "last time it got this bad"; Grixis's
+"Pressure whoever is weakest in the chain", which nobody would pick; Glint
+shopping for "an even better rate" than the best around; Yore's "I'd turn it
+into something new"; and thirteen answers that said what a neighbouring
+identity's said, so a Round 3 could put the two side by side with nothing to
+choose (Dune's "mistakes and all" beside Rakdos's "mess and all", Glint and
+Dimir both pressing the travel company, Mono-Green and Jund both waiting out
+the long game of Commander). Keys, order and counts are as they were, so the
+golden and key fixtures do not move.
+
+- Betrayal, Abzan: "Thirty years of friendship outweighs one slip. It
+  stays." is now "Stand by them. It was one mistake."
+- Festival, Naya: "Get the whole town in to help. Setting up can be the
+  party." is now "Get the whole town in to help."
+- Burnout, Jund: "Get through it. I've come out of worse stretches
+  stronger." is now "Keep going, and don't let anyone see I'm struggling."
+- Stolen car, Gruul: "Get about on foot and by bike till the money comes."
+  is now "Borrow a car off a mate till the insurer pays."
+
 ### Workplace pages: no failing stated as fact
 
 A fifth reader of work mode flagged five lines that stated a failing at
