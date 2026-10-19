@@ -554,7 +554,7 @@ const PROFILES = {
   },
   'AZORIUS':{
     name:'AZORIUS',
-    tag:'Order Through Knowledge',
+    tag:'Wants everything in writing',
     colors:['W','U'],
     philosophy:"You want the rules written down and the same for everyone. You'll wait an extra month for a decision made properly, partly because you'll be the one quoting it afterwards.",
     desc:"You build the process and make sure it applies to everyone equally. Written down properly, it keeps working after you've moved on.",
@@ -568,7 +568,7 @@ const PROFILES = {
   },
   'SELESNYA':{
     name:'SELESNYA',
-    tag:'Together, Slowly',
+    tag:'Never the bad guy',
     colors:['W','G'],
     philosophy:"You won't book a table for eight until all eight have said yes. You like being the one nobody's cross with.",
     desc:"You notice who is struggling before they say anything.",
@@ -582,7 +582,7 @@ const PROFILES = {
   },
   'ORZHOV':{
     name:'ORZHOV',
-    tag:'Rules That Pay',
+    tag:'Remembers who owes what',
     colors:['W','B'],
     philosophy:"You like a clear pecking order, with everyone knowing who decides what. The people who keep it running should be paid properly for it, and you've noticed that includes you.",
     desc:"You have a rule-builder's patience and a player's eye for advantage. The hierarchies you build serve the organisation and serve you, and you see no conflict between the two.",
@@ -596,7 +596,7 @@ const PROFILES = {
   },
   'DIMIR':{
     name:'DIMIR',
-    tag:'Knowing More Than You Say',
+    tag:'Gives nothing away',
     colors:['U','B'],
     philosophy:"You make a point of knowing more than the people you're talking to. Most of it comes from what they leave out, and you keep it until it's worth something.",
     desc:"Most of the time you know what everyone around you is after, but you rarely let on.",
@@ -610,7 +610,7 @@ const PROFILES = {
   },
   'IZZET':{
     name:'IZZET',
-    tag:'Discovery Through Experimentation',
+    tag:"Can't leave an idea alone",
     colors:['U','R'],
     philosophy:"When you get an idea, you build a rough version of it that week. Most of what you know came from the ones that broke, and you don't mind, because they were interesting.",
     desc:"You're curious about how things work and impatient to test your ideas on something real.",
@@ -624,7 +624,7 @@ const PROFILES = {
   },
   'GRUUL':{
     name:'GRUUL',
-    tag:'Power Through Instinct',
+    tag:"Can't stand fuss",
     colors:['R','G'],
     philosophy:"Most new ways of doing things are the old way with a login. You go with your gut and what worked last time, and you're right often enough to keep doing it.",
     desc:"When a plan stops working, you're the one the team sends in. You fix it with methods you already trust, often before anyone has agreed a new plan.",
@@ -638,7 +638,7 @@ const PROFILES = {
   },
   'RAKDOS':{
     name:'RAKDOS',
-    tag:'Freedom Through Chaos',
+    tag:'Never goes home early',
     colors:['B','R'],
     philosophy:"You treat most rules as someone else's attempt to stop your evening. If you want something you go and get it, and the bill, whatever it is, is yours.",
     desc:"Nobody has to guess what you want, because you go after it openly. You also do what you say you'll do.",
@@ -652,7 +652,7 @@ const PROFILES = {
   },
   'GOLGARI':{
     name:'GOLGARI',
-    tag:'Growth Through Decay',
+    tag:'Not one for sentiment',
     colors:['B','G'],
     philosophy:"When something has had its day, you keep whatever's still useful and let the rest go. You've furnished most of a flat from other people's endings, and it doesn't keep you up at night.",
     desc:"You're patient and clear about your own interests. When a project dies, you keep whatever is still useful from it. People come to you after a failure, or when they want to understand the long game.",
@@ -666,7 +666,7 @@ const PROFILES = {
   },
   'SIMIC':{
     name:'SIMIC',
-    tag:'Evolution Through Design',
+    tag:'Always tinkering',
     colors:['G','U'],
     philosophy:"You fix things in small pieces and test each one before you touch the next. It's slower than starting again, but it means the fiddling never has to stop.",
     desc:"You improve things a little at a time, and on purpose.",
@@ -680,7 +680,7 @@ const PROFILES = {
   },
   'BOROS':{
     name:'BOROS',
-    tag:'Justice Through Action',
+    tag:"Fights other people's battles",
     colors:['R','W'],
     philosophy:"You step in the moment something's wrong, at full volume. Somebody has to, and you don't trust anyone else to do it properly.",
     desc:"A loyal team usually follows you, because you're quick to act on what you believe.",
@@ -694,7 +694,7 @@ const PROFILES = {
   },
   'BANT':{
     name:'BANT',
-    tag:'Harmony Through Structure',
+    tag:'Hears everyone out',
     colors:['W','U','G'],
     philosophy:"You make sure both sides of a row get to finish their sentences. It takes longer, and you don't mind, because the quick answer usually gets argued about again in March.",
     desc:"You run the meetings where everyone gets heard and the decision still holds five years later.",
@@ -708,7 +708,7 @@ const PROFILES = {
   },
   'ESPER':{
     name:'ESPER',
-    tag:'Perfection Through Control',
+    tag:'Has already decided',
     colors:['W','U','B'],
     philosophy:"You do all the thinking first, then make the decision on your own. People are welcome to disagree with it afterwards.",
     desc:"You're rarely the warmest person in the room. Your decisions are often still holding up after six months of pressure, and people learn to rely on them.",
@@ -722,7 +722,7 @@ const PROFILES = {
   },
   'GRIXIS':{
     name:'GRIXIS',
-    tag:"Power Through Pressure",
+    tag:'Gets the last word',
     colors:['U','B','R'],
     philosophy:"You think faster and push harder than most people, so you usually leave with what you came for. You'd like to be liked as well, but it's a distant second.",
     desc:"You read a situation faster than most and act on it straight away.",
@@ -736,7 +736,7 @@ const PROFILES = {
   },
   'JUND':{
     name:'JUND',
-    tag:'Survival Through Hunger',
+    tag:'Competes at everything',
     colors:['B','R','G'],
     philosophy:"You trust the instincts that got you this far, and you drop whatever isn't working before it costs you. You've had to start again from nothing once, and you're not doing it twice.",
     desc:"You're at your best when a competitor shows up and there's something to fight for.",
@@ -750,7 +750,7 @@ const PROFILES = {
   },
   'NAYA':{
     name:'NAYA',
-    tag:'Everybody In',
+    tag:'Ropes people in',
     colors:['R','G','W'],
     philosophy:"You think twenty people who care about the same thing can do almost anything. You've spent years finding your twenty, and you ask a lot of them, because you'd give them the same.",
     desc:"People work harder on a plan you're behind, and believe in it more.",
@@ -764,7 +764,7 @@ const PROFILES = {
   },
   'ABZAN':{
     name:'ABZAN',
-    tag:'Endurance Through Tradition',
+    tag:'Has a long memory',
     colors:['W','B','G'],
     philosophy:"You'll put thirty years into something if it's going to outlast you. Anything that won't matter in ten years gets cut, and you'd like your name on what's left.",
     desc:"You build things to last, and you remember who helped and who didn't.",
@@ -778,7 +778,7 @@ const PROFILES = {
   },
   'JESKAI':{
     name:'JESKAI',
-    tag:'Excellence Through Discipline',
+    tag:'Does nothing by halves',
     colors:['U','R','W'],
     philosophy:"You think most of being good at anything is the hours, and you put them in. You've done it for four or five things now, and you know the totals.",
     desc:"Years of practice have made you very good at several things. If someone asks how, you'll explain the method step by step.",
@@ -792,7 +792,7 @@ const PROFILES = {
   },
   'SULTAI':{
     name:'SULTAI',
-    tag:'The Long Game',
+    tag:'Somehow comes out ahead',
     colors:['B','G','U'],
     philosophy:"You get in early, then let a few years do the work. It's the cheapest way to win that you know of.",
     desc:"You keep a patient, careful record of who holds what.",
@@ -806,7 +806,7 @@ const PROFILES = {
   },
   'MARDU':{
     name:'MARDU',
-    tag:'Victory Through Sacrifice',
+    tag:"Doesn't wait for anyone",
     colors:['R','W','B'],
     philosophy:"You decide quickly and give everyone a job, then you go first. Not everyone can keep up, and you've accepted that more easily than they have.",
     desc:"The team moves at your speed, and anyone who can't keep up gets left behind.",
@@ -820,7 +820,7 @@ const PROFILES = {
   },
   'TEMUR':{
     name:'TEMUR',
-    tag:'Whatever Works',
+    tag:'Turns their hand to anything',
     colors:['G','U','R'],
     philosophy:"You use whatever works on the problem in front of you, and drop it the day it stops working. Anything done the same way twice bores you, which is most of the reason.",
     desc:"You change your approach as the situation shifts, usually sooner than the people around you.",
@@ -834,7 +834,7 @@ const PROFILES = {
   },
   'WITCH':{
     name:'FOUR-COLOUR (No Red)',
-    tag:'Perfection Without Haste',
+    tag:'Sleeps on it',
     colors:['W','U','B','G'],
     philosophy:"You take your time over every decision, and most of them still look right ten years on. You've lost money by hurrying before, and you remember exactly how much.",
     desc:"You're the person whose plans are still working in three years. You take urgent requests calmly and decide whether they need any action at all.",
@@ -848,7 +848,7 @@ const PROFILES = {
   },
   'YORE':{
     name:'FOUR-COLOUR (No Green)',
-    tag:"Innovation Without Nostalgia",
+    tag:'Rebuilds things that work',
     colors:['W','U','B','R'],
     philosophy:"You look at most things and see the version you'd build next. You read up on the old way, then build a new one with people sharp enough to argue, mainly so you can beat them.",
     desc:"You build complex systems and rebuild any part that doesn't quite fit, including parts that still work.",
@@ -862,7 +862,7 @@ const PROFILES = {
   },
   'GLINT':{
     name:'FOUR-COLOUR (No White)',
-    tag:'Power Without Permission',
+    tag:'Finds a way round',
     colors:['U','B','R','G'],
     philosophy:"You get the thing done and let other people worry about how it looked. If a rule only protects whoever wrote it, you go round it without losing any sleep.",
     desc:"You have no strong loyalty to the group, so the lines other people stay inside don't hold you.",
@@ -876,7 +876,7 @@ const PROFILES = {
   },
   'DUNE':{
     name:'FOUR-COLOUR (No Blue)',
-    tag:'Action Before Analysis',
+    tag:'Wings it',
     colors:['W','B','R','G'],
     philosophy:"You do the thing and learn from what happens. A lot of planning looks to you like people scared of being wrong, so you make a start and fix things as you go.",
     desc:"You commit on instinct and figure things out in motion, skipping the analysis that would slow you down.",
@@ -890,7 +890,7 @@ const PROFILES = {
   },
   'INK':{
     name:'FOUR-COLOUR (No Black)',
-    tag:'Altruism Without an Angle',
+    tag:"Doesn't keep score",
     colors:['W','U','R','G'],
     philosophy:"You'll work hard for anything that helps somebody else, and you've never used anyone to get ahead. You're proud of that, though it has cost you a few hundred quid over the years.",
     desc:"You help people and build things that serve others, and what's in it for you rarely comes up.",
@@ -904,7 +904,7 @@ const PROFILES = {
   },
   'WUBRG':{
     name:'FIVE-COLOUR',
-    tag:'All of the Above',
+    tag:'Hard to pin down',
     colors:['W','U','B','R','G'],
     philosophy:"You size up a situation first and then become whoever it needs. You've been the sensible one and the one with the van, sometimes on the same weekend.",
     desc:"You can draw on every approach, which makes you either a Renaissance person or a generalist who hasn't picked one yet.",
