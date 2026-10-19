@@ -693,7 +693,7 @@ const PROFILES = {
     name:'BOROS',
     tag:"Fights other people's battles",
     colors:['R','W'],
-    philosophy:"You step in the moment something's wrong, at full volume. Somebody has to, and it may as well be you.",
+    philosophy:"You step in the moment something's wrong, at full volume. Waiting to be asked has never occurred to you.",
     desc:"A loyal team usually follows you, because you're quick to act on what you believe.",
     pubBanter:"You've used the phrase 'hill to die on' about the stationery order.",
     cmd:'Aurelia, the Warleader',
