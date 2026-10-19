@@ -4,6 +4,89 @@ Newest first. Dates are when the work was committed.
 
 ## 2026-10-19
 
+### Workplace pages in the second person
+
+Workplace mode still showed the old result page. Its strengths and shadows
+were anecdotes about some colleague ("Has politely outlasted three reorgs
+and the people who proposed them."), which is the failure the author's own
+note names: the reader becomes a bystander. Its colour cards were headed
+"Who to bring in" and "White colleague", and its picture button said "Make
+an image".
+
+- Every profile now has three strengths and three shadows, said to the
+  reader about a habit they would recognise at work, in the present tense.
+  A shadow is the same trait as the people around you live with it, said so
+  you would not mind your manager reading it, which is what work mode
+  promises. No two of a profile's six lines open the same way. "Has
+  politely outlasted three reorgs and the people who proposed them." is now
+  "Reorganisations come and go, and your desk stays where it was." "Has
+  spotted three of the last five problems first." is now "You usually see a
+  problem coming a week before anyone mentions it." "Will spend a week
+  optimising the decision that needed an afternoon." is now "A decision
+  that needed an afternoon can take you a week."
+- Thirteen profiles had four or five lines in a list; all now have three.
+  The explorer and the dossier print the same lines in both modes, and the
+  dossier's "See Workplace tab for all 3 strengths" prints only for a
+  profile with more than three.
+- The colour cards in workplace mode are headed "Who to ask", with "Find
+  someone strong in each colour you haven't got." under it and each card
+  headed by its colour alone, as on a consumer page. Fourteen card lines
+  spoke like a manager handing out work or a release note ("Bring them in",
+  "Put them in charge of", "Give them the job", "Send them", "commit the
+  team", "write off", "a quick win", "goes live", "ship it"). Eleven now use
+  the consumer page's plain line. Three are work's own: Mono-Green's keeps
+  "the people who joined last", and Selesnya's and Orzhov's put "them"
+  first, because a reader took the consumer wording's "show them" and "let
+  them" for someone else.
+- The rest of the workplace page uses the consumer page's words: "Save it
+  as a picture", "Start again", "Change how the page looks." over the page
+  styles, "⚠ Not for official use." over the disclaimer, and "A solid line
+  means two of your colours get on." in the key. The dashed line's key is
+  workplace mode's own, "A dashed line means one of your colours doesn't
+  get on with a colour you haven't got.", because two readers found the
+  consumer page's "pulls against a missing colour" unclear. A peek next
+  door says "Here's Sultai." and "Make it Sultai", where "Next door: Sultai"
+  and "Appeal: I'm Sultai" stood.
+- The box at the top of a workplace page says what it said, as a person
+  would: "Nobody has tested this, so there's no evidence that it's reliable
+  or that it measures what it says. Use it for fun, or to get people
+  talking about how they like to work. Don't use it to hire or promote
+  anyone, or for any other decision about a person."
+- The share Card in workplace mode shows the first two strengths with
+  nothing over them, as consumer mode shows the first two `you` lines. It
+  used to show three under the placeholder headings "Vigilance",
+  "Resilience" and "Strategic Patience". Two strengths and the philosophy
+  under them fit the Card on all 31, measured in Edge with the page's own
+  fonts; the tightest, four-colour without green, has 17 pixels to spare.
+- Checked blind. Two readers holding the author's rulings (Sonnet and
+  Opus) read all 31 workplace pages and flagged 26 lines between them, two
+  cards and the dashed line's key: Grixis's tone line and Mardu's "holiday
+  requests approved in principle" as things a manager would act on, "the
+  situation" and "gentle" from the voice notes' list, a tag that reversed
+  its line (Orzhov's "never quite forgotten, by you"), "ethical problem"
+  and "documentation" as office register, and pages that made one point
+  twice. Each was rewritten, with lines that shared a shape across pages
+  ("Ask you X and you'll Y", "sounds to you like", "... from you"). A third
+  reader (Opus) read the 42 rewrites in their pages and flagged nine, most
+  of them a page making one point twice, and Jund's "a day to think" as the
+  same joke as its neighbour's "let's sleep on it". A fourth (Sonnet)
+  read the ten pages those rewrites touched and flagged nine more of the
+  same kinds, among them Jund's "this is hard" as a reframe and "quiet" from
+  the voice notes' list. All were rewritten.
+- `tests/visible-copy.test.js` now fails a strength or shadow with no "you"
+  in it, a profile without three of each, two of a profile's six lines
+  opening on the same word ("You" and "Your" as one), any of workplace
+  mode's old labels or its old box, and a workplace colour card that breaks
+  the consumer cards' rules. `tests/render.test.js` holds the new workplace
+  words. Scoring is untouched, `tests/fixtures/golden.json` does not move,
+  the preview pages did not change (they read names, taglines and
+  philosophies), and `RESULT_COPY_VERSION` stays at 7.
+- Left as they were: workplace mode's bars caption and next door's lines,
+  the methodology's round names ("Final Determination"), the dossier's own
+  headings and notes, the front page's "Not For Official Use" box, and the
+  consumer page's dashed-line key and the two consumer card lines the
+  reader found ambiguous, which are consumer copy.
+
 ### Round 1 and 2 questions: the lines the gate reader flagged
 
 A reader holding the author's rulings read all 111 Round 1 and 2 questions
