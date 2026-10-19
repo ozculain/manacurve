@@ -132,6 +132,43 @@ abstract creeds.
   and one closing line; all three are left as they were. In workplace mode
   the share Card's three strengths overflow its text box, as they did before.
 
+### Result pages: the lines fresh readers still flagged
+
+Two fresh readers read all 31 new pages and named the line on each that
+read most like a template, and three readers who took the quiz read their
+own page. The weaker lines stated the type plainly and added the joke
+afterwards, opened on "Your" or ended on a "which" or "usually" tail. On
+Selesnya the philosophy guessed at the reader's past ("You've watched one
+falling-out take five years to mend") and a lasagne stood in for a joke.
+
+- Rewritten in `data.js`: the ten lines both page readers named, Selesnya's
+  philosophy and its line with the lasagne, and seven lines one page reader
+  named that opened on "Your", ended on "which" or described how other
+  people cope with you. That is 18 `you` lines on 18 pages and one
+  philosophy. Each new line is a habit the reader will recognise, with its
+  detail inside the claim ("When a parcel goes missing, you want a name.",
+  "On a lie-in you set the alarm for half eight."), and none guesses at the
+  reader's life.
+- Across the 93 lines, "Your" opens 6 (10 before) and a "which" tail ends
+  10 (12, the author's line among them). "Usually" is in 4 lines and
+  philosophies (6). Eight pages have two lines opening on the same word
+  (14).
+- Kept: "It takes you several lunches to tell anyone bad news.", which both
+  page readers named and the GP who got Selesnya quoted as the truest line
+  on her page, and Selesnya's birthday line, one page reader's best.
+- Blind read: two more fresh readers compared each old line with its new
+  one, in random order. The new line sounded more like a person who knows
+  you in 36 of 38 judgements, and was the one they would send to a friend
+  in 34 (old 3, neither 1). Azorius's middle line lost three of its four
+  judgements to the cleaning rota, so it was written again: two more
+  readers ranked four candidates on that page, and both put "When the bill
+  comes, you work out who had what." first for sounding like a person. Both
+  would still send the rota, and both said it repeats the complaints
+  procedure above it.
+- The Selesnya preview page is rebuilt, since its description is the new
+  philosophy's first sentence. `RESULT_COPY_VERSION` stays at 7, which has
+  not been published. `tests/fixtures/golden.json` does not move.
+
 ### Round 1 and 2 questions: the lines readers flagged, and the thumb on the scale
 
 Four fresh readers (a Commander player, a GP who has never played, a
