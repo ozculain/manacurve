@@ -45,8 +45,8 @@
 // lowest colour" or "made the cut", and saying how far it was ahead of the
 // nearest colour outside only when the line under the label did not count
 // the gap, five colours' one row saying only which colour was weakest; the
-// commander block (player mode only, the banner crediting the art otherwise,
-// in a sentence); the
+// commander block (player mode only, the banner crediting the art otherwise);
+// the
 // colleague cards under Working With Others, on the result and in the
 // explorer: one per missing colour, each line on one identity's page only,
 // none of the traits and jargon readers caught ("You move on instinct",
@@ -768,13 +768,12 @@ const BANTER_LABEL = 'Your friends would put it like this.';
 // and the old buttons. Then the labels three fresh readers heard as a slide
 // deck under the rewritten profiles (CHANGELOG, "Result pages: the labels
 // below the profile"): the status words, the self-help heading, the Title
-// Case buttons, the template credit, the colon key and headlines, the
-// footnote caption. Workplace mode keeps the ones it had.
+// Case buttons, the colon key and headlines, the footnote caption. Workplace mode keeps the ones it had.
 const CONSUMER_GONE = [/^Strengths$/, /^Shadows$/, /^Natural Roles$/, /^Working With Others$/, /^Who to bring in$/, /^View Full Breakdown$/, /^Make an image$/,
   /^(?:White|Blue|Black|Red|Green) colleague$/, /^Colleagues strong in\b/,
-  /^Locked in$/, /^Leaning$/, /^Still shuffling$/, /^Jobs you'd be good at$/, /^Who you need around you$/, /^Make a picture$/,
+  /^Locked in$/, /^Leaning$/, /^Still shuffling$/, /^Who you need around you$/, /^Make a picture$/,
   /^Retake$/, /^Explore All 31 Types$/, /^How Colours Interact$/, /^Page style$/, /^Pub banter$/,
-  /^Card art: /, /^Commander · /, /^Solid line: /, /^Dashed line: /, /^Splash \w+: /, /^Cut the \w+: /, /^⚠ Not For Official Use$/,
+  /^Commander · /, /^Solid line: /, /^Dashed line: /, /^Splash \w+: /, /^Cut the \w+: /, /^⚠ Not For Official Use$/,
   /^How often you picked each colour when it was offered\.$/, /^The results one colour away from yours\.$/, /^People strong in the colours\b/];
 
 // ---------- collecting what is on screen ----------
@@ -1169,11 +1168,11 @@ run('visible-copy', async (t) => {
       cardsByPage[id] = [...d.querySelectorAll('#relations-detail .mc-gap-card .mc-gap-card__gap')].map((el) => el.textContent.trim());
       // The commander block, player mode only, with "Your commander is
       // <card>." in the banner; otherwise no block, and the banner credits
-      // the art in a sentence.
+      // the art ("Card art: <card>").
       const desc = text('#cmd-desc-aside'), banner = text('#res-banner-commander');
       const cmdRight = gaming
         ? shown('#res-cmd-aside') && desc === P[id].cmdDesc && text('#cmd-title-aside') === 'Commander' && text('#cmd-name-aside') === P[id].cmd && banner === `Your commander is ${P[id].cmd}.`
-        : !shown('#res-cmd-aside') && desc === '' && banner === `The picture is from the Magic card ${P[id].cmd}.`;
+        : !shown('#res-cmd-aside') && desc === '' && banner === `Card art: ${P[id].cmd}`;
       if (!cmdRight) cmdIssues.push(`${id}: "${banner}" / "${desc}"`);
       if (!gaming && /\b(?:mana|graveyard|battlefield|creature|library|token|counter|upkeep|combat)\b/i.test(desc + ' ' + text('#res-idcard'))) cmdIssues.push(`${id}: card words in plain mode`);
       // The colleague cards: one per missing colour, each with its own line.
@@ -1213,7 +1212,7 @@ run('visible-copy', async (t) => {
       doorIssues.filter((p) => /how far ahead|counts again/.test(p)).length === 0 && wellRows > 0, doorIssues.filter((p) => /how far ahead|counts again/.test(p)).slice(0, 4).join(' | ') || `${wellRows} rows`);
     ok(`result (${modeName}): units: the line under the label and next door give every gap in points, the gap between the two bars as printed, and never in answers (all 31, seven bar shapes: ${gapsGiven} gaps given)`,
       unitIssues.length === 0 && gapsGiven > 0, unitIssues.slice(0, 4).join(' | '));
-    ok(`result (${modeName}): the commander block is ${gaming ? 'the card text, under "Your commander is <card>." in the banner' : 'gone, and the banner credits the art to the card in a sentence'}, for all 31`, cmdIssues.length === 0, cmdIssues.slice(0, 4).join(' | '));
+    ok(`result (${modeName}): the commander block is ${gaming ? 'the card text, under "Your commander is <card>." in the banner' : 'gone, and the banner credits the art to the card'}, for all 31`, cmdIssues.length === 0, cmdIssues.slice(0, 4).join(' | '));
     ok(`result (${modeName}): one colleague card per missing colour, each with a line, none of the traits readers caught and no sentence on "You", for all 31`,
       gapIssues.length === 0, gapIssues.slice(0, 4).join(' | '));
     ok(`result (${modeName}): the legend names only the lines drawn, and the theme switcher is its label and three names`, legendIssues.length === 0, legendIssues.slice(0, 4).join(' | '));

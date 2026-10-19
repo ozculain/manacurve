@@ -199,12 +199,12 @@ const LABELS = {
   MODERATE: { consumer: 'One or two other results came close.', workplace: 'Leaning' },
   LOW: { consumer: 'You could easily have come out as something else.', workplace: 'Still shuffling' },
 };
-// The banner names the card: the commander in player mode, the art's source
-// otherwise, as a sentence on a consumer page. Only player mode has the
-// commander block beside the jobs.
+// The banner names the card: the commander in player mode, in a sentence,
+// and the art's source otherwise. Only player mode has the commander block
+// beside the jobs.
 const BANNER_CARD = {
   player: (card) => `Your commander is ${card}.`,
-  plain: (card) => `The picture is from the Magic card ${card}.`,
+  plain: (card) => `Card art: ${card}`,
   workplace: (card) => `Card art: ${card}`,
 };
 // [4] The bars' title by mode; the caption by audience.
@@ -216,7 +216,7 @@ const BARS_CAPTION = {
 // The words around the profile on a consumer page, where workplace mode keeps
 // its labels (RESULT_COPY.frame): checked by text, so a change is a decision.
 const CONSUMER_FRAME = {
-  'roles-title': "You'd do well in jobs like these.",
+  'roles-title': "Jobs you'd be good at",
   'res-others-title': 'Who to ask',
   'res-image-btn': 'Save it as a picture',
   'res-breakdown-btn': 'Show the workings',
@@ -292,8 +292,10 @@ function checkRender(win, h, c, audience, player, threw, errors) {
   const frame = aud === 'consumer' ? CONSUMER_FRAME : WORKPLACE_FRAME;
   const wrongFrame = Object.entries(frame).filter(([id, want]) => el(id) && text(id) !== want).map(([id]) => `${id} "${text(id)}"`);
   need(wrongFrame.length === 0 && Object.keys(frame).every((id) => el(id)), 'frame labels: ' + wrongFrame.join(' / '));
+  // The jobs heading is a heading in both audiences and keeps its heading style.
   const styled = ['roles-title', 'res-counter-label', 'theme-switch-label', 'conf-badge'].filter((id) => el(id).classList.contains('mc-said'));
-  need(styled.length === (aud === 'consumer' ? 4 : 0), `sentence styling on ${JSON.stringify(styled)} (${aud})`);
+  need(JSON.stringify(styled) === JSON.stringify(aud === 'consumer' ? ['res-counter-label', 'theme-switch-label', 'conf-badge'] : []),
+    `sentence styling on ${JSON.stringify(styled)} (${aud})`);
   const cardHeading = d.querySelector('#relations-detail .mc-relations-detail__heading');
   need(aud === 'consumer' ? !cardHeading : !!cardHeading && cardHeading.textContent.trim() === 'Who to bring in', `colour cards' own heading "${cardHeading ? cardHeading.textContent : ''}"`);
   const heads = [...d.querySelectorAll('#relations-detail .mc-gap-card__head')].map((x) => x.textContent.trim());

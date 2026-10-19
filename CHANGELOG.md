@@ -28,11 +28,17 @@ lines above it are, on a consumer page only. Workplace mode is unchanged.
   when it came up." For players the title is "Your mana pool".
 - The joke box is labelled "Your friends would put it like this.", where
   "Pub banter" stood.
-- Jobs. "You'd do well in jobs like these." leads into the list, and the
-  list is in sentence case ("Farming, conservation, facilities"). Words in
-  capitals keep them (HR, R&D, UX). `data.js` is not touched.
-- The picture credit. "The picture is from the Magic card Omnath, Locus of
-  Mana." For players, "Your commander is Omnath, Locus of Mana."
+- Jobs. The list is in sentence case ("Farming, conservation, facilities")
+  under its heading, "Jobs you'd be good at", as before. Words in capitals
+  keep them (HR, R&D, UX). `data.js` is not touched.
+- The picture credit is "Card art: Omnath, Locus of Mana", as before. For
+  players the banner says "Your commander is Omnath, Locus of Mana."
+- Two readers judged the final 28 pairs blind: the new line won 35 to 7 on
+  "a person wrote it" and was preferred in 75% of decided pairs. Both
+  preferred the old line in two pairs, and those went back: the jobs heading
+  over "You'd do well in jobs like these." ("flattering filler") and the
+  credit over "The picture is from the Magic card Omnath, Locus of Mana." ("a
+  wordy explanation").
 - Next door. The line by the heading is "If this isn't quite you, try one
   colour more or less." A player's row is a sentence ("Splash white and
   you're Selesnya.", "Cut the Swamps and you're Mono-Blue."). The row for
@@ -73,7 +79,7 @@ lines above it are, on a consumer page only. Workplace mode is unchanged.
   that prints any of the old labels, and a consumer peek with a "Label:
   value" heading or button, and its next-door checker reads the new words.
   `journey.test.js` follows the new label. Run against the previous build,
-  `render.test.js` fails 28 of its 58 checks and `visible-copy.test.js` 24
+  `render.test.js` fails 28 of its 58 checks and `visible-copy.test.js` 23
   of its 160.
 - A blind pre-read. Two more fresh readers (a GP who has never played and a
   copywriter who plays) compared the 30 old and new lines, each with where

@@ -11479,8 +11479,9 @@ const RESULT_COPY = {
   // (.mc-said). The picture button never says "share": the banner's Share is
   // the one Share on the page. (Not in the drafts.)
   frame: {
-    // The phrase that leads into the jobs; the jobs follow in sentence case (rolesFor).
-    roles: { consumer: "You'd do well in jobs like these.", workplace: 'Natural Roles' },
+    // The heading over the jobs, which follow in sentence case (rolesFor). Two
+    // blind readers preferred it to the sentence tried in its place.
+    roles: { consumer: "Jobs you'd be good at", workplace: 'Natural Roles' },
     detailRoles: { consumer: "Jobs you'd be good at", workplace: 'Natural roles' },
     // The divider over the colour wheel and the colour cards. In consumer mode
     // it is the cards' own heading, so renderRelations prints no second one.
@@ -11555,12 +11556,12 @@ const RESULT_COPY = {
   // art credited to the card in the banner and no commander block: card text
   // means nothing to someone who doesn't play, and the line that stood in for
   // it ("The Magic: The Gathering card matched to ...") read, the same on
-  // every page, as machine-written. The credit is a sentence on a consumer
-  // page ("Card art: <card>" read as a template field); workplace mode keeps
-  // it. {card} is the card's name. (Not in the drafts.)
+  // every page, as machine-written. Two blind readers preferred "Card art:
+  // <card>", a standard credit, to a sentence tried in its place. {card} is
+  // the card's name. (Not in the drafts.)
   commander: {
     title: 'Commander',
-    banner: { player: 'Your commander is {card}.', plain: 'The picture is from the Magic card {card}.', workplace: 'Card art: {card}' }
+    banner: { player: 'Your commander is {card}.', plain: 'Card art: {card}' }
   },
 
   // [10] Commander mana base, player mode only, at the foot of the commander
@@ -11799,16 +11800,15 @@ function audienceKey() {
 
 // The headings, labels and buttons around the profile, in the audience's
 // words (RESULT_COPY.frame). The breakdown button says what its next tap
-// does. On a consumer page the labels that are sentences there (the jobs'
-// lead-in, the closing-line box's label, the page-style switcher's) are
-// styled as sentences (.mc-said); workplace mode keeps its labels as they
-// were, the switcher's from PLAY_COPY.
+// does. On a consumer page the labels that are sentences there (the
+// closing-line box's label, the page-style switcher's) are styled as
+// sentences (.mc-said); workplace mode keeps its labels as they were, the
+// switcher's from PLAY_COPY.
 function renderFrameLabels() {
   const F = RESULT_COPY.frame, aud = audienceKey();
   const set = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
   const said = (id) => { const el = document.getElementById(id); if (el) el.classList.toggle('mc-said', aud === 'consumer'); };
   set('roles-title', F.roles[aud]);
-  said('roles-title');
   set('detail-roles-title', F.detailRoles[aud]);
   set('res-others-title', F.others[aud]);
   set('rel-legend-ally-text', F.legendAlly[aud]);
