@@ -140,17 +140,32 @@ of these, or several joined with `+`:
   the page now applies (`ROUND3_LOSING_RECORD_MARGIN`, `ROUND3_NO_WINS_MARGIN`).
   Rules joined with `+` are tried in order; the first that changes the result
   decides it.
+- `once`, `pre` and `h2h` change how the record rules (`lostall`, `losing`,
+  `net`) read the record, for every such rule in the variant. `once` exempts a
+  posterior maximum that played only one match (a clinch ended Round 3 before
+  it could play again); `h2h` one whose only loss was to the runner-up; `pre`
+  reads the margin for a posterior maximum that won no match on the posterior
+  before Round 3 (Rounds 1 and 2 alone), which has not yet counted the matches
+  it lost. `once=X` and `h2h=X` exempt it only while its final posterior is at
+  least X. A losing record with one loss is 0-1, so `h2h` exempts a subset of
+  what `once` does.
 
 A rule acts after the last answer, so it changes no question: it is applied to
-what the page recorded when it decided (each candidate's final posterior and
-record, the matches, the tournament winner, and the label the page would give
-each candidate as the result), and costs no extra page run. The run fails if a
+what the page recorded when it decided (each candidate's final posterior, its
+posterior before Round 3, its record, the matches, the tournament winner, and
+the label the page would give each candidate as the result), and costs no
+extra page run. The run fails if a
 result's label differs from the recorded one. The report gives, per p, each
 variant's exact recovery per type and overall (with two binomial standard
 errors, per seed, and the change from the first variant on the same
 respondents with two paired standard errors); the reported identity's Round 3
 record (losing, lost every match, of those the ones that lost three or more,
-and how often they were right, not the best record); where the posterior
+and how often they were right, not the best record); the results that are not
+the posterior maximum, split by whether it played one match or more, with how
+often it, and the result, was the true identity in each; each label's accuracy
+and the losing-record and lost-all shares against the first variant on the
+same respondents, with two paired standard errors (a label's accuracy, a
+ratio, by the delta method); where the posterior
 maximum and the tournament winner disagree, how
 often each was the true identity; what Round 3 did to Round 1 and 2's answer
 (below), with the changes in the nested downgrades and in "bars say more" from
