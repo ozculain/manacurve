@@ -4,6 +4,74 @@ Newest first. Dates are when the work was committed.
 
 ## 2026-10-19
 
+### Result pages: the last flagged lines, the workplace labels and eight taglines
+
+A reader checked the live result pages, the workplace labels and the
+front-page taglines against the author's rulings and flagged 27 things: ten
+lines on the result pages, nine labels in workplace mode and eight taglines.
+
+- Six result-page lines told the reader a past they may not have had: a dog
+  that died eleven years ago, a cousin not spoken to since a wedding in the
+  nineties, more instruments than most bands, a flat furnished from other
+  people's endings, a row everyone has since agreed about, and a time you
+  started again from nothing. Each is now a habit in the present tense.
+  "There's a cousin you haven't spoken to since a wedding in the nineties,
+  and you were right." is now "Once someone crosses you, you're civil to
+  them at weddings and nowhere else."
+- Two said something plain and then took it back with "until". The turn is
+  inside one sentence now, or gone: "You always do what you say you'll do,
+  even the things you only said for a laugh."
+- Gruul's line needed grandad's car for its joke. It is now "You make up
+  your mind about people on the spot, and it takes them years to change it."
+- Esper's line winked ("which, you'll have noticed, is always") and now says
+  it straight: "Things run smoothly when you're in charge, which is always."
+- The same reread of all 93 lines and 31 philosophies found twelve more of
+  the same kinds, and they changed too. Five philosophies told the reader
+  their past (four-colour without red, Jeskai, Naya, four-colour without
+  black, five-colour). Three lines rested on an invented story or a number
+  of years (Simic's garden, the shelf on four-colour without green, the
+  Christmas shopping on four-colour without white). Four lines had a second
+  sentence that undid the first (Grixis, Azorius, Abzan, Simic). Most
+  philosophies kept their first sentence, which is what a shared link shows.
+  Two did not: Jund's opened on "the instincts that got you this far", close
+  to "Old habits got me this far", which the author had already turned down,
+  and four-colour without black's said "you've never used anyone to get
+  ahead". So `r/JUND.html` and `r/INK.html` were rebuilt, and the other 29
+  preview pages did not change.
+- Workplace mode. Its headings and buttons now use the consumer page's
+  words: "Jobs you'd be good at" (on the result and in the explorer), "Show
+  the workings" and "Hide the workings", "See all 31 results" and "See how
+  the colours get on". The divider over the colour wheel is "Your colours
+  and the rest", because the cards under it keep a heading of their own.
+  The status words are "Clear-cut", "Fairly clear" and "Close call" where
+  "Locked in", "Leaning" and "Still shuffling" stood, on the page and on the
+  Scorecard share image. "Leaning" was not flagged, and changed so the three
+  still read as a set. A workplace appeal records the new word.
+  `RESULT_COPY_VERSION` stays at 7, which has not been published.
+- Eight taglines went: seven winked at the reader ("Is this a joke?
+  Probably.", "Yes, you can blame your colour identity" and five more) and
+  one was a list of three in matched rhythm. None was rewritten or replaced,
+  and 32 remain.
+- Not changed: the taglines under each result's name (another branch),
+  scoring, the question pools, `PLAY_COPY`, the closing lines in the "Your
+  friends would put it like this." box, the author's two Mono-Blue lines, and
+  the workplace colour cards' heading and labels ("Who to bring in", "White
+  colleague"), which live in `COLOR_GAPS_COPY`. The front page's own "How
+  Colours Interact" button and the title of the screen it opens are as they
+  were.
+- A fresh reader, given the author's rulings, read the 22 new lines and the
+  new workplace labels. It passed the labels and flagged five lines. Four
+  were written again and passed a second reading (Jund, four-colour without
+  black, four-colour without white, Azorius). Esper's "Things run smoothly
+  when you're in charge, which is always." stays: the reader thought the
+  page already says it twice, and the line only lost its wink.
+- Tests. `render.test.js` holds the new workplace words, and a new check
+  holds the breakdown button's two states and the explorer's jobs heading in
+  both audiences. `visible-copy.test.js` fails a workplace page, with the
+  workings open, that prints any of the old words. Run against the previous
+  build, `render.test.js` fails 13 of its 60 checks and `visible-copy.test.js`
+  1 of its 161. `tests/fixtures/golden.json` does not move.
+
 ### Result pages: the labels below the profile
 
 Three fresh readers went through the rewritten quiz and agreed that the

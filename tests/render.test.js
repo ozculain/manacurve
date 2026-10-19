@@ -195,9 +195,9 @@ function offIdentityLands(line, colours, map) {
 // is stacked under them (tests/visible-copy.test.js holds the block to that,
 // and the line to its bars).
 const LABELS = {
-  HIGH: { consumer: 'Nothing else came close.', workplace: 'Locked in' },
-  MODERATE: { consumer: 'One or two other results came close.', workplace: 'Leaning' },
-  LOW: { consumer: 'You could easily have come out as something else.', workplace: 'Still shuffling' },
+  HIGH: { consumer: 'Nothing else came close.', workplace: 'Clear-cut' },
+  MODERATE: { consumer: 'One or two other results came close.', workplace: 'Fairly clear' },
+  LOW: { consumer: 'You could easily have come out as something else.', workplace: 'Close call' },
 };
 // The banner names the card: the commander in player mode, in a sentence,
 // and the art's source otherwise. Only player mode has the commander block
@@ -213,8 +213,11 @@ const BARS_CAPTION = {
   consumer: 'The bars show how often you picked each colour when it came up.',
   workplace: 'How often you picked each colour when it was offered.',
 };
-// The words around the profile on a consumer page, where workplace mode keeps
-// its labels (RESULT_COPY.frame): checked by text, so a change is a decision.
+// The words around the profile by audience (RESULT_COPY.frame): checked by
+// text, so a change is a decision. Since 19 October 2026 workplace mode says
+// its headings and buttons in the consumer page's words too, apart from the
+// divider over the colour wheel; its legend, picture button, Retake, switcher
+// label and disclaimer heading are as they were.
 const CONSUMER_FRAME = {
   'roles-title': "Jobs you'd be good at",
   'res-others-title': 'Who to ask',
@@ -230,13 +233,13 @@ const CONSUMER_FRAME = {
   'res-counter-label': 'Your friends would put it like this.',
 };
 const WORKPLACE_FRAME = {
-  'roles-title': 'Natural Roles',
-  'res-others-title': 'Working With Others',
+  'roles-title': "Jobs you'd be good at",
+  'res-others-title': 'Your colours and the rest',
   'res-image-btn': 'Make an image',
-  'res-breakdown-btn': 'View Full Breakdown',
+  'res-breakdown-btn': 'Show the workings',
   'res-retake-btn': 'Retake',
-  'res-explore-btn': 'Explore All 31 Types',
-  'res-interactions-btn': 'How Colours Interact',
+  'res-explore-btn': 'See all 31 results',
+  'res-interactions-btn': 'See how the colours get on',
   'theme-switch-label': 'Page style',
   'res-warning-label': '⚠ Not For Official Use',
   'rel-legend-ally-text': 'Solid line: two of your colours that get on.',
@@ -266,7 +269,7 @@ function checkRender(win, h, c, audience, player, threw, errors) {
   need(text('res-tag') === p.tag.trim(), 'res-tag');
   need(text('res-typeline-name') === h.RESULT_COPY.names[c.id], 'res-typeline-name');
   // The commander block: the card's name and text in player mode; none
-  // otherwise, and Natural Roles takes the full width.
+  // otherwise, and the jobs take the full width.
   if (playerCopy) {
     need(visible('res-cmd-aside') && text('cmd-title-aside') === 'Commander' && text('cmd-name-aside') === (p.cmd || '').trim() && text('cmd-name-aside') !== '', 'commander block');
     need(text('cmd-desc-aside') === (p.cmdDesc || '').trim() && text('cmd-desc-aside') !== '', `cmd-desc-aside "${text('cmd-desc-aside')}"`);
@@ -321,7 +324,7 @@ function checkRender(win, h, c, audience, player, threw, errors) {
   need(text('identity-exp') === p.philosophy.trim(), 'philosophy text');
   // 8. One typeline on the page: the card's in player mode, the "Personality"
   //    divider's in plain mode. The scoring version closes the methodology,
-  //    under "View Full Breakdown", in every mode, and is not in the footer.
+  //    under "Show the workings", in every mode, and is not in the footer.
   const collector = `MC1 • EN • ${String(Object.keys(h.PROFILES).indexOf(c.id) + 1).padStart(3, '0')}/031`;
   if (playerCopy) {
     need(visible('res-idcard') && text('res-typeline') === c.typeline, `typeline "${text('res-typeline')}" != "${c.typeline}"`);
@@ -972,7 +975,24 @@ run('render', async (t) => {
   {
     const { win, errors } = await renderCase(DIMIR, 'consumer', false, seed++);
     win.showShareScreen();
-    t.ok('scorecard shows the label word', text(win, 'sc-conf') === 'Leaning' && errors.length === 0, `"${text(win, 'sc-conf')}"`);
+    t.ok('scorecard shows the label word', text(win, 'sc-conf') === 'Fairly clear' && errors.length === 0, `"${text(win, 'sc-conf')}"`);
+    win.close();
+  }
+
+  // The breakdown button says what its next tap does, and the explorer's jobs
+  // heading is the result page's, in both audiences (RESULT_COPY.frame).
+  for (const audience of ['consumer', 'workplace']) {
+    const { win, errors, threw } = await renderCase(DIMIR, audience, false, seed++);
+    const said = [text(win, 'res-breakdown-btn')];
+    win.toggleBreakdown();
+    said.push(text(win, 'res-breakdown-btn'));
+    win.toggleBreakdown();
+    said.push(text(win, 'res-breakdown-btn'));
+    win.showExplorer();
+    win.showDetail('GOLGARI');
+    said.push(text(win, 'detail-roles-title'));
+    const want = ['Show the workings', 'Hide the workings', 'Show the workings', "Jobs you'd be good at"];
+    t.ok(`the breakdown button and the explorer's jobs heading (${audience})`, !threw && errors.length === 0 && JSON.stringify(said) === JSON.stringify(want), JSON.stringify(said));
     win.close();
   }
 });
