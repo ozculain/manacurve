@@ -2,6 +2,70 @@
 
 Newest first. Dates are when the work was committed.
 
+## 2026-10-19
+
+### Result pages in the second person
+
+Fresh readers in four rounds called the result pages "a person with a
+template". Every line under Strengths and Shadows was a note about some
+colleague in the third person ("Has spotted three of the last five problems
+first."), so the reader watched an anecdote about someone else. Three more
+readers this week heard the page's headings as HR or recruitment wording,
+and a blind register test judged the "You believe ..." philosophies to be
+abstract creeds.
+
+- Profiles (`data.js`). Each of the 31 has a `you` field: three lines said to
+  the reader's face, each the flattering version of a trait and the same
+  trait as the people around you live with it ("Your friends write your
+  address in pencil."). Mono-Blue opens on the author's own two lines, word
+  for word, with the only em dash in any profile. No line names a colour or
+  uses a word from the game, and no line opens on the same word as the one
+  above it.
+- Philosophies. All 31 are rewritten in two sentences: what you do, in
+  concrete terms (forty reviews of a kettle, forty quid, a pecking order,
+  the one with the van), then the reason, said plainly. None opens on "You
+  believe" now.
+- Consumer result page. The `you` lines stand where Strengths and Shadows
+  stood, as one list with no heading. A peek next door shows the
+  neighbour's lines, and the share Card shows the first two: two fit the
+  Card with its closing line, three pushed that line out on most pages, and
+  the three strengths it showed before overflowed on every page. Workplace
+  mode, the explorer and the dossier keep strengths and shadows.
+- Headings and colour cards, consumer mode only. "Natural Roles" is "Jobs
+  you'd be good at", "Working With Others" is "Who you need around you",
+  "Who to bring in" is "Who to ask", "Make an image" is "Make a picture" and
+  "View Full Breakdown" is "Show the workings". Each colour card is headed by
+  the colour alone ("White", never "White colleague"), and the 32 card lines
+  that talked like a workplace (bring them in, check that, hand them the
+  numbers, costed, the hard thing, write off, the team, a promotion) have
+  plain versions in `COLOR_GAPS_FOR_FUN`. Workplace mode is unchanged.
+- Disclaimer. The "Not For Official Use" box, on the welcome screen and the
+  result, opens on the author's line ("It is not validated and it is not
+  science. ...") and keeps the line about hiring and firing under it, in
+  both modes.
+- `RESULT_COPY_VERSION` is 7, so an appeal made on these pages records it.
+  The preview pages are rebuilt, since their description is each
+  philosophy's first sentence. `tests/fixtures/golden.json` does not move.
+- Tests. `render.test.js` checks the `you` list in consumer mode and the two
+  columns in workplace mode, the headings, buttons and card heads by
+  audience, the peek and the Card's rules text. `visible-copy.test.js` reads
+  the `you` lines off every page and holds them to two to four a page, no
+  repeated opening, no colour, no word from the game, "you" in every line
+  and the author's lines first on Mono-Blue; it reads strengths and shadows
+  from the explorer instead; a consumer page fails on any of the old work
+  headings, and its disclaimer must open on the author's line. The content
+  and rhythm checkers read past the author's two lines, as they read past an
+  identity name.
+- Measured. The voice lint on the plain export flagged 49 of 996 lines
+  (4.9%) before and 37 of 947 (3.9%) after; 31 of those are the line about
+  hiring and firing, kept as it was. Sentence-length variation (cv) went
+  from 0.886 to 0.908. Five pages read as the person given that result had
+  no line about anyone else.
+- Not done. Two card lines with no work wording still use "whether"
+  (Mono-Blue's and Mono-Red's), and the lint still flags the Dimir tagline
+  and one closing line; all three are left as they were. In workplace mode
+  the share Card's three strengths overflow its text box, as they did before.
+
 ## 2026-10-18
 
 ### Questions: second naive-reader round
