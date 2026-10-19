@@ -1920,6 +1920,17 @@ body[data-theme="borderless"] .mc-debug { box-shadow: none; }
 .mc-verdict-status__rate { flex: 1; min-width: 220px; }
 .mc-verdict-status__line { font-family: var(--f-body); font-size: 14px; line-height: 1.55; color: var(--ink); margin: 2px 0 0; }
 
+/* Consumer result page: a label that became a sentence reads as one, in the
+   italic of the captions around it, not in tracked capitals (renderFrameLabels
+   and renderConfidenceLabel add .mc-said; workplace mode keeps its labels).
+   The confidence sentence keeps its coloured dot and leads the line beside it. */
+.mc-said { font-family: var(--f-flavor); font-style: italic; font-weight: 500; text-transform: none; letter-spacing: normal; font-size: 16px; line-height: 1.5; color: var(--ink-muted); }
+.mc-confidence.mc-said { align-items: flex-start; border: 0; padding: 0; font-family: var(--f-body); font-style: normal; font-weight: 600; font-size: 14px; line-height: 1.55; color: var(--ink); }
+.mc-confidence.mc-said .mc-confidence__dot { flex-shrink: 0; margin-top: 7px; }
+.mc-verdict-status .mc-confidence.mc-said { flex-shrink: 1; }
+.mc-result__banter-label.mc-said { font-size: 15px; color: var(--gilt); }
+.mc-theme-switch__label.mc-said { flex-basis: 100%; text-align: center; font-weight: 500; font-size: 15px; color: var(--ink-faded); }
+
 /* No rarity mark: the frames theme drew confidence as a rarity gem (mythic,
    rare, uncommon). Rarity waits for calibrated accuracy, so frames uses the
    same round status dot as the other themes. */
@@ -2570,9 +2581,9 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
              .mc-result__banter CSS, and on the pages whose profile has no
              banter). Its label is text, not a CSS ::before, so a screen reader
              or a copied page keeps it: without it the line read as the last
-             of the shadows. -->
+             of the shadows. The label is a sentence (RESULT_COPY.frame.banter). -->
         <div class="mc-result__banter" id="res-counter-section">
-          <div class="mc-result__banter-label" id="res-counter-label">Pub banter</div>
+          <div class="mc-result__banter-label" id="res-counter-label">Your friends would put it like this.</div>
           <p id="res-counter">Banter</p>
         </div>
 
@@ -2618,7 +2629,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
           <button type="button" class="mc-nextdoor__all" id="next-door-all" onclick="openAppealExplorer()"></button>
         </section>
 
-        <!-- Working With Others (consumer mode: "Who you need around you") — pentagon diagram + per-colour callouts -->
+        <!-- Working With Others (consumer mode: "Who to ask", the colour cards' own heading) — pentagon diagram + per-colour callouts -->
         <div class="mc-typeline" style="margin-top: 36px;"><span class="mc-typeline__diamond"></span><span id="res-others-title">Working With Others</span><span class="mc-typeline__diamond"></span></div>
         <div class="mc-relations-wrap">
           <div class="mc-relations-svg-wrap">
@@ -2660,10 +2671,11 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
               </g>
             </svg>
             <!-- A key to the diagram. Each line shows only when the diagram
-                 draws its kind of line (renderRelations). -->
+                 draws its kind of line (renderRelations); its words are the
+                 audience's (RESULT_COPY.frame.legendAlly, legendEnemy). -->
             <div class="mc-relations-legend">
-              <div id="rel-legend-ally"><span class="mc-rel-legend-mark mc-rel-legend-mark--ally"></span> Solid line: two of your colours that get on.</div>
-              <div id="rel-legend-enemy"><span class="mc-rel-legend-mark mc-rel-legend-mark--enemy"></span> Dashed line: one of your colours and a missing colour that pulls against it.</div>
+              <div id="rel-legend-ally"><span class="mc-rel-legend-mark mc-rel-legend-mark--ally"></span> <span id="rel-legend-ally-text">A solid line means two of your colours get on.</span></div>
+              <div id="rel-legend-enemy"><span class="mc-rel-legend-mark mc-rel-legend-mark--enemy"></span> <span id="rel-legend-enemy-text">A dashed line means one of yours pulls against a missing colour.</span></div>
             </div>
           </div>
           <div class="mc-relations-detail" id="relations-detail">
@@ -2673,11 +2685,11 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
 
         <!-- Action row. Share itself is the one button beside the identity in
              the banner (#res-banner-share); a second Share here read as a
-             duplicate. -->
+             duplicate. The words are the audience's (renderFrameLabels). -->
         <div style="display:flex;gap:12px;margin-top:32px;flex-wrap:wrap;">
           <button class="mc-btn mc-btn--primary" id="res-image-btn" onclick="showShareScreen()">Make an image</button>
           <button class="mc-btn" id="res-breakdown-btn" onclick="toggleBreakdown()">View Full Breakdown</button>
-          <button class="mc-btn mc-btn--ghost" onclick="restart()">Retake</button>
+          <button class="mc-btn mc-btn--ghost" id="res-retake-btn" onclick="restart()">Retake</button>
         </div>
       </div>
 
@@ -2872,8 +2884,8 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
       <p class="hidden" id="restart-text"></p>
 
       <div style="display: flex; gap: 12px; justify-content: center; margin-top: 32px; flex-wrap: wrap;">
-        <button onclick="showExplorer()" class="mc-btn mc-btn--ghost">Explore All 31 Types</button>
-        <button onclick="showInteractions()" class="mc-btn mc-btn--ghost">How Colours Interact</button>
+        <button onclick="showExplorer()" class="mc-btn mc-btn--ghost" id="res-explore-btn">Explore All 31 Types</button>
+        <button onclick="showInteractions()" class="mc-btn mc-btn--ghost" id="res-interactions-btn">How Colours Interact</button>
       </div>
       <p style="margin-top: 12px; font-size: 12px; color: var(--ink-faded); font-family: var(--f-flavor); font-style: italic; text-align: center;" id="explorer-hint"></p>
 
@@ -2881,7 +2893,8 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
            choice persists (localStorage); Card Frames plays the next quiz
            face-down and earns its frame with the result. It has no note:
            two notes explaining Card Frames read to first-time readers as
-           leftover settings text. -->
+           leftover settings text. A consumer page labels it with a sentence
+           (RESULT_COPY.frame.themeLabel, over PLAY_COPY's on load). -->
       <div class="mc-theme-switch" id="theme-switch" role="group" aria-labelledby="theme-switch-label">
         <span class="mc-theme-switch__label" id="theme-switch-label" data-copy="results.themeLabel"></span>
         <button type="button" class="mc-theme-switch__opt is-selected" id="theme-gilded" onclick="selectTheme('gilded')" aria-pressed="true" data-copy="results.themes.gilded"></button>
@@ -2890,7 +2903,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
       </div>
 
       <div class="mc-warning" style="margin-top: 32px;">
-        <div class="mc-warning__label">⚠ Not For Official Use</div>
+        <div class="mc-warning__label" id="res-warning-label">⚠ Not For Official Use</div>
         <p style="font-family: var(--f-body); font-size: 13px; line-height: 1.6; color: var(--ink-muted); margin-bottom: 8px;">It is not validated and it is not science. We're telling you for legal reasons, and also because it's true and it's started to bother us.</p>
         <p style="font-family: var(--f-body); font-size: 13px; line-height: 1.6; color: var(--ink-muted); margin-bottom: 0;">Do not use this for hiring, firing or any other decision about a person.</p>
       </div>
@@ -4532,11 +4545,13 @@ const COLOR_GAPS_FOR_FUN = {
 };
 
 // The copy around the colleague cards, on the result and in the explorer,
-// by audience: consumer mode in plain words, workplace mode as it was.
+// by audience: consumer mode in plain words, workplace mode as it was. On a
+// consumer result page the heading is the section's divider
+// (RESULT_COPY.frame.others), so the cards open on the line under it.
 const COLOR_GAPS_COPY = {
   heading: { consumer: 'Who to ask', workplace: 'Who to bring in' },
   sub: {
-    result: { consumer: "People strong in the colours you don't have.", workplace: 'Colleagues strong in the colours outside yours.' },
+    result: { consumer: "Find someone strong in each colour you haven't got.", workplace: 'Colleagues strong in the colours outside yours.' },
     explorer: { consumer: "People strong in the colours this type doesn't have.", workplace: "Colleagues strong in the colours this type doesn't hold." }
   },
   // Each card's head beside its pip: the colour alone in consumer mode. One
@@ -4595,11 +4610,12 @@ function renderRelations() {
   if (legendEnemy) legendEnemy.classList.toggle('hidden', !document.querySelector('#screen-results .rel-edge-enemy.is-lit-enemy'));
 
   // The right-column detail: who to bring in, one card per missing colour,
-  // or for five colours one plain paragraph.
+  // or for five colours one plain paragraph. A consumer page's divider over
+  // the section already says "Who to ask", so the column has no heading.
   const el = document.getElementById('relations-detail');
   if (!el) return;
   const G = COLOR_GAPS_COPY, aud = audienceKey();
-  let html = `<div class="mc-relations-detail__heading">${G.heading[aud]}</div>`;
+  let html = aud === 'consumer' ? '' : `<div class="mc-relations-detail__heading">${G.heading[aud]}</div>`;
   if (missing.length === 0) {
     html += `<div class="mc-relations-detail__empty">${G.five.result}</div>`;
   } else {
@@ -11288,6 +11304,9 @@ function revealResults() {
 // door shows the neighbour's, every philosophy is rewritten, and the headings
 // and colour cards around them are in plain words (RESULT_COPY.frame,
 // COLOR_GAPS_COPY). Workplace mode keeps strengths, shadows and its headings.
+// Still 7, which has not been published: the labels, captions and buttons
+// below the profile on a consumer page are sentences and plain actions too
+// (19 October 2026), and an appeal records the sentence it was shown.
 const RESULT_COPY_VERSION = 7;
 
 const RESULT_COPY = {
@@ -11351,24 +11370,30 @@ const RESULT_COPY = {
   collector: 'MC{s} • EN • {n}/{total}',
   versionNote: 'Scoring version {s}.',
 
-  // [4] Confidence labels, the same in both modes (links keep
-  // c=high|moderate|low). The label and the one line under it (`confidence`
-  // below) are all the confidence block says: nothing about how the result
-  // was reached is stacked under them.
+  // [4] Confidence labels (links keep c=high|moderate|low). A consumer page
+  // says how clear the result was in one sentence (`said`): three fresh
+  // readers heard "Locked in", "Leaning" and "Still shuffling" as an app's
+  // status lights. Workplace mode and the Scorecard share image keep `word`.
+  // The label and the one line under it (`confidence` below) are all the
+  // confidence block says: nothing about how the result was reached is
+  // stacked under them.
   // PHASE 5, UNUSED: `phase5` (and phase5SmallPrint under it) waits for
   // recalibrated figures: {pct} is the share of results like this that held up,
   // {date} when that was measured. Nothing reads them before Phase 5.
   labels: {
     HIGH: {
       word: 'Locked in',
+      said: 'Nothing else came close.',
       phase5: 'About {pct}% of results like this held up when tested.'
     },
     MODERATE: {
       word: 'Leaning',
+      said: 'One or two other results came close.',
       phase5: 'About {pct}% of results like this held up when tested.'
     },
     LOW: {
       word: 'Still shuffling',
+      said: 'You could easily have come out as something else.',
       phase5: 'About {pct}% of results like this held up when tested, so read next door too.'
     }
   },
@@ -11442,24 +11467,47 @@ const RESULT_COPY = {
     neither: 'You chose neither quite often, so this result rests on fewer answers.'
   },
 
-  // The headings and buttons around the profile, by audience (renderFrameLabels):
-  // consumer mode in words a person would say, workplace mode as it was. Three
-  // readers on a consumer page heard "Natural Roles" as sorting people into
-  // job titles, "Working With Others" as an appraisal form and "View Full
-  // Breakdown" as a dashboard. The picture button never says "share": the
-  // banner's Share is the one Share on the page. (Not in the drafts.)
+  // The headings, labels and buttons around the profile, by audience
+  // (renderFrameLabels): consumer mode in words a person would say, workplace
+  // mode as it was. Three readers on a consumer page heard "Natural Roles" as
+  // sorting people into job titles, "Working With Others" as an appraisal form
+  // and "View Full Breakdown" as a dashboard; three more, after the profiles
+  // were rewritten, heard their replacements as a slide deck ("Who you need
+  // around you", "Make a picture", "Show the workings", the Title Case
+  // buttons). Where a consumer label became a sentence, it is styled as one
+  // (.mc-said). The picture button never says "share": the banner's Share is
+  // the one Share on the page. (Not in the drafts.)
   frame: {
-    roles: { consumer: "Jobs you'd be good at", workplace: 'Natural Roles' },
+    // The phrase that leads into the jobs; the jobs follow in sentence case (rolesFor).
+    roles: { consumer: "You'd do well in jobs like these.", workplace: 'Natural Roles' },
     detailRoles: { consumer: "Jobs you'd be good at", workplace: 'Natural roles' },
-    others: { consumer: 'Who you need around you', workplace: 'Working With Others' },
-    image: { consumer: 'Make a picture', workplace: 'Make an image' },
-    breakdown: { consumer: 'Show the workings', workplace: 'View Full Breakdown' },
-    breakdownHide: { consumer: 'Hide the workings', workplace: 'Hide Full Breakdown' }
+    // The divider over the colour wheel and the colour cards. In consumer mode
+    // it is the cards' own heading, so renderRelations prints no second one.
+    others: { consumer: 'Who to ask', workplace: 'Working With Others' },
+    // The key to the colour wheel; each line shows only when its kind of line is drawn.
+    legendAlly: { consumer: 'A solid line means two of your colours get on.', workplace: 'Solid line: two of your colours that get on.' },
+    legendEnemy: { consumer: 'A dashed line means one of yours pulls against a missing colour.', workplace: 'Dashed line: one of your colours and a missing colour that pulls against it.' },
+    // The label on the closing-line box (consumer mode only; workplace mode hides the box).
+    banter: { consumer: 'Your friends would put it like this.', workplace: 'Pub banter' },
+    image: { consumer: 'Save it as a picture', workplace: 'Make an image' },
+    breakdown: { consumer: 'Show how we did it', workplace: 'View Full Breakdown' },
+    breakdownHide: { consumer: 'Hide it again', workplace: 'Hide Full Breakdown' },
+    retake: { consumer: 'Start again', workplace: 'Retake' },
+    explore: { consumer: 'See all 31 results', workplace: 'Explore All 31 Types' },
+    interactions: { consumer: 'See how the colours get on', workplace: 'How Colours Interact' },
+    // The page-style switcher's label. Workplace mode keeps PLAY_COPY's
+    // (results.themeLabel); the three theme names stay as they are.
+    themeLabel: { consumer: 'Change how the page looks.', workplace: null },
+    // The disclaimer box at the foot of the result. The welcome screen has its own.
+    warning: { consumer: '⚠ Not for official use.', workplace: '⚠ Not For Official Use' }
   },
 
-  // [4] The bars: the title by mode, one caption for both.
-  barsTitle: { player: 'Your Mana Pool', plain: 'Your colours' },
-  barsCaption: 'How often you picked each colour when it was offered.',
+  // [4] The bars: the title by mode; the caption by audience.
+  barsTitle: { player: 'Your mana pool', plain: 'Your colours' },
+  barsCaption: {
+    consumer: 'Each bar is how often you picked that colour when it came up.',
+    workplace: 'How often you picked each colour when it was offered.'
+  },
 
   // [2] Rules-text strip, player mode only, one line per identity.
   // Bracketed reminder text prints in italics, as on a card; mana is in braces.
@@ -11500,17 +11548,18 @@ const RESULT_COPY = {
     WUBRG: 'Changeling. You have every ability. Each works at a fifth of its strength.'
   },
 
-  // The commander. Player mode: "Commander · <card>" in the banner and,
-  // beside Natural Roles, "Commander", the card's name and what it does
+  // The commander. Player mode: "Your commander is <card>." in the banner
+  // and, beside the jobs, "Commander", the card's name and what it does
   // (PROFILES cmdDesc), with the mana base under it. Everyone else gets the
   // art credited to the card in the banner and no commander block: card text
   // means nothing to someone who doesn't play, and the line that stood in for
   // it ("The Magic: The Gathering card matched to ...") read, the same on
-  // every page, as machine-written. {card} is the card's name. (Not in the
-  // drafts.)
+  // every page, as machine-written. The credit is a sentence on a consumer
+  // page ("Card art: <card>" read as a template field); workplace mode keeps
+  // it. {card} is the card's name. (Not in the drafts.)
   commander: {
     title: 'Commander',
-    banner: { player: 'Commander · {card}', plain: 'Card art: {card}' }
+    banner: { player: 'Your commander is {card}.', plain: 'The picture is from the Magic card {card}.', workplace: 'Card art: {card}' }
   },
 
   // [10] Commander mana base, player mode only, at the foot of the commander
@@ -11560,10 +11609,16 @@ const RESULT_COPY = {
   // easily" stood and read, in the slot for the colour you would drop, as
   // the opposite. Five colours have no colour outside, so their down row
   // says only which colour was lowest.
+  // On a consumer page (player and plain) each row is said as a person would
+  // say it: the player's headline is a sentence ("Splash white and you're
+  // Selesnya.", where "Splash white: Selesnya." stood), and the down row
+  // calls the colour the weaker or weakest of yours ("Green was the weaker of
+  // your two."): a fresh reader heard "the lower of your two colours" as
+  // computed output. Workplace mode keeps the rows as they were.
   nextDoor: {
     up: {
       player: {
-        head: 'Splash {colour}: {identity}.',
+        head: "Splash {colour} and you're {identity}.",
         close: 'Your {colour} was {n} short.',
         well: 'Your {colour} was {n} short.',
         level: 'Your {colour} tied with {other}.',
@@ -11575,18 +11630,33 @@ const RESULT_COPY = {
         well: '{Colour} was {n} short.',
         level: '{Colour} tied with {other}.',
         above: '{Colour} finished above {other}.'
+      },
+      workplace: {
+        head: "With {colour} as well, you'd be {identity}.",
+        close: '{Colour} was {n} short.',
+        well: '{Colour} was {n} short.',
+        level: '{Colour} tied with {other}.',
+        above: '{Colour} finished above {other}.'
       }
     },
     down: {
       player: {
-        head: 'Cut the {lands}: {identity}.',
+        head: "Cut the {lands} and you're {identity}.",
         close: '{Colour} was {rank}.',
-        well: '{Colour} was {rank}, {n} ahead of {other}.',
+        well: '{Colour} was {rank}, though still {n} ahead of {other}.',
         level: '{Colour} tied with {other}.',
         above: '{Colour} finished below {other}.',
         lowest: '{Colour} was {rank}.'
       },
       plain: {
+        head: "Without {colour}, you'd be {identity}.",
+        close: '{Colour} was {rank}.',
+        well: '{Colour} was {rank}, though still {n} ahead of {other}.',
+        level: '{Colour} tied with {other}.',
+        above: '{Colour} finished below {other}.',
+        lowest: '{Colour} was {rank}.'
+      },
+      workplace: {
         head: "Without {colour}, you'd be {identity}.",
         close: '{Colour} was {rank}.',
         well: '{Colour} was {rank}, {n} ahead of {other}.',
@@ -11595,8 +11665,11 @@ const RESULT_COPY = {
         lowest: '{Colour} was {rank}.'
       }
     },
-    // {rank}, by how many colours the result holds.
-    rank: { 2: 'the lower of your two colours', 3: 'the lowest of your three colours', 4: 'the lowest of your four colours', 5: 'the lowest of your five colours' }
+    // {rank}, by audience and by how many colours the result holds.
+    rank: {
+      consumer: { 2: 'the weaker of your two', 3: 'the weakest of your three', 4: 'the weakest of your four', 5: 'the weakest of your five' },
+      workplace: { 2: 'the lower of your two colours', 3: 'the lowest of your three colours', 4: 'the lowest of your four colours', 5: 'the lowest of your five colours' }
+    }
   },
 
   // [9] Appeal the ruling, from the Next door rows. Each row has its own peek
@@ -11608,14 +11681,21 @@ const RESULT_COPY = {
   // workplace mode, where the appeal stays private).
   appeal: {
     // The line that leads into the rows (the drafts' "Button" row). The plain
-    // one says what the rows are, so it reads on its own.
-    prompt: { player: 'Appeal this ruling', plain: 'The results one colour away from yours.' },
-    peekHeading: 'Next door: {identity}',
+    // one says what the rows are for, so it reads on its own; workplace mode
+    // keeps its caption.
+    prompt: {
+      player: 'Appeal this ruling',
+      plain: "If this isn't quite you, try one colour more or less.",
+      workplace: 'The results one colour away from yours.'
+    },
+    // The peek's heading and its appeal button, by audience: a consumer page
+    // has no "Label: value" headings or buttons.
+    peekHeading: { consumer: "Here's {identity}.", workplace: 'Next door: {identity}' },
     peekNote: {
       player: 'The ruling stands unless you appeal.',
       plain: 'Your result stays the same unless you appeal.'
     },
-    button: "Appeal: I'm {identity}",
+    button: { consumer: 'Make it {identity}', workplace: "Appeal: I'm {identity}" },
     after: {
       player: 'Overturned on appeal. The original ruling stays on the record.',
       plain: 'Appeal noted. Your original result is kept too.'
@@ -11703,7 +11783,10 @@ function isPlayerMode() {
   return state.gamingFamiliar === true && (state.audience || 'consumer') !== 'workplace';
 }
 
+// Player or plain copy; an entry with its own `workplace` copy gives that in
+// workplace mode (which otherwise reads the plain copy).
 function copyVariant(entry) {
+  if (audienceKey() === 'workplace' && entry.workplace !== undefined) return entry.workplace;
   return isPlayerMode() ? entry.player : entry.plain;
 }
 
@@ -11713,17 +11796,33 @@ function audienceKey() {
   return (state.audience || 'consumer') === 'workplace' ? 'workplace' : 'consumer';
 }
 
-// The headings and buttons around the profile, in the audience's words
-// (RESULT_COPY.frame). The breakdown button says what its next tap does.
+// The headings, labels and buttons around the profile, in the audience's
+// words (RESULT_COPY.frame). The breakdown button says what its next tap
+// does. On a consumer page the labels that are sentences there (the jobs'
+// lead-in, the closing-line box's label, the page-style switcher's) are
+// styled as sentences (.mc-said); workplace mode keeps its labels as they
+// were, the switcher's from PLAY_COPY.
 function renderFrameLabels() {
   const F = RESULT_COPY.frame, aud = audienceKey();
   const set = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
+  const said = (id) => { const el = document.getElementById(id); if (el) el.classList.toggle('mc-said', aud === 'consumer'); };
   set('roles-title', F.roles[aud]);
+  said('roles-title');
   set('detail-roles-title', F.detailRoles[aud]);
   set('res-others-title', F.others[aud]);
+  set('rel-legend-ally-text', F.legendAlly[aud]);
+  set('rel-legend-enemy-text', F.legendEnemy[aud]);
+  set('res-counter-label', F.banter[aud]);
+  said('res-counter-label');
   set('res-image-btn', F.image[aud]);
   const detail = document.getElementById('legacy-detail');
   set('res-breakdown-btn', (!detail || detail.classList.contains('hidden') ? F.breakdown : F.breakdownHide)[aud]);
+  set('res-retake-btn', F.retake[aud]);
+  set('res-explore-btn', F.explore[aud]);
+  set('res-interactions-btn', F.interactions[aud]);
+  set('theme-switch-label', F.themeLabel[aud] || playCopyAt('results.themeLabel'));
+  said('theme-switch-label');
+  set('res-warning-label', F.warning[aud]);
 }
 
 function toggleBreakdown() {
@@ -11788,13 +11887,18 @@ function shareDareText() {
   return fillCopy(id === r.identity ? S.line : S.appealed, { identity: identityName(id), mark: RESULT_COPY.appeal.mark });
 }
 
-// The identity's roles, less the corporate jargon in consumer mode.
+// The identity's roles, less the corporate jargon in consumer mode, where
+// they read as a list a person wrote, in sentence case: "Startups, research,
+// product design". A word in capitals keeps them (HR, R&D, UX). Workplace mode
+// prints PROFILES as it is. Fresh readers took the Title Case list for a
+// LinkedIn headline.
 function rolesFor(id) {
   const all = ((PROFILES[id] && PROFILES[id].roles) || '').split(',').map(r => r.trim()).filter(Boolean);
   if ((state.audience || 'consumer') === 'workplace') return all.join(', ');
   const hidden = new Set(ROLES_HIDDEN_FOR_FUN.map(r => r.toLowerCase()));
   const kept = all.filter(r => !hidden.has(r.toLowerCase()));
-  return (kept.length ? kept : all).join(', ');
+  const list = (kept.length ? kept : all).join(', ').replace(/\b[A-Z][a-z]+/g, (w) => w.toLowerCase());
+  return list.charAt(0).toUpperCase() + list.slice(1);
 }
 
 // "MC1 • EN • 009/031"
@@ -11804,17 +11908,24 @@ function collectorNumber(id) {
   return fillCopy(RESULT_COPY.collector, { s: resultVersion('scoringVersion'), n: pad(ids.indexOf(id) + 1), total: pad(ids.length) });
 }
 
-// The label words replace "High/Moderate/Low Confidence"; scoring still owns
-// result.confidence and the links keep c=high|moderate|low. The line under the
-// label is confidenceLine(): a gap in the bars' own points, and no rate of
-// results that held up until Phase 5 (see RESULT_COPY.labels).
+// The label's words replace "High/Moderate/Low Confidence"; scoring still
+// owns result.confidence and the links keep c=high|moderate|low. A consumer
+// page says it in a sentence about how clear the result was, styled as one
+// (.mc-said); workplace mode keeps the label words. The line under the label
+// is confidenceLine(): a gap in the bars' own points, and no rate of results
+// that held up until Phase 5 (see RESULT_COPY.labels).
+function confidenceLabelText(level = confidenceLevel()) {
+  const label = RESULT_COPY.labels[level];
+  return audienceKey() === 'consumer' ? label.said : label.word;
+}
+
 function renderConfidenceLabel() {
   const level = confidenceLevel();
-  const label = RESULT_COPY.labels[level];
   const badge = document.getElementById('conf-badge');
   badge.dataset.level = level.toLowerCase();
+  badge.classList.toggle('mc-said', audienceKey() === 'consumer');
   badge.innerHTML = '<span class="mc-confidence__dot"></span><span class="mc-confidence__word"></span>';
-  badge.querySelector('.mc-confidence__word').textContent = label.word;
+  badge.querySelector('.mc-confidence__word').textContent = confidenceLabelText(level);
   document.getElementById('conf-base-rate').textContent = confidenceLine(resultShownId(), activationMap(), level);
 }
 
@@ -11964,16 +12075,18 @@ function nextDoorFor(id, act) {
   return rows.filter(row => row.id);
 }
 
+// A row's headline and reason: player mode's, the plain ones, or in
+// workplace mode its own (RESULT_COPY.nextDoor).
 function nextDoorLine(row, player) {
-  const N = RESULT_COPY.nextDoor;
-  const t = N[row.dir][player ? 'player' : 'plain'];
+  const N = RESULT_COPY.nextDoor, aud = audienceKey();
+  const t = N[row.dir][player ? 'player' : aud === 'workplace' ? 'workplace' : 'plain'];
   const colour = RESULT_COPY.colourWords[row.colour];
   const vars = {
     colour, Colour: colour.charAt(0).toUpperCase() + colour.slice(1),
     lands: RESULT_COPY.landWords[row.colour], identity: identityName(row.id),
     other: row.other ? RESULT_COPY.colourWords[row.other] : '',
     n: row.said.points !== undefined ? pointsText(row.said.points) : '',
-    rank: N.rank[row.held] || ''
+    rank: N.rank[aud][row.held] || ''
   };
   return { head: fillCopy(t.head, vars), why: fillCopy(t[row.said.kind], vars) };
 }
@@ -12086,12 +12199,12 @@ function peekPanelHTML(id) {
       + `<div><div class="mc-result__col-title">${htmlText(A.peekColumns.str)}</div><ul class="mc-result__list">${list(prof.str)}</ul></div>`
       + `<div><div class="mc-result__col-title">${htmlText(A.peekColumns.weak)}</div><ul class="mc-result__list">${list(prof.weak)}</ul></div>`
       + `</div>`;
-  return `<div class="mc-nextdoor__panel-head">${htmlText(fillCopy(A.peekHeading, { identity: name }))}</div>`
+  return `<div class="mc-nextdoor__panel-head">${htmlText(fillCopy(A.peekHeading[audienceKey()], { identity: name }))}</div>`
     + `<p class="mc-nextdoor__panel-note">${htmlText(copyVariant(A.peekNote))}</p>`
     + `<p class="mc-nextdoor__peek-philosophy">${htmlText(generateIdentityExplanation(id, state.activationSorted || []))}</p>`
     + traits
     + `<div class="mc-nextdoor__actions">`
-    + `<button type="button" class="mc-btn mc-btn--primary" id="appeal-btn" onclick="appealTo('${id}')">${htmlText(fillCopy(A.button, { identity: name }))}</button>`
+    + `<button type="button" class="mc-btn mc-btn--primary" id="appeal-btn" onclick="appealTo('${id}')">${htmlText(fillCopy(A.button[audienceKey()], { identity: name }))}</button>`
     + `<button type="button" class="mc-btn mc-btn--ghost" id="peek-back-btn" onclick="endPeek()">${htmlText(fillCopy(A.back, { identity: identityName(resultShownId()) }))}</button>`
     + `</div>`;
 }
@@ -12164,7 +12277,7 @@ function appealTo(id) {
     chosen: id,
     shown: nextDoorShown.slice(),
     copyVersion: RESULT_COPY_VERSION,
-    labelShown: RESULT_COPY.labels[confidenceLevel()].word,
+    labelShown: confidenceLabelText(),
     timeToAppealMs: Math.max(0, Date.now() - appealTimer.at)
   };
   showResults();
@@ -12263,7 +12376,7 @@ function renderAppealBar() {
     ? `<span class="mc-appeal-bar__name">${htmlText(identityName(pick))}</span>`
     : `<span class="mc-appeal-bar__prompt">${htmlText(A.pickPrompt)}</span>`;
   const go = pick
-    ? `<button type="button" class="mc-btn mc-btn--primary" id="appeal-pick-btn" onclick="appealFromExplorer('${pick}')">${htmlText(fillCopy(A.button, { identity: identityName(pick) }))}</button>`
+    ? `<button type="button" class="mc-btn mc-btn--primary" id="appeal-pick-btn" onclick="appealFromExplorer('${pick}')">${htmlText(fillCopy(A.button[audienceKey()], { identity: identityName(pick) }))}</button>`
     : '';
   const privateNote = (state.audience || 'consumer') === 'workplace'
     ? `<span class="mc-appeal-bar__private">${htmlText(A.workplaceNote)}</span>` : '';
@@ -12483,7 +12596,7 @@ function showResults() {
   const barsTitle = document.getElementById('res-bars-title');
   if (barsTitle) barsTitle.textContent = copyVariant(RESULT_COPY.barsTitle);
   const barsCaption = document.getElementById('res-bars-caption');
-  if (barsCaption) barsCaption.textContent = RESULT_COPY.barsCaption;
+  if (barsCaption) barsCaption.textContent = RESULT_COPY.barsCaption[audienceKey()];
   const profileBars = document.getElementById('res-profile-bars');
   if (profileBars && state.activationSorted) {
     const colorNames = { W: 'WHITE', U: 'BLUE', B: 'BLACK', R: 'RED', G: 'GREEN' };
@@ -12544,8 +12657,9 @@ function showResults() {
   document.getElementById('restart-text').textContent = 'Retake it to get the result you wanted instead of who you actually are?';
   document.getElementById('explorer-hint').textContent = '';
   
-  // The confidence block: the label ("Locked in" / "Leaning" / "Still
-  // shuffling") and its one line, then at most one quality line
+  // The confidence block: the label (a sentence on a consumer page, "Nothing
+  // else came close."; "Locked in" / "Leaning" / "Still shuffling" in
+  // workplace mode) and its one line, then at most one quality line
   // (renderQualityWarning, called above). Nothing else is stacked under it.
   // The guards that lower the label (a Round 3 cycle, a scenario
   // contradiction, a context disagreement) stay in the scoring code; the page

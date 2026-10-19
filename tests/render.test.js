@@ -33,12 +33,13 @@ const CASES = [
     line: 'Red was well ahead of every other colour.',
     typeline: 'Legendary Creature — Goblin Warrior',
     rules: 'Trample, haste. At the beginning of the end step, sacrifice this creature.',
-    rolesForFun: 'Startups, Sales, Crisis Response, Creative Industries, Frontline Operations, Live Events',
+    rolesForFun: 'Startups, sales, crisis response, creative industries, frontline operations, live events',
     share: { consumer: "I'm Mono-Red. What are you?", workplace: "I'm Mono-Red. What are you?" },
     manaBase: '37 lands: 36 Mountain and a Hanweir Battlements.',
     nextDoor: {
-      player: [['up', 'RAKDOS', 'Splash black: Rakdos.', 'Your black was 34 points short.']],
+      player: [['up', 'RAKDOS', "Splash black and you're Rakdos.", 'Your black was 34 points short.']],
       plain: [['up', 'RAKDOS', "With black as well, you'd be Rakdos.", 'Black was 34 points short.']],
+      workplace: [['up', 'RAKDOS', "With black as well, you'd be Rakdos.", 'Black was 34 points short.']],
     },
     result: { allResults: [], round3Data: { matchHistory: [] } },
   },
@@ -48,13 +49,15 @@ const CASES = [
     line: 'Blue and black were well clear of the other three colours.',
     typeline: 'Legendary Creature — Human Ninja',
     rules: 'Whenever a player says something, surveil 1. You have shroud.',
-    rolesForFun: 'Strategic Planning, Competitive Intelligence, Investigative Journalism',
+    rolesForFun: 'Strategic planning, competitive intelligence, investigative journalism',
     share: { consumer: "I'm Dimir. What are you?", workplace: "I'm Dimir. What are you?" },
     manaBase: '37 lands: Command Tower, Watery Grave, Polluted Delta, Drowned Catacomb, 19 Island, 14 Swamp.',
     nextDoor: {
-      player: [['up', 'SULTAI', 'Splash green: Sultai.', 'Your green was 33 points short.'],
-        ['down', 'MONO-U', 'Cut the Swamps: Mono-Blue.', 'Black was the lower of your two colours, 33 points ahead of green.']],
+      player: [['up', 'SULTAI', "Splash green and you're Sultai.", 'Your green was 33 points short.'],
+        ['down', 'MONO-U', "Cut the Swamps and you're Mono-Blue.", 'Black was the weaker of your two, though still 33 points ahead of green.']],
       plain: [['up', 'SULTAI', "With green as well, you'd be Sultai.", 'Green was 33 points short.'],
+        ['down', 'MONO-U', "Without black, you'd be Mono-Blue.", 'Black was the weaker of your two, though still 33 points ahead of green.']],
+      workplace: [['up', 'SULTAI', "With green as well, you'd be Sultai.", 'Green was 33 points short.'],
         ['down', 'MONO-U', "Without black, you'd be Mono-Blue.", 'Black was the lower of your two colours, 33 points ahead of green.']],
     },
     result: {
@@ -77,13 +80,15 @@ const CASES = [
     line: 'White and blue were well behind your three colours, but your answers fitted more than one result.',
     typeline: 'Legendary Creature — Dragon',
     rules: 'Trample. At the beginning of each quarter, sacrifice your weakest creature.',
-    rolesForFun: 'Sales, Startups, Professional Sport, Commodity Trading',
+    rolesForFun: 'Sales, startups, professional sport, commodity trading',
     share: { consumer: "I'm Jund. What are you?", workplace: "I'm Jund. What are you?" },
     manaBase: "37 lands: Command Tower, Ziatora's Proving Ground, Blood Crypt, Stomping Ground, Overgrown Tomb, 11 Mountain, 11 Forest, 10 Swamp.",
     nextDoor: {
-      player: [['up', 'DUNE', 'Splash white: Four-colour (no blue).', 'Your white was 42 points short.'],
-        ['down', 'GRUUL', 'Cut the Swamps: Gruul.', 'Black was the lowest of your three colours, 42 points ahead of white.']],
+      player: [['up', 'DUNE', "Splash white and you're Four-colour (no blue).", 'Your white was 42 points short.'],
+        ['down', 'GRUUL', "Cut the Swamps and you're Gruul.", 'Black was the weakest of your three, though still 42 points ahead of white.']],
       plain: [['up', 'DUNE', "With white as well, you'd be Four-colour (no blue).", 'White was 42 points short.'],
+        ['down', 'GRUUL', "Without black, you'd be Gruul.", 'Black was the weakest of your three, though still 42 points ahead of white.']],
+      workplace: [['up', 'DUNE', "With white as well, you'd be Four-colour (no blue).", 'White was 42 points short.'],
         ['down', 'GRUUL', "Without black, you'd be Gruul.", 'Black was the lowest of your three colours, 42 points ahead of white.']],
     },
     result: {
@@ -102,13 +107,15 @@ const CASES = [
     line: 'White was well behind your four colours.',
     typeline: 'Legendary Creature — Ogre Wizard',
     rules: "Trample, cascade. Phasing (When the bill arrives, treat this creature as though it doesn't exist.)",
-    rolesForFun: 'Venture Capital, Trading, Startups, Activist Investing',
+    rolesForFun: 'Venture capital, trading, startups, activist investing',
     share: { consumer: "I'm Four-colour (no white). What are you?", workplace: "I'm Four-colour (no white). What are you?" },
     manaBase: '37 lands: Command Tower, Mana Confluence, City of Brass, Exotic Orchard, six shocks, four Triomes and 23 basics.',
     nextDoor: {
-      player: [['up', 'WUBRG', 'Splash white: Five-colour.', 'Your white was 38 points short.'],
-        ['down', 'GRIXIS', 'Cut the Forests: Grixis.', 'Green was the lowest of your four colours, 38 points ahead of white.']],
+      player: [['up', 'WUBRG', "Splash white and you're Five-colour.", 'Your white was 38 points short.'],
+        ['down', 'GRIXIS', "Cut the Forests and you're Grixis.", 'Green was the weakest of your four, though still 38 points ahead of white.']],
       plain: [['up', 'WUBRG', "With white as well, you'd be Five-colour.", 'White was 38 points short.'],
+        ['down', 'GRIXIS', "Without green, you'd be Grixis.", 'Green was the weakest of your four, though still 38 points ahead of white.']],
+      workplace: [['up', 'WUBRG', "With white as well, you'd be Five-colour.", 'White was 38 points short.'],
         ['down', 'GRIXIS', "Without green, you'd be Grixis.", 'Green was the lowest of your four colours, 38 points ahead of white.']],
     },
     result: {
@@ -125,12 +132,13 @@ const CASES = [
     line: 'All five colours finished within 6 points of each other.',
     typeline: 'Legendary Creature — Human Noble',
     rules: 'Changeling. You have every ability. Each works at a fifth of its strength.',
-    rolesForFun: 'Consulting, Chief of Staff, Facilitation, Interpreting, General Practice',
+    rolesForFun: 'Consulting, chief of staff, facilitation, interpreting, general practice',
     share: { consumer: "I'm Five-colour. What are you?", workplace: "I'm Five-colour. What are you?" },
     manaBase: '37 lands: Command Tower, Mana Confluence, City of Brass, Exotic Orchard, all ten shocks, all ten Triomes and 13 basics.',
     nextDoor: {
-      player: [['down', 'YORE', 'Cut the Forests: Four-colour (no green).', 'Green was the lowest of your five colours.']],
-      plain: [['down', 'YORE', "Without green, you'd be Four-colour (no green).", 'Green was the lowest of your five colours.']],
+      player: [['down', 'YORE', "Cut the Forests and you're Four-colour (no green).", 'Green was the weakest of your five.']],
+      plain: [['down', 'YORE', "Without green, you'd be Four-colour (no green).", 'Green was the weakest of your five.']],
+      workplace: [['down', 'YORE', "Without green, you'd be Four-colour (no green).", 'Green was the lowest of your five colours.']],
     },
     result: { allResults: [], round3Data: {} },
   },
@@ -180,20 +188,60 @@ function offIdentityLands(line, colours, map) {
   return [...map].filter(([name, cols]) => deck.includes(name) && ![...cols].every((c) => colours.includes(c))).map(([name]) => name);
 }
 
-// [4] Label words, the same in both modes. The line under each is one sentence
-// about the result's own bars (each case's `line`), with no number until
-// Phase 5 measures real results. Nothing else is stacked under them
-// (tests/visible-copy.test.js holds the block to that, and the line to its bars).
+// [4] The label: a sentence about how clear the result was on a consumer page,
+// the label word in workplace mode (and on the Scorecard share image). The
+// line under each is one sentence about the result's own bars (each case's
+// `line`), with no number until Phase 5 measures real results. Nothing else
+// is stacked under them (tests/visible-copy.test.js holds the block to that,
+// and the line to its bars).
 const LABELS = {
-  HIGH: { word: 'Locked in' },
-  MODERATE: { word: 'Leaning' },
-  LOW: { word: 'Still shuffling' },
+  HIGH: { consumer: 'Nothing else came close.', workplace: 'Locked in' },
+  MODERATE: { consumer: 'One or two other results came close.', workplace: 'Leaning' },
+  LOW: { consumer: 'You could easily have come out as something else.', workplace: 'Still shuffling' },
 };
 // The banner names the card: the commander in player mode, the art's source
-// otherwise. Only player mode has the commander block beside Natural Roles.
-const BANNER_CARD = { player: (card) => `Commander · ${card}`, plain: (card) => `Card art: ${card}` };
-// [4] The bars' title by mode; the caption is the same in both.
-const BARS_TITLE = { player: 'Your Mana Pool', plain: 'Your colours' };
+// otherwise, as a sentence on a consumer page. Only player mode has the
+// commander block beside the jobs.
+const BANNER_CARD = {
+  player: (card) => `Your commander is ${card}.`,
+  plain: (card) => `The picture is from the Magic card ${card}.`,
+  workplace: (card) => `Card art: ${card}`,
+};
+// [4] The bars' title by mode; the caption by audience.
+const BARS_TITLE = { player: 'Your mana pool', plain: 'Your colours' };
+const BARS_CAPTION = {
+  consumer: 'Each bar is how often you picked that colour when it came up.',
+  workplace: 'How often you picked each colour when it was offered.',
+};
+// The words around the profile on a consumer page, where workplace mode keeps
+// its labels (RESULT_COPY.frame): checked by text, so a change is a decision.
+const CONSUMER_FRAME = {
+  'roles-title': "You'd do well in jobs like these.",
+  'res-others-title': 'Who to ask',
+  'res-image-btn': 'Save it as a picture',
+  'res-breakdown-btn': 'Show how we did it',
+  'res-retake-btn': 'Start again',
+  'res-explore-btn': 'See all 31 results',
+  'res-interactions-btn': 'See how the colours get on',
+  'theme-switch-label': 'Change how the page looks.',
+  'res-warning-label': '⚠ Not for official use.',
+  'rel-legend-ally-text': 'A solid line means two of your colours get on.',
+  'rel-legend-enemy-text': 'A dashed line means one of yours pulls against a missing colour.',
+  'res-counter-label': 'Your friends would put it like this.',
+};
+const WORKPLACE_FRAME = {
+  'roles-title': 'Natural Roles',
+  'res-others-title': 'Working With Others',
+  'res-image-btn': 'Make an image',
+  'res-breakdown-btn': 'View Full Breakdown',
+  'res-retake-btn': 'Retake',
+  'res-explore-btn': 'Explore All 31 Types',
+  'res-interactions-btn': 'How Colours Interact',
+  'theme-switch-label': 'Page style',
+  'res-warning-label': '⚠ Not For Official Use',
+  'rel-legend-ally-text': 'Solid line: two of your colours that get on.',
+  'rel-legend-enemy-text': 'Dashed line: one of your colours and a missing colour that pulls against it.',
+};
 
 function checkRender(win, h, c, audience, player, threw, errors) {
   const d = win.document, p = h.PROFILES[c.id], problems = [];
@@ -236,11 +284,18 @@ function checkRender(win, h, c, audience, player, threw, errors) {
     need(visible('res-you') && !visible('res-traits') && JSON.stringify(you) === JSON.stringify(p.you) && you.length >= 2 && you.length <= 4,
       `the you lines in place of strengths and shadows: ${JSON.stringify(you)}`);
   }
-  // The headings, buttons and colour cards around the profile, in the
-  // audience's words (RESULT_COPY.frame, COLOR_GAPS_COPY).
-  const F = h.RESULT_COPY.frame, aud = audience === 'workplace' ? 'workplace' : 'consumer';
-  need(text('roles-title') === F.roles[aud] && text('res-others-title') === F.others[aud] && text('res-image-btn') === F.image[aud]
-    && text('res-breakdown-btn') === F.breakdown[aud], `frame labels "${text('roles-title')}" / "${text('res-others-title')}" / "${text('res-image-btn')}" / "${text('res-breakdown-btn')}"`);
+  // The headings, labels, buttons and colour cards around the profile, in the
+  // audience's words (RESULT_COPY.frame, COLOR_GAPS_COPY): on a consumer page
+  // a label that became a sentence is styled as one (.mc-said), and the
+  // colour cards have no heading of their own (the divider says "Who to ask").
+  const aud = audience === 'workplace' ? 'workplace' : 'consumer';
+  const frame = aud === 'consumer' ? CONSUMER_FRAME : WORKPLACE_FRAME;
+  const wrongFrame = Object.entries(frame).filter(([id, want]) => el(id) && text(id) !== want).map(([id]) => `${id} "${text(id)}"`);
+  need(wrongFrame.length === 0 && Object.keys(frame).every((id) => el(id)), 'frame labels: ' + wrongFrame.join(' / '));
+  const styled = ['roles-title', 'res-counter-label', 'theme-switch-label', 'conf-badge'].filter((id) => el(id).classList.contains('mc-said'));
+  need(styled.length === (aud === 'consumer' ? 4 : 0), `sentence styling on ${JSON.stringify(styled)} (${aud})`);
+  const cardHeading = d.querySelector('#relations-detail .mc-relations-detail__heading');
+  need(aud === 'consumer' ? !cardHeading : !!cardHeading && cardHeading.textContent.trim() === 'Who to bring in', `colour cards' own heading "${cardHeading ? cardHeading.textContent : ''}"`);
   const heads = [...d.querySelectorAll('#relations-detail .mc-gap-card__head')].map((x) => x.textContent.trim());
   const missingColours = ['W', 'U', 'B', 'R', 'G'].filter((col) => !p.colors.includes(col));
   const wantHeads = missingColours.map((col) => h.COLOR_DISPLAY[col] + (aud === 'workplace' ? ' colleague' : ''));
@@ -255,7 +310,7 @@ function checkRender(win, h, c, audience, player, threw, errors) {
   //    it, the collector number at its foot. Then the philosophy, with the
   //    confidence badge and its one line after it, then the quality line's
   //    place (hidden here: these answers raise no quality flag).
-  need(text('res-banner-commander') === BANNER_CARD[playerCopy ? 'player' : 'plain'](p.cmd), 'banner commander ' + text('res-banner-commander'));
+  need(text('res-banner-commander') === BANNER_CARD[playerCopy ? 'player' : aud === 'workplace' ? 'workplace' : 'plain'](p.cmd), 'banner commander ' + text('res-banner-commander'));
   need(before(win, el('res-id'), el('res-tag')) && before(win, el('res-tag'), el('identity-exp')), 'name and tagline should precede the philosophy');
   need(before(win, el('identity-exp'), el('conf-badge')), 'confidence badge should follow the philosophy');
   need(before(win, el('conf-base-rate'), el('quality-warning')) && before(win, el('quality-warning'), el('res-bars-title')),
@@ -306,7 +361,7 @@ function checkRender(win, h, c, audience, player, threw, errors) {
     // label, which is text so a copied page or a screen reader keeps it; a
     // profile with none shows no box.
     need(banter && (banter.style.display !== 'none') === !!p.pubBanter, `pub banter ${banter && banter.style.display !== 'none' ? 'shown' : 'hidden'} for a profile ${p.pubBanter ? 'with' : 'without'} one`);
-    need(text('res-counter-label') === 'Pub banter' && banter.contains(el('res-counter-label')), `banter label "${text('res-counter-label')}"`);
+    need(text('res-counter-label') === 'Your friends would put it like this.' && banter.contains(el('res-counter-label')), `banter label "${text('res-counter-label')}"`);
     need(disclaimer && disclaimer.style.display === 'none', 'workplace disclaimer shown in consumer mode');
     if (p.pubBanter) real('res-counter');
   }
@@ -323,7 +378,7 @@ function checkRender(win, h, c, audience, player, threw, errors) {
     chip.dataset.dir, chip.dataset.id,
     (chip.querySelector('.mc-nextdoor__head') || {}).textContent, (chip.querySelector('.mc-nextdoor__why') || {}).textContent,
   ]);
-  const wantChips = c.nextDoor[playerCopy ? 'player' : 'plain'];
+  const wantChips = c.nextDoor[playerCopy ? 'player' : aud === 'workplace' ? 'workplace' : 'plain'];
   need(JSON.stringify(chips) === JSON.stringify(wantChips), `next door ${JSON.stringify(chips)} != ${JSON.stringify(wantChips)}`);
   const ownPanels = [...d.querySelectorAll('#next-door-chips .mc-nextdoor__chip')].every((chip) => {
     const panel = chip.nextElementSibling;
@@ -331,24 +386,27 @@ function checkRender(win, h, c, audience, player, threw, errors) {
       && panel.classList.contains('hidden') && chip.getAttribute('aria-expanded') === 'false';
   });
   need(ownPanels, 'each next-door row should have its own closed panel');
-  need(text('next-door-prompt') === (playerCopy ? 'Appeal this ruling' : 'The results one colour away from yours.'), `next-door prompt "${text('next-door-prompt')}"`);
+  const wantPrompt = playerCopy ? 'Appeal this ruling'
+    : aud === 'workplace' ? 'The results one colour away from yours.' : "If this isn't quite you, try one colour more or less.";
+  need(text('next-door-prompt') === wantPrompt, `next-door prompt "${text('next-door-prompt')}"`);
   need(text('next-door-all') === 'None of these. Show me all 31.', `all-31 link "${text('next-door-all')}"`);
 
-  // 3. Label words in both modes, and under each one sentence about this
-  //    result's bars (the same in both modes; no number but a gap in the
-  //    bars' own points, and no small print before Phase 5), no rarity mark.
-  const label = LABELS[c.confidence];
-  need(text('conf-badge') === label.word, `label "${text('conf-badge')}" != "${label.word}"`);
+  // 3. The label (a sentence on a consumer page, the word in workplace mode),
+  //    and under it one sentence about this result's bars (the same in both
+  //    modes; no number but a gap in the bars' own points, and no small print
+  //    before Phase 5), no rarity mark.
+  const label = LABELS[c.confidence][aud];
+  need(text('conf-badge') === label, `label "${text('conf-badge')}" != "${label}"`);
   need(text('conf-base-rate') === c.line, `line under the label "${text('conf-base-rate')}" != "${c.line}"`);
   need(!/\d|%/.test(text('conf-base-rate').replace(/\b\d+ points?\b/g, '')) && !el('conf-small-print'), 'a number other than a gap in points, or small print, in the base rate before Phase 5');
   need(before(win, el('identity-exp'), el('conf-base-rate')), 'base rate should follow the philosophy');
   need(!/confidence|mythic|rare|uncommon|sleeve|proxy/i.test(text('conf-badge') + ' ' + text('conf-base-rate')), 'old confidence wording, a rarity word or a cut tail in the label');
 
-  // 4. The bars: "Your Mana Pool" in player mode, "Your colours" otherwise,
-  //    and the same caption in every mode.
+  // 4. The bars: "Your mana pool" in player mode, "Your colours" otherwise,
+  //    and the caption in the audience's words.
   need(text('res-bars-title') === BARS_TITLE[playerCopy ? 'player' : 'plain'] && el('res-bars-title') === el('res-bars-caption').previousElementSibling,
     `bars title "${text('res-bars-title')}"`);
-  need(text('res-bars-caption') === 'How often you picked each colour when it was offered.', `bars caption "${text('res-bars-caption')}"`);
+  need(text('res-bars-caption') === BARS_CAPTION[aud], `bars caption "${text('res-bars-caption')}"`);
   need(before(win, el('res-bars-caption'), el('res-profile-bars')), 'caption should sit above the bars');
 
   // 5. Rules-text strip, player mode only, on the card (its place is checked
@@ -373,11 +431,13 @@ function checkRender(win, h, c, audience, player, threw, errors) {
     need(!shown('res-mana-base') && text('res-mana-base') === '', 'mana base shown outside player mode');
   }
 
-  // 11. Consumer mode leaves the corporate-sounding roles out; workplace keeps them all.
+  // 11. Consumer mode leaves the corporate-sounding roles out and lists the
+  //     rest in sentence case; workplace keeps them all, as PROFILES has them.
   const wantRoles = audience === 'workplace' ? p.roles : c.rolesForFun;
   need(text('roles') === wantRoles, `roles "${text('roles')}" != "${wantRoles}"`);
   if (audience === 'consumer') {
-    const hidden = text('roles').split(', ').filter((r) => h.ROLES_HIDDEN_FOR_FUN.includes(r));
+    const jargon = new Set(h.ROLES_HIDDEN_FOR_FUN.map((r) => r.toLowerCase()));
+    const hidden = text('roles').split(', ').filter((r) => jargon.has(r.toLowerCase()));
     need(hidden.length === 0, 'consumer roles still list ' + hidden.join(', '));
   }
 
@@ -493,51 +553,62 @@ run('render', async (t) => {
     t.ok('typeline: the five examples render as printed (section 8), and all 31 are type lines', problems.length === 0, problems.join('; '));
   }
 
-  // [3] Next door reasons, from the drafts' worked examples, in player and
-  // plain modes: the colon headline in player mode and a sentence otherwise,
-  // whatever the gap; one plain reason, the up row giving the gap in points
-  // and the down row naming the colour as the lowest of yours, with how far it
-  // was ahead of the colour outside only when the line under the label had not
+  // [3] Next door reasons, from the drafts' worked examples, in player, plain
+  // and workplace modes: a sentence headline in every mode ("Splash black and
+  // you're Dimir." for players, where the colon headline stood), whatever the
+  // gap; one plain reason, the up row giving the gap in points and the down
+  // row naming the colour as the weaker or weakest of yours (workplace mode:
+  // the lower or lowest of your colours, as before), with how far it was
+  // ahead of the colour outside only when the line under the label had not
   // counted it (a gap well clear); a four-colour neighbour by its sentence
   // name; a tie and an old link's inverted bars said as they are; and the one
-  // row of five colours, which says only which colour was lowest.
+  // row of five colours, which says only which colour was weakest.
   {
     const EXAMPLES = [
       ['MONO-U', { U: 0.70, B: 0.64, W: 0.30, R: 0.20, G: 0.10 }, {
-        player: [['up', 'DIMIR', 'Splash black: Dimir.', 'Your black was 6 points short.']],
+        player: [['up', 'DIMIR', "Splash black and you're Dimir.", 'Your black was 6 points short.']],
         plain: [['up', 'DIMIR', "With black as well, you'd be Dimir.", 'Black was 6 points short.']],
+        workplace: [['up', 'DIMIR', "With black as well, you'd be Dimir.", 'Black was 6 points short.']],
       }],
       ['MONO-R', { R: 0.85, G: 0.45, W: 0.30, U: 0.20, B: 0.10 }, {
-        player: [['up', 'GRUUL', 'Splash green: Gruul.', 'Your green was 40 points short.']],
+        player: [['up', 'GRUUL', "Splash green and you're Gruul.", 'Your green was 40 points short.']],
         plain: [['up', 'GRUUL', "With green as well, you'd be Gruul.", 'Green was 40 points short.']],
+        workplace: [['up', 'GRUUL', "With green as well, you'd be Gruul.", 'Green was 40 points short.']],
       }],
       ['BOROS', { W: 0.70, R: 0.62, U: 0.45, B: 0.20, G: 0.10 }, {
-        player: [['up', 'JESKAI', 'Splash blue: Jeskai.', 'Your blue was 17 points short.'],
-          ['down', 'MONO-W', 'Cut the Mountains: Mono-White.', 'Red was the lower of your two colours.']],
-        plain: [['up', 'JESKAI', "With blue as well, you'd be Jeskai.", 'Blue was 17 points short.'], ['down', 'MONO-W', "Without red, you'd be Mono-White.", 'Red was the lower of your two colours.']],
+        player: [['up', 'JESKAI', "Splash blue and you're Jeskai.", 'Your blue was 17 points short.'],
+          ['down', 'MONO-W', "Cut the Mountains and you're Mono-White.", 'Red was the weaker of your two.']],
+        plain: [['up', 'JESKAI', "With blue as well, you'd be Jeskai.", 'Blue was 17 points short.'], ['down', 'MONO-W', "Without red, you'd be Mono-White.", 'Red was the weaker of your two.']],
+        workplace: [['up', 'JESKAI', "With blue as well, you'd be Jeskai.", 'Blue was 17 points short.'], ['down', 'MONO-W', "Without red, you'd be Mono-White.", 'Red was the lower of your two colours.']],
       }],
       ['ESPER', { W: 0.62, U: 0.70, B: 0.66, G: 0.20, R: 0.10 }, {
-        player: [['up', 'WITCH', 'Splash green: Four-colour (no red).', 'Your green was 42 points short.'],
-          ['down', 'DIMIR', 'Cut the Plains: Dimir.', 'White was the lowest of your three colours, 42 points ahead of green.']],
+        player: [['up', 'WITCH', "Splash green and you're Four-colour (no red).", 'Your green was 42 points short.'],
+          ['down', 'DIMIR', "Cut the Plains and you're Dimir.", 'White was the weakest of your three, though still 42 points ahead of green.']],
         plain: [['up', 'WITCH', "With green as well, you'd be Four-colour (no red).", 'Green was 42 points short.'],
+          ['down', 'DIMIR', "Without white, you'd be Dimir.", 'White was the weakest of your three, though still 42 points ahead of green.']],
+        workplace: [['up', 'WITCH', "With green as well, you'd be Four-colour (no red).", 'Green was 42 points short.'],
           ['down', 'DIMIR', "Without white, you'd be Dimir.", 'White was the lowest of your three colours, 42 points ahead of green.']],
       }],
       ['DIMIR', { U: 0.78, B: 0.64, G: 0.60, W: 0.22, R: 0.11 }, {
-        player: [['up', 'SULTAI', 'Splash green: Sultai.', 'Your green was 4 points short.'],
-          ['down', 'MONO-U', 'Cut the Swamps: Mono-Blue.', 'Black was the lower of your two colours.']],
-        plain: [['up', 'SULTAI', "With green as well, you'd be Sultai.", 'Green was 4 points short.'], ['down', 'MONO-U', "Without black, you'd be Mono-Blue.", 'Black was the lower of your two colours.']],
+        player: [['up', 'SULTAI', "Splash green and you're Sultai.", 'Your green was 4 points short.'],
+          ['down', 'MONO-U', "Cut the Swamps and you're Mono-Blue.", 'Black was the weaker of your two.']],
+        plain: [['up', 'SULTAI', "With green as well, you'd be Sultai.", 'Green was 4 points short.'], ['down', 'MONO-U', "Without black, you'd be Mono-Blue.", 'Black was the weaker of your two.']],
+        workplace: [['up', 'SULTAI', "With green as well, you'd be Sultai.", 'Green was 4 points short.'], ['down', 'MONO-U', "Without black, you'd be Mono-Blue.", 'Black was the lower of your two colours.']],
       }],
       ['DIMIR', { U: 0.78, B: 0.641, G: 0.64, W: 0.22, R: 0.11 }, {
-        player: [['up', 'SULTAI', 'Splash green: Sultai.', 'Your green tied with black.'], ['down', 'MONO-U', 'Cut the Swamps: Mono-Blue.', 'Black tied with green.']],
+        player: [['up', 'SULTAI', "Splash green and you're Sultai.", 'Your green tied with black.'], ['down', 'MONO-U', "Cut the Swamps and you're Mono-Blue.", 'Black tied with green.']],
         plain: [['up', 'SULTAI', "With green as well, you'd be Sultai.", 'Green tied with black.'], ['down', 'MONO-U', "Without black, you'd be Mono-Blue.", 'Black tied with green.']],
+        workplace: [['up', 'SULTAI', "With green as well, you'd be Sultai.", 'Green tied with black.'], ['down', 'MONO-U', "Without black, you'd be Mono-Blue.", 'Black tied with green.']],
       }],
       ['DIMIR', { U: 0.78, B: 0.60, G: 0.64, W: 0.22, R: 0.11 }, {
-        player: [['up', 'SULTAI', 'Splash green: Sultai.', 'Your green finished above black.'], ['down', 'MONO-U', 'Cut the Swamps: Mono-Blue.', 'Black finished below green.']],
+        player: [['up', 'SULTAI', "Splash green and you're Sultai.", 'Your green finished above black.'], ['down', 'MONO-U', "Cut the Swamps and you're Mono-Blue.", 'Black finished below green.']],
         plain: [['up', 'SULTAI', "With green as well, you'd be Sultai.", 'Green finished above black.'], ['down', 'MONO-U', "Without black, you'd be Mono-Blue.", 'Black finished below green.']],
+        workplace: [['up', 'SULTAI', "With green as well, you'd be Sultai.", 'Green finished above black.'], ['down', 'MONO-U', "Without black, you'd be Mono-Blue.", 'Black finished below green.']],
       }],
       ['WUBRG', { W: 0.66, U: 0.62, B: 0.58, R: 0.55, G: 0.52 }, {
-        player: [['down', 'YORE', 'Cut the Forests: Four-colour (no green).', 'Green was the lowest of your five colours.']],
-        plain: [['down', 'YORE', "Without green, you'd be Four-colour (no green).", 'Green was the lowest of your five colours.']],
+        player: [['down', 'YORE', "Cut the Forests and you're Four-colour (no green).", 'Green was the weakest of your five.']],
+        plain: [['down', 'YORE', "Without green, you'd be Four-colour (no green).", 'Green was the weakest of your five.']],
+        workplace: [['down', 'YORE', "Without green, you'd be Four-colour (no green).", 'Green was the lowest of your five colours.']],
       }],
     ];
     const problems = [];
@@ -548,13 +619,13 @@ run('render', async (t) => {
         const got = [...win.document.querySelectorAll('#next-door-chips .mc-nextdoor__chip')].map((chip) => [
           chip.dataset.dir, chip.dataset.id, chip.querySelector('.mc-nextdoor__head').textContent, chip.querySelector('.mc-nextdoor__why').textContent,
         ]);
-        const mode = player && audience === 'consumer' ? 'player' : 'plain';
+        const mode = audience === 'workplace' ? 'workplace' : player ? 'player' : 'plain';
         if (threw || errors.length) problems.push(`${id} ${audience}: ${threw || errors[0]}`);
         if (JSON.stringify(got) !== JSON.stringify(want[mode])) problems.push(`${id} ${audience} ${mode}: ${JSON.stringify(got)}`);
         win.close();
       }
     }
-    t.ok('next door: the worked examples read as drafted, in player and plain modes', problems.length === 0, problems.join('; '));
+    t.ok('next door: the worked examples read as drafted, in player, plain and workplace modes', problems.length === 0, problems.join('; '));
   }
 
   // [10] The drafts' sample lines, rendered: Dimir with green one answer short
@@ -668,7 +739,7 @@ run('render', async (t) => {
       const { win, errors, threw } = await renderCase({ ...DIMIR, result }, 'consumer', false, seed++, { scoringVersion: version });
       const got = text(win, 'round3-testing-explanation');
       const block = win.document.querySelector('.mc-verdict-status').textContent.replace(/\s+/g, ' ').trim();
-      t.ok(`what decided it: ${what}`, !threw && errors.length === 0 && got === want && block === `${LABELS.MODERATE.word} ${DIMIR.line}`,
+      t.ok(`what decided it: ${what}`, !threw && errors.length === 0 && got === want && block === `${LABELS.MODERATE.consumer} ${DIMIR.line}`,
         `${threw || ''} "${got}" | "${block}"`);
       win.close();
     }
@@ -684,11 +755,18 @@ run('render', async (t) => {
     player: { peekNote: 'The ruling stands unless you appeal.', after: 'Overturned on appeal. The original ruling stays on the record.' },
     plain: { peekNote: 'Your result stays the same unless you appeal.', after: 'Appeal noted. Your original result is kept too.' },
   };
+  // The peek's heading and the appeal button: sentences and plain actions on
+  // a consumer page, as they were in workplace mode.
+  const PEEK = {
+    consumer: { heading: (n) => `Here's ${n}.`, button: (n) => `Make it ${n}` },
+    workplace: { heading: (n) => `Next door: ${n}`, button: (n) => `Appeal: I'm ${n}` },
+  };
   for (const [audience, player] of [['consumer', true], ['consumer', false], ['workplace', true]]) {
     const { win, h, errors, threw } = await renderCase(DIMIR, audience, player, seed++);
     const d = win.document, el = (id) => d.getElementById(id);
     const shown = (id) => !!el(id) && !el(id).classList.contains('hidden');
     const P = h.PROFILES, playerCopy = player && audience === 'consumer', copy = APPEAL[playerCopy ? 'player' : 'plain'];
+    const peek = PEEK[audience];
     const problems = threw ? ['showResults threw: ' + threw] : [];
     const need = (cond, what) => { if (!cond) problems.push(what); };
     const chip = (id) => d.querySelector(`#next-door-chips .mc-nextdoor__chip[data-id="${id}"]`);
@@ -705,7 +783,7 @@ run('render', async (t) => {
     chip('SULTAI').click();
     const sp = panelOf('SULTAI');
     need(open(sp) && !open(panelOf('MONO-U')) && !shown('next-door-panel'), 'the peek should open under its own row only');
-    need((sp.querySelector('.mc-nextdoor__panel-head') || {}).textContent === 'Next door: Sultai' && sp.textContent.includes(copy.peekNote), 'peek heading and note');
+    need((sp.querySelector('.mc-nextdoor__panel-head') || {}).textContent === peek.heading('Sultai') && sp.textContent.includes(copy.peekNote), 'peek heading and note');
     need(((sp.querySelector('.mc-nextdoor__peek-philosophy') || {}).textContent || '').trim() === P.SULTAI.philosophy.trim(), 'peek did not show the neighbour\'s philosophy');
     if (audience === 'workplace') {
       const columns = sp.querySelectorAll('.mc-nextdoor__peek-traits > div');
@@ -715,7 +793,7 @@ run('render', async (t) => {
       need(same(lis(sp.querySelector('.mc-nextdoor__peek-you')), P.SULTAI.you) && !sp.querySelector('.mc-nextdoor__peek-traits') && !/Strengths|Shadows/.test(sp.textContent),
         'the peek did not show the neighbour\'s you lines alone');
     }
-    need(sp.contains(el('appeal-btn')) && text(win, 'appeal-btn') === "Appeal: I'm Sultai", `appeal button "${text(win, 'appeal-btn')}"`);
+    need(sp.contains(el('appeal-btn')) && text(win, 'appeal-btn') === peek.button('Sultai'), `appeal button "${text(win, 'appeal-btn')}"`);
     need(sp.contains(el('peek-back-btn')) && text(win, 'peek-back-btn') === 'Back to Dimir', 'way back from the peek');
     need(sp.textContent.includes("Your appeal isn't included when you share.") === (audience === 'workplace'), 'workplace privacy note under the appeal button');
     need(!sp.textContent.includes(h.RESULT_COPY.rules.SULTAI), 'the peek should not carry the rules text (one joke next door)');
@@ -725,7 +803,7 @@ run('render', async (t) => {
     // The other row has its own peek and appeal; opening it closes the first,
     // and tapping a row again closes its peek.
     chip('MONO-U').click();
-    need(open(panelOf('MONO-U')) && !open(sp) && panelOf('MONO-U').contains(el('appeal-btn')) && text(win, 'appeal-btn') === "Appeal: I'm Mono-Blue",
+    need(open(panelOf('MONO-U')) && !open(sp) && panelOf('MONO-U').contains(el('appeal-btn')) && text(win, 'appeal-btn') === peek.button('Mono-Blue'),
       'the second row should have its own peek and appeal button');
     need(d.querySelectorAll('[id="appeal-btn"]').length === 1, 'one appeal button open at a time');
     chip('MONO-U').click();
@@ -741,7 +819,7 @@ run('render', async (t) => {
     const a = h.state.result.appeal || {};
     need(h.state.result.identity === 'DIMIR', 'the verdict was overwritten');
     need(a.chosen === 'SULTAI' && JSON.stringify(a.shown) === '["SULTAI","MONO-U"]' && a.copyVersion === 7
-      && a.labelShown === 'Leaning' && Number.isFinite(a.timeToAppealMs) && a.timeToAppealMs >= 0, 'appeal record ' + JSON.stringify(a));
+      && a.labelShown === LABELS.MODERATE[audience] && Number.isFinite(a.timeToAppealMs) && a.timeToAppealMs >= 0, 'appeal record ' + JSON.stringify(a));
     need(text(win, 'res-id') === P.SULTAI.name && text(win, 'res-tag') === P.SULTAI.tag && text(win, 'identity-exp') === P.SULTAI.philosophy.trim(), 'appealed identity not on screen');
     need(!playerCopy || (text(win, 'res-typeline') === 'Legendary Creature — Snake Shaman' && text(win, 'res-rules') === h.RESULT_COPY.rules.SULTAI),
       'the card should follow the appealed identity');
@@ -791,7 +869,7 @@ run('render', async (t) => {
     el('next-door-all').click();
     need(shown('screen-explorer') && !shown('screen-results') && shown('appeal-pick-bar') && text(win, 'appeal-pick-bar').includes('Pick the one that sounds like you.'), 'explorer with the pick bar');
     el('card-GOLGARI').click();
-    need(text(win, 'detail-name') === h.PROFILES.GOLGARI.name && text(win, 'appeal-pick-btn') === "Appeal: I'm Golgari", `pick bar "${text(win, 'appeal-pick-bar')}"`);
+    need(text(win, 'detail-name') === h.PROFILES.GOLGARI.name && text(win, 'appeal-pick-btn') === 'Make it Golgari', `pick bar "${text(win, 'appeal-pick-bar')}"`);
     need(shown('detail-content'), 'the explorer\'s profile detail stays hidden, so there is nothing to read before appealing');
     el('appeal-pick-btn').click();
     await tick();
@@ -842,7 +920,7 @@ run('render', async (t) => {
       if (d.body.dataset.theme !== theme) problems.push('theme ' + d.body.dataset.theme);
       if (!blob || exported !== card) problems.push('export did not render the Card');
       if (text(win, 'tcg-conf') !== want) problems.push(`set slot "${text(win, 'tcg-conf')}" != "${want}"`);
-      if (/leaning|moderate|confidence|locked in|shuffling/i.test(card.textContent)) problems.push('a confidence word is on the Card');
+      if (/leaning|moderate|confidence|locked in|shuffling|came close|something else/i.test(card.textContent)) problems.push('a confidence word is on the Card');
       if (text(win, 'tcg-name') !== 'DIMIR' || text(win, 'sc-name') !== 'DIMIR') problems.push('share images should show the verdict: ' + text(win, 'tcg-name'));
       if (/on appeal|sultai/i.test(card.textContent + d.getElementById('share-scorecard').textContent + d.getElementById('share-mani').textContent)) problems.push('the appeal reached a share image');
       // The Card's rules text: the first two `you` lines with no keyword over
