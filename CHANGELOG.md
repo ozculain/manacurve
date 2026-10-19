@@ -4,6 +4,74 @@ Newest first. Dates are when the work was committed.
 
 ## 2026-10-19
 
+### Round 1 and 2 questions: the lines the gate reader flagged
+
+A reader holding the author's rulings read all 111 Round 1 and 2 questions
+and flagged 27 lines in 26 items. 22 were answers, and one stem, that sounded
+like a film, a greeting card or a platitude: "It's a step up, and I've
+earned it", "She'll settle when she's ready", "Leave it, and let nature take
+its course", "I've dreamt of this since I was twelve", "it's tearing the
+family apart". In three items the stakes were trivial or did not touch the
+person answering: which room you get in a shared house, a card you were £50
+short of, and a panel giving out a town grant. The Speech's stem told the
+reader "It matters to him, and to you", and The Trip's Blue answer planned
+"so every stop earns its place".
+
+- Each flagged answer is now a verdict in plain words with one plain reason
+  or none, in the same colour and at the same stakes. "Move. That's what the
+  money's for." "Wait. We'll manage on broken sleep for now." "No test. I'd
+  rather not know." "Go on tour. I can finish the degree later."
+- Three items have new stakes, with the same two colours and the same split
+  between the answers. Room Shares is The Album: your band's first album for
+  a major label has room for twelve songs, all four of you write, and each
+  song pays its writer. White gives everyone three, Blue takes the twelve
+  best. In Saving Up the card is the £1,500 one your deck needs, and you're
+  £500 short. The Grant is The Village Pub: the village has bought it with
+  £5,000 of your money, the landlord was told he'd stay on, and a manager
+  from town has better figures. White keeps the landlord, Blue goes by the
+  figures.
+- The Speech's stem stops at the two hundred guests. Family Feud says what
+  the row costs you ("so you do every birthday and Christmas twice"), and
+  its answers lose "I can't stand another year of this" and "Give it time".
+- Then all 111 were read once more against the twelve rulings. Twelve more
+  lines in eleven items were the same kind of line as ones the reader had
+  flagged, and are rewritten the same way: "would set me up for life", "would
+  open doors", "In twenty years it'll be working for me", "They watched me
+  grow up", "It's their day too", "says nothing of the man you knew", "I've
+  waited years for this". White's "It matters to them, and to both our
+  families" had the shape of the tag cut from The Speech.
+- Checked blind. Two more readers on the same rulings (Sonnet and Opus) read
+  all 111 in shuffled orders. Lines both flagged are rewritten: "That's
+  enough for me." as a summing-up tag, Blue's "They may not wait that long."
+  in Second Chance as a twist against its own answer, "give her a term to
+  find her feet" as a relative of "in their own time", and the games night,
+  where one tweak to a casual evening was all that was at stake (people are
+  now leaving it). One caught that ten songs can't be split equally four
+  ways, so the album has twelve. Single flags on a ruling are fixed too: "and
+  I keep my word", "so the decision rests on facts", "There's still so much
+  of the craft to learn", "We've trusted each other since school", "the city
+  I've always wanted to live in", a Black answer with two reasons, and the
+  new "It's where I'm from". Six mirrored answer pairs lost the echo (The
+  Loft, School Rules, School Place, Team Decks, Waste Plant, Coaching
+  Offer). The Meadow's mirrored pair stays, because earlier readers singled
+  it out as written by a person.
+- A blind match of the changed answers to their colours got all 35 items
+  right, 34 of them with high confidence. Its notes moved four answers whose
+  reason leaned to a neighbouring colour: "I want to play" and "I don't want
+  to get married" read as Black's plain wanting, "I can wait twenty years"
+  as Green's patience and "Sixteen is young for London" as Blue's caution.
+  They are now "I'm playing", "I don't believe in marriage", "It'll be worth
+  far more in twenty years" and "There are kitchens here too".
+- 64 fields in 49 items: 55 answers, 7 stems and 2 labels. Ids, pairs,
+  weights, answer colours and order are as they were, so
+  `tests/fixtures/golden.json` and `tests/fixtures/round12-keys.json` do not
+  move, and `tests/round12-copy.test.js` needed no change.
+  `INSTRUMENT_VERSION` is not raised here.
+- Not measured: real players. Left as they were after a single reader's
+  flag: three Magic items about a games group (casual decks, a cliquey
+  league, where the group meets), whose stake is the player's standing in
+  their own group.
+
 ### Result pages: the labels below the profile
 
 Three fresh readers went through the rewritten quiz and agreed that the
