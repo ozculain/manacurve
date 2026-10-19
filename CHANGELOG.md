@@ -4,6 +4,85 @@ Newest first. Dates are when the work was committed.
 
 ## 2026-10-19
 
+### Result pages: the labels below the profile
+
+Three fresh readers went through the rewritten quiz and agreed that the
+questions and the lines about the reader sound like one person, and the
+lower half of the result page like someone else: "a slide deck", "a
+database given a few jokes". They named the status words ("Locked in",
+"Still shuffling"), the Title Case jobs list and buttons, "Who you need
+around you" as a self-help heading, "Make a picture", "Show the workings",
+"Card art: ..." as "a template field nobody asked for", the bars caption as
+"spreadsheet footnote voice" and "Green was the lower of your two colours."
+as "computed-sounding". The one part they kept was the advice on the colour
+cards. Each label, caption, heading and button there is now said the way the
+lines above it are, on a consumer page only. Workplace mode is unchanged.
+
+- How clear the result was. A sentence where the status word stood:
+  "Nothing else came close.", "One or two other results came close." and
+  "You could easily have come out as something else." for the same three
+  levels. The line about the bars under it is unchanged, and the dot stays.
+  The Scorecard share image keeps the old word. An appeal records the
+  sentence it was shown (`labelShown`).
+- The bars. The caption is "Each bar is how often you picked that colour
+  when it came up." For players the title is "Your mana pool".
+- The joke box is labelled "Your friends would put it like this.", where
+  "Pub banter" stood.
+- Jobs. "You'd do well in jobs like these." leads into the list, and the
+  list is in sentence case ("Farming, conservation, facilities"). Words in
+  capitals keep them (HR, R&D, UX). `data.js` is not touched.
+- The picture credit. "The picture is from the Magic card Omnath, Locus of
+  Mana." For players, "Your commander is Omnath, Locus of Mana."
+- Next door. The line by the heading is "If this isn't quite you, try one
+  colour more or less." A player's row is a sentence ("Splash white and
+  you're Selesnya.", "Cut the Swamps and you're Mono-Blue."). The row for
+  dropping a colour calls it "the weaker of your two" or "the weakest of
+  your three", and, when the line under the label gave no gap, "though still
+  42 points ahead of white". The peek opens on "Here's Sultai." and its
+  button is "Make it Sultai".
+- Who to ask. It is the section's heading now, in place of "Who you need
+  around you", so the cards lose their second heading. The line over them is
+  "Find someone strong in each colour you haven't got." The key under the
+  colour wheel is two sentences ("A solid line means two of your colours get
+  on."). The advice on the cards is as it was.
+- Buttons. "Save it as a picture", "Show how we did it" (then "Hide it
+  again"), "Start again", "See all 31 results" (as on the front page) and
+  "See how the colours get on". Share is still the one Share on the page.
+  "Turn it into a picture" and "Show how we worked it out" were tried first
+  and wrapped onto two lines on a 375px phone.
+- The page-style switcher is labelled "Change how the page looks." The
+  three names stay as they are, in `PLAY_COPY`, which this change leaves
+  alone: the label is set over it on a consumer page (`RESULT_COPY.frame`).
+- The disclaimer box's heading is in sentence case ("⚠ Not for official
+  use."). The author's line and the line about hiring are unchanged.
+- A label that became a sentence is set in the italic of the captions
+  around it (`.mc-said`), so it does not show in tracked capitals. Checked in
+  a browser at 1100px and at 375px: each button fits on one line on the
+  phone and nothing scrolls sideways.
+- Not changed: the taglines (the author's call), "Next door", "None of
+  these. Show me all 31.", the line under the label, the colour cards'
+  advice, scoring, `data.js`, `PLAY_COPY`, the `you` lines and the
+  philosophies. Workplace mode was rendered for all 31 identities at three
+  confidence levels and three bar shapes, with the workings open, a peek and
+  an appeal, and the explorer: 682 pages, none different from before.
+  `RESULT_COPY_VERSION` stays at 7, which has not been published. The
+  preview pages were rebuilt and did not change. `tests/fixtures/golden.json`
+  does not move.
+- Tests. `render.test.js` holds every changed string by audience, the
+  sentence styling, the next-door rows in player, plain and workplace modes,
+  the peek and the appeal record. `visible-copy.test.js` fails a consumer page
+  that prints any of the old labels, and a consumer peek with a "Label:
+  value" heading or button, and its next-door checker reads the new words.
+  `journey.test.js` follows the new label. Run against the previous build,
+  `render.test.js` fails 28 of its 58 checks and `visible-copy.test.js` 24
+  of its 160.
+- Left as they were: the explanation behind "Show how we did it" still has
+  Title Case headings ("Commander Reference", "Go Deeper", "Enemy Pair
+  Testing", "Final Determination"), which workplace mode shares. The share
+  screen ("Share Studio", "Your Result", "Closest ·") is its own screen. The
+  front page has its own copy of the disclaimer heading and of "How Colours
+  Interact".
+
 ### Round 3 counts for less (scoring version 3)
 
 Two runs of the live quiz as its author, a Blue-Black-Red player by their own
