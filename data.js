@@ -844,7 +844,7 @@ const PROFILES = {
     roles:"Startups, Research, Product Design, Journalism, Expedition Leading"
   },
   'WITCH':{
-    name:'FOUR-COLOUR (No Red)',
+    name:'FOUR-COLOUR (NO RED)',
     tag:'Sleeps on it',
     colors:['W','U','B','G'],
     philosophy:"You take your time over every decision, and most of them still look right ten years on. Hurrying costs money, and you hate spending it.",
@@ -858,7 +858,7 @@ const PROFILES = {
     roles:'Operations, Finance, Strategy, Long-term Planning, Pensions, Forestry'
   },
   'YORE':{
-    name:'FOUR-COLOUR (No Green)',
+    name:'FOUR-COLOUR (NO GREEN)',
     tag:'Rebuilds things that work',
     colors:['W','U','B','R'],
     philosophy:"You look at most things and see the version you'd build next. You read up on the old way, then build a new one with people sharp enough to argue, mainly so you can beat them.",
@@ -872,7 +872,7 @@ const PROFILES = {
     roles:'Tech Startups, Chief Engineer, Systems Architecture, R&D, Founders'
   },
   'GLINT':{
-    name:'FOUR-COLOUR (No White)',
+    name:'FOUR-COLOUR (NO WHITE)',
     tag:'Finds a way round',
     colors:['U','B','R','G'],
     philosophy:"You get the thing done and let other people worry about how it looked. If a rule only protects whoever wrote it, you'll say so, out loud.",
@@ -886,7 +886,7 @@ const PROFILES = {
     roles:"Venture Capital, Trading, Startups, Activist Investing, Private Investigation"
   },
   'DUNE':{
-    name:'FOUR-COLOUR (No Blue)',
+    name:'FOUR-COLOUR (NO BLUE)',
     tag:'Wings it',
     colors:['W','B','R','G'],
     philosophy:"You do the thing and learn from what happens. A lot of planning looks to you like people scared of being wrong, so you make a start and fix things as you go.",
@@ -900,7 +900,7 @@ const PROFILES = {
     roles:"Sales, Crisis Response, Live Events, Site Manager, Military"
   },
   'INK':{
-    name:'FOUR-COLOUR (No Black)',
+    name:'FOUR-COLOUR (NO BLACK)',
     tag:"Doesn't keep score",
     colors:['W','U','R','G'],
     philosophy:"You'll work hard for anything that helps somebody else, and you won't use people to get ahead. That's the one thing you allow yourself to be vain about.",
