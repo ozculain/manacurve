@@ -11,7 +11,8 @@
 //     re-tests included, counts its weight once for the colour chosen and once
 //     in the denominator of both colours in its pair, and Neither in neither;
 //     held against the answer records on recorded patterns and on simulated
-//     respondents of all three populations, both engines
+//     respondents of all three populations, on the default engine (3) and
+//     engine 1
 //  A  the rule on the player's own bars: exactly the top bars one to four deep
 //  P  the printed order: on random bars, near ties at the half point included,
 //     an identity of one to four colours is allowed exactly when no colour it
@@ -22,10 +23,10 @@
 //     Five-colour, and one whose bars are not gets an identity they allow
 //  B  the player's case end to end: a Round 1 and 2 answer pattern whose bars
 //     print W56 U52 B38 R61 G39 (PLAYER). Round 3 plays only identities the
-//     bars allow, and all 64 ways it can go, on both engines, end on one,
+//     bars allow, and all 64 ways it can go, on engines 3 and 1, end on one,
 //     never Mono-Blue; round3Data.loopBrokenByBars is true only when the bars
-//     did break a loop (engine 1's re-rank; never engine 2, whose posterior
-//     decides)
+//     did break a loop (engine 1's re-rank; never the likelihood engine, whose
+//     posterior decides)
 //  O  the pattern recorded on 638cfe3 for the player's old bars (OLD): its
 //     bars, counted evenly, print W48 U64 B43 R56 G42, Blue first, where they
 //     printed W55 U52 B38 R60 G39 when two Round 2 answers counted as much as
@@ -34,7 +35,7 @@
 //     this build with the bars the old build saved, as a session saved
 //     mid-Round 3 before the change would be
 //  D  simulated respondents of all three populations (ideal, misspecified,
-//     mixed) at p 0.65 and 0.8 on both engines: no result against its printed
+//     mixed) at p 0.65 and 0.8 on all three engines: no result against its printed
 //     bars, and no early offer against the Round 1 bars (tests/simulate.js
 //     fails on either, as a contract violation)
 // Usage: node tests/bars.test.js [path/to/index.html]
@@ -189,17 +190,19 @@ function isBarsPickOfLoop(win, cycle, id) {
 
 run('bars', async ({ ok, note }) => {
   const files = pageArgs();
+  // The default engine, 3 (the likelihood engine), and engine 1. Engine 2 reads
+  // Round 3 another way and is otherwise engine 3; D runs all three.
   const pages = {
-    2: bootPage({ ...files, stubs: { calculating: 'skip' }, fastStyles: true }),
+    3: bootPage({ ...files, stubs: { calculating: 'skip' }, fastStyles: true }),
     1: bootPage({ ...files, url: 'http://localhost/?engine=1', stubs: { calculating: 'skip' }, fastStyles: true }),
   };
-  const win2 = pages[2].win;
-  const ids = Object.keys(win2.__h.PROFILES);
-  const colours = (id) => win2.__h.PROFILES[id].colors;
+  const win3 = pages[3].win;
+  const ids = Object.keys(win3.__h.PROFILES);
+  const colours = (id) => win3.__h.PROFILES[id].colors;
 
   // ---------- E: the bars count every answer once ----------
   {
-    const win = win2, h = win.__h;
+    const win = win3, h = win.__h;
     const act = playRounds12(win, OLD);
     const st = h.state;
     const retests = (st.refinementAnswers || []).filter((a) => a.type === 'ENEMY_RETEST').length;
@@ -237,11 +240,11 @@ run('bars', async ({ ok, note }) => {
     const r1Bars = Object.fromEntries(h.state.activationSorted);
     ok(`E3 the Round 1 bars are Round 1's answers counted the same way (${barsLine(r1Bars)})`,
       sameBars(r1Bars, barsFromRecords({ responses: h.state.responses })), barsLine(barsFromRecords({ responses: h.state.responses })));
-    // Simulated respondents, every population and both engines: the bars after
+    // Simulated respondents, every population and engines 3 and 1: the bars after
     // Round 3 are still the Round 1 and 2 answers counted once each.
     const bad = [];
     let checked = 0;
-    for (const engine of [2, 1]) for (const model of ['ideal', 'misspecified', 'mixed']) for (let k = 0; k < 8; k++) {
+    for (const engine of [3, 1]) for (const model of ['ideal', 'misspecified', 'mixed']) for (let k = 0; k < 8; k++) {
       const win = pages[engine].win, id = ids[(7 * k + (engine === 1 ? 3 : 0)) % ids.length];
       const params = { model, p: 0.65, neither: 0.1, seed: 11 };
       if (model !== 'ideal') params.calibration = calibrateMisspecified(0.65);
@@ -250,14 +253,14 @@ run('bars', async ({ ok, note }) => {
       checked++;
       if (!sameBars(act, barsFromRecords(win.__h.state))) bad.push(`${model} e${engine} ${id} #${k}: ${barsLine(act)}`);
     }
-    ok(`E4 on ${checked} simulated respondents (three populations, both engines), the bars are the answers counted once each`, bad.length === 0, bad.slice(0, 3).join('; '));
+    ok(`E4 on ${checked} simulated respondents (three populations, engines 3 and 1), the bars are the answers counted once each`, bad.length === 0, bad.slice(0, 3).join('; '));
   }
 
   // ---------- A: the rule on the player's bars ----------
-  const allow = (id, bars = PLAYER_BARS) => win2.barsAllow(id, bars);
-  ok(`A1 FIVE_COLOUR_BAND is ${BAND} points, as the contract says`, win2.eval('FIVE_COLOUR_BAND') === BAND, String(win2.eval('FIVE_COLOUR_BAND')));
-  ok('A2 W56 U52 B38 R60 G39 does not allow Mono-Blue (Red prints 8 points above Blue, White 4)', !allow('MONO-U'), win2.barsMargin('MONO-U', PLAYER_BARS));
-  ok(`A3 ...nor Five-colour (the five print 22 points apart; the band is ${BAND})`, !allow('WUBRG'), win2.barsMargin('WUBRG', PLAYER_BARS));
+  const allow = (id, bars = PLAYER_BARS) => win3.barsAllow(id, bars);
+  ok(`A1 FIVE_COLOUR_BAND is ${BAND} points, as the contract says`, win3.eval('FIVE_COLOUR_BAND') === BAND, String(win3.eval('FIVE_COLOUR_BAND')));
+  ok('A2 W56 U52 B38 R60 G39 does not allow Mono-Blue (Red prints 8 points above Blue, White 4)', !allow('MONO-U'), win3.barsMargin('MONO-U', PLAYER_BARS));
+  ok(`A3 ...nor Five-colour (the five print 22 points apart; the band is ${BAND})`, !allow('WUBRG'), win3.barsMargin('WUBRG', PLAYER_BARS));
   const allowedIds = ids.filter((id) => allow(id)).sort();
   ok('A4 ...and allows exactly the top bars one, two, three and four deep: Mono-Red, Boros, Jeskai, Four-colour (no black)',
     JSON.stringify(allowedIds) === JSON.stringify(['BOROS', 'INK', 'JESKAI', 'MONO-R']), allowedIds.join(','));
@@ -285,7 +288,7 @@ run('bars', async ({ ok, note }) => {
       if (new Set(Object.values(printed(act))).size < 5) ties++;
       for (const id of ids) {
         cases++;
-        const want = allowedByPrint(colours(id), act), got = win2.barsAllow(id, sorted);
+        const want = allowedByPrint(colours(id), act), got = win3.barsAllow(id, sorted);
         if (want === got) continue;
         wrong++;
         if (bad.length < 3) bad.push(`${id} under ${barsLine(act)} (${JSON.stringify(act)}): page ${got}, rule ${want}`);
@@ -298,22 +301,22 @@ run('bars', async ({ ok, note }) => {
     for (let n = 0; n < 500; n++) {
       const act = {}; WUBRG.forEach((c) => { act[c] = pick(); });
       const sorted = Object.entries(act).sort((a, b) => b[1] - a[1]);
-      for (let k = 1; k <= 4; k++) if (!ids.some((id) => colours(id).length === k && win2.barsAllow(id, sorted))) missing++;
+      for (let k = 1; k <= 4; k++) if (!ids.some((id) => colours(id).length === k && win3.barsAllow(id, sorted))) missing++;
     }
     ok('P2 on any bars, some identity of each width from one to four colours is allowed (so Round 3 always has four to play)', missing === 0, `${missing} widths with none`);
     // The rule reads the numbers the results screen prints: a near tie at the
     // half point, rendered, and the rule on the same bars.
-    const h = win2.__h;
+    const h = win3.__h;
     const act = { W: 0.555, U: 0.5549999, B: 0.38, R: 0.60, G: 0.385 };
     h.state.result = { identity: 'BOROS', confidence: 'LOW', allResults: [], scoringVersion: 2, instrumentVersion: 5 };
     h.state.activationSorted = Object.entries(act).sort((a, b) => b[1] - a[1]);
     h.state.disclaimerAcknowledged = true;
     h.showResults();
-    const shown = [...win2.document.querySelectorAll('#res-profile-bars .mc-profile__pct')].map((e) => parseInt(e.textContent, 10));
+    const shown = [...win3.document.querySelectorAll('#res-profile-bars .mc-profile__pct')].map((e) => parseInt(e.textContent, 10));
     const want = WUBRG.map((c) => printed(act)[c]);
     ok(`P3 the rule reads the bars as the results screen prints them (${WUBRG.map((c, i) => c + shown[i]).join(' ')})`,
-      JSON.stringify(shown) === JSON.stringify(want) && JSON.stringify(Object.values(win2.barsShown(h.state.activationSorted))) === JSON.stringify(want),
-      `screen ${shown.join(',')}, rule ${JSON.stringify(win2.barsShown(h.state.activationSorted))}`);
+      JSON.stringify(shown) === JSON.stringify(want) && JSON.stringify(Object.values(win3.barsShown(h.state.activationSorted))) === JSON.stringify(want),
+      `screen ${shown.join(',')}, rule ${JSON.stringify(win3.barsShown(h.state.activationSorted))}`);
     const linkP = new URL(h.buildResultURL()).searchParams.get('p');
     ok(`P4 ...and a shared link carries the same numbers (p=${linkP}), so a link's name and bars agree too`, linkP === want.join(','), linkP);
     h.restart();
@@ -326,7 +329,7 @@ run('bars', async ({ ok, note }) => {
     ok(`F2 five bars printed exactly ${BAND} points apart allow it`, allow('WUBRG', flat({ W: 0.6, U: 0.55, B: 0.5, R: 0.45, G: 0.4 })));
     ok(`F3 ${BAND + 1} points apart do not`, !allow('WUBRG', flat({ W: 0.61, U: 0.55, B: 0.5, R: 0.45, G: 0.4 })));
     ok('F4 ...a half point that prints as a whole one counts as printed (0.605 prints 61)', !allow('WUBRG', flat({ W: 0.605, U: 0.55, B: 0.5, R: 0.45, G: 0.4 })));
-    for (const engine of [2, 1]) {
+    for (const engine of [3, 1]) {
       const win = pages[engine].win, h = win.__h;
       const flatRun = runRespondent(win, 'WUBRG', FIVE.flat, { model: 'ideal', p: FIVE.p, neither: 0.05, seed: FIVE.seed });
       const flatAct = Object.fromEntries(h.state.activationSorted);
@@ -340,17 +343,17 @@ run('bars', async ({ ok, note }) => {
     }
   }
 
-  // ---------- B: the player's case, every Round 3 outcome, both engines ----------
-  for (const engine of [2, 1]) {
+  // ---------- B: the player's case, every Round 3 outcome, engines 3 and 1 ----------
+  for (const engine of [3, 1]) {
     const win = pages[engine].win, h = win.__h;
     const act = playRounds12(win, PLAYER);
     if (!ok(`B${engine}.1 engine ${engine}: the player's answers still fit the items drawn`, !!act, 'an item drawn is not in the pattern; re-record it')) continue;
     ok(`B${engine}.2 engine ${engine}: the bars print ${PLAYER.bars}`, barsLine(act) === PLAYER.bars, barsLine(act));
     const four = h.state.pendingCandidates.slice(0, 4).map((c) => c.id);
-    if (engine === 2) {
+    if (engine !== 1) {
       const post = win.posteriorFromLogLik(win.identityLogLikelihoods(win.likelihoodEvidence()));
       const unfiltered = win.posteriorCandidates(post, 6).map((c) => c.id);
-      ok(`B2.3 engine 2: Round 3 plays only identities the bars allow (${four.join(', ')}; the posterior alone would have had ${unfiltered.slice(0, 4).join(', ')})`,
+      ok(`B${engine}.3 engine ${engine}: Round 3 plays only identities the bars allow (${four.join(', ')}; the posterior alone would have had ${unfiltered.slice(0, 4).join(', ')})`,
         four.length === 4 && four.every((id) => win.barsAllow(id) && allowedByPrint(colours(id), act)), four.join(','));
     } else note(`engine 1 plays ${four.join(', ')}`);
     const pairs = [];
@@ -376,8 +379,8 @@ run('bars', async ({ ok, note }) => {
     ok(`B${engine}.4 engine ${engine}: all ${1 << pairs.length} Round 3 outcomes end on an identity whose colours print on top, never Mono-Blue`,
       bad.length === 0, bad.slice(0, 3).join('; '));
     note(`engine ${engine} results: ${Object.entries(outcomes).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k} ${v}`).join(', ')}`);
-    if (engine === 2) {
-      ok(`B2.5 engine 2: no result records that the bars broke its loop (${loops} with a loop; the posterior decides)`, broken === 0, `${broken} flagged`);
+    if (engine !== 1) {
+      ok(`B${engine}.5 engine ${engine}: no result records that the bars broke its loop (${loops} with a loop; the posterior decides)`, broken === 0, `${broken} flagged`);
     } else {
       ok(`B1.5 engine 1: a result records that the bars broke its loop only when it is the loop's best member by the bars (${broken} of ${loops} loops)`,
         wrongFlag === 0, `${wrongFlag} of ${broken} flagged wrongly`);
@@ -386,14 +389,14 @@ run('bars', async ({ ok, note }) => {
 
   // ---------- O: the old pattern, counted evenly ----------
   {
-    const act = playRounds12(win2, OLD);
+    const act = playRounds12(win3, OLD);
     ok('O1 the answers recorded for the player\'s old bars, counted evenly, print W48 U64 B43 R56 G42: Blue first, where the old count printed W55 U52 B38 R60 G39',
       !!act && barsLine(act) === 'W48 U64 B43 R56 G42' && barsLine(Object.fromEntries(OLD.savedBars)) === 'W55 U52 B38 R60 G39', act && barsLine(act));
   }
 
   // ---------- C: the old Round 3 finished on this build ----------
   {
-    const win = win2, h = win.__h;
+    const win = win3, h = win.__h;
     playRounds12(win, OLD);
     // The four the build before the bars rule played, in its order (posterior after Round 2)
     const post = win.posteriorFromLogLik(win.identityLogLikelihoods(win.likelihoodEvidence()));
@@ -424,13 +427,13 @@ run('bars', async ({ ok, note }) => {
   {
     const out = path.join(os.tmpdir(), `mana-bars-${process.pid}.json`);
     const sim = spawnSync(process.execPath, [path.join(__dirname, 'simulate.js'), '--n', '4', '--models', 'all', '--p', '0.65,0.8',
-      '--engine', '1,2', '--out', out, ...(files.htmlPath ? [files.htmlPath] : [])], { encoding: 'utf-8', maxBuffer: 64 << 20 });
+      '--engine', '1,2,3', '--out', out, ...(files.htmlPath ? [files.htmlPath] : [])], { encoding: 'utf-8', maxBuffer: 64 << 20 });
     ok('D1 the simulator ran clean: no page errors, and no contract violation (every result and early offer allowed by its printed bars)', sim.status === 0,
       (sim.stderr || '').trim().split('\n').slice(-2).join(' | '));
     if (fs.existsSync(out)) {
       const reports = JSON.parse(fs.readFileSync(out, 'utf-8')).runs || [];
       fs.unlinkSync(out);
-      ok('D2 twelve reports: three populations, two engines, two p', reports.length === 12, String(reports.length));
+      ok('D2 eighteen reports: three populations, three engines, two p', reports.length === 18, String(reports.length));
       const total = reports.reduce((a, r) => a + r.respondents, 0);
       const against = reports.reduce((a, r) => a + Math.round(r.bars.shownOutOfOrder * r.respondents), 0);
       const over = reports.reduce((a, r) => a + Math.round(r.bars.overHalfAnswer * r.respondents), 0);

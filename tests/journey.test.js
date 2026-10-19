@@ -1,11 +1,13 @@
 #!/usr/bin/env node
 'use strict';
-// End-to-end journeys through the quiz in jsdom (43 checks): the Round 2
+// End-to-end journeys through the quiz in jsdom (46 checks): the Round 2
 // gaming gate, weighted ally answers, the Round 3 badge, session save and
 // resume at every stage (mid-Round 2, both round boundaries, mid-Round 3 and a
 // finished result), the Round 3 clinch rule, Neither-neutral Round 1 ranking,
-// the early-offer evidence floor, and a context disagreement that the result
-// page no longer spells out.
+// the early-offer evidence floor, a context disagreement that the result
+// page no longer spells out, and a session finishing on the scoring engine it
+// started with (a mid-Round 3 session from engine 2 and the same from engine
+// 3), with ?engine= pinning a new one.
 // Every page gets its own seeded Math.random, so runs are reproducible.
 // Usage: node tests/journey.test.js [path/to/index.html]
 const { bootPage, pageArgs, isVisible, waitForResults } = require('./_lib/load');
@@ -226,5 +228,65 @@ run('journey', async ({ ok }) => {
       block === 'Leaning Blue and black were well clear of the other three colours.' && !wh.document.getElementById('conf-exp')
         && !/caveat|disagreed|Round 1 and Round 2|softer than/i.test(page), block);
     wh.close();
+  }
+
+  // ---------- I: a session finishes on the scoring engine it started with ----------
+  // A session saved mid-Round 3 carries its engine (state.scoringEngine), and a
+  // result says which engine built it (scoringVersion). Engine 3, the default,
+  // reads a Round 3 answer at a lower q than engine 2 did (ROUND3_Q_GRID against
+  // ROUND3_Q_GRID_BY_VERSION[2]), so it counts for less. The session below is a
+  // player's from the author's runs (seed 101: bars U88 B82 R56 W9 G0; after
+  // Rounds 1 and 2, Grixis 84%, Dimir 12%), three matches in (Dimir beat
+  // Four-colour without green, Grixis beat Mono-Blue, Dimir beat Mono-Blue),
+  // with Dimir against Grixis still to answer.
+  {
+    const midRound3 = (engine) => {
+      const cand = (id, s1) => ({ id, s1, combinedScore: s1, wins: 0, losses: 0, opponents: [] });
+      const c = { GRIXIS: cand('GRIXIS', 0.8355), DIMIR: cand('DIMIR', 0.1231), YORE: cand('YORE', 0.0202), 'MONO-U': cand('MONO-U', 0.0043) };
+      const matchHistory = [['DIMIR', 'YORE'], ['GRIXIS', 'MONO-U'], ['DIMIR', 'MONO-U']].map(([w, l], i) => {
+        c[w].wins++; c[w].opponents.push(l); c[l].losses++; c[l].opponents.push(w);
+        return { a: { id: w }, b: { id: l }, winner: { id: w }, loser: { id: l }, type: 'ROUND_ROBIN', scenarioId: null, questionNum: i };
+      });
+      const pair = (a, b) => ({ a: c[a], b: c[b], type: 'ROUND_ROBIN' });
+      return JSON.stringify({
+        stage: 3, qNum: 3, qTot: 6, mode: 'draft', audience: 'consumer', gamingFamiliar: false, disclaimerAcknowledged: true,
+        responses: [], refinementAnswers: [],
+        pairwise: { 'W-B': { W: 0, B: 5.8 }, 'U-R': { U: 5.3, R: 1.7 }, 'G-U': { G: 0, U: 5.3 }, 'W-R': { W: 1, R: 4.8 }, 'B-G': { B: 5.6, G: 0 } },
+        refinementPairwise: { 'W-U': { W: 0, U: 0 }, 'U-B': { U: 1.8, B: 0 }, 'B-R': { B: 1, R: 1 }, 'R-G': { R: 1.7, G: 0 }, 'G-W': { G: 0, W: 0 } },
+        activationSorted: [['U', 0.8794], ['B', 0.8158], ['R', 0.5576], ['W', 0.0862], ['G', 0]],
+        tournament: {
+          candidates: Object.values(c), matchHistory, pendingPairs: [pair('GRIXIS', 'YORE'), pair('YORE', 'MONO-U')], currentMatchup: pair('DIMIR', 'GRIXIS'),
+          questionCount: 3, maxQuestions: 6, terminated: false, termReason: null, usedPoolScenarios: [], tiebreakAdded: false, poolQuestionsServed: 0,
+        },
+        scoringEngine: engine, likelihood: null, mulligan: { usedRounds: [], pending: null }, timestamp: Date.now(),
+      });
+    };
+    const finish = (engine) => {
+      const { win: wi, errors: ei } = makeDom();
+      wi.sessionStorage.setItem(SESSION_KEY, midRound3(engine));
+      const restored = wi.__h.restoreSession(wi.__h.loadSession());
+      wi.__h.selectTournamentChoice('DIMIR'); // Dimir over Grixis, as the player chose
+      const r = wi.__h.state.result || {};
+      const out = { restored, identity: r.identity, confidence: r.confidence, version: r.scoringVersion, grixis: r.posterior && r.posterior.GRIXIS, dimir: r.posterior && r.posterior.DIMIR, errors: ei.length };
+      wi.close();
+      return out;
+    };
+    const pct = (x) => (100 * x).toFixed(1);
+    const e2 = finish(2), e3 = finish(3);
+    ok(`I1 saved on engine 2, it finishes on engine 2 as it did for the player: ${e2.identity} ${e2.confidence} (Dimir ${pct(e2.dimir)}%, Grixis ${pct(e2.grixis)}%), scoring version 2`,
+      e2.restored && e2.version === 2 && e2.identity === 'DIMIR' && e2.confidence === 'MODERATE' && pct(e2.dimir) === '54.1' && pct(e2.grixis) === '43.3' && !e2.errors, JSON.stringify(e2));
+    ok(`I2 saved on engine 3, the same answers finish on engine 3: ${e3.identity} ${e3.confidence} (Grixis ${pct(e3.grixis)}%, Dimir ${pct(e3.dimir)}%), scoring version 3`,
+      e3.restored && e3.version === 3 && e3.identity === 'GRIXIS' && e3.confidence === 'MODERATE' && pct(e3.grixis) === '61.9' && pct(e3.dimir) === '34.9' && !e3.errors, JSON.stringify(e3));
+    // A new assessment runs on engine 3; ?engine=2 and ?engine=1 still select the earlier ones.
+    const pinned = [['', 3], ['?engine=2', 2], ['?engine=1', 1], ['?engine=7', 3]].map(([q, want]) => {
+      const { win: wp } = bootPage({ ...pageArgs(), seed: nextSeed++, url: 'http://localhost/' + q });
+      wp.__h.state.mode = 'draft'; wp.__h.state.disclaimerAcknowledged = true;
+      wp.__h.startAssessment();
+      const got = wp.__h.state.scoringEngine;
+      wp.close();
+      return [q || '(none)', got, want];
+    });
+    ok('I3 a new assessment pins engine 3; ?engine=2 and ?engine=1 pin the earlier engines, and anything else the current one',
+      pinned.every(([, got, want]) => got === want), JSON.stringify(pinned));
   }
 });

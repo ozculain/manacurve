@@ -1008,8 +1008,9 @@ run('play', async (t) => {
     playThrough(h, win, () => {});
     await waitForResults(win);
     const url = h.buildResultURL();
-    ok('P10a INSTRUMENT_VERSION is 11, a finished quiz carries it, and its link ends s=2&i=11',
-      win.eval('INSTRUMENT_VERSION') === 11 && !!h.state.result && h.state.result.instrumentVersion === 11 && /\/r\/[A-Z0-9-]+\.html\?p=[\d,]+&c=\w+&a=consumer&s=2&i=11$/.test(url), url);
+    const S = win.eval('SCORING_VERSION'); // the scoring version, which the link carries beside i
+    ok(`P10a INSTRUMENT_VERSION is 11, a finished quiz carries it, and its link ends s=${S}&i=11`,
+      win.eval('INSTRUMENT_VERSION') === 11 && !!h.state.result && h.state.result.instrumentVersion === 11 && new RegExp(`/r/[A-Z0-9-]+\\.html\\?p=[\\d,]+&c=\\w+&a=consumer&s=${S}&i=11$`).test(url), url);
     // An early result (the offer taken) carries it as well
     h.restart();
     begin(h);
@@ -1017,7 +1018,7 @@ run('play', async (t) => {
     win.earlyConfidenceData = { identity: 'DIMIR', confidence: 0.95 };
     win.showResultsEarly();
     ok('P10b an early result is instrument 11 too, and its link says i=11',
-      h.state.result.earlyTermination === true && h.state.result.instrumentVersion === 11 && /&s=2&i=11$/.test(h.buildResultURL()), h.buildResultURL());
+      h.state.result.earlyTermination === true && h.state.result.instrumentVersion === 11 && h.buildResultURL().endsWith(`&s=${S}&i=11`), h.buildResultURL());
     ok('P10c no errors', errors.length === 0, errors.slice(0, 3).join(' | '));
     win.close();
   }

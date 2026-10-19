@@ -4,6 +4,153 @@ Newest first. Dates are when the work was committed.
 
 ## 2026-10-19
 
+### Round 3 counts for less (scoring version 3)
+
+Two runs of the live quiz as its author, a Blue-Black-Red player by their own
+account, came out of Rounds 1 and 2 with Grixis at 86% and 84% and Dimir at
+12%, under bars of U94 B83 R60 W8 G0 and U88 B82 R56 W9 G0. Round 3 played
+four matches in each, Dimir won all three of its own and clinched, and both
+runs ended on Dimir, 58% to 41% and 54% to 43%, with Red at 60 and 56 left
+out of the name.
+
+- Why. Round 3 reads each match for every identity S by Jaccard similarity:
+  +1 when the winner's colours are closer to S's, -1 when the loser's are.
+  When Mono-Blue beat Four-colour without green, that counted a full -1
+  against Grixis, though the colour that sets the four apart from Grixis is
+  White, which Grixis lacks too. Over the first run's four matches Grixis
+  scored -2 and Dimir +3. And one answer moved the two identities in it about
+  a nat apart, against at most 2.5 nats for a whole six-question colour pair
+  in Rounds 1 and 2 (`PAIR_LOGLIK_CAP`), so a single Round 3 answer weighed
+  close to half of what Rounds 1 and 2 said about Red.
+- Measured first, on the page as it was (`tests/simulate.js`, n = 100 per
+  identity, seeds 3 and 4, 6,200 respondents per cell). New in the report:
+  the lead (the first candidate Round 3 plays, the one of the four the bars
+  allow that the Round 1 + 2 posterior rates highest), how often the result
+  overturns it, how often the result's colours are a proper subset of the
+  lead's (nested down) or a superset (nested up), and how often the bars say
+  more than the name (a colour left out prints at 50 or more and 25 or more
+  above every other colour left out). In percent:
+
+  |                               | ideal 0.65 | misspec 0.65 | ideal 0.8 | misspec 0.8 |
+  | ----------------------------- | ---------- | ------------ | --------- | ----------- |
+  | exact recovery                | 25.1       | 24.3         | 67.7      | 57.1        |
+  | HIGH / MODERATE / LOW right   | 54 / 46 / 23 | 50 / 39 / 21 | 93 / 84 / 56 | 82 / 71 / 42 |
+  | losing Round 3 record         | 1.1        | 1.0          | 1.4       | 0.7         |
+  | won no match                  | 0          | 0            | 0         | 0           |
+  | lead overturned               | 59.6       | 58.3         | 39.2      | 42.8        |
+  | ...result right / lead right  | 21.7 / 12.5 | 21.6 / 9.3  | 50.6 / 18.3 | 42.4 / 17.1 |
+  | nested down                   | 29.4       | 34.7         | 16.6      | 24.5        |
+  | ...lead right / result right  | 12.3 / 23.2 | 10.4 / 20.0 | 17.3 / 59.3 | 22.9 / 39.9 |
+  | nested up                     | 30.2       | 23.6         | 22.7      | 18.3        |
+  | bars say more                 | 2.2        | 2.9          | 4.0       | 5.1         |
+  | ...result right / with the colour added right | 27.0 / 23.4 | 25.7 / 21.2 | 66.9 / 18.8 | 49.5 / 34.6 |
+
+  So on simulated respondents an overturn and a nested downgrade are each
+  right more often than the lead, and a result the bars say more than is
+  right more often than the same identity with that colour added. The
+  author's runs are a case neither respondent model produces: a person who
+  turns an identity down for one colour it has and they lack.
+- Five changes, tried on the same respondents. The change in exact recovery
+  (with two paired standard errors), in nested down and in bars say more, in
+  points, for ideal 0.65 / misspecified 0.65 / ideal 0.8 / misspecified 0.8:
+
+  | variant                                         | exact recovery                                | nested down               | bars say more             |
+  | ----------------------------------------------- | --------------------------------------------- | ------------------------- | ------------------------- |
+  | B: sign from the colours winner and loser differ on | -0.0 ±0.5 / +0.1 ±0.5 / -1.6 ±0.6 / +2.1 ±0.7 | -3.1 / -2.7 / -2.3 / -3.2 | -0.3 / -0.5 / -0.7 / -0.9 |
+  | C: q averaged over 0.55 to 0.75 (taken)         | +0.1 ±0.4 / -0.2 ±0.4 / +0.1 ±0.5 / -0.0 ±0.5 | -2.2 / -2.3 / -2.0 / -2.8 | -0.4 / -0.3 / -0.6 / -0.7 |
+  | D: B and C                                      | -0.5 ±0.6 / +0.3 ±0.6 / -1.4 ±0.7 / +2.0 ±0.7 | -5.2 / -5.1 / -4.0 / -5.5 | -0.4 / -0.7 / -1.1 / -1.2 |
+  | E: a match counts only for the two that played  | -1.1 ±0.7 / +0.2 ±0.7 / -3.2 ±0.7 / +1.2 ±0.8 | -4.5 / -5.5 / -2.7 / -4.6 | +0.0 / -0.3 / -0.6 / -0.8 |
+  | F: Round 3 swing capped at 1.5 nats             | +0.0 ±0.3 / -0.7 ±0.3 / -0.9 ±0.4 / -0.2 ±0.4 | -1.3 / -2.1 / -1.0 / -2.3 | -0.1 / -0.4 / -0.5 / -0.6 |
+
+  B, D, E and F each lose recovery beyond two standard errors somewhere: B,
+  D and E on ideal respondents, whose Round 3 choices follow Jaccard
+  similarity by construction (while gaining on misspecified ones), F on both.
+  C loses none anywhere, and every confidence label is right more often:
+  HIGH 54 to 55 / 50 to 55 / 92.8 to 93.6 / 82.3 to 86.0, MODERATE 46 to 47 /
+  39 to 45 / 84.1 to 86.7 / 71.3 to 75.7, LOW 22.7 to 23.7 / 21.2 to 21.9 /
+  56.0 to 57.9 / 41.8 to 43.5. B's MODERATE fell from 84.1 to 81.5 for ideal
+  respondents at p = 0.8, and E's labels fell for ideal respondents at both p.
+- Nearby grids behave alike. Averaging q over 0.55 to 0.8 instead moves
+  recovery -0.1 to +0.2 points and nested down -1.1 to -1.7; over 0.55 to
+  0.7, recovery -0.5 to +0.1 (misspecified at 0.65 at the edge of two
+  standard errors) and nested down -2.8 to -4.0, with the first results that
+  won no match (0.1% at p = 0.8). 0.55 to 0.75 is taken, between the two.
+- The mixed population (flatter colour weights, the noisiest of the three)
+  moves the same way under C: recovery +0.1 ±0.3 and +0.0 ±0.4 at p = 0.65
+  and 0.8, nested down -2.1 and -2.5, bars say more -0.2 and -0.4, and
+  MODERATE right 22.7 and 44.5% of the time against 17.7 and 38.2.
+- The change: scoring version 3. Round 3 reads a match as before, by Jaccard
+  similarity, at a q averaged over 0.55 to 0.75 instead of 0.55 to 0.9
+  (`ROUND3_Q_GRID`), so one answer moves the two identities in it about 0.6
+  nats apart instead of about one. The record rule is unchanged.
+- What it costs. Round 3 moves the result less often in both directions.
+  Monos and four-colour identities give up 2 to 4 points of recovery at
+  p = 0.8 (ideal 74.5 to 72.1 and 66.5 to 64.6, misspecified 73.4 to 70.8
+  and 54.7 to 51.1) to three-colour identities (66.1 to 68.2, 52.7 to 54.6)
+  and guilds (72.2 to 72.5, 59.6 to 60.6). HIGH is given to fewer results
+  (11.7 to 8.1% and 14.0 to 9.5% at p = 0.8). Losing Round 3 records rise
+  from 1.4 / 0.7% to 1.7 / 1.0%, and results without the best Round 3
+  record from 9.6 / 11.2% to 13.1 / 15.4%; for those, the results screen
+  says the identity won on the weight of all the answers, though not with
+  the best record in that round. Of the 31 golden paths at p = 1, one now
+  misses: a perfectly consistent Four-colour without blue player (bars W30 U0
+  B63 R74 G78), whom Round 3 took from Jund to their own identity, 3-0 and
+  over Jund head to head, is now told Jund.
+- Versions. A result built now can differ from one built before for the
+  same answers, so `SCORING_VERSION` is 3 and a result's link says `s=3`.
+  Engine 2 stays: a session saved on it finishes on it, Round 3 included,
+  and `?engine=2` selects it for one release (`ROUND3_Q_GRID_BY_VERSION`). A
+  link carries its result, so a version 2 link opens as it was built; the
+  presentation keyed by version (`ONE_ANSWER_BY_VERSION`, the version at the
+  foot of the methodology) has a version 3 entry, the same as version 2's.
+  `docs/SCORING_CONTRACT.md` says what engines 2 and 3 put in a result and
+  now states the rule, in its own commit: a scoring change that gives a
+  different result for the same answers takes a new version. (The record
+  rule and Even bars and Five-colour changed results inside version 2,
+  before the rule.)
+- The author's sessions, replayed on version 3 from their saved state. The
+  second run (seed 101: Dimir beat Four-colour without green, Grixis beat
+  Mono-Blue, Dimir beat Mono-Blue, Dimir beat Grixis) is now Grixis,
+  MODERATE, 61.9% to Dimir's 34.9% (version 2: Dimir 54.1%, Grixis 43.3%).
+  The first (seed 202) is still Dimir, now LOW: the posterior is Grixis
+  59.1%, Dimir 38.9% (version 2: Dimir 57.7%, Grixis 40.6%), but Grixis lost
+  the one match it played, to Dimir, before Dimir clinched, and the record
+  rule reports a leader that won no match only at 16 times the runner-up's
+  posterior.
+- `tests/fixtures/golden.json` is rewritten in its own commit: 31 of the 186
+  paths move, 7 to another identity (the true identity on 147 paths against
+  146), 19 in confidence alone; 5 play different matches.
+- Tests. `tests/journey.test.js` (46 checks): a session saved three matches
+  into Round 3 from the second author run finishes Dimir, MODERATE, version
+  2, on engine 2, as it did, and Grixis, MODERATE, version 3, on engine 3;
+  a new assessment pins engine 3, and `?engine=2` and `?engine=1` the
+  earlier ones. `tests/seed.test.js`: a version 2 and a version 3 link with
+  the same result open alike, each as its own version. `tests/render.test.js`:
+  a version 3 result says what decided it as version 2 does.
+  `tests/play.test.js` reads the scoring version a link should carry from the
+  page. `tests/bars.test.js` runs on engines 3 and 1, and its simulator check
+  on all three. `tests/simulate.js`: `--engine 1|2|3` (3 the default, `all`
+  for every one); the lead, overturn, nested and bars-say-more figures in
+  every report; `--r3` Round 3 models written out in the simulator
+  (`jaccard`, `symdiff`, `qg=A:B`, `own`, `cap=X`), which run on the page so
+  the tiebreaks follow them, with the change in nested down and bars say
+  more from the first variant on the same respondents; and `--rows` under
+  `--r3`. `tools/round3-coverage.js` takes `--engine 1|2|3`.
+- Not reached. Bars that say more than the name remain on 3.4 / 4.4% of
+  results at p = 0.8. The first author run is still Dimir, by the record
+  rule. B, which stops a rejected colour counting against identities that
+  lack it too, gains 2 points on misspecified respondents at p = 0.8 and
+  costs ideal respondents 1.6; no real players have been measured, so which
+  population real Round 3 choices resemble is open.
+- Commands, with this change's simulator on 778e83b's `index.html` (given as
+  the last argument): `node tests/simulate.js --n 100 --models both --p
+  0.65,0.8 --seed 3,4 --engine 2 --r3
+  page,symdiff,qg=0.55:0.75,symdiff+qg=0.55:0.75,own,cap=1.5`; then `--r3
+  page,qg=0.55:0.7,qg=0.55:0.8` with the same flags, and `--models mixed
+  --r3 page,qg=0.55:0.75,symdiff`. On this build `--engine 2` runs version
+  2, and `symdiff`, `own` and `cap=1.5` need `+qg=0.55:0.9` to read Round 3
+  on version 2's grid.
+
 ### Instrument 11, and the old Round 3 situations in plain home settings
 
 One version bump for the night's copy changes: result pages in the second person, the question lines readers flagged, the front page and interface strings, and the Round 3 rewrite in the next entry. `INSTRUMENT_VERSION` is 11 and a result built now writes `i=11`; the contract line, the simulator's constant, `tests/play.test.js` and the tests README say so. Scoring is unchanged (`tests/fixtures/golden.json` does not move).
