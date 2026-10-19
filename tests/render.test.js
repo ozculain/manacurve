@@ -720,23 +720,32 @@ run('render', async (t) => {
     win.close();
   }
 
-  // What decided the result. Engine 2 (the default) weighs all the answers,
-  // so the reported identity can lack the best Round 3 record: the Round 3
-  // line in "How we read you" says what decided it, and says so plainly when
-  // the record was not the best. Engine 1 (?engine=1) keeps "finished with
-  // the best record". The confidence block says none of it: under either
-  // engine it is the label and its one line.
+  // What decided the result. The likelihood engine (engines 2 to 4, 4 the
+  // default) weighs all the answers, so the reported identity can lack the
+  // best Round 3 record: the Round 3 line in "How we read you" says what
+  // decided it, and says so plainly when the record was not the best, as for a
+  // result on engine 4 that lost its one match before another candidate
+  // clinched (0W-1L). Engine 1 (?engine=1) keeps "finished with the best
+  // record". The confidence block says none of it: under any engine it is the
+  // label and its one line.
   {
     const notBest = JSON.parse(JSON.stringify(DIMIR.result));
     notBest.round3Data.allScores = [cand('DIMIR', 1, 2, 0.81), cand('GRIXIS', 3, 0, 0.74), cand('ESPER', 1, 2, 0.66), cand('MONO-U', 1, 2, 0.61)];
     notBest.round3Data.runnerUp = { id: 'GRIXIS', wins: 3, losses: 0 };
+    const oneMatch = JSON.parse(JSON.stringify(DIMIR.result));
+    oneMatch.round3Data.allScores = [cand('DIMIR', 0, 1, 0.81), cand('GRIXIS', 3, 0, 0.74), cand('MONO-U', 1, 1, 0.66), cand('ESPER', 0, 2, 0.61)];
+    oneMatch.round3Data.runnerUp = { id: 'GRIXIS', wins: 3, losses: 0 };
     const R3 = [
       ['engine 2, the winner lacks the best record', notBest, 2,
         'Dimir won on the weight of all your answers, though not with the best record in this round (1W-2L). Grixis came next (3W-0L).'],
       ['engine 2, the winner shares the best record', DIMIR.result, 2,
         'Dimir won on the weight of all your answers (2W-1L in this round). Grixis came next (2W-1L).'],
-      ['engine 3 (the default) says it the same way', DIMIR.result, 3,
+      ['engine 3 says it the same way', DIMIR.result, 3,
         'Dimir won on the weight of all your answers (2W-1L in this round). Grixis came next (2W-1L).'],
+      ['engine 4 (the default) says it the same way', DIMIR.result, 4,
+        'Dimir won on the weight of all your answers (2W-1L in this round). Grixis came next (2W-1L).'],
+      ['engine 4, the winner lost its one match before a clinch', oneMatch, 4,
+        'Dimir won on the weight of all your answers, though not with the best record in this round (0W-1L). Grixis came next (3W-0L).'],
       ['engine 1 keeps its line', DIMIR.result, 1,
         'DIMIR finished with the best record (2W-1L), ahead of GRIXIS (2W-1L).'],
     ];

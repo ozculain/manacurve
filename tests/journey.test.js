@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 'use strict';
-// End-to-end journeys through the quiz in jsdom (46 checks): the Round 2
+// End-to-end journeys through the quiz in jsdom (48 checks): the Round 2
 // gaming gate, weighted ally answers, the Round 3 badge, session save and
 // resume at every stage (mid-Round 2, both round boundaries, mid-Round 3 and a
 // finished result), the Round 3 clinch rule, Neither-neutral Round 1 ranking,
 // the early-offer evidence floor, a context disagreement that the result
 // page no longer spells out, and a session finishing on the scoring engine it
-// started with (a mid-Round 3 session from engine 2 and the same from engine
-// 3), with ?engine= pinning a new one.
+// started with (a mid-Round 3 session from engines 2, 3 and 4, and one that
+// clinches with the posterior leader 0-1 from engines 3 and 4), with ?engine=
+// pinning a new one.
 // Every page gets its own seeded Math.random, so runs are reproducible.
 // Usage: node tests/journey.test.js [path/to/index.html]
 const { bootPage, pageArgs, isVisible, waitForResults } = require('./_lib/load');
@@ -232,18 +233,41 @@ run('journey', async ({ ok }) => {
 
   // ---------- I: a session finishes on the scoring engine it started with ----------
   // A session saved mid-Round 3 carries its engine (state.scoringEngine), and a
-  // result says which engine built it (scoringVersion). Engine 3, the default,
-  // reads a Round 3 answer at a lower q than engine 2 did (ROUND3_Q_GRID against
-  // ROUND3_Q_GRID_BY_VERSION[2]), so it counts for less. The session below is a
-  // player's from the author's runs (seed 101: bars U88 B82 R56 W9 G0; after
-  // Rounds 1 and 2, Grixis 84%, Dimir 12%), three matches in (Dimir beat
-  // Four-colour without green, Grixis beat Mono-Blue, Dimir beat Mono-Blue),
-  // with Dimir against Grixis still to answer.
+  // result says which engine built it (scoringVersion). Engine 3 reads a Round 3
+  // answer at a lower q than engine 2 did (ROUND3_Q_GRID against
+  // ROUND3_Q_GRID_BY_VERSION[2]), so it counts for less; engine 4, the default,
+  // also lets a leader that played one match keep the result at a posterior of
+  // 0.5 or more, reported LOW (ROUND3_ONE_MATCH_FROM_VERSION). The sessions below are
+  // a player's from the author's runs, three matches in, with Dimir against
+  // Grixis still to answer; the player chose Dimir.
+  //   seed 101: bars U88 B82 R56 W9 G0; after Rounds 1 and 2, Grixis 84%, Dimir
+  //     12%; Dimir beat Four-colour without green, Grixis beat Mono-Blue, Dimir
+  //     beat Mono-Blue.
+  //   seed 202: bars U94 B83 R60 W8 G0; Grixis 86%, Dimir 12%; Mono-Blue beat
+  //     Four-colour without green, Dimir beat Mono-Blue, Dimir beat Four-colour.
+  //     Dimir's third win clinches, so Grixis plays one match and loses it.
   {
-    const midRound3 = (engine) => {
+    const SESSIONS = {
+      101: {
+        cands: [['GRIXIS', 0.8355], ['DIMIR', 0.1231], ['YORE', 0.0202], ['MONO-U', 0.0043]],
+        played: [['DIMIR', 'YORE'], ['GRIXIS', 'MONO-U'], ['DIMIR', 'MONO-U']], rest: [['GRIXIS', 'YORE'], ['YORE', 'MONO-U']],
+        pairwise: { 'W-B': { W: 0, B: 5.8 }, 'U-R': { U: 5.3, R: 1.7 }, 'G-U': { G: 0, U: 5.3 }, 'W-R': { W: 1, R: 4.8 }, 'B-G': { B: 5.6, G: 0 } },
+        refinementPairwise: { 'W-U': { W: 0, U: 0 }, 'U-B': { U: 1.8, B: 0 }, 'B-R': { B: 1, R: 1 }, 'R-G': { R: 1.7, G: 0 }, 'G-W': { G: 0, W: 0 } },
+        activationSorted: [['U', 0.8794], ['B', 0.8158], ['R', 0.5576], ['W', 0.0862], ['G', 0]],
+      },
+      202: {
+        cands: [['GRIXIS', 0.8613], ['DIMIR', 0.1173], ['YORE', 0.0065], ['MONO-U', 0.0034]],
+        played: [['MONO-U', 'YORE'], ['DIMIR', 'MONO-U'], ['DIMIR', 'YORE']], rest: [['GRIXIS', 'YORE'], ['GRIXIS', 'MONO-U']],
+        pairwise: { 'W-B': { W: 0, B: 5.8 }, 'U-R': { U: 4.5, R: 0.8 }, 'G-U': { G: 0, U: 5.6 }, 'W-R': { W: 0, R: 5.5 }, 'B-G': { B: 5.6, G: 0 } },
+        refinementPairwise: { 'W-U': { W: 0, U: 1 }, 'U-B': { U: 1.8, B: 0 }, 'B-R': { B: 1, R: 0.8 }, 'R-G': { R: 1, G: 0 }, 'G-W': { G: 0, W: 1 } },
+        activationSorted: [['U', 0.9416], ['B', 0.8267], ['R', 0.5956], ['W', 0.0752], ['G', 0]],
+      },
+    };
+    const midRound3 = (engine, seed) => {
+      const S = SESSIONS[seed];
       const cand = (id, s1) => ({ id, s1, combinedScore: s1, wins: 0, losses: 0, opponents: [] });
-      const c = { GRIXIS: cand('GRIXIS', 0.8355), DIMIR: cand('DIMIR', 0.1231), YORE: cand('YORE', 0.0202), 'MONO-U': cand('MONO-U', 0.0043) };
-      const matchHistory = [['DIMIR', 'YORE'], ['GRIXIS', 'MONO-U'], ['DIMIR', 'MONO-U']].map(([w, l], i) => {
+      const c = Object.fromEntries(S.cands.map(([id, s1]) => [id, cand(id, s1)]));
+      const matchHistory = S.played.map(([w, l], i) => {
         c[w].wins++; c[w].opponents.push(l); c[l].losses++; c[l].opponents.push(w);
         return { a: { id: w }, b: { id: l }, winner: { id: w }, loser: { id: l }, type: 'ROUND_ROBIN', scenarioId: null, questionNum: i };
       });
@@ -251,34 +275,37 @@ run('journey', async ({ ok }) => {
       return JSON.stringify({
         stage: 3, qNum: 3, qTot: 6, mode: 'draft', audience: 'consumer', gamingFamiliar: false, disclaimerAcknowledged: true,
         responses: [], refinementAnswers: [],
-        pairwise: { 'W-B': { W: 0, B: 5.8 }, 'U-R': { U: 5.3, R: 1.7 }, 'G-U': { G: 0, U: 5.3 }, 'W-R': { W: 1, R: 4.8 }, 'B-G': { B: 5.6, G: 0 } },
-        refinementPairwise: { 'W-U': { W: 0, U: 0 }, 'U-B': { U: 1.8, B: 0 }, 'B-R': { B: 1, R: 1 }, 'R-G': { R: 1.7, G: 0 }, 'G-W': { G: 0, W: 0 } },
-        activationSorted: [['U', 0.8794], ['B', 0.8158], ['R', 0.5576], ['W', 0.0862], ['G', 0]],
+        pairwise: S.pairwise, refinementPairwise: S.refinementPairwise, activationSorted: S.activationSorted,
         tournament: {
-          candidates: Object.values(c), matchHistory, pendingPairs: [pair('GRIXIS', 'YORE'), pair('YORE', 'MONO-U')], currentMatchup: pair('DIMIR', 'GRIXIS'),
+          candidates: Object.values(c), matchHistory, pendingPairs: S.rest.map(([a, b]) => pair(a, b)), currentMatchup: pair('DIMIR', 'GRIXIS'),
           questionCount: 3, maxQuestions: 6, terminated: false, termReason: null, usedPoolScenarios: [], tiebreakAdded: false, poolQuestionsServed: 0,
         },
         scoringEngine: engine, likelihood: null, mulligan: { usedRounds: [], pending: null }, timestamp: Date.now(),
       });
     };
-    const finish = (engine) => {
+    const finish = (engine, seed = 101) => {
       const { win: wi, errors: ei } = makeDom();
-      wi.sessionStorage.setItem(SESSION_KEY, midRound3(engine));
+      wi.sessionStorage.setItem(SESSION_KEY, midRound3(engine, seed));
       const restored = wi.__h.restoreSession(wi.__h.loadSession());
       wi.__h.selectTournamentChoice('DIMIR'); // Dimir over Grixis, as the player chose
       const r = wi.__h.state.result || {};
-      const out = { restored, identity: r.identity, confidence: r.confidence, version: r.scoringVersion, grixis: r.posterior && r.posterior.GRIXIS, dimir: r.posterior && r.posterior.DIMIR, errors: ei.length };
+      const t = wi.__h.state.tournament || {};
+      const g = ((r.round3Data && r.round3Data.allScores) || []).find((x) => x.id === 'GRIXIS') || {};
+      const out = { restored, identity: r.identity, confidence: r.confidence, version: r.scoringVersion, grixis: r.posterior && r.posterior.GRIXIS, dimir: r.posterior && r.posterior.DIMIR,
+        end: t.termReason && t.termReason.reason, matches: (t.matchHistory || []).length, grixisRecord: `${g.wins}-${g.losses}`, errors: ei.length };
       wi.close();
       return out;
     };
     const pct = (x) => (100 * x).toFixed(1);
-    const e2 = finish(2), e3 = finish(3);
+    const e2 = finish(2), e3 = finish(3), e4 = finish(4);
     ok(`I1 saved on engine 2, it finishes on engine 2 as it did for the player: ${e2.identity} ${e2.confidence} (Dimir ${pct(e2.dimir)}%, Grixis ${pct(e2.grixis)}%), scoring version 2`,
       e2.restored && e2.version === 2 && e2.identity === 'DIMIR' && e2.confidence === 'MODERATE' && pct(e2.dimir) === '54.1' && pct(e2.grixis) === '43.3' && !e2.errors, JSON.stringify(e2));
-    ok(`I2 saved on engine 3, the same answers finish on engine 3: ${e3.identity} ${e3.confidence} (Grixis ${pct(e3.grixis)}%, Dimir ${pct(e3.dimir)}%), scoring version 3`,
-      e3.restored && e3.version === 3 && e3.identity === 'GRIXIS' && e3.confidence === 'MODERATE' && pct(e3.grixis) === '61.9' && pct(e3.dimir) === '34.9' && !e3.errors, JSON.stringify(e3));
-    // A new assessment runs on engine 3; ?engine=2 and ?engine=1 still select the earlier ones.
-    const pinned = [['', 3], ['?engine=2', 2], ['?engine=1', 1], ['?engine=7', 3]].map(([q, want]) => {
+    ok(`I2 saved on engine 3, the same answers finish on engine 3: ${e3.identity} ${e3.confidence} (Grixis ${pct(e3.grixis)}%, Dimir ${pct(e3.dimir)}%), scoring version 3; on engine 4 the same, version 4`,
+      e3.restored && e3.version === 3 && e3.identity === 'GRIXIS' && e3.confidence === 'MODERATE' && pct(e3.grixis) === '61.9' && pct(e3.dimir) === '34.9' && !e3.errors
+        && e4.restored && e4.version === 4 && e4.identity === 'GRIXIS' && e4.confidence === 'MODERATE' && pct(e4.grixis) === '61.9' && pct(e4.dimir) === '34.9' && !e4.errors,
+      JSON.stringify({ e3, e4 }));
+    // A new assessment runs on engine 4; ?engine=3, ?engine=2 and ?engine=1 still select the earlier ones.
+    const pinned = [['', 4], ['?engine=3', 3], ['?engine=2', 2], ['?engine=1', 1], ['?engine=7', 4]].map(([q, want]) => {
       const { win: wp } = bootPage({ ...pageArgs(), seed: nextSeed++, url: 'http://localhost/' + q });
       wp.__h.state.mode = 'draft'; wp.__h.state.disclaimerAcknowledged = true;
       wp.__h.startAssessment();
@@ -286,7 +313,15 @@ run('journey', async ({ ok }) => {
       wp.close();
       return [q || '(none)', got, want];
     });
-    ok('I3 a new assessment pins engine 3; ?engine=2 and ?engine=1 pin the earlier engines, and anything else the current one',
+    ok('I3 a new assessment pins engine 4; ?engine=3, ?engine=2 and ?engine=1 pin the earlier engines, and anything else the current one',
       pinned.every(([, got, want]) => got === want), JSON.stringify(pinned));
+    // The seed 202 session: Dimir clinches after four matches, and Grixis is 0-1.
+    const c3 = finish(3, 202), c4 = finish(4, 202);
+    ok(`I4 the clinched session saved on engine 3 finishes on engine 3: ${c3.identity} ${c3.confidence} (Grixis ${pct(c3.grixis)}% at ${c3.grixisRecord}, Dimir ${pct(c3.dimir)}%), as a leader that won no match needs 16 times the runner-up's posterior`,
+      c3.restored && c3.version === 3 && c3.identity === 'DIMIR' && c3.confidence === 'LOW' && pct(c3.grixis) === '59.1' && pct(c3.dimir) === '38.9'
+        && c3.end === 'CLINCHED' && c3.matches === 4 && c3.grixisRecord === '0-1' && !c3.errors, JSON.stringify(c3));
+    ok(`I5 saved on engine 4, the same answers finish ${c4.identity} ${c4.confidence} (Grixis ${pct(c4.grixis)}% at ${c4.grixisRecord}, Dimir ${pct(c4.dimir)}%): Grixis played one match, which its posterior has counted, and lost it, so the result is LOW`,
+      c4.restored && c4.version === 4 && c4.identity === 'GRIXIS' && c4.confidence === 'LOW' && pct(c4.grixis) === '59.1' && pct(c4.dimir) === '38.9'
+        && c4.end === 'CLINCHED' && c4.matches === 4 && c4.grixisRecord === '0-1' && !c4.errors, JSON.stringify(c4));
   }
 });

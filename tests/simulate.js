@@ -5,7 +5,7 @@
 // handlers and scoring code (unchanged). The respondent models live in
 // tests/_lib/respondent.js.
 // Usage: node tests/simulate.js [--n 200] [--p 0.8[,0.9,...]] [--neither 0.05] [--seed 1[,2,...]]
-//          [--model ideal|misspecified|mixed | --models both|all|a,b] [--engine 3 | --engine 1,2,3]
+//          [--model ideal|misspecified|mixed | --models both|all|a,b] [--engine 4 | --engine 1,2,3,4]
 //          [--r3 page,q=0.85,tour,...] [--gaming] [--workers auto] [--out tests/out/simulation.json]
 //          [--five-band 20] [--rows] [path/to/another/index.html]
 'use strict';
@@ -18,10 +18,11 @@ const ROOT = path.resolve(__dirname, '..');
 const { bootPage } = require('./_lib/load');
 const { runRespondent, calibrateMisspecified, signalAt, MIXED, MODEL_NAMES } = require('./_lib/respondent');
 
-// The page's default engine (3); ?engine=1 selects the win-rate engine and ?engine=2
-// the likelihood engine with Round 3 answers weighed as in scoring version 2, for one release.
-const ENGINES = [1, 2, 3];
-const DEFAULT_ENGINE = 3;
+// The page's default engine (4); ?engine=1 selects the win-rate engine, ?engine=2 the
+// likelihood engine with Round 3 answers weighed as in scoring version 2, and ?engine=3 the
+// likelihood engine with version 3's record rule, each for one release.
+const ENGINES = [1, 2, 3, 4];
+const DEFAULT_ENGINE = 4;
 // The instrument version the page stamps on a finished result (INSTRUMENT_VERSION in
 // index.html): 11 since the result pages, question lines, Round 3 situations and interface strings were rewritten (10 since the Red answers were rewritten as conviction and the counter said
 // "of up to" (9 for Round 3's short situations for the matchups players meet, 8 for the
@@ -98,7 +99,22 @@ function parseArgs(argv) {
 //   rule:M   ...unless the posterior maximum's posterior is at least M times
 //            the runner-up's (the next candidate by posterior)
 //   losing:M:M0  as losing:M, with M0 in place of M when the posterior maximum
-//            won no match at all
+//            won no match at all (losing:3:16 is engine 3's rule, and
+//            losing:3:16+once=0.5 below engine 4's, so on this build each
+//            reproduces page on its engine exactly)
+// Three parts change how the record rules above (lostall, losing, net) read
+// the record; each acts on every such rule in the variant:
+//   once     no rule for a posterior maximum that played only one match (a
+//            clinch ended Round 3 before it could play again)
+//   pre      a margin for a posterior maximum that won no match is read on the
+//            posterior before Round 3 (Rounds 1 and 2 alone), which has not
+//            yet counted the matches it lost
+//   h2h      no rule for a posterior maximum whose only loss was to the
+//            runner-up (the final posterior, which counted that match, still
+//            puts it first)
+//   once=X, h2h=X  the same, only while the posterior maximum's final
+//            posterior is at least X (once=0.5 is scoring version 4's rule)
+//   keptlow  a result that lost the only match it played is labelled LOW
 // Round 3 models, written out here so a variant does not lean on the page's
 // own code; any of these parts replaces the page's round3LogLikelihoods with
 // this file's (round3ModelLogLik), on the page, so the posterior, the tiebreak
@@ -111,8 +127,8 @@ function parseArgs(argv) {
 //            on which it agrees with the loser, so -1 to +1, and a split is 0
 //   qg=A:B   q averaged over A, A + 0.05, ..., B instead of the page's
 //            ROUND3_Q_GRID (q=X with any of these parts: q fixed at X); so on
-//            the current build jaccard is engine 3 and jaccard+qg=0.55:0.9 is
-//            engine 2
+//            the current build jaccard is engines 3 and 4 and
+//            jaccard+qg=0.55:0.9 is engine 2
 //   own      a match counts only for the two identities that played it
 //   cap=X    no identity's Round 3 term more than X nats below the best one's
 // A sign s weighs a match as P(winner | S) = 1/2 + (q - 1/2) s, which is the
@@ -122,15 +138,23 @@ function parseArgs(argv) {
 // The rules act after the last answer, so they change no question: they are
 // applied to what the page recorded at its own decision, with the confidence
 // label the page would have given the identity they pick (its posterior, the
-// cycle rule and both caps).
+// cycle rule, from scoring version 4 the one-match rule, and both caps).
 const RULES = ['pm', 'tour', 'lostall', 'losing', 'net'];
+const RECORD_RULES = ['lostall', 'losing', 'net'];
+const RECORD_MODS = ['once', 'pre', 'h2h', 'keptlow'];
 const Q_STEP = 0.05;
 function parseVariant(spec) {
-  const v = { name: String(spec).trim(), rules: [] };
+  const v = { name: String(spec).trim(), rules: [], mods: {} };
   const model = {};
   for (const part of v.name.split('+')) {
     let m;
     if (part === 'page') continue;
+    if (RECORD_MODS.includes(part)) { v.mods[part] = part === 'once' || part === 'h2h' ? 0 : true; continue; }
+    if ((m = /^(once|h2h)=(\d*\.?\d+)$/.exec(part))) {
+      v.mods[m[1]] = Number(m[2]);
+      if (!(v.mods[m[1]] >= 0 && v.mods[m[1]] <= 1)) fail(`--r3 ${part}: the floor is a posterior, 0 to 1`);
+      continue;
+    }
     if ((m = /^q=?(\d*\.?\d+)$/.exec(part))) {
       model.q = Number(m[1]);
       if (!(model.q >= 0.5 && model.q < 1)) fail(`--r3 ${part}: q must lie in [0.5, 1)`);
@@ -152,9 +176,10 @@ function parseVariant(spec) {
       if ([margin, margin0].some((x) => x !== undefined && !(x >= 1))) fail(`--r3 ${part}: a margin is a posterior ratio, at least 1`);
       if (margin0 !== undefined && m[1] !== 'losing') fail(`--r3 ${part}: only losing takes a second margin`);
       v.rules.push({ kind: m[1], margin, margin0 });
-    } else fail(`Unknown --r3 variant "${part}"; expected page, q=X, jaccard, symdiff, qg=A:B, own, cap=X, ${RULES.join(', ')} (optionally rule:M, losing:M:M0), joined with +`);
+    } else fail(`Unknown --r3 variant "${part}"; expected page, q=X, jaccard, symdiff, qg=A:B, own, cap=X, ${RULES.join(', ')} (optionally rule:M, losing:M:M0), ${RECORD_MODS.join(', ')}, joined with +`);
   }
   if (model.q !== undefined && model.grid) fail(`--r3 ${v.name}: q=X and qg=A:B both set the grid`);
+  if (Object.keys(v.mods).length && !v.rules.some((r) => RECORD_RULES.includes(r.kind))) fail(`--r3 ${v.name}: ${RECORD_MODS.join(', ')} change a record rule (${RECORD_RULES.join(', ')}); name one`);
   // The model the page runs: null for the page's own; { q } for the page's own
   // function at one q; otherwise this file's, from its parts.
   model.sim = !!(model.sign || model.grid || model.own || model.cap !== undefined);
@@ -215,21 +240,26 @@ function installRound3Hooks(win) {
   };
   // What the page knew when it decided: the tournament winner (finishRound3Tournament
   // asks getTournamentWinner first and hands its result in), every candidate's
-  // final posterior, and the label each would get as the result.
+  // final posterior and its posterior before Round 3 (Rounds 1 and 2 alone, the
+  // logLik applyPosteriorDecision leaves on state.likelihood), and the label
+  // each would get as the result.
   win.applyPosteriorDecision = function (result, tournament) {
     const tw = result && result.winner ? result.winner.id : null;
     const out = decide(result, tournament);
     const st = win.__h.state, post = out.posterior;
+    const prior = win.posteriorFromLogLik(st.likelihood.logLik);
     const ids = tournament.candidates.map((c) => c.id);
     const conf = {};
     for (const c of tournament.candidates) {
       const as = { winner: c, cycle: result.cycle, confidence: win.confidenceFromPosterior(post[c.id]) };
       if (as.cycle && as.cycle.includes(c.id)) as.confidence = 'LOW';
+      // A result that lost the only match it played is LOW from scoring version 4 (builds that have the rule).
+      if (typeof win.applyOneMatchLossGuard === 'function') win.applyOneMatchLossGuard(as, win.scoringEngine());
       win.applyScenarioContradictionGuard(as, st.activationSorted);
       win.applyContextAgreementGuard(as);
       conf[c.id] = as.confidence;
     }
-    win.__simR3facts = { tw, ids, post: Object.fromEntries(ids.map((id) => [id, post[id]])), conf };
+    win.__simR3facts = { tw, ids, post: Object.fromEntries(ids.map((id) => [id, post[id]])), pre: Object.fromEntries(ids.map((id) => [id, prior[id]])), conf };
     return out;
   };
 }
@@ -253,15 +283,30 @@ function headToHead(matches, a, b) {
   for (const [w, l] of matches) { if (w === a && l === b) s++; else if (w === b && l === a) s--; }
   return s;
 }
-function decideRound3(f, rules) {
+// The parts once and h2h (parseVariant) exempt the posterior maximum from the
+// record rules: once when it played one match, h2h when its only loss was to
+// the runner-up, each while its final posterior is at least the part's floor
+// (0 without one).
+function recordExempt(f, mods, pm, ru) {
+  const [w, l] = f.rec[pm];
+  const floor = (k) => k in mods && f.post[pm] >= mods[k];
+  if (floor('once') && w + l === 1) return true;
+  if (floor('h2h') && l === 1 && ru && f.m.some(([a, b]) => a === ru && b === pm)) return true;
+  return false;
+}
+function decideRound3(f, rules, mods = {}) {
   const order = rankByPosterior(f), pm = order[0], ru = order[1];
   for (const rule of rules) {
     if (rule.kind === 'pm') continue;
     const [w, l] = f.rec[pm];
+    const record = RECORD_RULES.includes(rule.kind);
+    if (record && recordExempt(f, mods, pm, ru)) continue;
     const margin = rule.margin === undefined ? undefined
       : rule.kind === 'net' ? rule.margin ** Math.max(0, l - w)
       : rule.margin0 !== undefined && w === 0 ? rule.margin0 : rule.margin;
-    if (margin !== undefined && ru && f.post[pm] >= margin * f.post[ru]) continue;
+    // pre: a no-win posterior maximum's margin is read before Round 3 counted its losses
+    const post = record && mods.pre && w === 0 ? f.pre : f.post;
+    if (margin !== undefined && ru && post[pm] >= margin * post[ru]) continue;
     let alt = null;
     if (rule.kind === 'tour') alt = f.tw && f.tw !== pm && headToHead(f.m, f.tw, pm) > 0 ? f.tw : null;
     else if (rule.kind === 'lostall') alt = lostEvery(f.rec[pm]) ? order.find((id) => !lostEvery(f.rec[id])) : null;
@@ -270,10 +315,14 @@ function decideRound3(f, rules) {
   }
   return pm;
 }
+// keptlow: a result that lost the only match it played is labelled LOW.
+const lostOnlyMatch = (rec) => !!rec && rec[0] === 0 && rec[1] === 1;
 function variantRun(run, v) {
   if (!v.rules.length || !run.r3) return run;
-  const id = decideRound3(run.r3, v.rules);
-  return id === run.recovered ? run : { ...run, recovered: id, confidence: run.r3.conf[id] };
+  const id = decideRound3(run.r3, v.rules, v.mods);
+  const low = !!v.mods.keptlow && lostOnlyMatch(run.r3.rec[id]);
+  const confidence = low ? 'LOW' : run.r3.conf[id];
+  return id === run.recovered && confidence === run.confidence ? run : { ...run, recovered: id, confidence, r3low: low };
 }
 
 // ---------- Worker ----------
@@ -404,15 +453,34 @@ async function main(opts) {
       // ways, for exact recovery and the two ways a result can say less than
       // Round 1 and 2 or the bars (shiftFlags).
       const key = (r) => configs[r.ci].seed + '#' + r.trueId + '#' + r.idx;
-      const flags = (r) => ({ exact: r.recovered === r.trueId ? 1 : 0, ...shiftFlags(r, colorsOf) });
-      if (!first) first = new Map(runs.map((r) => [key(r), flags(r)]));
-      const paired = (k) => {
-        const d = runs.map((r) => flags(r)[k] - first.get(key(r))[k]);
-        const mean = d.reduce((a, x) => a + x, 0) / d.length;
-        const sd = Math.sqrt(d.reduce((a, x) => a + (x - mean) ** 2, 0) / Math.max(1, d.length - 1));
-        return { diff: mean, se: sd / Math.sqrt(d.length) };
+      const flags = (r) => {
+        const exact = r.recovered === r.trueId ? 1 : 0;
+        const rec = (r.r3 && r.r3.rec[r.recovered]) || [0, 0];
+        const out = { exact, ...shiftFlags(r, colorsOf), losing: losingRecord(rec) ? 1 : 0, lostAll: lostEvery(rec) ? 1 : 0 };
+        for (const k of LABELS) { out['is' + k] = r.confidence === k ? 1 : 0; out['hit' + k] = r.confidence === k ? exact : 0; }
+        return out;
       };
-      report.vsFirst = { variant: opts.r3[0].name, ...paired('exact'), nestedDown: paired('nestedDown'), barsSayMore: paired('barsSayMore') };
+      if (!first) first = new Map(runs.map((r) => [key(r), flags(r)]));
+      const ours = runs.map(flags), theirs = runs.map((r) => first.get(key(r)));
+      const sd = (d) => { const m = d.reduce((a, x) => a + x, 0) / d.length; return { m, s: Math.sqrt(d.reduce((a, x) => a + (x - m) ** 2, 0) / Math.max(1, d.length - 1)) }; };
+      const paired = (k) => {
+        const { m, s } = sd(ours.map((x, i) => x[k] - theirs[i][k]));
+        return { diff: m, se: s / Math.sqrt(ours.length) };
+      };
+      // A label's accuracy is a ratio (right and given the label, over given
+      // it), so its paired standard error comes by the delta method: each
+      // respondent's (right - accuracy x given) / share given, this variant's
+      // minus the first's.
+      const pairedAccuracy = (label) => {
+        const n = ours.length, tot = (xs, k) => xs.reduce((a, x) => a + x[k], 0);
+        const [ga, gb] = [tot(ours, 'is' + label), tot(theirs, 'is' + label)];
+        if (!ga || !gb) return { diff: null, se: null };
+        const [aa, ab] = [tot(ours, 'hit' + label) / ga, tot(theirs, 'hit' + label) / gb];
+        const { s } = sd(ours.map((x, i) => (x['hit' + label] - aa * x['is' + label]) / (ga / n) - (theirs[i]['hit' + label] - ab * theirs[i]['is' + label]) / (gb / n)));
+        return { diff: aa - ab, se: s / Math.sqrt(n) };
+      };
+      report.vsFirst = { variant: opts.r3[0].name, ...paired('exact'), nestedDown: paired('nestedDown'), barsSayMore: paired('barsSayMore'),
+        losing: paired('losing'), lostAll: paired('lostAll'), accuracy: Object.fromEntries(LABELS.map((k) => [k, pairedAccuracy(k)])) };
       reports.push(report);
     }
   }
@@ -689,6 +757,9 @@ function round3Summary(runs) {
   const s = {
     respondents: rs.length, losing: 0, lostAll: 0, lostAllThree: 0, lostAllRight: 0, notBest: 0,
     disagree: 0, pmRight: 0, twRight: 0, neitherRight: 0, changed: 0, changedRight: 0, changedPmRight: 0,
+    // The changed results split by how many matches PM played: one (a clinch
+    // ended Round 3 before it could play again) or more.
+    changedOne: 0, changedOneRight: 0, changedOnePmRight: 0, changedMore: 0, changedMoreRight: 0, changedMorePmRight: 0,
     // Results whose label differs from the one the recorded facts give that
     // identity: nonzero means the rule variants' labels cannot be trusted.
     labelMismatches: 0,
@@ -696,7 +767,7 @@ function round3Summary(runs) {
   const ratios = [];
   for (const r of rs) {
     const f = r.r3, pm = rankByPosterior(f)[0];
-    if (f.conf[r.recovered] !== r.confidence) s.labelMismatches++;
+    if (f.conf[r.recovered] !== r.confidence && !(r.r3low && r.confidence === 'LOW')) s.labelMismatches++;
     const rec = f.rec[r.recovered] || [0, 0];
     const played = f.ids.filter((id) => f.rec[id][0] + f.rec[id][1] > 0);
     // "Best record" as the results screen reads it: wins minus losses among the
@@ -716,11 +787,16 @@ function round3Summary(runs) {
     if (r.recovered !== pm) {
       s.changed++;
       if (r.recovered === r.trueId) s.changedRight++; else if (pm === r.trueId) s.changedPmRight++;
+      const g = f.rec[pm][0] + f.rec[pm][1] === 1 ? 'changedOne' : 'changedMore';
+      s[g]++;
+      if (r.recovered === r.trueId) s[g + 'Right']++;
+      if (pm === r.trueId) s[g + 'PmRight']++;
     }
   }
   const n = rs.length;
   ratios.sort((a, b) => a - b);
   Object.assign(s, {
+    changedOneShare: share(s.changedOne, s.changed),
     losingShare: share(s.losing, n), lostAllShare: share(s.lostAll, n), lostAllThreeShare: share(s.lostAllThree, n), notBestShare: share(s.notBest, n),
     lostAllAccuracy: share(s.lostAllRight, s.lostAll),
     // Reported identities that lost every match: their posterior over the best other candidate's.
@@ -933,6 +1009,13 @@ function textRound3(reports, ids, meta, opts) {
     (r) => { const s = r.round3; return f1(s.losingShare, 8) + f1(s.lostAllShare, 10) + f1(s.lostAllThreeShare, 7) + f1(s.lostAllAccuracy, 9)
       + (s.lostAllRatioMin === null ? '-' : s.lostAllRatioMin.toFixed(2)).padStart(11) + f1(s.notBestShare, 11) + f1(s.changedShare, 10)
       + `  (${f1(share(s.changedRight, s.changed), 0).trim()} / ${f1(share(s.changedPmRight, s.changed), 0).trim()})`; });
+  block('Not PM, by PM\'s matches', ' changed   one match (n, PM ok, result ok)   more (n, PM ok, result ok)',
+    (r) => { const s = r.round3; return f1(s.changedShare, 8)
+      + `   ${f1(s.changedOneShare, 5)} (${String(s.changedOne).padStart(4)}, ${f1(share(s.changedOnePmRight, s.changedOne), 5)}, ${f1(share(s.changedOneRight, s.changedOne), 5)})`
+      + `   (${String(s.changedMore).padStart(4)}, ${f1(share(s.changedMorePmRight, s.changedMore), 5)}, ${f1(share(s.changedMoreRight, s.changedMore), 5)})`; });
+  const dl = (d) => (!d || d.diff === null ? '-'.padStart(13) : `${((d.diff >= 0 ? '+' : '') + (100 * d.diff).toFixed(2)).padStart(6)} ±${(200 * d.se).toFixed(2).padEnd(5)}`);
+  block('Δ labels and records', '   HIGH acc Δ     MOD acc Δ     LOW acc Δ        losing Δ      lost all Δ',
+    (r) => (r.variant === r.vsFirst.variant ? '' : LABELS.map((k) => dl(r.vsFirst.accuracy[k])).join(' ') + ' ' + dl(r.vsFirst.losing) + ' ' + dl(r.vsFirst.lostAll)));
   block('PM and TW disagree', '   share  PM right  TW right  neither',
     (r) => { const s = r.round3; return f1(s.disagreeShare, 8) + f1(s.pmRightWhenDisagree, 10) + f1(s.twRightWhenDisagree, 10) + f1(s.neitherRightWhenDisagree, 9); });
   const delta = (r, k) => (r.variant === r.vsFirst.variant ? ''.padStart(12)
@@ -950,7 +1033,10 @@ function textRound3(reports, ids, meta, opts) {
   L.push('losing: fewer wins than losses. lost all: no wins (0-3: of those, the ones that lost three or more; the others lost the one or');
   L.push('two they played before a clinch; right: how many were the true identity; min ratio: the smallest posterior ratio of such an');
   L.push('identity to the best other candidate). not best: below the best wins-minus-losses. changed: the result is not PM (right: the');
-  L.push('new result is true; PM was: PM was true and the change lost it).');
+  L.push('new result is true; PM was: PM was true and the change lost it). Not PM, by PM\'s matches: the changed results split by');
+  L.push('whether PM played one match (share of the changed, how many, PM right, result right) or more. Δ labels and records: each');
+  L.push('label\'s accuracy, and the losing-record and lost-all shares, minus the first variant\'s, in points, ± two paired standard');
+  L.push('errors (a label\'s by the delta method).');
   L.push('lead: the first candidate Round 3 played, the one of the four the Round 1 + 2 posterior rates highest (ok: it is the true');
   L.push('identity). overturned: the result is not the lead. down: the result\'s colours are a proper subset of the lead\'s; up: the');
   L.push('reverse. bars say more: the result leaves out a colour printed at 50 or more and 25 or more above every other colour it');

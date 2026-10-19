@@ -20,7 +20,7 @@
 // number means they were all used by other matches of the same Round 3 first.
 //
 // Usage: node tools/round3-coverage.js [--n 4] [--seed 1] [--models ideal,misspecified,mixed]
-//          [--p 0.65,0.8] [--engine 3] [--top 40] [--json file] [path/to/index.html]
+//          [--p 0.65,0.8] [--engine 4] [--top 40] [--json file] [path/to/index.html]
 //   --n      respondents per identity for each model and p
 //   --top    how many uncovered pairs to list (0 lists them all)
 //   --json   also write every match played, per respondent, to this file
@@ -35,7 +35,7 @@ const { runRespondent, calibrateMisspecified, MODEL_NAMES } = require('../tests/
 // ---------- options ----------
 function fail(msg) { console.error(msg); process.exit(2); }
 function parseArgs(argv) {
-  const o = { n: 4, seed: 1, models: [...MODEL_NAMES], p: [0.65, 0.8], engine: 3, top: 40, json: null, htmlPath: null, dataPath: null };
+  const o = { n: 4, seed: 1, models: [...MODEL_NAMES], p: [0.65, 0.8], engine: 4, top: 40, json: null, htmlPath: null, dataPath: null };
   const num = (k, v) => { const x = Number(v); if (v === undefined || v === '' || !Number.isFinite(x)) fail('Bad value for --' + k); return x; };
   for (let i = 0; i < argv.length; i++) {
     if (!argv[i].startsWith('--') && /\.html?$/i.test(argv[i])) {
@@ -51,7 +51,7 @@ function parseArgs(argv) {
   }
   for (const m of o.models) if (!MODEL_NAMES.includes(m)) fail(`Unknown model "${m}"; expected ${MODEL_NAMES.join(', ')} or all`);
   for (const p of o.p) if (!(p >= 0 && p <= 1)) fail('--p values must lie between 0 and 1');
-  if (![1, 2, 3].includes(o.engine)) fail('--engine is 1, 2 or 3');
+  if (![1, 2, 3, 4].includes(o.engine)) fail('--engine is 1, 2, 3 or 4');
   if (!(o.n >= 1)) fail('--n is at least 1');
   return o;
 }
@@ -83,7 +83,7 @@ function writtenCoverage(win) {
 const yieldToEventLoop = () => new Promise((resolve) => setImmediate(resolve));
 
 async function measure(opts) {
-  const url = opts.engine === 3 ? 'http://localhost/' : `http://localhost/?engine=${opts.engine}`;
+  const url = opts.engine === 4 ? 'http://localhost/' : `http://localhost/?engine=${opts.engine}`;
   const { win, h, errors } = bootPage({
     url, seed: opts.seed, stubs: { calculating: 'skip' }, fastStyles: true,
     htmlPath: opts.htmlPath || undefined, dataPath: opts.dataPath || undefined,

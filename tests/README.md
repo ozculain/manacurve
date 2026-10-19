@@ -8,9 +8,9 @@ check and exits non-zero if anything failed. They need jsdom in the repo's
 | --- | --- |
 | `structure.test.js` | `index.html` markup: balanced `<div>`s, no duplicate ids, every `getElementById` target exists, no `#id` display rule beats `.hidden`, screens are siblings; the inline script and `data.js` parse; the SCRIPT END marker the other tests inject at is present |
 | `render.test.js` | `showResults()` on a fake mono, guild, three-, four- and five-colour result, in both audience modes with player mode off and on: every key element is populated with that identity's data, the bars match the activation, a consumer sees the profile's `you` lines as one list where Strengths and Shadows stood and workplace mode sees those two columns instead, the headings, labels, buttons and colour-card heads are in the audience's words (on a consumer page sentences and plain actions, "Save it as a picture", "White", with the jobs in sentence case under "Jobs you'd be good at" and no heading over the colour cards but the divider's "Who to ask"; "Natural Roles", "Make an image", "White colleague" in workplace mode), the label a sentence about how clear the result was for a consumer ("Nothing else came close.") and the label word in workplace mode, the banter shows under its label ("Your friends would put it like this.") only for a consumer whose profile has one, and the Phase 2 pieces appear or stay away as specified, in the final copy (reveal order, the player-mode card of typeline, rules text and collector number, next door below the commander block, the label (a sentence or, in workplace mode, the word) and, under it, one sentence read from the bars (the closest call, in points as the bars print it, a tie, an old link's inverted bars, five level, a link with no bars), with no number but that gap and nothing stacked under them; the commander block's card text in player mode, and in other modes no block and the banner crediting the art, bar titles and caption, mana base, the scoring version at the foot of the methodology); plus the drafts' typeline, next-door (gaps in points, the dropped colour named as the weaker or weakest of yours on a consumer page and the lower or lowest of your colours in workplace mode, with a tie, an old link's inverted bars and five colours) and mana base examples (four and five colours counting their basics as one number), every identity's mana base (37 lands, nothing outside its colours in the deck, a maybeboard line only when a neighbour qualifies), the per-row peek and appeal flow (the neighbour's `you` lines in the peek, its strengths and shadows in workplace mode), the all-31 path, shares after an appeal, the Round 3 "what decided it" line under each engine, and the share Card's export in the gilded and frames themes (html-to-image stubbed; the test checks the node it is handed; its rules text is the first two `you` lines in consumer mode and three strengths under keywords in workplace mode) |
-| `journey.test.js` | 46 checks over full journeys: the Round 2 gaming gate, weighted ally answers, session save and resume at every stage, the Round 3 clinch rule, Neither-neutral Round 1 ranking, the early-offer evidence floor, a context disagreement that the result page no longer spells out, and a session finishing on the scoring engine it started with (a player's session saved three matches into Round 3 ends Dimir, scoring version 2, when it was saved on engine 2, as it did for the player, and Grixis, version 3, when saved on engine 3), with `?engine=` pinning a new assessment |
-| `seed.test.js` | share links, which point at the preview pages (`<site root>/r/<ID>.html?p=...`): `siteRootURL()` on GitHub Pages, a localhost preview and a subfolder; `buildResultURL()` on each; the round trip through the preview page's forward to `parseSeedURL()` (with `s`, `i` and `f`); a version 2 link and a version 3 link with the same result open alike, each as its own version; the ten old-form links and the two preview-page links in `fixtures/seed-urls.json` (recorded from the live build) open onto their result and its next-door row, and re-share as preview-page links; the share text, Web Share, clipboard and Copy Link carry the new form; all 31 identities link to a page that exists |
-| `bars.test.js` | the bars and the name (`barsFromTallies`, `barsAllow`): the bars are the answers counted once each, by weight, Round 2's enemy re-tests included and Neither in neither, held against the answer records on recorded patterns and on simulated respondents of all three populations on engines 3 and 1, so a Round 2 answer moves a bar as far as a Round 1 answer; on the player's bars (W56 U52 B38 R60 G39) exactly the top bars one to four deep are allowed, not Mono-Blue, not Five-colour, nor the near ties the old half-answer rule let through; on 4,000 random bars (ties at the half point included) an identity is allowed exactly when no colour it leaves out prints above one it holds, the rule reads the numbers the results screen and a shared link print, and every width from one to four colours always has one; Five-colour is allowed exactly when the five print within `FIVE_COLOUR_BAND` (20 points), and a seeded five-colour respondent with flat bars is told Five-colour while one with wider bars gets an identity they allow, on engines 3 and 1; a Round 1 and 2 pattern whose even bars print W56 U52 B38 R61 G39 plays only identities the bars allow, and all 64 Round 3 outcomes on engines 3 and 1 end on one, never Mono-Blue; the pattern recorded for the player's old bars now prints W48 U64 B43 R56 G42; the old four with the player's six answers, finished on this build with the bars the old build saved, end on one those bars allow, and the results screen does not credit the bars; `round3Data.loopBrokenByBars` is set only when engine 1's re-rank by the bars picked the result, never on the likelihood engine; and `simulate.js` over all three populations at p 0.65 and 0.8 on all three engines (4 per identity) finds no result, and no early offer, its printed bars do not allow |
+| `journey.test.js` | 48 checks over full journeys: the Round 2 gaming gate, weighted ally answers, session save and resume at every stage, the Round 3 clinch rule, Neither-neutral Round 1 ranking, the early-offer evidence floor, a context disagreement that the result page no longer spells out, and a session finishing on the scoring engine it started with (a player's session saved three matches into Round 3 ends Dimir, scoring version 2, when it was saved on engine 2, as it did for the player, and Grixis, versions 3 and 4, when saved on engine 3 or 4; the player's other run, in which Dimir clinched after four matches and Grixis played one match and lost it, ends Dimir, LOW, on engine 3 and Grixis, LOW, on engine 4), with `?engine=` pinning a new assessment |
+| `seed.test.js` | share links, which point at the preview pages (`<site root>/r/<ID>.html?p=...`): `siteRootURL()` on GitHub Pages, a localhost preview and a subfolder; `buildResultURL()` on each; the round trip through the preview page's forward to `parseSeedURL()` (with `s`, `i` and `f`); a version 2, a version 3 and a version 4 link with the same result open alike, each as its own version; the ten old-form links and the two preview-page links in `fixtures/seed-urls.json` (recorded from the live build) open onto their result and its next-door row, and re-share as preview-page links; the share text, Web Share, clipboard and Copy Link carry the new form; all 31 identities link to a page that exists |
+| `bars.test.js` | the bars and the name (`barsFromTallies`, `barsAllow`): the bars are the answers counted once each, by weight, Round 2's enemy re-tests included and Neither in neither, held against the answer records on recorded patterns and on simulated respondents of all three populations on engines 4 and 1, so a Round 2 answer moves a bar as far as a Round 1 answer; on the player's bars (W56 U52 B38 R60 G39) exactly the top bars one to four deep are allowed, not Mono-Blue, not Five-colour, nor the near ties the old half-answer rule let through; on 4,000 random bars (ties at the half point included) an identity is allowed exactly when no colour it leaves out prints above one it holds, the rule reads the numbers the results screen and a shared link print, and every width from one to four colours always has one; Five-colour is allowed exactly when the five print within `FIVE_COLOUR_BAND` (20 points), and a seeded five-colour respondent with flat bars is told Five-colour while one with wider bars gets an identity they allow, on engines 4 and 1; a Round 1 and 2 pattern whose even bars print W56 U52 B38 R61 G39 plays only identities the bars allow, and all 64 Round 3 outcomes on engines 4 and 1 end on one, never Mono-Blue; the pattern recorded for the player's old bars now prints W48 U64 B43 R56 G42; the old four with the player's six answers, finished on this build with the bars the old build saved, end on one those bars allow, and the results screen does not credit the bars; `round3Data.loopBrokenByBars` is set only when engine 1's re-rank by the bars picked the result, never on the likelihood engine; and `simulate.js` over all three populations at p 0.65 and 0.8 on all four engines (4 per identity) finds no result, and no early offer, its printed bars do not allow |
 | `golden.test.js` | 186 seeded paths through the real Rounds 1-3 (every identity: one respondent at p = 1, five at p = 0.8, the simulator's ideal model) match `fixtures/golden.json`: Round 1 candidates and s1, Round 1 and final activation, early offer, identity, confidence, Round 3 matchups in order, and the result link's `r`, `p`, `c` and `a` (for a preview-page link, `r` is read from the page name and the fixture keeps its `?r=` shape) |
 | `round3-copy.test.js` | the rules the Round 3 stems and options were written to, held on the live files (`ROUND2_SCENARIOS` in `data.js`, `POOL_B` and `POOL_C` in `index.html`): every option is 15 words or fewer, no stem or option outside MTG_STALL names a colour, a basic land or an identity, and each of the 93 scenarios still has exactly its identity keys (`fixtures/round3-keys.json`); then the same guards on made-up sources, and `tools/apply-round3-copy.js` on a made-up drafts file (it refuses a stale, over-long or colour-naming draft, keeps each source's quoting, and changes nothing the second time) |
 | `round12-copy.test.js` | the rules the Round 1 and 2 questions were rewritten to, held on the live files (`POOL_A`, `POOL_ALLY`, `CONTEXT_HINTS` and `getContextHint` in `index.html`, read by `tools/check-round12-copy.js`): the same 111 items in the same order, each with its pair, weight and answer colours (`fixtures/round12-keys.json`, written before the rewrite), so the same counts per pool and per pair; stems 25 words or fewer, answers 20, labels 4, no two items with the same stem; no colour, basic land, identity, guild, tagline, mana or colour named in a stem, answer, label or hint; no em dash, exclamation mark, asterisk, capitals or question mark in an answer, British spelling, none of the brief's banned words; every item rewritten or listed as kept after review; which items show a hint (none now: `CONTEXT_HINTS` is empty, none on a Magic item either), every hint shown somewhere in Rounds 1 to 3, and no hint line repeated; Round 1's and Round 2's renderers on all 111 items, and a real Round 1 and 2 with Magic items off and on, showing each label, stem, hint and answer as written; then the same guards on made-up sources |
@@ -58,7 +58,7 @@ build's `index.html`, with its `data.js` beside it:
 
 # Respondent simulation
 
-`node tests/simulate.js [--n 200] [--p 0.8] [--neither 0.05] [--seed 1] [--model ideal] [--engine 3] [--r3 variants] [--gaming] [--workers auto] [--out file] [--rows] [--five-band 20] [path/to/index.html]`
+`node tests/simulate.js [--n 200] [--p 0.8] [--neither 0.05] [--seed 1] [--model ideal] [--engine 4] [--r3 variants] [--gaming] [--workers auto] [--out file] [--rows] [--five-band 20] [path/to/index.html]`
 (or `npm run simulate`). Needs jsdom in the repo's `node_modules`.
 
 It boots `index.html` with `data.js` in jsdom (one page per worker thread and
@@ -75,10 +75,11 @@ live in `_lib/respondent.js`, which the golden test shares.
   `--models a,b` runs any list.
 - `--p` takes a comma list (`--p 0.6,0.8,1`): each value gets its own report,
   followed by a table of exact recovery by type across the values.
-- `--engine 1|2|3` picks the scoring engine: 3, the likelihood engine, is the
-  page's default; 2 boots the page with `?engine=2` (the likelihood engine with
-  Round 3 answers weighed as in scoring version 2) and 1 with `?engine=1` (the
-  win-rate engine). A list (`--engine 2,3`, or `--engine all`) runs them on the
+- `--engine 1|2|3|4` picks the scoring engine: 4, the likelihood engine, is the
+  page's default; 3 boots the page with `?engine=3` (the likelihood engine with
+  version 3's record rule), 2 with `?engine=2` (Round 3 answers weighed as in
+  scoring version 2 as well) and 1 with `?engine=1` (the win-rate engine). A
+  list (`--engine 3,4`, or `--engine all`) runs them on the
   same respondents and prints them side by side with the change from the
   lowest, so a before/after comes from one build.
 - `--seed` takes a comma list (`--seed 1,2`): the respondents of every seed are
@@ -95,7 +96,7 @@ live in `_lib/respondent.js`, which the golden test shares.
 - A path to another build's `index.html` (its `data.js` beside it) simulates
   that build, as the page tests do.
 
-`--r3` (the likelihood engine, 2 or 3) compares ways of turning the Round 3
+`--r3` (the likelihood engine, 2 to 4) compares ways of turning the Round 3
 answers into the reported identity, on the same respondents:
 `--r3 page,jaccard,symdiff+qg=0.55:0.75`. Each comma-separated variant is one
 of these, or several joined with `+`:
@@ -113,9 +114,9 @@ of these, or several joined with `+`:
   and 0):
   - `jaccard`: s = +1 when the winner's colours are closer to S's by Jaccard
     similarity, -1 when the loser's are, 0 on a tie: the page's own sign on
-    engines 2 and 3, and the sign when none is named. On this build `jaccard`
-    reproduces `page` (engine 3) exactly, and `jaccard+qg=0.55:0.9` reproduces
-    engine 2.
+    engines 2 to 4, and the sign when none is named. On this build `jaccard`
+    reproduces `page` (engines 3 and 4) exactly, and `jaccard+qg=0.55:0.9`
+    reproduces engine 2.
   - `symdiff`: s from the colours where the winner and the loser differ: the
     share of them on which S agrees with the winner minus the share on which it
     agrees with the loser. A match between identities one colour apart counts
@@ -136,21 +137,39 @@ of these, or several joined with `+`:
   posterior maximum's net losses (losses minus wins).
 - `rule:M` keeps the posterior maximum when its posterior is at least M times
   the runner-up's (the next candidate by posterior); `losing:M:M0` uses M0
-  instead when the posterior maximum won no match. `losing:3:16` is the rule
-  the page now applies (`ROUND3_LOSING_RECORD_MARGIN`, `ROUND3_NO_WINS_MARGIN`).
+  instead when the posterior maximum won no match. `losing:3:16` is engine 3's
+  rule (`ROUND3_LOSING_RECORD_MARGIN`, `ROUND3_NO_WINS_MARGIN`), and
+  `losing:3:16+once=0.5` (below) engine 4's.
   Rules joined with `+` are tried in order; the first that changes the result
   decides it.
+- `once`, `pre` and `h2h` change how the record rules (`lostall`, `losing`,
+  `net`) read the record, for every such rule in the variant. `once` exempts a
+  posterior maximum that played only one match (a clinch ended Round 3 before
+  it could play again); `h2h` one whose only loss was to the runner-up; `pre`
+  reads the margin for a posterior maximum that won no match on the posterior
+  before Round 3 (Rounds 1 and 2 alone), which has not yet counted the matches
+  it lost. `once=X` and `h2h=X` exempt it only while its final posterior is at
+  least X. A losing record with one loss is 0-1, so `h2h` exempts a subset of
+  what `once` does. `once=0.5` is the exemption scoring version 4 applies
+  (`ROUND3_ONE_MATCH_POSTERIOR`). `keptlow` labels LOW a result that lost the
+  only match it played.
 
 A rule acts after the last answer, so it changes no question: it is applied to
-what the page recorded when it decided (each candidate's final posterior and
-record, the matches, the tournament winner, and the label the page would give
-each candidate as the result), and costs no extra page run. The run fails if a
+what the page recorded when it decided (each candidate's final posterior, its
+posterior before Round 3, its record, the matches, the tournament winner, and
+the label the page would give each candidate as the result), and costs no
+extra page run. The run fails if a
 result's label differs from the recorded one. The report gives, per p, each
 variant's exact recovery per type and overall (with two binomial standard
 errors, per seed, and the change from the first variant on the same
 respondents with two paired standard errors); the reported identity's Round 3
 record (losing, lost every match, of those the ones that lost three or more,
-and how often they were right, not the best record); where the posterior
+and how often they were right, not the best record); the results that are not
+the posterior maximum, split by whether it played one match or more, with how
+often it, and the result, was the true identity in each; each label's accuracy
+and the losing-record and lost-all shares against the first variant on the
+same respondents, with two paired standard errors (a label's accuracy, a
+ratio, by the delta method); where the posterior
 maximum and the tournament winner disagree, how
 often each was the true identity; what Round 3 did to Round 1 and 2's answer
 (below), with the changes in the nested downgrades and in "bars say more" from
@@ -201,8 +220,8 @@ of the true Five-colour respondents (the JSON keeps the spread of each, 0 to
 
 The run exits with status 1 if the page logs an error or any result breaks the
 `state.result` contract in `docs/SCORING_CONTRACT.md`: an identity, a
-confidence label, `scoringVersion` equal to the engine, `instrumentVersion` 9,
-under engine 2 a posterior over all 31 identities that sums to 1, an identity
+confidence label, `scoringVersion` equal to the engine, `instrumentVersion` 11,
+under the likelihood engine (2 to 4) a posterior over all 31 identities that sums to 1, an identity
 its bars allow as printed (no colour it leaves out printed above one it holds;
 for Five-colour, the five printed within the band), and an early offer the
 Round 1 bars allow the same way.
@@ -266,8 +285,8 @@ of the report prints these). Their bars are flatter too, as a real player's
 often are.
 
 Defaults: 200 respondents per identity, p = 0.8, neither = 0.05, seed = 1,
-model ideal, engine 2. The default run takes about 30 seconds on 8 cores;
-`--models both` or `--engine 1,2` about twice that, `--models all` three times.
+model ideal, engine 4. The default run takes about 30 seconds on 8 cores;
+`--models both` or `--engine 3,4` about twice that, `--models all` three times.
 
 Output: a plain-text report and the same data in `tests/out/simulation.json`
 (an object with a `runs` array when more than one model, engine or p is run).
@@ -277,7 +296,7 @@ from answers generated by a known model. They say nothing about human validity.
 
 # Round 3 coverage
 
-`node tools/round3-coverage.js [--n 4] [--seed 1] [--models ideal,misspecified,mixed] [--p 0.65,0.8] [--engine 2] [--top 40] [--json file] [path/to/index.html]`
+`node tools/round3-coverage.js [--n 4] [--seed 1] [--models ideal,misspecified,mixed] [--p 0.65,0.8] [--engine 4] [--top 40] [--json file] [path/to/index.html]`
 
 It runs the simulator's respondents (by default four per identity for each of the
 three models at p 0.65 and 0.8) through the real Rounds 1 to 3 and counts the

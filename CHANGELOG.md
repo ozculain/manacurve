@@ -4,6 +4,151 @@ Newest first. Dates are when the work was committed.
 
 ## 2026-10-19
 
+### One match is not a record (scoring version 4)
+
+The author's first run (seed 202) came out of Rounds 1 and 2 with Grixis at
+86% and Dimir at 12%, under bars of U94 B83 R60 W8 G0. In Round 3 Dimir beat
+Mono-Blue and Four-colour without green, and the player took Dimir's answer
+over Grixis's. Dimir had then won its three and clinched after four matches,
+so Grixis played one match and lost it. On version 3 the posterior was Grixis
+59.1%, Dimir 38.9%, and the result was Dimir, LOW: the record rule read Grixis
+as a leader that won no match and asked for 16 times Dimir's posterior. That
+loss had already taken Grixis from 86% to 59%, so the rule counted the same
+answer twice. The rule was built for a leader the person chose against again
+and again, and Grixis was never offered a second match.
+
+- Measured first, on version 3 as it stands (`tests/simulate.js --r3`, n = 100
+  per identity, seeds 3 and 4, 6,200 respondents per cell). New in the report:
+  how often the record rule sets the posterior leader aside, split by whether
+  the leader had played one match or more, with how often the leader, and the
+  candidate reported instead, was the true identity; and each label's
+  accuracy, the losing-record share and the share that won no match, against
+  the first variant on the same respondents with two paired standard errors (a
+  label's accuracy by the delta method). In percent:
+
+  |                                     | ideal 0.65   | misspec 0.65 | ideal 0.8    | misspec 0.8  |
+  | ----------------------------------- | ------------ | ------------ | ------------ | ------------ |
+  | exact recovery                      | 25.2         | 24.1         | 67.7         | 57.1         |
+  | HIGH / MODERATE / LOW right         | 55 / 47 / 24 | 55 / 45 / 22 | 94 / 87 / 58 | 86 / 76 / 44 |
+  | losing Round 3 record               | 1.4          | 1.2          | 1.7          | 1.0          |
+  | won no match                        | 0.02         | 0.02         | 0.02         | 0.05         |
+  | leader set aside by the rule        | 12.5         | 11.5         | 7.3          | 6.7          |
+  | ...after one match (respondents)    | 70           | 73           | 100          | 105          |
+  | ...then leader / result right       | 20 / 19      | 18 / 26      | 41 / 27      | 40 / 36      |
+  | ...after more: leader / result right | 17 / 18     | 9 / 17       | 37 / 31      | 14 / 36      |
+
+  Every leader set aside after one match had played only the candidate that
+  went on to win its three and clinch.
+- Five rules, tried on the same respondents. The change in exact recovery
+  (with two paired standard errors) and the losing-record and no-win shares,
+  in percent, for ideal 0.65 / misspecified 0.65 / ideal 0.8 / misspecified
+  0.8:
+
+  | variant                                                   | exact recovery                                | losing record         | won no match          |
+  | --------------------------------------------------------- | --------------------------------------------- | --------------------- | --------------------- |
+  | A: no record rule for a leader that played one match      | +0.0 ±0.2 / -0.1 ±0.2 / +0.2 ±0.3 / +0.1 ±0.3 | 2.5 / 2.4 / 3.3 / 2.7 | 1.2 / 1.2 / 1.6 / 1.7 |
+  | B: the no-wins margin read on the posterior before Round 3 | +0.0 ±0.1 / -0.0 ±0.1 / +0.0 ±0.1 / +0.0 ±0.1 | 1.5 / 1.3 / 1.9 / 1.2 | 0.1 / 0.2 / 0.2 / 0.3 |
+  | C: none for a leader whose only loss was to the runner-up | +0.0 ±0.2 / -0.1 ±0.2 / +0.1 ±0.2 / +0.0 ±0.3 | 2.3 / 2.3 / 3.0 / 2.5 | 0.9 / 1.1 / 1.3 / 1.6 |
+  | D: A and C                                                | as A                                          | as A                  | as A                  |
+  | E: A, while the leader's posterior is 0.5 or more (taken) | +0.1 ±0.1 / +0.0 ±0.1 / +0.3 ±0.2 / +0.3 ±0.2 | 1.6 / 1.3 / 2.2 / 1.5 | 0.2 / 0.1 / 0.5 / 0.6 |
+
+  D is A: a losing record with one loss is 0-1, so every leader C exempts, A
+  exempts too. None loses recovery beyond two standard errors, and on these
+  seeds no label is less accurate beyond two. A, C and D change the author's
+  run to Grixis and add 0.9 to 1.7 points of losing records, each of them a
+  result that won no match. B adds 0.1 to 0.2 and leaves the author's run on
+  Dimir: before Round 3, Grixis's posterior was 7.4 times Dimir's, short of 16.
+  C's condition that the final posterior still favours the leader always holds
+  for the posterior leader; read as a posterior of 0.5 or more, C is E for
+  losses to the runner-up only (+0.0 / +0.0 / +0.3 / +0.2, losing records 1.6 /
+  1.2 / 2.1 / 1.4).
+- Why E. Among the leaders set aside after one match, those whose posterior
+  was still 0.5 or more were the true identity 56 times in 82, the candidate
+  reported instead 13 (seeds 3 and 4; over seeds 3 to 6, 102 in 169 against
+  39). Below 0.5 the candidate reported instead was right more often (11 / 18 /
+  25 / 30 times, against 7 / 11 / 18 / 18), so the rule stays for those. 0.5 is
+  the line for MODERATE (`CONFIDENCE_MODERATE_POSTERIOR`).
+- The label. Reported at its posterior, a leader E keeps is MODERATE or HIGH.
+  Over seeds 3 to 6 (12,400 respondents per cell) that made MODERATE right
+  0.39 ±0.26 and 0.24 ±0.21 points less often at p = 0.8, ideal and
+  misspecified, beyond two standard errors (on seeds 3 and 4 alone, within).
+  Those leaders are right 60 to 70% of the time at p = 0.8, about what a
+  posterior of 0.5 to 0.7 says, against 76 to 87% for MODERATE results as a
+  whole. So a result that lost the only match it played is LOW, as the person
+  chose against it the one time they were asked. HIGH and MODERATE then stay
+  as on version 3, and LOW is right more often: +0.1 / +0.0 / +0.5 / +0.5
+  points. The price is the author's label: Grixis, LOW, where its posterior
+  alone says MODERATE.
+- What it costs. Losing Round 3 records rise by the results E keeps, all of
+  them 0-1: 1.4 to 1.6, 1.2 to 1.3, 1.7 to 2.2 and 1.0 to 1.5%. Results that
+  won no match go from 0.02 to 0.05% to 0.1 to 0.6%, and results without the
+  best record from 13.0 / 12.6 / 13.1 / 15.4% to 13.2 / 12.7 / 13.5 / 15.9%.
+  The brief asked for no rise in losing records. No rule that tells the author
+  Grixis can meet that, as Grixis's record there is itself 0-1, and of the
+  rules measured that do, E adds the fewest. The results screen already says
+  so for such a result: "Grixis won on the weight of all your answers, though
+  not with the best record in this round (0W-1L). Dimir came next (3W-0L)."
+- Replications. Seeds 5 and 6: recovery +0.1 ±0.1 / -0.0 ±0.1 / +0.2 ±0.2 /
+  +0.1 ±0.2, losing records +0.2 / +0.2 / +0.6 / +0.5 points. The mixed
+  population (seeds 3 and 4): recovery +0.0 ±0.1 at both p, losing records +0.1
+  and +0.2 points. Next-door coverage, nested downgrades and "bars say more"
+  move by 0.2 points or less anywhere.
+- The change: scoring version 4. `round3RecordRanking` keeps a leader that
+  played one match at a posterior of `ROUND3_ONE_MATCH_POSTERIOR` (0.5) or
+  more, from `ROUND3_ONE_MATCH_FROM_VERSION`, and `applyOneMatchLossGuard`
+  makes a result that lost the only match it played LOW, beside the cycle rule.
+  Round 3 asks the same questions: the rule acts after the last answer. On
+  this build `--engine 4 --r3 page,losing:3:16+once=0.5+keptlow` reproduces the
+  page exactly.
+- Versions. A result built now can differ from one built before for the same
+  answers, so `SCORING_VERSION` is 4 and a result's link says `s=4`. Engine 3
+  stays: a session saved on it finishes on it, Round 3 included, and
+  `?engine=3` selects it for one release, as `?engine=2` and `?engine=1` still
+  select theirs. A link carries its result, so a version 3 link opens as it
+  was built; `ONE_ANSWER_BY_VERSION` has a version 4 entry, the same as version
+  3's. `docs/SCORING_CONTRACT.md` says so in its own commit and lists the new
+  LOW rule with the other Round 3 guards.
+- The author's sessions, replayed from their saved state on each engine
+  (rewound to the start of Round 3, each match answered as the player answered
+  it). Seed 202 on instrument 10 (`author-v10-202.json`, the run above): Dimir,
+  LOW, on version 3; Grixis, LOW, on version 4 (Grixis 59.1%, Dimir 38.9% on
+  both). Seed 101 on instrument 10: Grixis, MODERATE, 61.9% to 34.9%, on both.
+  The two instrument 11 runs (`author-v11-202.json`, `author-v11-101.json`) are
+  other sessions: all six matches were played, and Grixis went 1-2, losing to
+  Dimir and to Four-colour without green. The first is Dimir, LOW, on versions
+  3 and 4 (Grixis 65.6%, Dimir 32.1%, short of the 3 times a losing record
+  needs; its matches also run in a circle, Grixis over Mono-Black over Dimir
+  over Grixis, which makes either result LOW), and the second Grixis, LOW, on
+  both (81.9%, LOW by the same circle). Version 4 leaves them alone: Grixis
+  played three matches there.
+- `tests/fixtures/golden.json` is rewritten in its own commit: 1 of the 186
+  paths moves, a Jund respondent at p = 0.8 told Four-colour without white,
+  LOW, on version 3 and Jund, LOW, on version 4 (the true identity on 148
+  paths, was 147).
+- Tests. `tests/journey.test.js` (48 checks): the seed 202 run, saved three
+  matches into Round 3, finishes Dimir, LOW, version 3, on engine 3 and
+  Grixis, LOW, version 4, on engine 4, with Grixis 0-1 after a clinch at four
+  matches on both; the seed 101 run finishes Grixis, MODERATE, on engines 3
+  and 4; a new assessment pins engine 4, and `?engine=3`, `?engine=2` and
+  `?engine=1` the earlier ones. `tests/seed.test.js`: version 2, 3 and 4 links
+  with the same result open alike, each as its own version.
+  `tests/render.test.js`: version 4 says what decided it as version 3 does,
+  for a result that lost its one match ("0W-1L") too. `tests/bars.test.js`
+  runs on engines 4 and 1, and its simulator check on all four.
+  `tests/simulate.js`: `--engine 1|2|3|4` (4 the default); the `--r3` parts
+  `once`, `pre` and `h2h` (A, B and C), `once=X` and `h2h=X` (only at a
+  posterior of X or more; `once=0.5` is E) and `keptlow`; and the rows above.
+  `tools/round3-coverage.js` takes `--engine 4`. `npm test` passes.
+- Not reached. The brief's third bar, no rise in losing records (above). The
+  instrument 11 run that ends on Dimir has a leader with a losing record over
+  three matches, the case the record rule was built for, and stays Dimir.
+- Commands: `node tests/simulate.js --n 100 --models both --p 0.65,0.8 --seed
+  3,4 --engine 3 --r3
+  page,losing:3:16+once,losing:3:16+pre,losing:3:16+h2h,losing:3:16+once+h2h,losing:3:16+once=0.5,losing:3:16+h2h=0.5,pm`
+  (on this build `--engine 3` is version 3); then the same with `--seed 5,6`,
+  `--seed 3,4,5,6` and `--models mixed`; and `--engine 4 --r3
+  page,losing:3:16+once=0.5+keptlow,losing:3:16`.
+
 ### Round 1 and 2 questions: the lines the gate reader flagged
 
 A reader holding the author's rulings read all 111 Round 1 and 2 questions
