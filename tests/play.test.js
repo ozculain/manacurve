@@ -211,9 +211,9 @@ run('play', async (t) => {
     h.state.qNum = 30;
     win.showEarlyTerminationOffer({ identity: 'DIMIR', confidence: 0.95, message: 'Your Round 1 answers already point clearly to DIMIR.' });
     const early = textOf(win, 'early-message');
-    ok('P2h the early offer says "Round 1 done." and "We can call it now, or you can keep going for a firmer result."',
+    ok('P2h the early offer says "Round 1 done." and two plain sentences, what stopping gives and what carrying on gives: "You can see your result now. If you keep going, the rest of the quiz checks it, and it may change."',
       isVisible(win, 'screen-early-offer') && win.document.querySelector('#screen-early-offer h2').textContent === 'Round 1 done.'
-        && early === 'We can call it now, or you can keep going for a firmer result.', early);
+        && early === 'You can see your result now. If you keep going, the rest of the quiz checks it, and it may change.', early);
     // The caller's own message names the identity; the offer must not show it.
     const offer = win.document.getElementById('screen-early-offer');
     const offerText = offer.textContent.replace(/\s+/g, ' ').trim();
@@ -221,7 +221,7 @@ run('play', async (t) => {
       !/dimir|preliminary|already point/i.test(offerText) && !COLOUR_WORDS.test(offerText)
         && offer.querySelectorAll('.mc-pip, .mc-confidence, .mc-manastrip, #early-result-name, #early-result-tag').length === 0
         && textOf(win, 'early-keep-going') === 'Keep going' && textOf(win, 'early-show-now') === 'Show my result'
-        && offerText === '✦ Round 1 done. We can call it now, or you can keep going for a firmer result. Keep going Show my result', offerText);
+        && offerText === '✦ Round 1 done. You can see your result now. If you keep going, the rest of the quiz checks it, and it may change. Keep going Show my result', offerText);
     // The claims are the counter's computed total, not a number written into the copy:
     // a longer Round 2 estimate moves the welcome, the fold and the preflight together
     win.eval('QUIZ_LENGTH.round2 = 12');
@@ -565,13 +565,13 @@ run('play', async (t) => {
     const inter = d.getElementById('screen-interstitial');
     const cards = inter.querySelectorAll('#inter-suspects .mc-cardback').length;
     const want = Math.min(4, (h.state.pendingCandidates || []).length);
-    ok('P5k after Round 2 the transition waits, then the line-up shows "Round 3", one face-down card per result still in the running, and "Four results are still in the running. You\'ll compare them two at a time."',
+    ok('P5k after Round 2 the transition waits, then the line-up shows "Round 3", one face-down card per result Round 3 plays, and "Your answers so far point to one of four results. The last few questions decide which."',
       waiting23 && isVisible(win, 'screen-interstitial') && cards === want && cards === 4 && inter.querySelector('h2').textContent === 'Round 3'
-        && textOf(win, 'inter-line') === "Four results are still in the running. You'll compare them two at a time.",
+        && textOf(win, 'inter-line') === 'Your answers so far point to one of four results. The last few questions decide which.',
       `cards=${cards} want=${want} line=${textOf(win, 'inter-line')}`);
     const interText = inter.textContent.replace(/\s+/g, ' ').trim();
     ok('P5k2 the line-up says nothing else: the title, the cards\' marks, the line and the button',
-      interText === `✦ Round 3 ${'✦'.repeat(4)} Four results are still in the running. You'll compare them two at a time. Start Round 3`
+      interText === `✦ Round 3 ${'✦'.repeat(4)} Your answers so far point to one of four results. The last few questions decide which. Start Round 3`
         && d.getElementById('inter-suspects').getAttribute('aria-hidden') === 'true', interText);
     ok('P5l the interstitial has no bars, percentages or colour names',
       inter.querySelectorAll('.mc-profile__row, .mc-pip, [data-color]').length === 0 && !/%/.test(inter.textContent) && !COLOUR_WORDS.test(inter.textContent),
@@ -603,7 +603,7 @@ run('play', async (t) => {
       lineFor(spread('W'), true, 'consumer'), lineFor(spread('W'), true, 'workplace'),
       lineFor(spread('W'), false, 'consumer', false), // Round 2 asked nothing
     ];
-    const want = "Round 3 / Four results are still in the running. You'll compare them two at a time. / Start Round 3";
+    const want = 'Round 3 / Your answers so far point to one of four results. The last few questions decide which. / Start Round 3';
     ok('P5w the line-up reads the same in plain, player and workplace modes, whoever leads, and after a Round 2 with nothing to ask',
       got.every((x) => x === want), [...new Set(got)].join(' | '));
     // The line-up used to draw one line of banter, and the draw stays (the page takes it and shows
@@ -617,8 +617,8 @@ run('play', async (t) => {
     ok('P5w2 the line-up still takes exactly one random draw, so the seeded Round 3 shuffles after it do not move', draws === 1, `draws=${draws}`);
     h.state.activationSorted = spread('W');
     const counts = [1, 2, 3].map((n) => { win.showInterstitial(cands.slice(0, n)); return textOf(win, 'inter-line') + ' (' + win.document.querySelectorAll('#inter-suspects .mc-cardback').length + ')'; });
-    ok('P5x fewer results (the old engine): the line counts them in words, and one result is just "still in the running"',
-      counts.join(' | ') === "One result is still in the running. (1) | Two results are still in the running. You'll compare them two at a time. (2) | Three results are still in the running. You'll compare them two at a time. (3)",
+    ok('P5x fewer results (the old engine): the line counts them in words mid-sentence, and one result is just "Your answers so far point to one result."',
+      counts.join(' | ') === 'Your answers so far point to one result. (1) | Your answers so far point to one of two results. The last few questions decide which. (2) | Your answers so far point to one of three results. The last few questions decide which. (3)',
       counts.join(' | '));
     win.close();
   }

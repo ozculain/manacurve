@@ -5942,23 +5942,26 @@ const PLAY_COPY = {
   },
 
   // Before Round 3 (after Round 2, or after Round 1 when Round 2 had nothing
-  // to ask): one face-down card per result still in the running, which are
-  // only decoration, and one line under them.
+  // to ask): one face-down card per result Round 3 plays, which are only
+  // decoration (screen readers skip them), and one line under them that
+  // stands on its own: what the answers point to and what is left.
   interstitial: {
     title: 'Round 3',
-    // {n}: how many results Round 3 plays, as a word (four under the
-    // likelihood engine; the old engine can bring fewer)
-    line: "{n} results are still in the running. You'll compare them two at a time.",
-    lineOne: 'One result is still in the running.',
-    count: { 2: 'Two', 3: 'Three', 4: 'Four' },
+    // {n}: how many results Round 3 plays, as a word mid-sentence (four under
+    // the likelihood engine; the old engine can bring fewer)
+    line: 'Your answers so far point to one of {n} results. The last few questions decide which.',
+    lineOne: 'Your answers so far point to one result.',
+    count: { 2: 'two', 3: 'three', 4: 'four' },
     continue: 'Start Round 3',
   },
 
   // After Round 1, when the first answers already point one way. It names
-  // neither the identity nor a colour.
+  // neither the identity nor a colour. Two sentences, one per button: what
+  // stopping gives, then what carrying on gives, with no push either way. "The
+  // rest of the quiz", not "two more rounds": Round 2 is sometimes empty.
   earlyOffer: {
     heading: 'Round 1 done.',
-    body: 'We can call it now, or you can keep going for a firmer result.',
+    body: 'You can see your result now. If you keep going, the rest of the quiz checks it, and it may change.',
     keepGoing: 'Keep going',
     showNow: 'Show my result',
   },
