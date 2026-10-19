@@ -475,7 +475,7 @@ const ROUND3_FLAGGED = [
   'within two answers of each other', 'led white by about one answer', 'was your lowest colour', 'made the cut easily', 'made it in easily',
   'Dashed line: one of your colours against one you lack.', 'None of the five colours is missing from your result.',
   // names and taglines
-  'FOUR-COLOR', 'FIVE-COLOR', 'Intelligence Through Control', 'Power Through Agency', 'Structure Through Power',
+  'FOUR-COLOR', 'FIVE-COLOR', 'Intelligence Through Control', 'Structure Through Power',
   'Community Through Nature', 'Growth Through Positioning', 'Chaos or Mastery',
   // philosophies
   'the most reliable form of leverage', 'accepting your place in the larger system', 'structure is the foundation of ambition',
