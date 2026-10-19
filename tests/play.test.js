@@ -356,10 +356,12 @@ run('play', async (t) => {
     const actions = lede.nextElementSibling;
     const start = d.getElementById('welcome-start');
     const explore = d.getElementById('welcome-explore');
-    ok('P4b the start button comes straight after the bold line, with "Explore all 31" beside it as a ghost button',
+    ok('P4b the start button comes straight after the bold line, with "See all 31 results" beside it as a ghost button',
       actions && actions.id === 'welcome-actions' && actions.firstElementChild === start && start.nextElementSibling === explore
         && /showPreflight/.test(start.getAttribute('onclick')) && /showExplorer/.test(explore.getAttribute('onclick'))
-        && explore.classList.contains('mc-btn--ghost') && explore.textContent === 'Explore all 31', explore.textContent);
+        && explore.classList.contains('mc-btn--ghost') && explore.textContent === 'See all 31 results', explore.textContent);
+    ok('P4b2 the bold line says what the quiz is, glosses Magic as a card game and tells a non-player they can take it: no aside, no press-release gloss',
+      lede.textContent === "A personality test based on the card game Magic: The Gathering. You don't need to have played it.", lede.textContent);
     const intro = d.getElementById('learn-more-intro');
     ok('P4c the long paragraph moved into the "Learn more" fold',
       d.getElementById('learn-more-content').contains(intro) && /5 colours/.test(intro.textContent)
