@@ -35,7 +35,7 @@ const ROUND2_SCENARIOS = {
       'ABZAN': "Tell the town today what won't happen, and take the blame myself.",
       'JESKAI': 'Rehearse the opening with every volunteer until it runs like clockwork.',
       'SULTAI': 'Open it smaller this year, and keep the sponsors sweet for next.',
-      'MARDU': 'Everyone works the weekend, and I start tonight.',
+      'MARDU': 'Everyone works the weekend, me included.',
       'TEMUR': 'Change the plan hour by hour as new problems show up.',
       'WITCH': 'No rushing. If it needs another day, it opens a day late.',
       'GLINT': "The council's rules can wait two days. The paperwork can follow.",
