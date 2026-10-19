@@ -4,6 +4,73 @@ Newest first. Dates are when the work was committed.
 
 ## 2026-10-19
 
+### Result pages: the line under the name
+
+Fresh readers this week heard the 26 multicolour taglines, which copied the
+shape of the framework's "Peace Through Structure" or reached for a slogan
+("Power Through Pressure", "Together, Slowly", "Whatever Works"), as a gym
+poster or a slide from a leadership course: "alliterative slogan", "corporate
+slogan, a label on me", "fridge-magnet tagline". The tag is the second thing
+a person reads about themselves and the first thing a friend sees on a shared
+picture. Each of the 26 is now two to five plain words about how the person
+goes about things, the way a friend would put it.
+
+- The 26, old and new. Azorius, Order Through Knowledge: "Wants everything
+  in writing". Selesnya, Together, Slowly: "Never the bad guy". Orzhov,
+  Rules That Pay: "Remembers who owes what". Dimir, Knowing More Than You
+  Say: "Gives nothing away". Izzet, Discovery Through Experimentation:
+  "Can't leave an idea alone". Gruul, Power Through Instinct: "Can't stand
+  fuss". Rakdos, Freedom Through Chaos: "Never goes home early". Golgari,
+  Growth Through Decay: "Not one for sentiment". Simic, Evolution Through
+  Design: "Always tinkering". Boros, Justice Through Action: "Fights other
+  people's battles". Bant, Harmony Through Structure: "Hears everyone out".
+  Esper, Perfection Through Control: "Has already decided". Grixis, Power
+  Through Pressure: "Gets the last word". Jund, Survival Through Hunger:
+  "Competes at everything". Naya, Everybody In: "Ropes people in". Abzan,
+  Endurance Through Tradition: "Has a long memory". Jeskai, Excellence
+  Through Discipline: "Does nothing by halves". Sultai, The Long Game:
+  "Somehow comes out ahead". Mardu, Victory Through Sacrifice: "Doesn't wait
+  for anyone". Temur, Whatever Works: "Turns their hand to anything".
+  Four-colour without red, Perfection Without Haste: "Sleeps on it". Without
+  green, Innovation Without Nostalgia: "Rebuilds things that work". Without
+  white, Power Without Permission: "Finds a way round". Without blue, Action
+  Before Analysis: "Wings it". Without black, Altruism Without an Angle:
+  "Doesn't keep score". Five-colour, All of the Above: "Hard to pin down".
+- The five mono-colour tags are the framework's names and stay as they were.
+- How they were written. For each, two lines first, the self-image and the
+  same trait as the people around them live with it, against the philosophy
+  and the `you` lines as they now stand; then three candidates. Sentence
+  case, no full stop. No word, small words included, is in more than two of
+  the 26. None repeats the wording of a `you` line on its page, and none
+  appears in a Round 1 or 2 question. The voice lint flags none of them; it
+  flagged the old Dimir tag for opening on a participle.
+- Six cold readers, one per draft of the set, and a seventh for Orzhov alone.
+  A tag a reader could not decode, took as an insult, heard as a slogan or
+  found innuendo in was rewritten: "Likes being owed" (nobody would post it),
+  "Slow on purpose" ("slow" read as dim), "Fits in anywhere" (a furniture
+  advert), "Goes too far" (a sexual reading), "Has a go at anything" (the
+  same, and "had a go at me"). Orzhov took seven tries. On the final wording
+  most tags passed three to six readers; Dimir's, Golgari's and Orzhov's
+  were seen by one reader each.
+- On the page. The tags show wherever the old ones did: the result banner,
+  the Scorecard and Story share images, the saved picture, the explorer, the
+  dossier, the colour-interactions screen and the link previews. Checked in
+  a browser at 1100px and 375px for all 31: each tag is one line on the
+  Scorecard and the Story at both widths, and on the banner at 1100px. On a
+  375px phone six of the 26 wrap onto two lines of the banner (the old set
+  wrapped 13). Nothing is clipped, nothing overlaps the commander line and
+  the page does not scroll sideways. The banner's tag now balances its two
+  lines (`text-wrap: balance`), so "Rebuilds things that work" breaks after
+  "things" and does not leave "work" on a line of its own.
+- The 26 preview pages in `r/` were rebuilt. No test or fixture changed: the
+  tests read the tags from `data.js`. `tests/fixtures/golden.json` does not
+  move.
+- Not changed: the five mono-colour tags, scoring, the question pools,
+  `PLAY_COPY`, the `you` lines and the philosophies. Two things seen while
+  checking are left as they were: on a 375px phone the share studio's
+  Scorecard is 460px wide and runs off both sides of the screen, and the
+  explorer scrolls sideways by about 24px.
+
 ### Result pages: the labels below the profile
 
 Three fresh readers went through the rewritten quiz and agreed that the
