@@ -89,8 +89,8 @@
 // ", and") or office prop (meetings, quarters, favours, emails, the fridge
 // and cake, votes, a crisis, weekdays, "nobody", an X about the X) on more
 // profiles than its limit, and a closing line on 22 profiles at most, each
-// in a box labelled "Your friends would put it like this." (once "Pub
-// banter"). Jokes, dramatic colons and a neat closing line in other words
+// in a box labelled "Behind your back" (once "Pub banter", then "Your
+// friends would put it like this."). Jokes, dramatic colons and a neat closing line in other words
 // cannot be caught by a pattern; they are left to review. The
 // checkers themselves are tested last, on the paragraph a player saw on a
 // phone before these rules existed, on the profiles' old passages and on the
@@ -679,8 +679,8 @@ const listItems = (text) => text.split(/,\s*(?:(?:and|or)\s+)?|\s+(?:and|or)\s+/
 //     across what the result page says about an identity (tagline,
 //     philosophy, strengths, shadows, banter, rules text, colleague cards)
 //   - banter: a closing line on more than BANTER_PROFILES profiles. It sits in
-//     its own box, labelled "Your friends would put it like this." (once "Pub
-//     banter"); the third readers, who had the page as text, read it as the
+//     its own box, labelled "Behind your back" (once "Pub banter", then
+//     "Your friends would put it like this."); the third readers, who had the page as text, read it as the
 //     last of the shadows, and saw every page end on a joke.
 const SHAPE_LIMITS = [
   ['"the room"', /\bthe room\b/i, 2],
@@ -801,8 +801,9 @@ const AUTHOR_DISCLAIMER = "It is not validated and it is not science. We're tell
 const HIRING_LINE = 'Do not use this for hiring, firing or any other decision about a person.';
 // The label on the closing line's box, which keeps the line from reading as
 // the last of the `you` lines (once "Pub banter", which readers heard as a
-// lazy stereotype and a forced joke).
-const BANTER_LABEL = 'Your friends would put it like this.';
+// lazy stereotype and a forced joke, then "Your friends would put it like
+// this.", which a reader heard as announcing the joke before it landed).
+const BANTER_LABEL = 'Behind your back';
 // Work wording a consumer result page no longer prints (CHANGELOG, "Result
 // pages in the second person"): the old headings, the colour cards' old label
 // and the old buttons. Then the labels three fresh readers heard as a slide

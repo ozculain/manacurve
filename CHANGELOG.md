@@ -4,6 +4,34 @@ Newest first. Dates are when the work was committed.
 
 ## 2026-10-19
 
+### Workplace and consumer pages: a fourth reading
+
+A fourth reader of work mode flagged four lines a person would not want
+their manager to read, and a reader of the consumer pages flagged six jobs
+and the banter box's label. Each line keeps its habit.
+
+- Grixis: "Things you call 'just business' are sometimes slightly
+  personal." is now "Sentiment gets very little say in your decisions."
+- Sultai: "People find out what you were working towards once you've got
+  it." is now "Full price is something you only pay when there's no other
+  way."
+- Four-colour without black: "Pay rises are easier for you to ask for on
+  someone else's behalf." is now "Anyone who asks for an hour of your time
+  gets one, and plenty of people ask."
+- Mardu's Green card in work mode gives the colleague's strength, "They can
+  tell when a team needs a night off.", where it had you asking the same
+  people "for another all-nighter". The consumer page keeps its line.
+- Six jobs that read as a recruiter's words are jobs a person would say:
+  "Chief Executive" for "Executive Leadership" (Mono-Black), "Hospitality"
+  for "Frontline Operations" (Mono-Red), "Headteacher" for "Educational
+  Leadership" (Bant), "Head Chef" for "Founding Teams" (Mardu), "Chief
+  Engineer" for "Engineering Leadership" (four-colour without green) and
+  "Site Manager" for "Field Operations" (four-colour without blue).
+- The banter box is labelled "Behind your back", as the explorer's box of
+  the same lines is. "Your friends would put it like this." announced the
+  joke before it landed. The label is a name, so it keeps the label style
+  where the sentence had a sentence's.
+
 ### Workplace pages: a third reading
 
 A third reader of the merged pages flagged fourteen more lines: seven a
