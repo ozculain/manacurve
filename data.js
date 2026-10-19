@@ -602,7 +602,7 @@ const PROFILES = {
     cmdDesc:'When Obzedat enters, an opponent loses 2 life and you gain 2. It can leave at your end step and return at your next upkeep with haste.',
     you:["Interest-free loans from you come with a mention in your speech at the borrower's wedding, along with the amount.","You know how things should be done, and so, shortly, will the host.","The rules you enforce hardest happen to be the ones that suit you, which you put down to judgement."],
     str:["Rules you write get followed without anyone having to chase.","When there's no budget for something, you know who to ask.","You remember who decided what, long after everyone else has forgotten."],
-    weak:["A favour you do goes on a list in your head, with the date.","Job titles matter to you more than you let on.","If someone goes over their manager's head, it bothers you, even when they were right."],
+    weak:["A favour you do goes on a list in your head, with the date.","Before you back a new idea, you want to know who's paying for it.","If someone goes over their manager's head, it bothers you, even when they were right."],
     roles:"COO, Finance, Law, Private Banking, Estate Planning, Senior Management, Institutional Investing"
   },
   'DIMIR':{
@@ -672,7 +672,7 @@ const PROFILES = {
     cmdDesc:"Each time another of your creatures dies, you get an experience counter. At your end step, you choose a creature card in your graveyard. It returns to the battlefield if its mana value is no more than your experience counters, and to your hand if not.",
     you:["You can tell a couple are finished months before they can, and you've usually worked out who's keeping the dog.","Bad news doesn't upset you much, which upsets people.","Most disasters you've seen before, so you can tell people how long theirs will last."],
     str:["Months before a project is cancelled, you can tell it's dying.","If a project has to close, you see it through to the last invoice.","Nothing goes in the skip until you've had a look through it."],
-    weak:["Your files include a folder of things that might come in useful, and it's the biggest one.","Whenever something new launches, you're already wondering how it will end.","Patience is your answer to most problems, including some that needed a phone call."],
+    weak:["Your files include a folder of things that might come in useful, and it's the biggest one.","Whenever something new launches, you're already wondering how it will end.","Patience is your answer to most problems, including some that needed one email."],
     roles:"Conservation, Turnarounds, Archives, Insolvency Practice"
   },
   'SIMIC':{
@@ -755,8 +755,8 @@ const PROFILES = {
     cmd:'Prossh, Skyraider of Kher',
     cmdDesc:'When you cast Prossh, create X 0/1 Kobolds where X is the mana spent. Sacrifice another creature: Prossh gets +1/+0 until end of turn.',
     you:["You play to win, including against children, who you feel should learn.","Nobody keeps up with you for long. You assume they've stopped trying.","You hear 'that can't be done' as a personal challenge, and you've won some very stupid bets."],
-    str:["Projects nobody wanted get finished once you're on them.","You treat 'this is hard' as a description and carry on.","Set you a target nobody believes in and you'll hit it, if only to prove a point."],
-    weak:["Friendly competitions at work stop being friendly once you've entered.","Help is the last thing you ask for.","A setback makes you push harder, even when it was telling you to stop."],
+    str:["Projects nobody wanted get finished once you're on them.","When a competitor makes a move, your week gets better.","Set you an impossible target and you'll hit it, if only to prove a point."],
+    weak:["Friendly competitions at work stop being friendly once you've entered.","Help is the last thing you ask for.","A stalled project gets more push from you before it gets a second look."],
     roles:'Sales, Startups, Professional Sport, Commodity Trading'
   },
   'NAYA':{
@@ -784,7 +784,7 @@ const PROFILES = {
     cmdDesc:'Karador costs one mana less for each creature card in your graveyard. Once during each of your turns, you may cast a creature from your graveyard.',
     you:["Twenty years on, anyone who helped you out can still ask you for a lift to the airport.","Once someone crosses you, you're civil to them at weddings and nowhere else.","You can explain why any new idea won't work, and you're right about a third of the time."],
     str:["You keep promises that were made by people who left years ago.","In a bad year, you know which people will still pick up the phone.","If your team gets something wrong, you do the explaining upstairs."],
-    weak:["A pilot scheme can stay a pilot for years while you make up your mind.","Anyone who lets you down has a lot of work to do to win you back.","New systems have to get past your list of objections first."],
+    weak:["A pilot scheme can stay a pilot for years while you make up your mind.","Anyone who lets you down has a lot of work to do to win you back.","To you, anyone who joined in the last two years is still new."],
     roles:"Family Businesses, Local Government, Farming, Politics"
   },
   'JESKAI':{
@@ -840,7 +840,7 @@ const PROFILES = {
     cmdDesc:"Neither Surrak nor your creatures can be countered, and your other creatures have trample.",
     you:["You lose interest in a hobby about the time you get good at it.","Your friends write your address in pencil.","Nothing throws you when a plan falls apart, which the people who made the plan find hard to forgive."],
     str:["You learn a new tool over the weekend and teach it to the team on Monday.","Half your best fixes are borrowed from some other line of work.","If one approach isn't working, you've got another one ready."],
-    weak:["Six weeks into a project, you've rebuilt the foundations twice.","Online courses you start outnumber the ones you finish.","An agreed plan changes shape once you get your hands on it."],
+    weak:["Six weeks into a project, you've rebuilt the foundations twice.","Online courses you start outnumber the ones you finish.","By March you've dropped the method you taught the team in January."],
     roles:"Startups, Research, Product Design, Journalism, Expedition Leading"
   },
   'WITCH':{
@@ -854,7 +854,7 @@ const PROFILES = {
     cmdDesc:'At your end step, proliferate: give each permanent and player you choose another of each kind of counter already on it.',
     you:["With the bus already at the stop, you walk at the same speed.","Other people's emergencies get a fair hearing from you, and then a slot next week.","In the middle of a row, you can quote back exactly what was said, and when."],
     str:["You win long arguments by turning up every time until the other side stops coming.","A ten-year plan in your hands is still on course in year six.","When everyone is panicking, your notes are the ones worth reading afterwards."],
-    weak:["Work that impresses you gets called 'fine'.","Once you've decided, changing your mind takes as long as deciding did.","If someone wants you to hurry, they'll need to show you what waiting costs."],
+    weak:["Work that impresses you gets called 'fine'.","Once you've decided, changing your mind takes as long as deciding did.","Quick replies, by your standards, arrive the next working day."],
     roles:'Operations, Finance, Strategy, Long-term Planning, Sovereign Wealth, Patient Capital'
   },
   'YORE':{
@@ -895,7 +895,7 @@ const PROFILES = {
     cmd:'Saskia the Unyielding',
     cmdDesc:'As Saskia enters, choose a player. Whenever your creatures deal combat damage to a player, they deal the same damage to the chosen player.',
     you:["You start painting a room before you've bought enough paint.","Wherever you go, people follow, which has led some of them to very odd places.","Your gut has a lot to answer for."],
-    str:["One phone call from you can unstick a decision that's been stuck for a month.","You notice when the team has gone quiet in the wrong way.","If someone has to go first, it's usually you."],
+    str:["One phone call from you can unstick a decision that's been stuck for a month.","When the team stops joking, you ask what's happened.","If someone has to go first, it's usually you."],
     weak:["What goes out on Tuesday, you're often fixing on Wednesday.","An answer that needed a spreadsheet is one you trust less.","'Let's sleep on it' sounds to you like 'let's not'."],
     roles:"Sales, Crisis Response, Live Events, Field Operations, Military"
   },
@@ -910,7 +910,7 @@ const PROFILES = {
     cmdDesc:'At the beginning of your end step, you draw a card. Each player may then put a land onto the battlefield from their hand, and each opponent who didn\'t draws a card.',
     you:["You give everyone the benefit of the doubt, which a few of them have been living on for years.","Somebody who loves you has to say no on your behalf, usually while you're still saying yes.","Things you did on your own, you call a team effort."],
     str:["You know the night security guard's name, and his dog's.","Before a project starts, you ask the people it's for.","People stop saying 'what's the point' when you're around."],
-    weak:["Other people's good causes take up a lot of your diary.","Office politics passes you by until it lands on your desk.","Pay rises are easier for you to ask for on someone else's behalf."],
+    weak:["Every good cause you take up reaches the rest of the office as a sign-up sheet.","Office politics passes you by until it lands on your desk.","Pay rises are easier for you to ask for on someone else's behalf."],
     roles:'Nonprofits, Education, Community Building, Social Enterprise, Cooperative Movement, Public Health'
   },
   'WUBRG':{
