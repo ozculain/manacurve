@@ -109,6 +109,9 @@
 // "Who you need around you", "Make a picture", "Explore All 31 Types" ...)
 // or whose disclaimer box does not open on the author's line; section 7 fails
 // a consumer peek whose heading or appeal button is a "Label: value".
+// Section 6 fails a workplace page, with the workings open, that prints one
+// of the status words, headings or buttons its reader heard as an app or an
+// HR form ("Locked in", "Natural Roles", "View Full Breakdown" ...).
 // Usage: node tests/visible-copy.test.js [--dump] [path/to/index.html]
 const { bootPage, pageArgs, whenReady, isVisible, EXPOSE } = require('./_lib/load');
 const { run } = require('./_lib/report');
@@ -768,13 +771,22 @@ const BANTER_LABEL = 'Your friends would put it like this.';
 // and the old buttons. Then the labels three fresh readers heard as a slide
 // deck under the rewritten profiles (CHANGELOG, "Result pages: the labels
 // below the profile"): the status words, the self-help heading, the Title
-// Case buttons, the colon key and headlines, the footnote caption. Workplace mode keeps the ones it had.
+// Case buttons, the colon key and headlines, the footnote caption. Workplace
+// mode keeps its legend, picture button, Retake, switcher label and
+// disclaimer heading.
 const CONSUMER_GONE = [/^Strengths$/, /^Shadows$/, /^Natural Roles$/, /^Working With Others$/, /^Who to bring in$/, /^View Full Breakdown$/, /^Make an image$/,
   /^(?:White|Blue|Black|Red|Green) colleague$/, /^Colleagues strong in\b/,
   /^Locked in$/, /^Leaning$/, /^Still shuffling$/, /^Who you need around you$/, /^Make a picture$/,
   /^Retake$/, /^Explore All 31 Types$/, /^How Colours Interact$/, /^Page style$/, /^Pub banter$/,
   /^Commander · /, /^Solid line: /, /^Dashed line: /, /^Splash \w+: /, /^Cut the \w+: /, /^⚠ Not For Official Use$/,
   /^How often you picked each colour when it was offered\.$/, /^The results one colour away from yours\.$/, /^People strong in the colours\b/];
+// The status words, headings and buttons a reader of the workplace page heard
+// as an app's or an HR form's (CHANGELOG, "Result pages: the last flagged
+// lines, the workplace labels and eight taglines"). No page prints them now:
+// section 6 holds the workplace page to it with the workings open, and
+// tests/render.test.js holds the words that replaced them.
+const WORKPLACE_GONE = [/^Locked in$/, /^Leaning$/, /^Still shuffling$/, /^Natural Roles$/, /^Natural roles$/,
+  /^Working With Others$/, /^View Full Breakdown$/, /^Hide Full Breakdown$/, /^Explore All 31 Types$/, /^How Colours Interact$/];
 
 // ---------- collecting what is on screen ----------
 // Not prose for these rules: the identity's own content, the commander block
@@ -1029,6 +1041,15 @@ run('visible-copy', async (t) => {
         && JSON.stringify(quality) === JSON.stringify(wantQuality)
         && quality.every((q) => sentences(q).length <= 2) && others.length === 0 && !d.getElementById('conf-exp'),
       `${threw || errors[0] || ''} block=${JSON.stringify(block)} ${specific.join(', ')} quality=${JSON.stringify(quality)} others=${JSON.stringify(others)}`);
+    // Workplace mode: none of the status words, headings or buttons its
+    // reader heard as an app or an HR form, with the workings open as well.
+    if (st.mode === 'workplace') {
+      win.toggleBreakdown();
+      const page = visibleBlocks(win, screen, { exclude: [] });
+      const old = page.filter((b) => WORKPLACE_GONE.some((re) => re.test(b)));
+      ok(`result: ${st.name}: none of the old status words, headings or buttons, with the workings open ("Locked in", "Natural Roles", "Hide Full Breakdown" ...)`,
+        page.includes('Hide the workings') && old.length === 0, old.join(' | ') || page.filter((b) => /workings/i.test(b)).join(' | '));
+    }
     win.close();
   }
 

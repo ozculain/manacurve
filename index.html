@@ -917,7 +917,7 @@ main { position: relative; z-index: 2; }
    style="display:none;" → class="hidden" cleanup. */
 .hidden { display: none !important; }
 
-/* Working With Others: pentagon diagram + per-colour callouts */
+/* The colour wheel and the colour cards: pentagon diagram + per-colour callouts */
 .mc-relations-wrap { display: grid; grid-template-columns: minmax(280px, 360px) 1fr; gap: 36px; align-items: start; margin-top: 22px; }
 @media (max-width: 720px) { .mc-relations-wrap { grid-template-columns: 1fr; gap: 24px; } }
 .mc-relations-svg-wrap { display: flex; flex-direction: column; align-items: center; gap: 14px; }
@@ -2542,7 +2542,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
              number until Phase 5), then at most one small quality line, only
              when a quality flag fires (renderQualityWarning). -->
         <div class="mc-verdict-status">
-          <span class="mc-confidence" id="conf-badge" data-level="moderate"><span class="mc-confidence__dot"></span><span>Leaning</span></span>
+          <span class="mc-confidence" id="conf-badge" data-level="moderate"><span class="mc-confidence__dot"></span><span>Fairly clear</span></span>
           <div class="mc-verdict-status__rate">
             <p class="mc-verdict-status__line" id="conf-base-rate"></p>
           </div>
@@ -2599,7 +2599,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
              card is named once, as the banner's art credit. -->
         <div id="res-roles-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;">
           <div>
-            <div class="mc-result__col-title" id="roles-title">Natural Roles</div>
+            <div class="mc-result__col-title" id="roles-title">Jobs you'd be good at</div>
             <p class="mc-body" style="color:var(--ink);font-size:15px;line-height:1.7;" id="roles">Roles</p>
           </div>
           <div id="res-cmd-aside">
@@ -2629,8 +2629,8 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
           <button type="button" class="mc-nextdoor__all" id="next-door-all" onclick="openAppealExplorer()"></button>
         </section>
 
-        <!-- Working With Others (consumer mode: "Who to ask", the colour cards' own heading) — pentagon diagram + per-colour callouts -->
-        <div class="mc-typeline" style="margin-top: 36px;"><span class="mc-typeline__diamond"></span><span id="res-others-title">Working With Others</span><span class="mc-typeline__diamond"></span></div>
+        <!-- The colour wheel and the colour cards ("Who to ask" on a consumer page, the cards' own heading; "Your colours and the rest" in workplace mode) — pentagon diagram + per-colour callouts -->
+        <div class="mc-typeline" style="margin-top: 36px;"><span class="mc-typeline__diamond"></span><span id="res-others-title">Who to ask</span><span class="mc-typeline__diamond"></span></div>
         <div class="mc-relations-wrap">
           <div class="mc-relations-svg-wrap">
             <!-- Pentagon: all-SVG so vertex symbols sit at EXACT viewBox coords. -->
@@ -2688,13 +2688,13 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
              duplicate. The words are the audience's (renderFrameLabels). -->
         <div style="display:flex;gap:12px;margin-top:32px;flex-wrap:wrap;">
           <button class="mc-btn mc-btn--primary" id="res-image-btn" onclick="showShareScreen()">Make an image</button>
-          <button class="mc-btn" id="res-breakdown-btn" onclick="toggleBreakdown()">View Full Breakdown</button>
+          <button class="mc-btn" id="res-breakdown-btn" onclick="toggleBreakdown()">Show the workings</button>
           <button class="mc-btn mc-btn--ghost" id="res-retake-btn" onclick="restart()">Retake</button>
         </div>
       </div>
 
-    <!-- LEGACY DETAIL — hidden by default, revealed by the "View Full Breakdown" button in the main plinth. -->
-    <!-- LEGACY DETAIL — hidden by default, revealed by the "View Full Breakdown" button in the main plinth.
+    <!-- LEGACY DETAIL — hidden by default, revealed by the "Show the workings" button in the main plinth. -->
+    <!-- LEGACY DETAIL — hidden by default, revealed by the "Show the workings" button in the main plinth.
          Restyled to match the gilt/parchment system. Duplicated share UI removed (Share Studio handles it). -->
     <div id="legacy-detail" class="hidden">
 
@@ -2884,8 +2884,8 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
       <p class="hidden" id="restart-text"></p>
 
       <div style="display: flex; gap: 12px; justify-content: center; margin-top: 32px; flex-wrap: wrap;">
-        <button onclick="showExplorer()" class="mc-btn mc-btn--ghost" id="res-explore-btn">Explore All 31 Types</button>
-        <button onclick="showInteractions()" class="mc-btn mc-btn--ghost" id="res-interactions-btn">How Colours Interact</button>
+        <button onclick="showExplorer()" class="mc-btn mc-btn--ghost" id="res-explore-btn">See all 31 results</button>
+        <button onclick="showInteractions()" class="mc-btn mc-btn--ghost" id="res-interactions-btn">See how the colours get on</button>
       </div>
       <p style="margin-top: 12px; font-size: 12px; color: var(--ink-faded); font-family: var(--f-flavor); font-style: italic; text-align: center;" id="explorer-hint"></p>
 
@@ -3189,7 +3189,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
 
           <!-- Roles -->
           <div>
-            <div class="mc-eyebrow mc-eyebrow--gilt" style="margin-bottom: 8px;" id="detail-roles-title">Natural roles</div>
+            <div class="mc-eyebrow mc-eyebrow--gilt" style="margin-bottom: 8px;" id="detail-roles-title">Jobs you'd be good at</div>
             <p id="detail-roles" class="mc-body" style="font-size: 14.5px; color: var(--ink); line-height: 1.7; margin: 0;"></p>
           </div>
 
@@ -4301,7 +4301,7 @@ function restoreSession(snapshot) {
   return true;
 }
 
-// ─── COLOUR RELATIONS (Working With Others) ────────────────────────────────
+// ─── COLOUR RELATIONS (the colour wheel and the colour cards) ──────────────
 // Renders a WUBRG pentagon diagram showing your colours filled, missing
 // colours hollow, ally edges within identity lit gold, and pentagram-enemy
 // edges from your colours to missing colours lit dashed red. Beside the
@@ -11301,6 +11301,8 @@ function revealResults() {
 // Still 7, which has not been published: the labels, captions and buttons
 // below the profile on a consumer page are sentences and plain actions too
 // (19 October 2026), and an appeal records the sentence it was shown.
+// Workplace mode's status words, headings and buttons became plain words the
+// same day, still in 7; a workplace appeal records the new status word.
 const RESULT_COPY_VERSION = 7;
 
 const RESULT_COPY = {
@@ -11367,7 +11369,10 @@ const RESULT_COPY = {
   // [4] Confidence labels (links keep c=high|moderate|low). A consumer page
   // says how clear the result was in one sentence (`said`): three fresh
   // readers heard "Locked in", "Leaning" and "Still shuffling" as an app's
-  // status lights. Workplace mode and the Scorecard share image keep `word`.
+  // status lights. Workplace mode and the Scorecard share image show `word`,
+  // which since 19 October 2026 is plain words too ("Clear-cut", "Fairly
+  // clear", "Close call"): a reader of the workplace page heard the old
+  // ones the same way.
   // The label and the one line under it (`confidence` below) are all the
   // confidence block says: nothing about how the result was reached is
   // stacked under them.
@@ -11376,17 +11381,17 @@ const RESULT_COPY = {
   // {date} when that was measured. Nothing reads them before Phase 5.
   labels: {
     HIGH: {
-      word: 'Locked in',
+      word: 'Clear-cut',
       said: 'Nothing else came close.',
       phase5: 'About {pct}% of results like this held up when tested.'
     },
     MODERATE: {
-      word: 'Leaning',
+      word: 'Fairly clear',
       said: 'One or two other results came close.',
       phase5: 'About {pct}% of results like this held up when tested.'
     },
     LOW: {
-      word: 'Still shuffling',
+      word: 'Close call',
       said: 'You could easily have come out as something else.',
       phase5: 'About {pct}% of results like this held up when tested, so read next door too.'
     }
@@ -11445,7 +11450,7 @@ const RESULT_COPY = {
       close: 'All five colours finished within {n} of each other.',
       well: 'All five colours made it in, though {m} finished {n} behind {t}.'
     },
-    // "Still shuffling" on bars that were clear: the doubt is about the result.
+    // A LOW result on bars that were clear: the doubt is about the result.
     lowWell: '{line}, but your answers fitted more than one result.',
     // A shared link with no bars in it.
     noBars: 'This link shows {identity} without the answers behind it.'
@@ -11462,35 +11467,41 @@ const RESULT_COPY = {
   },
 
   // The headings, labels and buttons around the profile, by audience
-  // (renderFrameLabels): consumer mode in words a person would say, workplace
-  // mode as it was. Three readers on a consumer page heard "Natural Roles" as
-  // sorting people into job titles, "Working With Others" as an appraisal form
-  // and "View Full Breakdown" as a dashboard; three more, after the profiles
-  // were rewritten, heard their replacements as a slide deck ("Who you need
-  // around you", "Make a picture", the Title Case buttons). "Show the
-  // workings" stays: two blind readers preferred it to the rewrites tried.
-  // Where a consumer label became a sentence, it is styled as one
-  // (.mc-said). The picture button never says "share": the banner's Share is
-  // the one Share on the page. (Not in the drafts.)
+  // (renderFrameLabels), in words a person would say. Three readers on a
+  // consumer page heard "Natural Roles" as sorting people into job titles,
+  // "Working With Others" as an appraisal form and "View Full Breakdown" as a
+  // dashboard; three more, after the profiles were rewritten, heard their
+  // replacements as a slide deck ("Who you need around you", "Make a
+  // picture", the Title Case buttons). "Show the workings" stays: two blind
+  // readers preferred it to the rewrites tried. Since 19 October 2026
+  // workplace mode's headings and buttons are the consumer page's words too
+  // (a reader heard its old ones as an HR form and a dashboard), apart from
+  // the divider over the colour wheel, which sits above the cards' own
+  // heading there. Its legend, picture button, Retake and disclaimer
+  // heading are as they were. Where a consumer label became a sentence, it
+  // is styled as one (.mc-said). The picture button never says "share": the
+  // banner's Share is the one Share on the page. (Not in the drafts.)
   frame: {
     // The heading over the jobs, which follow in sentence case (rolesFor). Two
     // blind readers preferred it to the sentence tried in its place.
-    roles: { consumer: "Jobs you'd be good at", workplace: 'Natural Roles' },
-    detailRoles: { consumer: "Jobs you'd be good at", workplace: 'Natural roles' },
+    roles: { consumer: "Jobs you'd be good at", workplace: "Jobs you'd be good at" },
+    detailRoles: { consumer: "Jobs you'd be good at", workplace: "Jobs you'd be good at" },
     // The divider over the colour wheel and the colour cards. In consumer mode
-    // it is the cards' own heading, so renderRelations prints no second one.
-    others: { consumer: 'Who to ask', workplace: 'Working With Others' },
+    // it is the cards' own heading, so renderRelations prints no second one;
+    // workplace mode keeps the cards' heading (COLOR_GAPS_COPY), so the
+    // divider names the whole section.
+    others: { consumer: 'Who to ask', workplace: 'Your colours and the rest' },
     // The key to the colour wheel; each line shows only when its kind of line is drawn.
     legendAlly: { consumer: 'A solid line means two of your colours get on.', workplace: 'Solid line: two of your colours that get on.' },
     legendEnemy: { consumer: 'A dashed line means one of yours pulls against a missing colour.', workplace: 'Dashed line: one of your colours and a missing colour that pulls against it.' },
     // The label on the closing-line box (consumer mode only; workplace mode hides the box).
     banter: { consumer: 'Your friends would put it like this.', workplace: 'Pub banter' },
     image: { consumer: 'Save it as a picture', workplace: 'Make an image' },
-    breakdown: { consumer: 'Show the workings', workplace: 'View Full Breakdown' },
-    breakdownHide: { consumer: 'Hide the workings', workplace: 'Hide Full Breakdown' },
+    breakdown: { consumer: 'Show the workings', workplace: 'Show the workings' },
+    breakdownHide: { consumer: 'Hide the workings', workplace: 'Hide the workings' },
     retake: { consumer: 'Start again', workplace: 'Retake' },
-    explore: { consumer: 'See all 31 results', workplace: 'Explore All 31 Types' },
-    interactions: { consumer: 'See how the colours get on', workplace: 'How Colours Interact' },
+    explore: { consumer: 'See all 31 results', workplace: 'See all 31 results' },
+    interactions: { consumer: 'See how the colours get on', workplace: 'See how the colours get on' },
     // The page-style switcher's label. Workplace mode keeps PLAY_COPY's
     // (results.themeLabel); the three theme names stay as they are.
     themeLabel: { consumer: 'Change how the page looks.', workplace: null },
@@ -11737,7 +11748,7 @@ const RESULT_COPY = {
   }
 };
 
-// "Natural Roles" entries left out in consumer mode because they read as
+// Jobs-list entries left out in consumer mode because they read as
 // corporate jargon. The data keeps them; workplace mode shows the full list.
 // (Not in the drafts.)
 const ROLES_HIDDEN_FOR_FUN = [
@@ -11796,8 +11807,8 @@ function audienceKey() {
 // words (RESULT_COPY.frame). The breakdown button says what its next tap
 // does. On a consumer page the labels that are sentences there (the
 // closing-line box's label, the page-style switcher's) are styled as
-// sentences (.mc-said); workplace mode keeps its labels as they were, the
-// switcher's from PLAY_COPY.
+// sentences (.mc-said); workplace mode's labels keep their label style, and
+// its switcher's label comes from PLAY_COPY.
 function renderFrameLabels() {
   const F = RESULT_COPY.frame, aud = audienceKey();
   const set = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
@@ -12571,7 +12582,7 @@ function showResults() {
   const typelineName = document.getElementById('res-typeline-name');
   if (typelineName) typelineName.textContent = identityName(shownId);
   // The commander aside, player mode only: the card's name and what it does.
-  // Everyone else gets Natural Roles at full width.
+  // Everyone else gets the jobs at full width.
   const playerCard = isPlayerMode();
   const cmdAside = document.getElementById('res-cmd-aside');
   if (cmdAside) cmdAside.classList.toggle('hidden', !playerCard);
@@ -12653,7 +12664,7 @@ function showResults() {
   document.getElementById('explorer-hint').textContent = '';
   
   // The confidence block: the label (a sentence on a consumer page, "Nothing
-  // else came close."; "Locked in" / "Leaning" / "Still shuffling" in
+  // else came close."; "Clear-cut" / "Fairly clear" / "Close call" in
   // workplace mode) and its one line, then at most one quality line
   // (renderQualityWarning, called above). Nothing else is stacked under it.
   // The guards that lower the label (a Round 3 cycle, a scenario
