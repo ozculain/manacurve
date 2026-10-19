@@ -4447,7 +4447,7 @@ const COLOR_GAPS = {
     U: 'When the answer looks obvious, give them an hour to check it.'
   },
   NAYA: {
-    U: 'Once the team is fired up, get them to turn the energy into a plan.',
+    U: 'Once the team is fired up, get them to work out who does what.',
     B: "They'll find out whether the whole team wants the same thing, or just the loudest."
   },
   ABZAN: {
@@ -4538,7 +4538,7 @@ const COLOR_GAPS_FOR_FUN = {
   },
   JUND: { W: 'Sit down with them now and then to hear how everyone around you is holding up.' },
   NAYA: {
-    U: 'Once everyone is fired up, get them to turn the energy into a plan.',
+    U: 'Once everyone is fired up, get them to work out who does what.',
     B: "They'll find out if everyone wants the same thing, or just the loudest."
   },
   ABZAN: { R: 'Hand them anything people have been talking about for longer than anyone can remember.' },
@@ -4565,7 +4565,10 @@ const COLOR_GAPS_FOR_FUN = {
 // stays. Gruul's White card is work's own too (a later reader of the
 // workplace pages): COLOR_GAPS has you asking which rules keep people safe
 // "before you ignore one", which takes it as read that you ignore them, and
-// work mode asks about the rules you find slow. The same rules hold as above.
+// work mode asks about the rules you find slow. So are three more from a
+// third reading, for the same reason: Sultai's plan "being played on"
+// people, four-colour without blue's "Before you skip the checks" and
+// Dimir's news "you've known for weeks". The same rules hold as above.
 const COLOR_GAPS_AT_WORK = {
   'MONO-B': { G: 'Before you give up something that took years to build for something you want this week, talk to them.' },
   'MONO-G': {
@@ -4583,6 +4586,9 @@ const COLOR_GAPS_AT_WORK = {
   SIMIC: { R: 'Let them call it finished when it nearly is and you want another week.' },
   ESPER: { R: 'Ask them to talk to whoever your plan has upset.' },
   GRUUL: { W: 'Ask them which of the rules you find slow are there to keep people safe.' },
+  SULTAI: { W: 'Ask them how your plan looks to the people who only see the first year of it.' },
+  DIMIR: { R: 'When something needs saying in front of everyone, let them say it.' },
+  DUNE: { U: 'Give them ten minutes with the figures before anything goes out.' },
   GRIXIS: { G: "Talk it over with them before you give up on someone you'll need next year." },
   MARDU: { U: 'Get them to pick holes in the plan before you commit everyone to it.' },
   WITCH: { R: 'Leave it to them when a deadline matters more than a better answer.' }
@@ -11898,11 +11904,10 @@ const RESULT_COPY = {
 // corporate jargon. The data keeps them; workplace mode shows the full list.
 // (Not in the drafts.)
 const ROLES_HIDDEN_FOR_FUN = [
-  'COO', 'CFO/Finance', 'Chief Compliance Officer', 'Chief People Officer', 'Turnaround CEO',
+  'COO', 'Chief Compliance Officer', 'Chief People Officer', 'Turnaround CEO',
   'General Counsel', 'Senior Management', 'HR Leadership', 'Strategic HR', 'Legal/Compliance',
-  'Corporate Development', 'Corporate Strategy', 'Institutional Investing', 'Sovereign Wealth',
-  'Patient Capital', 'Distressed Asset Acquisition', 'Portfolio Management', 'Insolvency Practice',
-  'M&A', 'VC/PE'
+  'Corporate Development', 'Corporate Strategy', 'Institutional Investing',
+  'Portfolio Management', 'Insolvency Practice', 'M&A'
 ];
 
 // One answer moves a colour's bar by about a twelfth: Round 1 asks twelve

@@ -49,7 +49,7 @@ const CASES = [
     line: 'Blue and black were well clear of the other three colours.',
     typeline: 'Legendary Creature — Human Ninja',
     rules: 'Whenever a player says something, surveil 1. You have shroud.',
-    rolesForFun: 'Strategic planning, competitive intelligence, investigative journalism',
+    rolesForFun: 'Strategic planning, competitive intelligence, negotiation, investigative journalism',
     share: { consumer: "I'm Dimir. What are you?", workplace: "I'm Dimir. What are you?" },
     manaBase: '37 lands: Command Tower, Watery Grave, Polluted Delta, Drowned Catacomb, 19 Island, 14 Swamp.',
     nextDoor: {
@@ -107,7 +107,7 @@ const CASES = [
     line: 'White was well behind your four colours.',
     typeline: 'Legendary Creature — Ogre Wizard',
     rules: "Trample, cascade. Phasing (When the bill arrives, treat this creature as though it doesn't exist.)",
-    rolesForFun: 'Venture capital, trading, startups, activist investing',
+    rolesForFun: 'Venture capital, trading, startups, activist investing, private investigation',
     share: { consumer: "I'm Four-colour (no white). What are you?", workplace: "I'm Four-colour (no white). What are you?" },
     manaBase: '37 lands: Command Tower, Mana Confluence, City of Brass, Exotic Orchard, six shocks, four Triomes and 23 basics.',
     nextDoor: {

@@ -497,7 +497,7 @@ const PROFILES = {
     name:'MONO-WHITE',
     tag:'Peace Through Structure',
     colors:['W'],
-    philosophy:"You keep to the rules even when breaking one would save you forty quid. They're there for the person who can't argue back, and one day that might be you.",
+    philosophy:"You keep to the rules even when breaking one would get you the job. They're there for the person who can't argue back, and one day that might be you.",
     desc:"You make sure the rules apply to everyone and outlast whoever wrote them. If someone is getting special treatment, you notice and say so.",
     pubBanter:"You've been asked to stop quoting the dress code by paragraph number.",
     cmd:'Elesh Norn, Grand Cenobite',
@@ -616,8 +616,8 @@ const PROFILES = {
     cmdDesc:'Yuriko swaps in for an unblocked attacker. When your Ninjas hit a player, you reveal your top card and put it in your hand. Each opponent loses life equal to its mana value.',
     you:["You're a closed book with very good hearing.","Half of what you know, people told you without meaning to.","You answer every straight question truthfully, just rarely the one that was asked."],
     str:["You usually see a problem coming a week before anyone mentions it.","A seating plan tells you who has fallen out with whom.","People tell you things in confidence, and it stays that way."],
-    weak:["Information comes to you faster than you can find a use for it.","Colleagues find you hard to read, and you take that as a compliment.","Most of what you know reaches other people a little later than they'd have liked."],
-    roles:'Strategic Planning, M&A, Competitive Intelligence, VC/PE, Investigative Journalism'
+    weak:["Information comes to you faster than you can find a use for it.","Colleagues find you hard to read, and you take that as a compliment.","Notes you take are written so only you can read them."],
+    roles:'Strategic Planning, M&A, Competitive Intelligence, Negotiation, Investigative Journalism'
   },
   'IZZET':{
     name:'IZZET',
@@ -630,7 +630,7 @@ const PROFILES = {
     cmdDesc:'Can\'t be countered. Whenever you draw a card, deal 1 damage to any target. Whenever a player casts an instant or sorcery spell, you draw a card.',
     you:["You'll solve any problem brilliantly, sometimes even the one people had.","Your best idea of the week arrives at one in the morning. So does the message telling someone about it.","Once you've got something working, it goes in a drawer."],
     str:["You try the thing that probably won't work, in case it does.","Every brief has a contradiction somewhere, and you find it on the first read.","At eleven at night you'll rebuild something because you've thought of a better way."],
-    weak:["Of the three projects you have on the go, one is usually on fire.","Ninety per cent done is where your interest runs out.","When you're off sick, the team finds out how much of your work is in your head."],
+    weak:["Of the three projects you have on the go, one is usually on fire.","Polish is the part of the job you'd happily hand to someone else.","When you're off sick, the team finds out how much of your work is in your head."],
     roles:'R&D, Product Development, Startups, Quant Research'
   },
   'GRUUL':{
@@ -658,7 +658,7 @@ const PROFILES = {
     cmdDesc:'You can cast Rakdos only after an opponent has lost life this turn. Your creature spells then cost one mana less for each life your opponents have lost this turn.',
     you:["You always do what you say you'll do, even the things you only said for a laugh.","At funerals, someone has to keep an eye on you.","You tell a great story about your worst nights out, and some of the people in them have asked you to stop."],
     str:["Dull training days come back to life when you put your hand up.","You say out loud what the rest of the team was thinking.","When a launch goes badly, you can turn it into a story people want to hear."],
-    weak:["Jokes come to you at moments that needed someone to be serious.","Budgets are something you hear about after the event.","Plans for next year struggle to hold your attention this year."],
+    weak:["Jokes come to you at moments that needed someone to be serious.","Out-of-office replies from you are more entertaining than they need to be.","Plans for next year struggle to hold your attention this year."],
     roles:'Entertainment, Live Music, Nightlife, Activism, Creative Direction'
   },
   'GOLGARI':{
@@ -729,7 +729,7 @@ const PROFILES = {
     you:["Every invitation you send has a finish time on it.","You leave nothing to chance, and very little to anyone else.","Things run smoothly when you're in charge, which is always."],
     str:["You read the whole budget, including the lines marked 'other'.","If something needs approving, you know the quickest proper route.","Before you decide, you can say exactly what the decision will cost."],
     weak:["News that someone is upset about your plan reaches you last.","A crisis that arrives before the figures do can leave you stuck.","Complaints about how something felt get a revised procedure from you."],
-    roles:"CFO/Finance, Chief Compliance Officer, Auditing, Actuarial Work, Intelligence Analysis, Public Policy"
+    roles:"Finance Director, Chief Compliance Officer, Auditing, Actuarial Work, Intelligence Analysis, Public Policy"
   },
   'GRIXIS':{
     name:'GRIXIS',
@@ -855,7 +855,7 @@ const PROFILES = {
     you:["With the bus already at the stop, you walk at the same speed.","Other people's emergencies get a fair hearing from you, and then a slot next week.","In the middle of a row, you can quote back exactly what was said, and when."],
     str:["You win long arguments by turning up every time until the other side stops coming.","A ten-year plan in your hands is still on course in year six.","When everyone is panicking, your notes are the ones worth reading afterwards."],
     weak:["Work that impresses you gets called 'fine'.","Once you've decided, changing your mind takes as long as deciding did.","Quick replies, by your standards, arrive the next working day."],
-    roles:'Operations, Finance, Strategy, Long-term Planning, Sovereign Wealth, Patient Capital'
+    roles:'Operations, Finance, Strategy, Long-term Planning, Pensions, Forestry'
   },
   'YORE':{
     name:'FOUR-COLOUR (No Green)',
@@ -883,7 +883,7 @@ const PROFILES = {
     you:["You read 'staff only' as a suggestion.","Until it's settled, nobody can say which side you're on, you included.","People bring you the impossible jobs and keep the ordinary ones well away from you."],
     str:["You'll work with anyone, including people you don't much like.","If an answer exists somewhere in the building, you'll find the person who has it.","Once a system stops working, you'll replace it, whoever built it."],
     weak:["By the time the brief is signed off, you're on your second draft of something slightly different.","When the facts change, your plans change that day, and not everyone hears in time.","Routine jobs drift to the bottom of your list."],
-    roles:"Venture Capital, Trading, Startups, Activist Investing, Distressed Asset Acquisition"
+    roles:"Venture Capital, Trading, Startups, Activist Investing, Private Investigation"
   },
   'DUNE':{
     name:'FOUR-COLOUR (No Blue)',
@@ -894,9 +894,9 @@ const PROFILES = {
     pubBanter:"",
     cmd:'Saskia the Unyielding',
     cmdDesc:'As Saskia enters, choose a player. Whenever your creatures deal combat damage to a player, they deal the same damage to the chosen player.',
-    you:["You start painting a room before you've bought enough paint.","Wherever you go, people follow, which has led some of them to very odd places.","Your gut has a lot to answer for."],
+    you:["You start painting a room before you've bought enough paint.","If a group can't decide where to eat, you've already started walking.","Your gut has a lot to answer for."],
     str:["One phone call from you can unstick a decision that's been stuck for a month.","When the team stops joking, you ask what's happened.","If someone has to go first, it's usually you."],
-    weak:["What goes out on Tuesday, you're often fixing on Wednesday.","An answer that needed a spreadsheet is one you trust less.","'Let's sleep on it' sounds to you like 'let's not'."],
+    weak:["Your second draft usually arrives before anyone has read the first.","An answer that needed a spreadsheet is one you trust less.","'Let's sleep on it' sounds to you like 'let's not'."],
     roles:"Sales, Crisis Response, Live Events, Field Operations, Military"
   },
   'INK':{

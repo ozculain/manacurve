@@ -4,6 +4,43 @@ Newest first. Dates are when the work was committed.
 
 ## 2026-10-19
 
+### Workplace pages: a third reading
+
+A third reader of the merged pages flagged fourteen more lines: seven a
+manager would mind in work mode, a philosophy whose stake was trivia, five
+jobs that were finance jargon, and two consumer lines.
+
+- Work mode's shadows say the same habits without the part a manager
+  would act on. Four-colour without blue's "What goes out on Tuesday,
+  you're often fixing on Wednesday." is now "Your second draft usually
+  arrives before anyone has read the first." Rakdos's "Budgets are
+  something you hear about after the event." is now "Out-of-office
+  replies from you are more entertaining than they need to be." Izzet's
+  "Ninety per cent done is where your interest runs out." is now "Polish
+  is the part of the job you'd happily hand to someone else." Dimir's
+  "Most of what you know reaches other people a little later than they'd
+  have liked." is now "Notes you take are written so only you can read
+  them."
+- Three colour cards in work mode no longer take it as read that you play
+  people, skip checks or sit on news: Sultai's White card asks "how your
+  plan looks to the people who only see the first year of it", four-colour
+  without blue's Blue card is "Give them ten minutes with the figures
+  before anything goes out.", and Dimir's Red card is "When something needs
+  saying in front of everyone, let them say it." The consumer page keeps
+  its lines.
+- Mono-White keeps to the rules "even when breaking one would get you the
+  job", where forty quid was at stake. Its preview page was rebuilt.
+- Jobs are jobs: "Pensions" and "Forestry" for "Sovereign Wealth" and
+  "Patient Capital" (four-colour without red), "Private Investigation" for
+  "Distressed Asset Acquisition" (four-colour without white),
+  "Negotiation" for "VC/PE" (Dimir) and "Finance Director" for
+  "CFO/Finance" (Esper). Consumer mode shows them, as plain jobs.
+- Consumer pages: four-colour without blue's "Wherever you go, people
+  follow, which has led some of them to very odd places." is now "If a
+  group can't decide where to eat, you've already started walking.", and
+  Naya's Blue card gets everyone "to work out who does what" where it
+  turned "the energy" into a plan, in both modes.
+
 ### Round 3: a short situation for every pair, and the lines the gate flagged
 
 A reader checking the live Round 3 against the author's rulings flagged 53
