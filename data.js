@@ -523,7 +523,7 @@ const PROFILES = {
   },
   'MONO-B':{
     name:'MONO-BLACK',
-    tag:'Ambition Without Apology',
+    tag: 'Power Through Agency',
     colors:['B'],
     philosophy:"You look after your own interests and assume other people are doing the same. You want the final say on things, because otherwise somebody else gets it.",
     desc:"People around you are often still catching up with a situation you've already read and acted on.",
