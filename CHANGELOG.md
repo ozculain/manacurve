@@ -4,6 +4,113 @@ Newest first. Dates are when the work was committed.
 
 ## 2026-10-19
 
+### Round 3: a short situation for every pair, and the lines the gate flagged
+
+A reader checking the live Round 3 against the author's rulings flagged 53
+lines. Most were in the eight situations with an answer for each of the 31
+identities, which read as the machine showing. The rest were in nine short
+situations: three stems where nothing was at stake for the player (a
+neighbour's garden, a playground with no children in the stem, a village hall
+nobody said they used), a running club's training plans, and sentimental
+answers ("My knee's carried me this far", "let it settle in its own time",
+"let her find her own way").
+
+- Measured first, with `tools/round3-coverage.js` and longer runs of it. On
+  the default run, 96.9% of 4,171 Round 3 questions got a short situation
+  (95.2% to 99.1% by model and p). On eight seeds at 10 players per identity
+  (83,633 questions), 97.0%, and 93.0% for the worst model and p. Of the
+  2,505 questions that fell to a 31-answer list, 1,984 were Five-colour
+  against anything (no short situation covered Five-colour), 331 were two
+  identities of one width that differ by one colour, which a tie in the bars
+  puts in the same line-up (Jeskai and Naya when blue and green tie for
+  third), 189 were pairs whose one situation another match had used earlier
+  in the same Round 3, and one needed three bars tied.
+- 38 new short situations, 123 answers, so that every pair the bars can bring
+  together with at most one tie has one. Five-colour owns 15: each holds one
+  identity and its opposite (Mono-White and four-colour without white, Azorius
+  and Jund), which share a line-up only when all five bars tie. The five
+  single colours own one each, covering the ten pairs of single colours. Three
+  guild situations cover the four guild pairs left. Each three-colour identity
+  owns a fourth, covering three of the identities that share two of its
+  colours, and each four-colour identity a sixth, covering two of the others.
+  Within each new situation, two rivals can meet their owner only when three
+  bars tie. Four-colour without red's also covers Jeskai, a pair that needs
+  three bars tied, which the first long run found once.
+- They are set in money, home, family, neighbours and health: a scan with a
+  four-month wait or £800 to go private, a brother about to lose his house, a
+  cash buyer £20,000 under the asking price, a mother's care home closing, a
+  father who clipped a parked car, a builder gone with £18,000, a railway line
+  through the house. The five-colour answer is one concrete course that holds
+  every side at once: "Pay for the private scan this week, and give up my
+  place on the list." against "Wait my turn" and going to A&E with the pains
+  tonight.
+- After: on the default run, 99.8% (99.6% to 99.9%); on the same eight seeds,
+  99.77%, and 99.44% at the lowest; on four more seeds at 20 players per
+  identity (84,001 questions), 99.70%, and 99.43% at the lowest. What is left
+  is almost all one kind: a pair whose one situation was used earlier in the
+  same Round 3, because two rivals in an older situation can meet their owner
+  on a single tie (four-colour without black's house fire covers Bant, Naya
+  and Temur, and a line-up can hold two of them). A second situation on such a
+  pair would let the tiebreak fire on it and change scoring, so it is not done
+  here, and the 31-answer lists stay in `data.js` for those questions. Two
+  pairs that need three bars tied, about one question in 40,000, still have
+  none.
+- The flagged short situations. The neighbour's garden now has rats in your
+  kitchen; the playground is the only one your children can walk to; the
+  running club is your father, seventy-nine, still running the family firm
+  you work for; the village hall is where your son's nursery meets. The
+  sentimental answers are plain courses ("Turn it down, and manage it with
+  walking and physio", "Keep walking every day, and give it another six
+  months", "Back her, and add some of my own money to her savings").
+- Then every short situation was read against the twelve rulings by five fresh
+  strict readers in turn, with fixes between them: 145 lines changed in 69 of
+  the 85 older situations, the nine above included. Stems set in a club or a
+  town, or around someone else's trouble, are now set at home: the village
+  cricket place is a bigger flat your landlord is letting to a newcomer, the
+  amateur dramatics dates a new-build that won't be ready, the allotment a
+  wildflower garden that could cost you your lease, the season tickets your
+  mother's car, the cricket pavilion a broken lift on the sixth floor, the
+  rowing captaincy council homes kept for people born in the town, the
+  operatic lead three refused mortgages, bonfire night the bus route to work,
+  the band's support slot a buyer who wants your lodger out, the shouting on
+  the bus is at your daughter, the friends' £400 row is your sister's debt to
+  your best friend, who wants you to sort it out, and the friend whose husband
+  walked out is your sister. Answers that assumed people or a past the player
+  may not have are gone ("the roofer my brother-in-law knows", "Dad's old
+  van", "Leave it to Dave", "It worked in Bristol"), as are tags and vague
+  reasons ("as neighbours should", "and mean it", "Going without him would
+  feel wrong"), soft words ("calmly", "a quiet word", "properly", "to the
+  letter"), a roof quote "before it rains" with the rain already in the
+  bedroom, answers that only consulted, and owner and rival answers a player
+  meets side by side that took one course. The readers passed 80, 76, 85, 97
+  and 97 of the 123 situations in turn. What the last one flagged is mostly
+  two rival answers a player never sees side by side, three stems the gate
+  passed (a flight home, a daughter's under-tens team, Sunday lunch at your
+  mum's), and shapes the answers share across situations ("Get the street
+  together", a time word at the end).
+- Checked blind for keying. A reader given each person in the product's own
+  words and the two answers of a pair picked the person's own answer in 227
+  of 234 picks on the first version, and in 520 of 536 on the pairs changed
+  in six later rounds. The misses were rewritten, apart from two near-ties in
+  the last round (Bant and Selesnya on the street closure, Gruul and Jund on
+  the stolen car).
+- Scoring unchanged. Every new pair has exactly one situation and no existing
+  pair gained one, so the tiebreak fires exactly as before (117 tiebreaks on a
+  run of 1,116 players, on both builds). On that run every player gets the
+  same result, line-up and matches as on the previous build, and only the
+  situations they meet differ. `tests/fixtures/golden.json` does not move.
+  `tests/fixtures/round3-keys.json` gains the 38 new situations' keys, in a
+  commit of its own, and no other line changes. Owners, keys and answer order
+  are unchanged in every older situation.
+- Tests. `tests/round3-copy.test.js` counts 131 scenarios and 666 options and
+  checks that every pair the bars can bring into one Round 3 with at most one
+  tie has a short situation (260 pairs; the previous build fails it, with 84
+  missing). `tests/play.test.js` renders all 131 stems. The comment above
+  `getPoolScenarioForMatchup` describes the new owners. `npm test` passes.
+- Not done: the instrument version is not raised (as with the last copy
+  changes, it is best raised once at merge). Not measured: real players. The
+  readers are models.
+
 ### Result pages: the labels below the profile
 
 Three fresh readers went through the rewritten quiz and agreed that the
