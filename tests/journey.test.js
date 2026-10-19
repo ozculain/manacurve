@@ -225,7 +225,7 @@ run('journey', async ({ ok }) => {
     const page = wh.document.getElementById('screen-results').textContent;
     ok('H1 showResults runs with a context disagreement', !threw, threw);
     ok('H2 the confidence block is the label and its one line about the bars, with no caveat about Round 1 and Round 2',
-      block === 'Leaning Blue and black were well clear of the other three colours.' && !wh.document.getElementById('conf-exp')
+      block === 'One or two other results came close. Blue and black were well clear of the other three colours.' && !wh.document.getElementById('conf-exp')
         && !/caveat|disagreed|Round 1 and Round 2|softer than/i.test(page), block);
     wh.close();
   }
