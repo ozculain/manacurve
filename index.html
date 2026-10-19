@@ -2135,7 +2135,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
         <svg class="mc-corner mc-corner--bl"><use href="#fleuron"/></svg>
         <svg class="mc-corner mc-corner--br"><use href="#fleuron"/></svg>
 
-        <p class="mc-flavor" id="welcome-lede" style="font-size: 22px; line-height: 1.55; color: var(--ink); margin-bottom: 20px;"><strong>A personality test based on Magic: The Gathering, the hit collectible trading card game. Yes, really.</strong></p>
+        <p class="mc-flavor" id="welcome-lede" style="font-size: 22px; line-height: 1.55; color: var(--ink); margin-bottom: 20px;"><strong>A personality test based on the card game Magic: The Gathering. You don't need to have played it.</strong></p>
 
         <div class="mc-welcome__actions" id="welcome-actions">
           <button onclick="showPreflight()" class="mc-btn mc-btn--primary" id="welcome-start">⚔ Take the Test ⚔</button>
@@ -2164,8 +2164,9 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
         <svg class="mc-corner mc-corner--bl"><use href="#fleuron"/></svg>
         <svg class="mc-corner mc-corner--br"><use href="#fleuron"/></svg>
 
-        <!-- The round names and the length line come from PLAY_COPY, the length
-             from the same total the one counter starts from. -->
+        <!-- The round titles ("Round 1" ..., roundLabel) and the length line come
+             from PLAY_COPY, the length from the same total the one counter
+             starts from. -->
         <p class="mc-how__length" id="how-length" data-copy="welcome.howLength"></p>
         <div class="mc-how">
           <div class="mc-how__num">I</div>
@@ -2299,7 +2300,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
         <span id="connector-2-3" class="round-connector"></span>
         <span id="connector-3-4" class="round-connector"></span>
         <span id="round-label-left">Round 1</span>
-        <span id="round-label-right">→ Refinement → Final → Results</span>
+        <span id="round-label-right">→ Round 2 → Round 3 → Results</span>
         <div id="progress-container"><div id="prog-s1"></div><div id="prog-s2"></div><div id="prog-s3"></div></div>
       </div>
 
@@ -2315,7 +2316,7 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
 
         <div class="mc-typeline">
           <span class="mc-typeline__diamond"></span>
-          <span id="instr">Choose Your Approach</span>
+          <span id="instr">Which is <strong>more like you</strong>?</span>
           <span class="mc-typeline__diamond"></span>
         </div>
 
@@ -5912,8 +5913,14 @@ function updateLikelihood(stage) {
 // undo) lives in PLAY_COPY, so the author can edit them in one place. The
 // text is the plain copy (Plain screens, 18 October 2026): the shortest plain
 // sentence that does the job, no flourish, nothing about how the scoring
-// works (tests/visible-copy.test.js holds it to that). The round names and
-// the results page's share and table strings are still marked PROVISIONAL.
+// works (tests/visible-copy.test.js holds it to that). The front page and the
+// screens between questions were rewritten from four fresh readers (19 October
+// 2026): a line says what happens and stops, with no wink, no sales line, no
+// software narrating itself and no Magic word a non-player cannot follow
+// (tests/play.test.js keeps the lines they flagged out). Two flagged lines
+// stayed: the progress line and the line before Round 3, whose rewrites lost
+// a blind test against them. The results page's share and table strings are
+// still marked PROVISIONAL.
 // Variants: "player" strings show when state.gamingFamiliar is on; "plain"
 // strings show to everyone else, and the workplace audience always gets plain
 // (isPlayerMode).
@@ -5938,14 +5945,15 @@ function updateLikelihood(stage) {
 const QUIZ_LENGTH = { round1: 30, round2: 9, round3: 6, minutes: 8 };
 
 const PLAY_COPY = {
-  // PROVISIONAL. Round names, wherever a round is named (the question label and
-  // the fold). Round 1 no longer says "Enemy Pairs", which described the
-  // mechanism.
-  rounds: { 1: 'First Impressions', 2: 'Refinement', 3: 'Final Determination' },
+  // Round names: none. A round is "Round 1", "Round 2", "Round 3" wherever it
+  // is named (the question label and How This Works; roundLabel). A name put
+  // back here shows as "Round 1: <name>". The old names ("First Impressions",
+  // "Refinement", "Final Determination") read as a consultancy deck.
+  rounds: {},
 
   welcome: {
     rule0: "Rule 0: it's a bit of fun, not science.",
-    explore: 'Explore all 31',
+    explore: 'See all 31 results',
     length: 'Up to {questions} questions, about {minutes} minutes.',
     // The fold: one line for the whole quiz, so the fold, the counter and the
     // time agree
@@ -5957,24 +5965,27 @@ const PLAY_COPY = {
     length: 'Up to {questions} questions, about {minutes} minutes.',
     question: 'Played Magic?',
     yes: 'Yes',
-    yesNote: 'Adds the Magic jokes and a few Magic questions.',
+    yesNote: 'Adds a few Magic questions and puts your result in Magic terms.',
     no: 'Not really',
     noNote: 'Keeps it plain. Same 31 results.',
     // The two links under the answers. Off: the link is the whole line. On: a
-    // line saying what changed, then the link back.
-    constructedOff: "Rather see each answer's colours? Play Constructed.",
-    constructedOn: 'Constructed: colours on every answer. Easier to steer, so a little less telling.',
-    constructedUndo: 'Back to Blind Draft',
+    // line saying what changed, then the link back. The colours link switches
+    // Constructed mode on and off; it says what it does, not the format's name,
+    // since everyone sees it, including people about to say they never played.
+    constructedOff: "Show me each answer's colours as I go.",
+    constructedOn: 'Colours on every answer. Easier to steer, so the result tells you a little less.',
+    constructedUndo: 'Hide the colours',
     workOff: 'Taking this at work?',
     workOn: "Work mode: no roasting, nothing you'd mind your manager reading.",
     workUndo: 'Undo',
   },
 
-  // The instruction line under each question, by round (HTML).
+  // The line under each question, by round (HTML): the question a person
+  // would ask, with "more like you" kept, since neither answer has to fit.
   stems: {
-    1: 'Choose the response <strong>more like you</strong>.',
-    2: 'Choose the response <strong>more like you</strong>.',
-    3: 'Choose the response <strong>more like you</strong>.',
+    1: 'Which is <strong>more like you</strong>?',
+    2: 'Which is <strong>more like you</strong>?',
+    3: 'Which is <strong>more like you</strong>?',
   },
   // Round 3's tiebreak marker, in the question label
   round3: { tiebreak: 'Tiebreaker' },
@@ -6034,10 +6045,12 @@ const PLAY_COPY = {
   },
 
   // After Round 1, when the first answers already point one way. It names
-  // neither the identity nor a colour.
+  // neither the identity nor a colour. Two sentences, one per button: what
+  // stopping gives, then what carrying on gives, with no push either way. "The
+  // rest of the quiz", not "two more rounds": Round 2 is sometimes empty.
   earlyOffer: {
     heading: 'Round 1 done.',
-    body: 'We can call it now, or you can keep going for a firmer result.',
+    body: 'You can see your result now. If you keep going, the rest of the quiz checks it, and it may change.',
     keepGoing: 'Keep going',
     showNow: 'Show my result',
   },
@@ -6082,9 +6095,10 @@ function prefersReducedMotion() {
   catch (e) { return false; }
 }
 
-// Fills the markup's data-copy elements, and How This Works' round names, from
-// PLAY_COPY and the one counter's own total (the lengths the counter starts
-// from: Round 1, and the estimates for Rounds 2 and 3). Runs once, on load.
+// Fills the markup's data-copy elements, and How This Works' round titles
+// ("Round 1" ..., as the question label names them), from PLAY_COPY and the
+// one counter's own total (the lengths the counter starts from: Round 1, and
+// the estimates for Rounds 2 and 3). Runs once, on load.
 function applyPlayCopy() {
   const total = quizLengths().total;
   const vars = { minutes: quizMinutes(total), questions: total };
@@ -6094,7 +6108,7 @@ function applyPlayCopy() {
   });
   [1, 2, 3].forEach(n => {
     const name = document.getElementById('how-name-' + n);
-    if (name) name.textContent = roundName(n);
+    if (name) name.textContent = roundLabel(n);
   });
   renderPreflightLinks();
 }
@@ -6882,7 +6896,7 @@ function showQ() {
       return;
     }
     // Legacy fallback
-    document.getElementById('stage-label').textContent = 'Round 3: Final Determination';
+    document.getElementById('stage-label').textContent = roundLabel(3);
     const _lnR3 = document.getElementById('mc-loyalty-num'); if (_lnR3) _lnR3.dataset.round = '3';
     return;
   } else {

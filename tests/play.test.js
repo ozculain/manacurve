@@ -5,8 +5,9 @@
 //      fixed height, and plinths drop to about 20px (the CSS rules; jsdom
 //      cannot lay out, so the fit itself is checked in a browser)
 //   2. one counter across the whole quiz ("x of up to 45", higher only when a
-//      round's real length makes the quiz longer), never reset; no "Enemy Pairs" in the
-//      round labels; How This Works, the preflight and the early offer agree
+//      round's real length makes the quiz longer), never reset; the round labels
+//      are "Round 1" to "Round 3", with no names; How This Works, the preflight
+//      and the early offer agree
 //   3. the one-question preflight ("Played Magic?"), its two links, and the
 //      theme switcher on the results page
 //   4. the welcome: Rule 0 under the title, the start under the lead line with
@@ -185,9 +186,9 @@ run('play', async (t) => {
       drops.length === 0 && /^Question \d+ of up to \d+$/.test(win.document.querySelector('.mc-q__count').textContent.replace(/\s+/g, ' ').trim()),
       drops.join(', ') || win.document.querySelector('.mc-q__count').textContent);
     const labels = [...new Set(seen.map((x) => x.label))];
-    ok('P2d round labels keep the round names, and "Enemy Pairs" is gone',
-      labels.includes('Round 1: ' + P.rounds[1]) && labels.includes('Round 2: Refinement') && labels.some((l) => l.startsWith('Round 3: Final Determination'))
-        && labels.every((l) => !/enemy/i.test(l)), labels.join(' | '));
+    ok('P2d round labels are "Round 1", "Round 2" and "Round 3" ("Round 3: Tiebreaker" for a tiebreak), with no round names and no "Enemy Pairs"',
+      labels.includes('Round 1') && labels.includes('Round 2') && labels.includes('Round 3')
+        && labels.every((l) => /^Round [123](: Tiebreaker)?$/.test(l)) && Object.keys(P.rounds).length === 0, labels.join(' | '));
     ok('P2e no console or jsdom errors over the journey', errors.length === 0, errors.slice(0, 3).join(' | '));
     win.close();
   }
@@ -197,9 +198,9 @@ run('play', async (t) => {
     const { win, h } = await page();
     const howNames = [1, 2, 3].map((n) => textOf(win, 'how-name-' + n));
     const welcomeText = win.document.getElementById('screen-welcome').textContent;
-    ok('P2f How This Works gives one length line for the whole quiz, the counter\'s own total (45), with the three rounds under it and no "Enemy Pairs"',
+    ok('P2f How This Works gives one length line for the whole quiz, the counter\'s own total (45), with "Round 1", "Round 2" and "Round 3" under it (no round names) and no "Enemy Pairs"',
       textOf(win, 'how-length') === 'Up to 45 questions over three rounds.' && !win.document.querySelector('.mc-how__count')
-        && !/enemy pairs/i.test(welcomeText) && howNames.join('|') === 'First Impressions|Refinement|Final Determination',
+        && !/enemy pairs/i.test(welcomeText) && howNames.join('|') === 'Round 1|Round 2|Round 3',
       textOf(win, 'how-length') + ' ' + howNames.join('|'));
     ok('P2g the preflight says "up to 45 questions, about 8 minutes" (a clinch can end the quiz early), and nothing says 15 minutes',
       textOf(win, 'preflight-length') === 'Up to 45 questions, about 8 minutes.'
@@ -210,9 +211,9 @@ run('play', async (t) => {
     h.state.qNum = 30;
     win.showEarlyTerminationOffer({ identity: 'DIMIR', confidence: 0.95, message: 'Your Round 1 answers already point clearly to DIMIR.' });
     const early = textOf(win, 'early-message');
-    ok('P2h the early offer says "Round 1 done." and "We can call it now, or you can keep going for a firmer result."',
+    ok('P2h the early offer says "Round 1 done." and two plain sentences, what stopping gives and what carrying on gives: "You can see your result now. If you keep going, the rest of the quiz checks it, and it may change."',
       isVisible(win, 'screen-early-offer') && win.document.querySelector('#screen-early-offer h2').textContent === 'Round 1 done.'
-        && early === 'We can call it now, or you can keep going for a firmer result.', early);
+        && early === 'You can see your result now. If you keep going, the rest of the quiz checks it, and it may change.', early);
     // The caller's own message names the identity; the offer must not show it.
     const offer = win.document.getElementById('screen-early-offer');
     const offerText = offer.textContent.replace(/\s+/g, ' ').trim();
@@ -220,7 +221,7 @@ run('play', async (t) => {
       !/dimir|preliminary|already point/i.test(offerText) && !COLOUR_WORDS.test(offerText)
         && offer.querySelectorAll('.mc-pip, .mc-confidence, .mc-manastrip, #early-result-name, #early-result-tag').length === 0
         && textOf(win, 'early-keep-going') === 'Keep going' && textOf(win, 'early-show-now') === 'Show my result'
-        && offerText === '✦ Round 1 done. We can call it now, or you can keep going for a firmer result. Keep going Show my result', offerText);
+        && offerText === '✦ Round 1 done. You can see your result now. If you keep going, the rest of the quiz checks it, and it may change. Keep going Show my result', offerText);
     // The claims are the counter's computed total, not a number written into the copy:
     // a longer Round 2 estimate moves the welcome, the fold and the preflight together
     win.eval('QUIZ_LENGTH.round2 = 12');
@@ -268,8 +269,8 @@ run('play', async (t) => {
         && textOf(win, 'preflight-question') === 'Played Magic?' && answers.length === 2
         && answers[0].querySelector('.mc-mode__title').textContent === 'Yes' && answers[1].querySelector('.mc-mode__title').textContent === 'Not really',
       textOf(win, 'preflight-question') + ' / ' + answers.map((a) => a.textContent.trim()).join(' | '));
-    ok('P3a2 what each answer does, in the reviewed words: Yes adds the Magic jokes and a few Magic questions; Not really keeps it plain, same 31 results',
-      answers[0].querySelector('.mc-mode__desc').textContent === 'Adds the Magic jokes and a few Magic questions.'
+    ok('P3a2 what each answer does: Yes "Adds a few Magic questions and puts your result in Magic terms."; Not really "Keeps it plain. Same 31 results."',
+      answers[0].querySelector('.mc-mode__desc').textContent === 'Adds a few Magic questions and puts your result in Magic terms.'
         && answers[1].querySelector('.mc-mode__desc').textContent === 'Keeps it plain. Same 31 results.',
       answers.map((a) => a.querySelector('.mc-mode__desc').textContent).join(' | '));
     ok('P3b the old four-grid is gone from the preflight (no mode, audience or theme cards, no gaming toggle)',
@@ -277,14 +278,18 @@ run('play', async (t) => {
     const modeLink = d.getElementById('preflight-mode-link');
     const workLink = d.getElementById('preflight-work-link');
     const modeOff = modeLink.textContent;
+    // The format names mean nothing to someone who has never played, and everyone sees this screen
+    const formatNames = /constructed|blind draft/i;
+    const plainOff = !formatNames.test(pf.textContent);
     modeLink.click();
     const constructedOn = h.state.mode === 'constructed' && d.body.dataset.mode === 'constructed' && modeLink.dataset.on === 'true';
     const modeOnText = modeLink.textContent, modeUndo = modeLink.querySelector('.mc-textlink__undo');
+    const plainOn = !formatNames.test(pf.textContent);
     modeLink.click();
-    ok('P3c Blind Draft is the default; "Rather see each answer\'s colours? Play Constructed." switches to Constructed, says what changed, and goes back',
-      modeOff === "Rather see each answer's colours? Play Constructed." && constructedOn && h.state.mode === 'draft' && modeLink.textContent === modeOff
-        && modeOnText === 'Constructed: colours on every answer. Easier to steer, so a little less telling. Back to Blind Draft'
-        && !!modeUndo && modeUndo.textContent === 'Back to Blind Draft', `${modeOff} / ${modeOnText}`);
+    ok('P3c the colours stay hidden by default (Blind Draft); "Show me each answer\'s colours as I go." switches to Constructed, says what changed, and hides them again, and the preflight never names either format',
+      modeOff === "Show me each answer's colours as I go." && constructedOn && h.state.mode === 'draft' && modeLink.textContent === modeOff
+        && modeOnText === 'Colours on every answer. Easier to steer, so the result tells you a little less. Hide the colours'
+        && !!modeUndo && modeUndo.textContent === 'Hide the colours' && plainOff && plainOn, `${modeOff} / ${modeOnText}`);
     const workOff = workLink.textContent;
     workLink.click();
     const workOn = h.state.audience === 'workplace' && d.body.dataset.audience === 'workplace' && workLink.dataset.on === 'true';
@@ -356,10 +361,12 @@ run('play', async (t) => {
     const actions = lede.nextElementSibling;
     const start = d.getElementById('welcome-start');
     const explore = d.getElementById('welcome-explore');
-    ok('P4b the start button comes straight after the bold line, with "Explore all 31" beside it as a ghost button',
+    ok('P4b the start button comes straight after the bold line, with "See all 31 results" beside it as a ghost button',
       actions && actions.id === 'welcome-actions' && actions.firstElementChild === start && start.nextElementSibling === explore
         && /showPreflight/.test(start.getAttribute('onclick')) && /showExplorer/.test(explore.getAttribute('onclick'))
-        && explore.classList.contains('mc-btn--ghost') && explore.textContent === 'Explore all 31', explore.textContent);
+        && explore.classList.contains('mc-btn--ghost') && explore.textContent === 'See all 31 results', explore.textContent);
+    ok('P4b2 the bold line says what the quiz is, glosses Magic as a card game and tells a non-player they can take it: no aside, no press-release gloss',
+      lede.textContent === "A personality test based on the card game Magic: The Gathering. You don't need to have played it.", lede.textContent);
     const intro = d.getElementById('learn-more-intro');
     ok('P4c the long paragraph moved into the "Learn more" fold',
       d.getElementById('learn-more-content').contains(intro) && /5 colours/.test(intro.textContent)
@@ -411,6 +418,19 @@ run('play', async (t) => {
     const named = strings.map((x) => ({ x, kinds: forbiddenIn(h.PROFILES, x) })).filter((y) => y.kinds.length);
     ok('P5c every quiz-screen string (round names, welcome, preflight, stems, progress line, undo, transitions, line-up, early offer) names no colour, basic land or identity',
       strings.length > 45 && named.length === 0, named.map((y) => `${y.kinds}: ${y.x}`).join(' | '));
+    // The lines four fresh readers flagged on the front page and between the
+    // questions (CHANGELOG, "Front page and the screens between questions:
+    // fresh readers"). None may come back, in the copy or on the screens. Two
+    // flagged lines are kept and so not listed: the progress line ("10
+    // answered, 35 to go.") and the line before Round 3 ("Four results are
+    // still in the running. ..."), whose rewrites lost a blind test.
+    const FRONT_FLAGGED = ['Yes, really', 'hit collectible', 'Choose the response', 'call it now', 'firmer result',
+      'Play Constructed', 'Magic jokes', 'First Impressions', 'Refinement', 'Final Determination'];
+    const shownText = [...strings, ...seen.map((x) => `${x.label} ${x.beat}`),
+      win.document.getElementById('screen-welcome').textContent, win.document.getElementById('screen-preflight').textContent].join('\n');
+    const back = FRONT_FLAGGED.filter((x) => shownText.includes(x));
+    ok('P5c2 none of the lines the fresh readers flagged comes back, bar the two a blind test kept: not in PLAY_COPY, on the welcome or the preflight, or in a round label',
+      back.length === 0, back.join(' | '));
     win.close();
   }
   {
