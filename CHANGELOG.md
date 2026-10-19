@@ -11,11 +11,11 @@ questions and the lines about the reader sound like one person, and the
 lower half of the result page like someone else: "a slide deck", "a
 database given a few jokes". They named the status words ("Locked in",
 "Still shuffling"), the Title Case jobs list and buttons, "Who you need
-around you" as a self-help heading, "Make a picture", "Show the workings",
-"Card art: ..." as "a template field nobody asked for", the bars caption as
-"spreadsheet footnote voice" and "Green was the lower of your two colours."
-as "computed-sounding". The one part they kept was the advice on the colour
-cards. Each label, caption, heading and button there is now said the way the
+around you" as a self-help heading, "Make a picture", the theme name
+"Gilded Hall", "Card art: ..." as "a template field nobody asked for", the
+bars caption as "spreadsheet footnote voice" and "Green was the lower of
+your two colours." as "computed-sounding". The one part they kept was the
+advice on the colour cards. Each label, caption, heading and button there is now said the way the
 lines above it are, on a consumer page only. Workplace mode is unchanged.
 
 - How clear the result was. A sentence where the status word stood:
@@ -24,7 +24,7 @@ lines above it are, on a consumer page only. Workplace mode is unchanged.
   levels. The line about the bars under it is unchanged, and the dot stays.
   The Scorecard share image keeps the old word. An appeal records the
   sentence it was shown (`labelShown`).
-- The bars. The caption is "Each bar is how often you picked that colour
+- The bars. The caption is "The bars show how often you picked each colour
   when it came up." For players the title is "Your mana pool".
 - The joke box is labelled "Your friends would put it like this.", where
   "Pub banter" stood.
@@ -45,11 +45,10 @@ lines above it are, on a consumer page only. Workplace mode is unchanged.
   "Find someone strong in each colour you haven't got." The key under the
   colour wheel is two sentences ("A solid line means two of your colours get
   on."). The advice on the cards is as it was.
-- Buttons. "Save it as a picture", "Show how we did it" (then "Hide it
-  again"), "Start again", "See all 31 results" (as on the front page) and
-  "See how the colours get on". Share is still the one Share on the page.
-  "Turn it into a picture" and "Show how we worked it out" were tried first
-  and wrapped onto two lines on a 375px phone.
+- Buttons. "Save it as a picture", "Start again", "See all 31 results" (as
+  on the front page) and "See how the colours get on". Share is still the
+  one Share on the page. "Show the workings" stays (below). "Turn it into a
+  picture" was tried first and wrapped onto two lines on a 375px phone.
 - The page-style switcher is labelled "Change how the page looks." The
   three names stay as they are, in `PLAY_COPY`, which this change leaves
   alone: the label is set over it on a consumer page (`RESULT_COPY.frame`).
@@ -76,7 +75,19 @@ lines above it are, on a consumer page only. Workplace mode is unchanged.
   `journey.test.js` follows the new label. Run against the previous build,
   `render.test.js` fails 28 of its 58 checks and `visible-copy.test.js` 24
   of its 160.
-- Left as they were: the explanation behind "Show how we did it" still has
+- A blind pre-read. Two more fresh readers (a GP who has never played and a
+  copywriter who plays) compared the 30 old and new lines, each with where
+  it sits on the page. The new line read as written by a person in 33
+  judgements and the old in 1 (26 both), and was the one they would rather
+  read in 45 of 58 decided pairs. Both preferred "Show the workings" and
+  "Hide the workings" to "Show how we did it" and "Hide it again", so that
+  button keeps its words; no diary had flagged it. The copywriter found
+  "Each bar is how often you picked ..." awkward, and the caption now reads
+  as above, which neither of them saw. The copywriter also preferred the old
+  status words, "Pub banter", "Appeal: I'm Sultai" and the shorter credit;
+  the GP preferred the new line in each of those, which is what the three
+  diaries asked for.
+- Left as they were: the explanation behind "Show the workings" still has
   Title Case headings ("Commander Reference", "Go Deeper", "Enemy Pair
   Testing", "Final Determination"), which workplace mode shares. The share
   screen ("Share Studio", "Your Result", "Closest ·") is its own screen. The
