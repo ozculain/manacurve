@@ -773,7 +773,7 @@ const BANTER_LABEL = 'Your friends would put it like this.';
 const CONSUMER_GONE = [/^Strengths$/, /^Shadows$/, /^Natural Roles$/, /^Working With Others$/, /^Who to bring in$/, /^View Full Breakdown$/, /^Make an image$/,
   /^(?:White|Blue|Black|Red|Green) colleague$/, /^Colleagues strong in\b/,
   /^Locked in$/, /^Leaning$/, /^Still shuffling$/, /^Jobs you'd be good at$/, /^Who you need around you$/, /^Make a picture$/,
-  /^(?:Show|Hide) the workings$/, /^Retake$/, /^Explore All 31 Types$/, /^How Colours Interact$/, /^Page style$/, /^Pub banter$/,
+  /^Retake$/, /^Explore All 31 Types$/, /^How Colours Interact$/, /^Page style$/, /^Pub banter$/,
   /^Card art: /, /^Commander · /, /^Solid line: /, /^Dashed line: /, /^Splash \w+: /, /^Cut the \w+: /, /^⚠ Not For Official Use$/,
   /^How often you picked each colour when it was offered\.$/, /^The results one colour away from yours\.$/, /^People strong in the colours\b/];
 

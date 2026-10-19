@@ -210,7 +210,7 @@ const BANNER_CARD = {
 // [4] The bars' title by mode; the caption by audience.
 const BARS_TITLE = { player: 'Your mana pool', plain: 'Your colours' };
 const BARS_CAPTION = {
-  consumer: 'Each bar is how often you picked that colour when it came up.',
+  consumer: 'The bars show how often you picked each colour when it came up.',
   workplace: 'How often you picked each colour when it was offered.',
 };
 // The words around the profile on a consumer page, where workplace mode keeps
@@ -219,7 +219,7 @@ const CONSUMER_FRAME = {
   'roles-title': "You'd do well in jobs like these.",
   'res-others-title': 'Who to ask',
   'res-image-btn': 'Save it as a picture',
-  'res-breakdown-btn': 'Show how we did it',
+  'res-breakdown-btn': 'Show the workings',
   'res-retake-btn': 'Start again',
   'res-explore-btn': 'See all 31 results',
   'res-interactions-btn': 'See how the colours get on',
