@@ -4228,8 +4228,8 @@ function clearSession() {
 function restoreSession(snapshot) {
   Object.assign(state, snapshot);
   // Snapshots saved before scoring engine 2 existed came from engine 1: finish
-  // them there, and label a finished one as engine 1's. One saved on engine 2
-  // or 3 finishes on that engine, Round 3 included.
+  // them there, and label a finished one as engine 1's. One saved on engine 2,
+  // 3 or 4 finishes on that engine, Round 3 included.
   if (!SCORING_ENGINES.includes(state.scoringEngine)) state.scoringEngine = 1;
   if (state.result && state.result.scoringVersion === undefined) {
     state.result.scoringVersion = 1;
@@ -5604,18 +5604,21 @@ window.addEventListener('DOMContentLoaded', function() {
 // ============================================================================
 // SCORING ENGINE: version switch and the likelihood engine
 // ============================================================================
-// Three engines score the same answers. Engine 3, the likelihood engine below,
-// is the default. Engine 2 is the same engine with Round 3 answers weighed as
-// in scoring version 2 (ROUND3_Q_GRID_BY_VERSION): it finishes any session that
-// started on it, and ?engine=2 in the URL selects it for one release. Engine 1,
-// the win-rate engine (analyseGapBasedPatterns -> generateCandidatesGapBased,
-// then calculateRefinedActivation -> recalculateCandidates), stays reachable
-// for one release with ?engine=1. All three write the state.result shape in
+// Four engines score the same answers. Engine 4, the likelihood engine below,
+// is the default. Engine 3 is the same engine without version 4's exemption
+// from the Round 3 record rule for a leader that played one match
+// (ROUND3_ONE_MATCH_FROM_VERSION), and engine 2 also weighs Round 3
+// answers as in scoring version 2 (ROUND3_Q_GRID_BY_VERSION): each finishes
+// any session that started on it, and ?engine=3 or ?engine=2 in the URL
+// selects it for one release. Engine 1, the win-rate engine
+// (analyseGapBasedPatterns -> generateCandidatesGapBased, then
+// calculateRefinedActivation -> recalculateCandidates), stays reachable for one
+// release with ?engine=1. All four write the state.result shape in
 // docs/SCORING_CONTRACT.md, tagged with scoringVersion (the engine that built
 // the result) and instrumentVersion. Elsewhere, a comment that says engine 2
-// means the likelihood engine, so engine 3 as well, unless it is about how
-// much a Round 3 answer weighs.
-const SCORING_VERSION = 3;
+// means the likelihood engine, so engines 3 and 4 as well, unless it is about
+// how much a Round 3 answer weighs or the record rule.
+const SCORING_VERSION = 4;
 const INSTRUMENT_VERSION = 11; // the current items and screens (10: before the result pages went into the second person, the question lines and the old Round 3 situations were rewritten and the front page and interface strings changed; 9: before the Red answers were rewritten as conviction and the counter said "of up to"; 8: before Round 3's short situations for the matchups players meet; 7: before the second naive-reader round of the questions; 6: before the questions were rewritten from naive readers; 5: before the persona check of all questions; 4: before the Round 1 and 2 real-stakes items; 3: before the Plain screens copy; 2: before the Round 1 and 2 copy rewrite; 1: before the Phase 3 copy and flow, and links without i)
 
 // THE BARS (both engines). The results screen draws five bars
@@ -5731,9 +5734,9 @@ function topBarsIdentity(k, activationSorted = state.activationSorted) {
 }
 
 // Read once, at load: restart() strips the query string, and a page must not
-// switch engine between one assessment and the next. ?engine=1 or ?engine=2
-// selects an earlier engine; anything else, the current one.
-const SCORING_ENGINES = [1, 2, 3];
+// switch engine between one assessment and the next. ?engine=1, ?engine=2 or
+// ?engine=3 selects an earlier engine; anything else, the current one.
+const SCORING_ENGINES = [1, 2, 3, 4];
 const SCORING_ENGINE_OVERRIDE = (function () {
   try {
     const e = Number(new URLSearchParams(location.search).get('engine'));
@@ -5744,8 +5747,8 @@ const SCORING_ENGINE_OVERRIDE = (function () {
 
 // The engine for the assessment in progress. startAssessment pins it on the
 // state, so a resumed session finishes on the engine it started with, and its
-// result carries that engine's number as its scoringVersion. Engines 2 and 3
-// are the likelihood engine (likelihoodEngine()).
+// result carries that engine's number as its scoringVersion. Engines 2, 3 and
+// 4 are the likelihood engine (likelihoodEngine()).
 function scoringEngine() {
   if (state && SCORING_ENGINES.includes(state.scoringEngine)) return state.scoringEngine;
   return SCORING_ENGINE_OVERRIDE || SCORING_VERSION;
@@ -5755,7 +5758,7 @@ function likelihoodEngine() {
 }
 
 // ----------------------------------------------------------------------------
-// LIKELIHOOD ENGINE (scoringVersion 2 and 3)
+// LIKELIHOOD ENGINE (scoringVersion 2, 3 and 4)
 // Every Round 1 and Round 2 item is a forced choice between two options, each
 // written for one colour. If the respondent's identity is the colour set S and
 // exactly one of the two colours is in S, they pick that one with probability p
@@ -5820,7 +5823,7 @@ const PAIR_LOGLIK_CAP = 2.5;
 // it (-1.1 to -3.2), and capping Round 3's swing between any two identities
 // at 1.5 nats (-0.7 to -0.9). CHANGELOG, "Round 3 counts for less".
 const ROUND3_Q_GRID = [0.55, 0.6, 0.65, 0.7, 0.75];
-const ROUND3_Q_GRID_BY_VERSION = { 2: [0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9], 3: ROUND3_Q_GRID };
+const ROUND3_Q_GRID_BY_VERSION = { 2: [0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9], 3: ROUND3_Q_GRID, 4: ROUND3_Q_GRID };
 const CONFIDENCE_HIGH_POSTERIOR = 0.7;     // reported identity's posterior >= 0.7: HIGH
 const CONFIDENCE_MODERATE_POSTERIOR = 0.5; // 0.5 to 0.7: MODERATE; below 0.5: LOW
 const EARLY_OFFER_POSTERIOR = 0.9;         // the early-result offer after Round 1 needs this
@@ -5843,9 +5846,53 @@ const ROUND3_CANDIDATE_COUNT = 4;          // Round 3 plays the top four by post
 // records within that accuracy, and made HIGH and MODERATE labels less accurate.
 // (Those figures are scoring version 2's. On version 3's lower grid the rule
 // leaves losing records on 1.7 / 1.0% of results at p = 0.8 and 1.4 / 1.2% at
-// p = 0.65, and no result that won no match.)
+// p = 0.65, and a result that won no match on 1 to 3 in 6,200.)
+//
+// One match is not a record (scoring version 4). Round 3 stops after four
+// matches when one candidate has won its three and clinched
+// (shouldTerminateEarly), so the leader by posterior may have played once,
+// against that candidate, and lost. Version 3 held it to ROUND3_NO_WINS_MARGIN,
+// though that loss had already moved its posterior: a player whose Rounds 1 and
+// 2 gave Grixis 86% and Dimir 12% chose Dimir's answer in Grixis's one match,
+// Dimir clinched, and the posterior said Grixis 59%, Dimir 39%, but the result
+// was Dimir, LOW. Measured with tests/simulate.js --r3 (n = 100 per identity,
+// seeds 3 and 4; ideal / misspecified respondents at p = 0.65, then at 0.8):
+// version 3 sets the leader aside for 12.5 / 11.5% and 7.3 / 6.7% of results,
+// and it had played one match in 70 / 73 and 100 / 105 of the 6,200 in each
+// cell. Those leaders were the true identity 20 / 18% and 41 / 40% of the time,
+// the candidate reported instead 19 / 26% and 27 / 36%. When their posterior
+// was 0.5 or more (14 / 5 and 30 / 33 of them), 7 / 2 and 23 / 24 were right,
+// against 2 / 1 and 2 / 8 for the candidate reported instead; below 0.5 that
+// candidate was right more often (11 / 18 and 25 / 30 times, against 7 / 11
+// and 18 / 18). So from version 4 a leader that played one match keeps the
+// result when its posterior is at least ROUND3_ONE_MATCH_POSTERIOR, the line
+// for MODERATE, and is reported LOW (applyOneMatchLossGuard), as the person
+// chose against it the one time they were asked. Exact recovery +0.1 / +0.0
+// and +0.3 / +0.3 points (two paired standard errors 0.1 / 0.1 and 0.2 / 0.2;
+// over seeds 3 to 6, +0.1 / -0.0 and +0.3 / +0.2, two paired standard errors
+// 0.1 or less, and the leaders it keeps were right 102 times in 169, the
+// candidate version 3 reported instead 39). HIGH and MODERATE are as on
+// version 3 (but for a rare 0-1 result that version 3 kept at 16 times the
+// runner-up's posterior, LOW now too), and LOW is right more often (+0.1 /
+// +0.0 and +0.5 / +0.5 points). Labelled by their posterior instead, the
+// leaders it keeps made MODERATE right 0.4 / 0.2 points less often at p = 0.8
+// over seeds 3 to 6, beyond two standard errors: there they are right 60 to
+// 70% of the time, about what a posterior of 0.5 to 0.7 says, against 76 to
+// 87% for MODERATE results as a whole. Losing records go up by the results it
+// keeps, each of them 0-1: 1.4 -> 1.6 / 1.2 -> 1.3% and 1.7 -> 2.2 / 1.0 ->
+// 1.5%, and so do results that won no match, 0.02 / 0.02 -> 0.2 / 0.1% and
+// 0.02 / 0.05 -> 0.5 / 0.6%. Exempting every leader that played one match, or
+// every one that lost only to the runner-up, also kept recovery but added 0.9
+// to 1.7 points of losing records. Reading the no-wins margin on the posterior
+// before Round 3, which has not counted the loss, added 0.1 to 0.2 and still
+// told the player Dimir (Grixis's lead then was 7 times Dimir's). The mixed
+// population moves the same way: recovery +0.0, losing records +0.1 / +0.2
+// points.
+// CHANGELOG, "One match is not a record".
 const ROUND3_LOSING_RECORD_MARGIN = 3;     // fewer wins than losses: 3 times the runner-up's posterior
 const ROUND3_NO_WINS_MARGIN = 16;          // no win in any match it played: 16 times
+const ROUND3_ONE_MATCH_POSTERIOR = CONFIDENCE_MODERATE_POSTERIOR; // one match played and lost: kept at a posterior of 0.5, and LOW
+const ROUND3_ONE_MATCH_FROM_VERSION = 4;   // the scoring versions with that rule: 4 on
 
 function logMeanExp(xs) {
   const m = Math.max(...xs);
@@ -8904,17 +8951,34 @@ function rankCandidatesByPosterior(tournament, posterior) {
 // more often than for in Round 3 (fewer wins than losses) stays first only with
 // a clear margin over the runner-up: a posterior ROUND3_LOSING_RECORD_MARGIN
 // times the runner-up's, or ROUND3_NO_WINS_MARGIN times when it won no match.
-// Otherwise the best candidate by posterior without a losing record moves to
-// the top and the rest keep their order. Only the order changes: the posterior
-// is untouched, and the confidence is still the reported identity's own.
-function round3RecordRanking(ranked, posterior) {
+// From scoring version 4 (ROUND3_ONE_MATCH_FROM_VERSION) a leader that played
+// only one match (Round 3 clinched before it could play again) also stays first
+// at a posterior of ROUND3_ONE_MATCH_POSTERIOR or more. Otherwise the best
+// candidate by posterior without a losing record moves to the top and the rest
+// keep their order. Only the order changes: the posterior is untouched, and the
+// confidence is still the reported identity's own.
+function round3RecordRanking(ranked, posterior, version = SCORING_VERSION) {
   const [top, next] = ranked;
   const losing = (c) => (c.wins || 0) < (c.losses || 0);
   if (!top || !next || !losing(top)) return ranked;
+  if (version >= ROUND3_ONE_MATCH_FROM_VERSION && (top.wins || 0) + (top.losses || 0) === 1
+    && posterior[top.id] >= ROUND3_ONE_MATCH_POSTERIOR) return ranked;
   const margin = (top.wins || 0) === 0 ? ROUND3_NO_WINS_MARGIN : ROUND3_LOSING_RECORD_MARGIN;
   if (posterior[top.id] >= margin * posterior[next.id]) return ranked;
   const alt = ranked.find(c => !losing(c));
   return alt ? [alt, ...ranked.filter(c => c !== alt)] : ranked;
+}
+
+// From scoring version 4 a result that lost the only Round 3 match it played
+// is LOW, whatever its posterior: the person chose against it the one time
+// they were asked. round3RecordRanking keeps such a leader at a posterior of
+// ROUND3_ONE_MATCH_POSTERIOR or more; version 3 kept one only at 16 times the
+// runner-up's posterior. Like the cycle rule, it can only lower the confidence.
+function applyOneMatchLossGuard(result, version = scoringEngine()) {
+  const w = result && result.winner;
+  if (!w || version < ROUND3_ONE_MATCH_FROM_VERSION || (w.wins || 0) !== 0 || (w.losses || 0) !== 1) return false;
+  result.confidence = 'LOW';
+  return true;
 }
 
 // Engine 2's Round 3 decision. The Round 1 + Round 2 likelihood and the Round 3
@@ -8923,14 +8987,17 @@ function round3RecordRanking(ranked, posterior) {
 // candidate the bars allow (barsAllow) that it rates highest (the candidates
 // are the ones the person actually compared), unless that candidate has a
 // losing Round 3 record without a clear margin (round3RecordRanking, among the
-// candidates the bars allow); result.runnerUp is the next in that order,
+// candidates the bars allow, by the engine's own rule: on engine 4 a candidate
+// that played one match keeps its place at a posterior of 0.5 or more);
+// result.runnerUp is the next in that order,
 // result.gap the difference in their win-loss records, and result.confidence
 // the reported identity's posterior read against the thresholds. Measured on
 // simulated respondents, deciding by posterior beat crowning the tournament's
 // win-count leader by about 14 points (ideal respondents) and 7 (misspecified),
 // because it keeps what Rounds 1 and 2 said. The guards may still lower the
 // confidence: here, a Condorcet cycle through the reported identity makes it
-// LOW; afterwards, the scenario-contradiction and context-agreement guards cap
+// LOW, and on engine 4 so does a lost only match (applyOneMatchLossGuard);
+// afterwards, the scenario-contradiction and context-agreement guards cap
 // HIGH. The posterior, not the bars, decides inside a cycle.
 function applyPosteriorDecision(result, tournament) {
   const combined = combinedPosterior(tournament);
@@ -8939,7 +9006,7 @@ function applyPosteriorDecision(result, tournament) {
 
   const byPosterior = rankCandidatesByPosterior(tournament, posterior);
   const allowed = byPosterior.filter(c => barsAllow(c.id));
-  let ranked = [...round3RecordRanking(allowed, posterior), ...byPosterior.filter(c => !barsAllow(c.id))];
+  let ranked = [...round3RecordRanking(allowed, posterior, scoringEngine()), ...byPosterior.filter(c => !barsAllow(c.id))];
   if (!allowed.length) {
     // No candidate the bars allow (a session that reached Round 3 on an older
     // build): the identity they allow that the posterior rates highest.
@@ -8953,6 +9020,7 @@ function applyPosteriorDecision(result, tournament) {
   result.gap = runnerUp ? (winner.wins - winner.losses) - (runnerUp.wins - runnerUp.losses) : 0;
   result.confidence = confidenceFromPosterior(posterior[winner.id]);
   if (result.cycle && result.cycle.includes(winner.id)) result.confidence = 'LOW';
+  applyOneMatchLossGuard(result, scoringEngine());
   result.loopBrokenByBars = false;
   return { posterior, ranked };
 }
@@ -11758,12 +11826,12 @@ const ROLES_HIDDEN_FOR_FUN = [
 // enemy-pair questions per colour, so a bar gap of 8 points is about one
 // answer. Next-door margins and the mana base's equal counts use this. [3]
 // The conversion is set once per scoring version, so a link renders the
-// reasons it was shared with; all three engines so far draw the same Round 1-2
-// bars (version 3 changed only how Round 3 is read).
+// reasons it was shared with; all four engines so far draw the same Round 1-2
+// bars (versions 3 and 4 changed only how Round 3 is read).
 // Since "Even bars and Five-colour" a bar also counts the colour's Round 2
 // answers, three or four more, so an answer is nearer a fifteenth; the twelfth
 // stays, so links shared before then still read as they did.
-const ONE_ANSWER_BY_VERSION = { 1: 1 / 12, 2: 1 / 12, 3: 1 / 12 };
+const ONE_ANSWER_BY_VERSION = { 1: 1 / 12, 2: 1 / 12, 3: 1 / 12, 4: 1 / 12 };
 // [3] Margin cut-offs, in answers: up to one answer is "one", up to three
 // (two or three answers) is "few", anything wider is "well".
 const NEXT_DOOR_MARGINS = { one: 1, few: 3 };
