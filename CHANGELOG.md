@@ -6,9 +6,85 @@ Newest first. Dates are when the work was committed.
 
 ### Instrument 11, and the old Round 3 situations in plain home settings
 
-One version bump for the night's copy changes: result pages in the second person, the question lines readers flagged, the front page and interface strings, and the Round 3 rewrite below. `INSTRUMENT_VERSION` is 11 and a result built now writes `i=11`; the contract line, the simulator's constant, `tests/play.test.js` and the tests README say so. Scoring is unchanged (`tests/fixtures/golden.json` does not move).
+One version bump for the night's copy changes: result pages in the second person, the question lines readers flagged, the front page and interface strings, and the Round 3 rewrite in the next entry. `INSTRUMENT_VERSION` is 11 and a result built now writes `i=11`; the contract line, the simulator's constant, `tests/play.test.js` and the tests README say so. Scoring is unchanged (`tests/fixtures/golden.json` does not move).
 
-- Round 3: 38 of the 48 older short situations in `POOL_B` and `POOL_C` (163 lines) are rewritten in home, money, family and neighbour settings with a concrete snag each, after a fresh reader judged 34 of 93 situations machine-made, 53 small-stakes and 30 as needing a role. Owners, option keys and order are unchanged, so `tests/fixtures/round3-keys.json` does not move and `tools/round3-coverage.js` gives the same coverage. Checked blind: two readers given old and new lines in random order judged the new ones a person's writing 242 to 3 and preferred them in 94% of decided pairs; a fresh read of all 93 went from 35 to 83 read as a person's, machine-made 34 to 6 (the 31-answer lists), needing a role 30 to 0.
+### Round 3: the old short situations rewritten
+
+A fresh reader went through all 93 Round 3 situations blind and judged 34
+machine-made, 53 small-stakes and 30 as needing you to chair, coach or run
+something. Every flagged short situation was one of the older entries (the
+first two of each guild and three-colour identity, 33 in all); none of the 45
+written on 18 Oct was flagged. The tells: a clipped command followed by a
+short moral line ("Nobody will miss most of it"), the same few words again
+and again (quietly, hard, properly, rally, rig up), the same temperaments in
+every situation, so lines repeated ("a little at a time" in five), and nothing
+concrete enough to picture.
+
+- 38 situations rewritten, stem and answers: the 33 flagged, and five old ones
+  with the same faults that the reader passed (the volunteers you organise,
+  the wedding marquee's organiser and its "Rally everyone", the house move's
+  "Nothing fancy." and "Let it go.", the rowing club's clipped answers, whose
+  stem stays, and the pub quiz you run). They are set at home, in money,
+  family, friends, neighbours and health, with one club you merely play for:
+  a grandmother's two rings among seven grandchildren, a syndicate win of
+  £40,000 when two friends hadn't paid, an electricity bill doubled to £280,
+  a garden that floods since the estate went up, fifteen years of Sunday
+  lunch at your mum's, £20,000 on five credit cards, a stolen car and six
+  weeks till the insurer pays, a will with one child well off and one
+  struggling, £8,000 under the floorboards. No stem gives the player a role.
+- Each answer is a different course of action in plain words, of uneven
+  length, some one sentence and some two, with no closing moral and none of
+  the stock words. Before writing, a worksheet set down what each identity
+  would want in the situation and the one line between the owner and each
+  rival. Answers were checked against the other 55 situations for recycled
+  lines, and a phrase two answers of one identity shared was changed.
+- Grixis against Dimir, the house with two bidders. Two runs of the real
+  quiz as a person who understands a thing before committing and then acts
+  fast, openly ambitious and comfortable with leverage, both met this match,
+  took Dimir's old answer ("Work out quietly what the seller most wants")
+  over Grixis's ("Make one strong early offer, on terms that make theirs look
+  weak"), and the result flipped to Dimir. Now Grixis finds out what the
+  seller needs and offers exactly that today, with a deadline; Dimir keeps in
+  with the agent and lets the other couple push their luck; Rakdos goes over
+  the asking price because it loves the house. Every three-colour situation
+  follows the same rule: the wider identity's answer is the guild's own good
+  answer plus the colour it adds, never the rash or showy one.
+- Four answers in the four-colour situations lose a stock word: "Rig up a
+  live link", "Cost it properly", "quietly pay a gardener" and "Rally the
+  town".
+- Checked blind in three rounds, each fix made between them. A fresh reader
+  each round saw the 38 new situations shuffled among 8 of the 18 Oct entries
+  as controls, with the questions the first reader was asked: read as a
+  person's 22, then 25, then 27 of the 38 (machine-made 2, 1, 1; vague 2, 0,
+  0; needing a role 3, 2, 1), against 7, 8 and 6 of the 8 controls. Each
+  owner-against-rival pair was also answered once as each side, the person
+  given in the product's own words for the identity ("You believe..."): 166
+  and then 170 of 170 picks went to the person's own answer. A first version
+  of that check, with persons built from plain colour traits, matched 69% and
+  found Naya and Selesnya reversed on the flood; that and the other pairs
+  players meet most were fixed. At merge, two readers comparing old and new
+  lines blind preferred the new in 94% of pairs, and a fresh read of all 93
+  went from 35 to 83 read as a person's.
+- Scoring unchanged: every situation keeps its owner, its place in its pool,
+  its number of answers, each answer's identity key and the answer order.
+  `tests/fixtures/golden.json` and `tests/fixtures/round3-keys.json` do not
+  move, and `tools/round3-coverage.js` prints the same report before and
+  after, line for line: 96.9% of 4,166 Round 3 questions get a short
+  situation. `npm test` passes, 667 checks; `tests/round3-copy.test.js`
+  needed no change.
+- Left alone: the amateur dramatics group losing its dates and the Spanish
+  for a job in Madrid, which the reader passed and which carry none of the
+  faults; the six flagged 31-answer situations (`ROUND2_SCENARIOS` in
+  `data.js`), outside this change; and stock words in later entries written
+  on 18 Oct ("hard" twice, "properly", "proper", "gently", "patiently",
+  "calmly"). The rowing club, whose stem was kept, is still read as small
+  stakes; it is the one situation the last reader called machine-made.
+- The instrument version stays 10. Every earlier question rewrite raised it;
+  with other branches changing the questions at the same time, it is best
+  raised once when they are merged.
+- Not measured: real players. The readers are models, and the persona check
+  answers in character from one paragraph per identity. The last two answers
+  changed (Grixis and Rakdos on the house bid) had no blind read of their own.
 
 ### Front page and the screens between questions: fresh readers
 
