@@ -2025,8 +2025,10 @@ body[data-theme="frames"] .mc-nextdoor__panel { border-radius: 10px; }
 /* Bars caption: the name is the summary, the bars are the evidence */
 .mc-profile__caption { font-family: var(--f-flavor); font-style: italic; font-size: 15px; color: var(--ink-faded); margin: 0 0 14px; }
 
-/* Rules-text strip (player mode): one line of card rules text */
+/* Rules-text strip (player mode): the card's rules text, each ability on its
+   own line as a card prints it (the line breaks in RESULT_COPY.rules) */
 .mc-rules-strip {
+  white-space: pre-line;
   font-family: var(--f-body); font-size: 15px; line-height: 1.6; color: var(--ink);
   margin: 0 0 4px; padding: 12px 16px; background: rgba(236, 223, 186, 0.035);
   border: 1px solid var(--gilt-line); border-left: 3px solid var(--gilt); border-radius: 3px;
@@ -11700,43 +11702,48 @@ const RESULT_COPY = {
     workplace: 'How often you picked each colour when it was offered.'
   },
 
-  // [2] Rules-text strip, player mode only, one line per identity.
-  // Bracketed reminder text prints in italics, as on a card; mana is in braces.
+  // [2] Rules-text strip, player mode only, one entry per identity, in the
+  // game's own templating. Keywords share a line, separated by commas, with
+  // no full stop; every other ability is a line of its own ("\n", which the
+  // strip keeps). As on real cards, flash and a keyword with a cost (outlast,
+  // suspend) take lines of their own, and "This spell can't be countered."
+  // opens the box. Bracketed reminder text prints in italics, as on a card;
+  // mana is in braces.
   // A joke that borrows the commander's own ability keeps its numbers (Elesh
   // Norn's +2/+2, Omnath's green mana); one that nearly repeated the card
   // below it (Jund, Mardu, four-colour without black) now does something else.
   rules: {
-    'MONO-W': "Vigilance. When this creature leaves the battlefield, its rules don't.",
-    'MONO-U': 'Flash. Hexproof from small talk. At the beginning of your upkeep, you may reconsider.',
-    'MONO-B': 'Menace, lifelink. Goodwill you gain lasts until end of turn.',
-    'MONO-R': 'Trample, haste. At the beginning of the end step, sacrifice this creature.',
-    'MONO-G': 'Reach. Spells that change things have suspend 7.',
-    AZORIUS: 'Spells your opponents cast need a countersignature.',
-    DIMIR: 'Whenever a player says something, surveil 1. You have shroud.',
-    RAKDOS: 'Unleash. At the beginning of your upkeep, if nothing went wrong last turn, something does.',
-    GRUUL: 'Riot. Trample. This creature attacks each combat if able.',
-    SELESNYA: "Convoke. You can't sacrifice creatures.",
-    ORZHOV: "Extort. Whenever a player accepts help from you, they get a debt counter. Players with debt counters can't attack you.",
-    IZZET: 'Whenever a spell you control is countered, draw two cards. Whenever one resolves, start another.',
-    GOLGARI: 'Deathtouch. This creature gets +1/+1 for each dead project in your graveyard.',
-    SIMIC: "Evolve. This creature can't attack while it could still be improved.",
-    BOROS: 'First strike. Mentor. Whenever an injustice is alleged, attack. Check the facts after combat.',
-    BANT: 'Exalted. If you would attack, you may draw a card instead.',
-    ESPER: "Flying. Your decisions can't be overturned by a show of hands.",
-    GRIXIS: 'Haste. Creatures you control get +2/+0. At the beginning of your end step, one of them leaves for a calmer deck.',
-    JUND: 'Trample. At the beginning of each quarter, sacrifice your weakest creature.',
-    NAYA: 'Battle cry. Whenever a creature you control attacks, it brings a friend.',
-    ABZAN: "Vigilance. Outlast {1}{W}. Creatures you control get +1/+1 for each year they've been with you.",
-    JESKAI: 'Prowess. Mentor. Whenever this creature attacks, it does so exactly as rehearsed.',
-    SULTAI: "Exploit. Whenever another player's idea resolves, you may gain control of it. At the beginning of next year, they notice.",
-    MARDU: "Haste. Creatures you control don't untap until the deadline has passed.",
-    TEMUR: "Trample. This spell can't be countered. At the beginning of your upkeep, shuffle your plan into your library.",
-    WITCH: "Vigilance, deathtouch, lifelink. This creature can't have or gain haste.",
-    YORE: 'Flying. Whenever an artifact you control works, sacrifice it and build a better one.',
-    GLINT: "Trample, cascade. Phasing (When the bill arrives, treat this creature as though it doesn't exist.)",
-    DUNE: "Vigilance, haste. You can't scry.",
-    INK: 'Vigilance. Whenever an opponent would lose life, you may lose that life instead.',
-    WUBRG: 'Changeling. You have every ability. Each works at a fifth of its strength.'
+    'MONO-W': "Vigilance\nWhen this creature leaves the battlefield, its rules don't.",
+    'MONO-U': 'Flash\nHexproof from small talk\nAt the beginning of your upkeep, you may reconsider.',
+    'MONO-B': 'Menace, lifelink\nGoodwill you gain lasts until end of turn.',
+    'MONO-R': 'Trample, haste\nAt the beginning of the end step, sacrifice this creature.',
+    'MONO-G': 'Reach\nEach card in your hand that would change anything has suspend 7—{G}.',
+    AZORIUS: "Your opponents can't cast spells without a countersignature.",
+    DIMIR: 'Whenever a player says something, surveil 1.\nYou have shroud.',
+    RAKDOS: 'Unleash\nAt the beginning of your upkeep, if nothing went wrong last turn, something does.',
+    GRUUL: 'Riot, trample\nThis creature attacks each combat if able.',
+    SELESNYA: "Convoke\nYou can't sacrifice creatures.",
+    ORZHOV: "Extort\nWhenever a player accepts help from you, that player gets a debt counter.\nPlayers with debt counters can't attack you.",
+    IZZET: "Whenever a spell you've cast is countered, draw two cards.\nWhenever a spell you've cast resolves, start another.",
+    GOLGARI: 'Deathtouch\nThis creature gets +1/+1 for each dead project in your graveyard.',
+    SIMIC: "Evolve\nThis creature can't attack as long as it could still be improved.",
+    BOROS: 'First strike, mentor\nWhenever an injustice is alleged, attack. At end of combat, check the facts.',
+    BANT: 'Exalted\nIf you would attack, you may draw a card instead.',
+    ESPER: "Flying\nYour decisions can't be countered by a show of hands.",
+    GRIXIS: 'Haste\nCreatures you control get +2/+0.\nAt the beginning of your end step, a creature you control leaves for a calmer deck.',
+    JUND: 'Trample\nAt the beginning of each quarter, sacrifice a creature with the least power among creatures you control.',
+    NAYA: 'Battle cry\nWhenever a creature you control attacks, it brings a friend.',
+    ABZAN: "Vigilance\nOutlast {1}{W}\nCreatures you control get +1/+1 for each year they've been with you.",
+    JESKAI: 'Prowess, mentor\nWhenever this creature attacks, it does so exactly as rehearsed.',
+    SULTAI: "Exploit\nWhenever another player's idea resolves, you may gain control of it. If you do, at the beginning of next year, that player notices.",
+    MARDU: "Haste\nCreatures you control don't untap until the deadline has passed.",
+    TEMUR: "This spell can't be countered.\nTrample\nAt the beginning of your upkeep, shuffle your plan into your library.",
+    WITCH: "Vigilance, deathtouch, lifelink\nThis creature can't have or gain haste.",
+    YORE: 'Flying\nWhenever an artifact you control works, sacrifice it and build a better one.',
+    GLINT: "Trample, cascade\nPhasing (When the bill arrives, treat this creature as though it doesn't exist.)",
+    DUNE: "Vigilance, haste\nYou can't scry.",
+    INK: 'Vigilance\nIf an opponent would lose life, you may lose that much life instead.',
+    WUBRG: 'Changeling\nYou have every ability. Numbers in those abilities are divided by five, rounded down.'
   },
 
   // The commander. Player mode: "Your commander is <card>." in the banner
