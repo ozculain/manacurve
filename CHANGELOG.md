@@ -4,6 +4,52 @@ Newest first. Dates are when the work was committed.
 
 ## 2026-10-21
 
+### Round 3: the pairs a player sees, second pass
+
+A reader went through the short Round 3 situations two answers at a time
+and failed 41 pairs in 37 situations: the same course in other words, a
+shared opening or time word ("tonight" against "today", "Take it" against
+"Take it"), a sensible answer beside a rash or illegal one, and one
+situation with nothing at stake for the player. The reader's numbering
+followed a shuffled order, so 17 of the 41 were two rival answers a player
+never sees together, and some pairs a player does see had never been read.
+All 41 are fixed, and every pair a player can meet in those 37 situations
+(the owner's answer against each of the others) was read again. A second,
+blind reader then read all 168 pairs in the 37 situations and flagged 12;
+11 are fixed. The twelfth, two rival answers in the cottages situation
+that a player never sees together, passed the first reader and stays.
+
+- 56 answers and one stem changed. Owners, keys, order and counts are as
+  they were, so `tests/fixtures/golden.json` and
+  `tests/fixtures/round3-keys.json` do not move, and
+  `tools/round3-coverage.js` prints the same coverage (99.8% on the default
+  run).
+- The sister's debt now matters to the player: "You talked your best friend
+  into lending your sister £4,000, and she's stopped paying it back." It
+  was £400 between two other people.
+- Four-colour without white no longer looks for a garage that will pass the
+  car without the repairs. It now gets the car "tested again somewhere that
+  doesn't sell repairs". Its village-shop answer, eggs and basics from the
+  garage "without a licence", is now "Let it go, and have the supermarket
+  deliver."
+- The house bid holds four courses: find out what the seller needs and
+  offer exactly that till Friday; keep in with the agent; the asking price
+  with no survey; rent it for a year first with an option to buy.
+- Unsafe or rash answers replaced: having a go at the gas boiler from a
+  repair video (Izzet now rigs up plug-in heaters on timers), going over
+  the asking price and finding the money after, four nights in Ibiza on the
+  credit card, pulling out of the new-build "deposit or no deposit".
+- Shared beats gone: the Spanish lessons' "every evening" against "every
+  morning", the revision's "every night" against "every day", the
+  builder's "till Friday" against "tomorrow", "Keep going" against "Stop
+  going", "Give it, if" against "Lend it, once".
+- Courses that were one course now differ. For the widower without
+  heating, Boros rings the power company until they move him and Rakdos
+  books him a hotel on his own card. In the area about to take off, Sultai
+  buys a flat to let and Jund outbids the developers for a wreck to sell
+  on.
+- Not done: the gate has not read the new pairs. The readers are models.
+
 ### Magic questions, card text and commanders: a player's review
 
 A reader briefed as a player of twenty years read the twenty Magic
@@ -92,6 +138,7 @@ result against the cards' Oracle text on Scryfall and the tournament rules.
   cards print it, and still fails any other em dash; it keeps Breya's three
   modes as a card's modes. `RESULT_COPY_VERSION` stays at 7, which has not
   been published.
+
 
 ## 2026-10-19
 
