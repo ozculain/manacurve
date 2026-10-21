@@ -590,12 +590,15 @@ const RHYTHM_RULES = [
 // round, and the four philosophies that opened on one (Bant's "civilisation,
 // knowledge, and patience", Esper's, Abzan's and Four-colour without red's)
 // in the second: readers took them for machine-written.
-// No card's modes stay either: the third readers called Breya's three ("3
+// One card's modes stay: Breya's. The third readers called its three ("3
 // damage to a player or planeswalker, -4/-4 to a creature, or gain 5 life")
-// too long, and its description now names two. A passage may still carry its
-// own `kept` list, which the checker's own tests use.
+// too long, and its description dropped the -4/-4; a player's review then
+// read the two left as all the card does, and the -4/-4 is the mode Breya
+// decks use most, so the description names all three again, in fewer words.
+// A passage may still carry its own `kept` list, which the checker's own
+// tests use.
 const COLOUR_LISTS = {};
-const CARD_MODES = {};
+const CARD_MODES = { YORE: ['deal 3 damage to a player, give a creature -4/-4, or give you 5 life'] };
 const RHYTHM_ANTITHESIS = [
   [/\brather than\b/i, '"rather than"'],
   [/\b(?:would|'d|’d) rather\b/i, '"would rather"'],
