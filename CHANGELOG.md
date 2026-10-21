@@ -4,6 +4,67 @@ Newest first. Dates are when the work was committed.
 
 ## 2026-10-21
 
+### Round 3: every screen a player can meet, read as a pair
+
+Two readers with the author's rulings read all 295 Round 3 screens a player
+can meet, the owner's answer against each other answer in its situation, and
+flagged 40. Most were shared beats: a time word on both sides ("tonight"
+against "today", "this month" against "six months", "now" against "this
+weekend"), the same opening ("Take" and "Take", "Get" and "Get", "Pay" and
+"Pay"), or a word carried across the pair ("line", "clear", "keep it",
+"worth", "test" and "meter", paying at the end of both). Three screens held
+one builder's ultimatum, "the photos go online that night", which reads as
+a film line. Two named a Premium Bond prize that does not exist: there is
+no £20,000 prize, and the bands go from £10,000 to £25,000. Three situations
+had the wrong stakes: groceries a delivery van settles, a scratch nobody
+calls an insurer about, and a move to the coast where one answer sold the
+family home over the partner's no.
+
+- All 40 are fixed, with 31 answers and 4 situations changed. Twenty use
+  the reader's suggested line as written. Fifteen were written again
+  because the suggestion kept the fault or made a new one: "if they match
+  my asking price" still ended on the buyer paying full value, "before
+  they finish" still met "now", "carpets" and "bigger" sat on both sides,
+  and "you don't drive" still left the shopping to a delivery van.
+- Every screen in the 34 situations touched (84 screens) was then read again
+  as a pair, and 10 more answers changed: four time words that met one on
+  the other side ("this weekend" against "for a month", "this week" against
+  "now", "this summer" and "now" against "over three years"), three so
+  that no answer is twice the length of the one beside it, "let the
+  insurers sort it out"
+  against "Let her cool down", Bant's answer to fit the new coast
+  situation, and Mono-Green in the village shop, which now pays its £2,000
+  so it is no longer the same course as Four-colour without white.
+- Before and after:
+  - "Give him till Friday to fix it, or the photos go online that night." is
+    now "Give him till Friday to fix it, or I post the photos online."
+  - "The only shop in your village is closing. The nearest supermarket is a
+    forty-minute bus ride away." is now "The only shop in your village will
+    close unless the villagers buy it. They're asking £2,000 a household."
+  - "Let the flat out at a profit and rent somewhere bigger. Sell when prices
+    recover." is now "Let the flat out, and rent a house until prices come
+    back."
+- Checked blind: a reader given only the identity descriptions placed 116
+  of the 118 answers in the 34 situations, and all 50 that changed or sit
+  under a changed situation. The two it swapped are unchanged: Mono-Black's
+  and Mono-Red's answers to the bathroom builder.
+- 41 answers and 4 situations in 34 situations. Owners, keys, order and
+  counts are as they were, so `tests/fixtures/golden.json` and
+  `tests/fixtures/round3-keys.json` do not move, and
+  `tools/round3-coverage.js` prints the same coverage (99.8% on the default
+  run). The edits went in through `research/voice/apply-round3-pairs.js`,
+  whose log is `research/voice/gate10/after-r3-gate10.json`.
+- Not done: two blind readers were reading the 84 screens as pairs when
+  this was committed, and their results are not in. Outside the 34
+  situations, eight screens still carry a time word on both sides, and the
+  gate's readers passed all eight: the school bus ("first thing tomorrow"
+  against "from now on"), the lodger ("tonight" against "for a month"), the
+  area about to take off ("now" against "six months"), the restaurant
+  ("now" against "for a year"), the family burnt out ("tonight" against
+  "for now"), the care home ("for now" against "tonight"), the house bid
+  ("till Friday" against "for a year") and the stolen car ("tomorrow"
+  against "the six weeks").
+
 ### Questions and Magic after the merge: the tenth reading
 
 With the three branches merged (Round 3 pairs, question pairs, the Magic
