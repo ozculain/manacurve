@@ -4,6 +4,48 @@ Newest first. Dates are when the work was committed.
 
 ## 2026-10-21
 
+### Questions and Magic after the merge: the tenth reading
+
+With the three branches merged (Round 3 pairs, question pairs, the Magic
+review), readers calibrated on the author's rulings read every screen a
+player can meet once more: the 91 non-Magic question screens as pairs, the
+20 Magic questions, the 31 cards' rules text and the 31 commanders as a
+player of twenty years would, and the 295 Round 3 screens as the pairs the
+game forms (the entry's owner against each rival; the earlier pair file had
+shuffled each entry and judged pairs no player sees).
+
+- Questions: three flags of 91. The Restaurant's Red answer rested on "I
+  believe in it" beside a shrewd loan; the Stolen Idea's Black answer shared
+  the evening with the Red one; "Co-Founder" was startup register over a
+  situation that says "a partner".
+  - "Go in as an equal partner. I believe in it." is now "Go in as an
+    equal partner. If it works, I want half."
+  - "Say nothing tonight. First thing tomorrow, my pages go to the agent."
+    is now "Say nothing, and send the agent my own pages."
+  - The title "Co-Founder" is now "The Partner".
+- Across screens, two things no single-screen reading catches. Restless
+  was the Lisbon year again (leave for a year on a friend's offer, or
+  stay), so it is now a chef's offer of a place in his kitchen at half the
+  pay: "Take it. I'll make the money work." against "No. I like my life as
+  it is." And the player's father had died in two items while alive in
+  three; now the mother has died in those two, the father is alive in the
+  three, and the ninety-year-old whose life story you promised to write is
+  a grandmother.
+- Magic: seven flags; the rules text passed. Prize Split's final is now
+  against someone you beat 2-0 in the Swiss, because most finalists take an
+  even split and neither answer let a player say yes. Store Closing says
+  most of the old group won't travel, which a player would otherwise
+  assume they could. K'rrik's lifelink "gets" life back, not "heals" it.
+  Four stored oracle texts are the cards' current wording (Trostani,
+  Karador, Atraxa's keywords on one line, Kynaios and Tiro's trigger as one
+  paragraph), checked against Scryfall.
+- Round 3: 40 flags of 295, fixed on their own branch and recorded in its
+  own entry.
+- Ids, pairs, weights, order and every answer's colour are as they were,
+  so the golden and key fixtures do not move. The readers are models; the
+  author has not read this.
+
+
 ### Round 1 and 2 questions: both answers read together
 
 A reader judged each Round 1 and 2 screen the way a player meets it, the
