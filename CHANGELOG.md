@@ -2,6 +2,97 @@
 
 Newest first. Dates are when the work was committed.
 
+## 2026-10-21
+
+### Magic questions, card text and commanders: a player's review
+
+A reader briefed as a player of twenty years read the twenty Magic
+questions, the joke rules text on the 31 player-mode cards and the commander
+descriptions, and flagged twelve lines. All twelve are fixed. The rest of
+those three places was reread the same way, each question as the pair of
+answers a player sees, and a second reader of the same kind checked the
+result against the cards' Oracle text on Scryfall and the tournament rules.
+
+- Questions. Open team events register a fixed team of two or three before
+  the first round, so a store team rotating its regulars in round by round
+  could not happen. Picking the Side is now Picking the Team: you are on
+  your store's three-player team, you choose the other two, and the store
+  wants regulars on it. Coaching is booked and paid for, so the coaching
+  question starts from a coach you have paid, who says to play their deck
+  their way. The sponsor question's first answer gives a competitor's
+  reasons to turn streaming down: practice goes better off camera, and the
+  field would see your lists. In Cash for a Deck, prices have spiked, so
+  the £2,000 a stranger offers in cash for a deck built for £1,200 is what
+  the deck now sells for. In the prize split, the Black answer's sixty-forty
+  now comes with the opponent dropping, since the tournament rules allow an
+  uneven split only when one player drops. Words from sport and the office
+  became the words players use: playgroup, bracket, power level, locked for
+  top eight, the last round of Swiss, judge, pods, tech, set reviews and win
+  rates.
+  - "You're captain of your store's team at a national tournament. The store
+    wants every regular to get a game." is now "You're on your store's
+    three-player team at a big event, and you choose the other two. The
+    store wants regulars on it."
+  - "The night before a big event, a stranger offers you £2,000 cash for the
+    deck you built. It cost you about £1,200." is now "After a price spike,
+    the deck you built for £1,200 sells for £2,000. The night before a big
+    event, a stranger offers that in cash."
+  - "Your regular games group agreed to keep decks at a similar strength.
+    You've built one you love that's well above it." is now "Your playgroup
+    agreed to stick to bracket three. You've built a deck you love, and it's
+    clearly a four."
+- Pairs. Nine pairs changed so that neither answer looks like the intended
+  one. Team Decks and The Playgroup are two plain verdicts each, where one
+  side had a kind reason tacked on ("even if it's not me", "so anyone can
+  join on the same terms"). The Red answer on the bracket-four deck brings
+  it and tells the table before the game, where it dared the table to take
+  it on, and the answer beside it gives its reason too. Two pairs that
+  shared a beat no longer do (both coaching answers said "this field", both
+  testing-team answers "alone"), and the two answers on picking a team no
+  longer open on the same word. The Red answer to the prize split and the
+  Black answer to the sponsor gained the plain reason the other side had,
+  and the Black answer to the points league lost the words that made it
+  the longer one.
+- 17 of the 20 items changed. Ids, pairs, weights, order and every answer's
+  colour are as they were, so the golden and key fixtures do not move.
+- Card text. All 31 cards are laid out as real cards are. Keywords share a
+  line, separated by commas, with no full stop, and every other ability has
+  a line of its own; the strip keeps the line breaks. Flash takes its own
+  line, as on Archangel Avacyn, outlast its own line with its cost, and
+  "This spell can't be countered." opens Temur's card, as it opens Carnage
+  Tyrant's. Mono-Green's suspend is written as cards print it and sits on
+  cards in hand, the way Satoru Umezawa gives ninjutsu. Four-colour without
+  black's replacement effect opens with "If" and says "that much life".
+  Five-colour's abilities have their numbers divided by five, rounded down,
+  where they worked at a fifth of their strength. Jund sacrifices "a
+  creature with the least power among creatures you control", as Crackling
+  Doom words it; Orzhov's debt counter goes to "that player"; Izzet's
+  triggers count "a spell you've cast", as Multani's Presence does; Boros
+  checks the facts "at end of combat"; Simic can't attack "as long as" it
+  could still be improved; Esper's decisions "can't be countered by a show
+  of hands"; Azorius's opponents "can't cast spells without a
+  countersignature"; and Sultai's year-late notice is part of the ability
+  that takes the idea.
+  - "Reach. Spells that change things have suspend 7." is now "Reach" and
+    "Each card in your hand that would change anything has suspend 7—{G}."
+  - "Vigilance. Whenever an opponent would lose life, you may lose that life
+    instead." is now "Vigilance" and "If an opponent would lose life, you
+    may lose that much life instead."
+- Commanders. Breya's description names all three modes again (3 damage to
+  a player, -4/-4 to a creature, 5 life): the two it named read as all the
+  card does, and the -4/-4 is the mode Breya decks use most. Augustin's
+  says your white spells and your blue spells each cost one less, so one
+  that's both costs two less, where "your white and blue spells" could be
+  read as the two-colour spells alone. Omnath's says your green mana
+  doesn't empty, where it said Omnath doesn't lose it. Surrak's says your
+  creature spells can't be countered, where it said your creatures. The
+  other 27 match the cards.
+- Tests: `tests/render.test.js` expects its five cases' new rules text.
+  `tests/visible-copy.test.js` reads past the dash in a suspend cost, as
+  cards print it, and still fails any other em dash; it keeps Breya's three
+  modes as a card's modes. `RESULT_COPY_VERSION` stays at 7, which has not
+  been published.
+
 ## 2026-10-19
 
 ### Round 3: the 31-answer lists, gate pass 4

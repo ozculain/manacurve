@@ -73,6 +73,8 @@
 // sentences. Left as they are, because they are data or quoted: the
 // identity names (MONO-WHITE, FOUR-COLOUR (No Red)), the commander's printed
 // type line ("Legendary Creature — Human Ninja") and the card's rules text.
+// The joke rules text keeps the dash a card prints in a suspend cost
+// ("suspend 7—{G}"); the content checker reads past that one (pastKeywordCosts).
 // Section 16 (CHANGELOG, "Profile rhythm") holds the 31 profiles' own
 // passages, as the result screen and the explorer render them, to rhythm
 // rules: no three sentences in a row on the same opening word, no run of
@@ -149,13 +151,17 @@ const NOT_X_ITS_Y = /\b(?:not|isn't|aren't|wasn't)\b[^.?!]*?[,;:]\s*(?:it's|it i
 // Mono-Blue's first two `you` lines, kept word for word. The second carries
 // the one em dash a page may print and the first has a list in it; the
 // checkers read past both, as they read past an identity name. Anywhere else
-// an em dash still fails.
+// an em dash still fails, a suspend cost on the card aside (pastKeywordCosts).
 const AUTHOR_LINES = [
   'You like to understand a thing before you act, which is sensible, and to understand it completely, which is where the trouble starts.',
   "You're nearly always right — nearly always a little too late to be any use.",
 ];
 // A block as the checkers read it: in an author's line the dash reads as a comma.
 const pastAuthorLines = (text) => AUTHOR_LINES.reduce((t, line) => t.split(line).join(line.replace(' — ', ', ')), String(text));
+// A suspend cost as real cards print it, its number and mana joined by an em
+// dash ("suspend 7—{G}", Mono-Green's rules text): the dash is the card's
+// own, as the type line's is, and reads as a space. Any other em dash fails.
+const pastKeywordCosts = (text) => String(text).replace(/\b(suspend \d+)—(?=\{)/gi, '$1 ');
 
 // Identity codes in capitals: the PROFILES keys (MONO-U ... WUBRG), and the
 // capitalised profile names a sentence could pick up (MONO-BLUE, FOUR-COLOUR ...).
@@ -205,7 +211,7 @@ function problemsIn(text, { PROFILES, questions = false } = {}) {
 const WHEEL_WORDS = ['enemy pair', 'ally pair'];
 const TYPE_LINE = /^Legendary (?:Artifact )?Creature — [A-Z][a-z]+(?: [A-Z][a-z]+)*$/;
 function contentProblems(text, { PROFILES, scoring = true, codes = false } = {}) {
-  let t = pastAuthorLines(text);
+  let t = pastKeywordCosts(pastAuthorLines(text));
   if (PROFILES) for (const p of Object.values(PROFILES)) t = t.split(p.name).join(' ');
   const out = [];
   const lower = t.toLowerCase();
@@ -584,12 +590,15 @@ const RHYTHM_RULES = [
 // round, and the four philosophies that opened on one (Bant's "civilisation,
 // knowledge, and patience", Esper's, Abzan's and Four-colour without red's)
 // in the second: readers took them for machine-written.
-// No card's modes stay either: the third readers called Breya's three ("3
+// One card's modes stay: Breya's. The third readers called its three ("3
 // damage to a player or planeswalker, -4/-4 to a creature, or gain 5 life")
-// too long, and its description now names two. A passage may still carry its
-// own `kept` list, which the checker's own tests use.
+// too long, and its description dropped the -4/-4; a player's review then
+// read the two left as all the card does, and the -4/-4 is the mode Breya
+// decks use most, so the description names all three again, in fewer words.
+// A passage may still carry its own `kept` list, which the checker's own
+// tests use.
 const COLOUR_LISTS = {};
-const CARD_MODES = {};
+const CARD_MODES = { YORE: ['deal 3 damage to a player, give a creature -4/-4, or give you 5 life'] };
 const RHYTHM_ANTITHESIS = [
   [/\brather than\b/i, '"rather than"'],
   [/\b(?:would|'d|’d) rather\b/i, '"would rather"'],
@@ -1399,7 +1408,7 @@ run('visible-copy', async (t) => {
       parts === wantParts && problems.length === 0 && errors.length === 0,
       `${parts} of ${wantParts} parts shown; ` + (problems.slice(0, 4).join(' | ') || errors.slice(0, 2).join(' | ')));
     const badType = typelines.filter(([, line]) => !TYPE_LINE.test(line));
-    ok('result: the card\'s typeline is the commander\'s printed type line, its dash the only one on the card (all 31)',
+    ok('result: the card\'s typeline is the commander\'s printed type line, its dash the only one on the card but a suspend cost\'s (all 31)',
       typelines.length === 31 && badType.length === 0, badType.map(([id, line]) => `${id} "${line}"`).join(' | '));
     // Every mana base line, with the up neighbour one answer, a few answers and well short.
     const lines = Object.keys(P).flatMap((id) => [0.05, 0.15, 0.4].map((gap) => h.manaBaseLine(id, actFor(P[id].colors, gap))));
@@ -1684,6 +1693,7 @@ run('visible-copy', async (t) => {
       ['When MONO-WHITE is stressed, watch for:', 'identity code "MONO-WHITE"'],
       ["In three weeks you'll come back with a thoroughly argued treatise explaining how you were right all along and we'll all know it but the world will have moved on.", '30 words'],
       ['{Colour} made the cut by {n} answers.', 'unfilled placeholder'],
+      ['Suspend 7 — then wait for the facts.', 'em dash'],
     ];
     const contentMissed = contentSamples.filter(([text, flag]) => !contentProblems(text, { PROFILES: P, codes: true }).join(' | ').includes(flag)).map(([text]) => text);
     ok('the content checker flags each rule on a line the pages carried before, or a made-up one', contentMissed.length === 0, contentMissed.join(' | '));
@@ -1691,6 +1701,7 @@ run('visible-copy', async (t) => {
       ['Treats "is this okay?" as a question for someone else\'s department.', {}],
       ['Your White and Blue spells cost {1} less; opponents\' spells cost {1} more.', {}],
       ['Whenever Alesha attacks, pay {W/B}{W/B}: return a creature card with power 2 or less from graveyard, tapped and attacking.', {}],
+      ['Each card in your hand that would change anything has suspend 7—{G}.', {}],
       ['FOUR-COLOUR (No Red)', {}],
       ['Round 1 tested only enemy pairs, colours that oppose each other.', { scoring: false }],
       ['One two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty twenty-one twenty-two twenty-three twenty-four twenty-five.', {}],
@@ -1701,7 +1712,7 @@ run('visible-copy', async (t) => {
       .filter(([, found]) => found.length).map(([x, found]) => `${x}: ${found}`);
     const strayDash = contentProblems("You're nearly always right — and you know it.", { PROFILES: P }).join(' | ');
     ok('the content checker flags an em dash outside the author\'s lines', strayDash.includes('em dash'), strayDash);
-    ok('the content checker passes a quoted question, mana symbols, an identity name, the methodology\'s own words, a 25-word sentence and the author\'s lines',
+    ok('the content checker passes a quoted question, mana symbols, a suspend cost, an identity name, the methodology\'s own words, a 25-word sentence and the author\'s lines',
       contentFlagged.length === 0 && TYPE_LINE.test('Legendary Creature — Human Ninja') && !TYPE_LINE.test('Personality — Dimir'), contentFlagged.join(' | '));
 
     // The rhythm checker (section 16), on passages the profiles carried before
