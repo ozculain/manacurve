@@ -384,7 +384,7 @@ const COMMANDER_ORACLE = {
   "Trostani, Selesnya's Voice": {
     cost: '{G}{G}{W}{W}',
     pt: '2/5',
-    text: ['Whenever another creature enters the battlefield under your control, you gain life equal to its toughness.', '{1}{G}{W}, {T}: Populate (Create a token that\'s a copy of a creature token you control.)']
+    text: ['Whenever another creature you control enters, you gain life equal to that creature\'s toughness.', '{1}{G}{W}, {T}: Populate. (Create a token that\'s a copy of a creature token you control.)']
   },
   
   // THREE-COLOR
@@ -416,7 +416,7 @@ const COMMANDER_ORACLE = {
   'Karador, Ghost Chieftain': {
     cost: '{5}{W}{B}{G}',
     pt: '3/4',
-    text: ['Karador, Ghost Chieftain costs {1} less to cast for each creature card in your graveyard.', 'During each of your turns, you may cast one creature spell from your graveyard.']
+    text: ['This spell costs {1} less to cast for each creature card in your graveyard.', 'Once during each of your turns, you may cast a creature spell from your graveyard.']
   },
   'Narset, Enlightened Master': {
     cost: '{3}{U}{R}{W}',
@@ -443,7 +443,7 @@ const COMMANDER_ORACLE = {
   "Atraxa, Praetors' Voice": {
     cost: '{G}{W}{U}{B}',
     pt: '4/4',
-    text: ['Flying', 'Vigilance', 'Deathtouch', 'Lifelink', 'At the beginning of your end step, proliferate. (Choose any number of permanents and/or players, then give each another counter of each kind already there.)']
+    text: ['Flying, vigilance, deathtouch, lifelink', 'At the beginning of your end step, proliferate. (Choose any number of permanents and/or players, then give each another counter of each kind already there.)']
   },
   'Breya, Etherium Shaper': {
     cost: '{W}{U}{B}{R}',
@@ -463,7 +463,7 @@ const COMMANDER_ORACLE = {
   'Kynaios and Tiro of Meletis': {
     cost: '{R}{G}{W}{U}',
     pt: '2/8',
-    text: ['At the beginning of your end step, draw a card.', 'Each player may put a land card from their hand onto the battlefield, then each opponent who didn\'t draws a card.']
+    text: ['At the beginning of your end step, draw a card. Each player may put a land card from their hand onto the battlefield, then each opponent who didn\'t draws a card.']
   },
   
   // FIVE-COLOR
@@ -529,7 +529,7 @@ const PROFILES = {
     desc:"People around you are often still catching up with a situation you've already read and acted on.",
     pubBanter:"",
     cmd:"K'rrik, Son of Yawgmoth",
-    cmdDesc:'K\'rrik lets you pay 2 life instead of black mana, and lifelink heals some of it back.',
+    cmdDesc:'K\'rrik lets you pay 2 life instead of black mana, and lifelink gets some of it back.',
     you:["You ask for a discount in shops that don't do discounts.","If someone says they like your coat, you spend the evening working out what they want.","Anyone who owes you knows exactly how much, interest included."],
     str:["You ask for the pay rise in the week you've earned it.","In a negotiation you know what each person needs to walk away with.","Someone has to make the unpopular call, and you don't lose sleep over it."],
     weak:["Help that comes with nothing attached takes you a while to accept.","Final decisions are ones you'd like to make yourself.","An argument you lost stays with you for days."],
