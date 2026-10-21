@@ -37,7 +37,15 @@ them, 21 flags on 17 answers and one situation, all fixed on main:
   pressed the same urgency as "Next month" beside it and read garbled;
   it now finds the surgeon who has fitted the most of the new ones.
 - A last reader then read the 41 screens of the 16 situations touched
-  after the full read. Only answer and situation text changed; keys,
+  after the full read and flagged three: the inventive house-bid answer
+  opened on "Offer" beside the tailored offer (it now asks the agent for
+  sealed bids and goes in high), "while rates are low" is not how anyone
+  describes rates in 2026, and "three quotes" chimed with "three years".
+  A reader of the six screens those touched flagged two on the roof,
+  where the £30,000 covers the rewiring too, so beating a roofer down to
+  £15,000 and paying only electricians were wrong; fixed, and a last
+  reader of that situation flagged nothing. Only answer and situation
+  text changed; keys,
   order, weights and coverage are as they were, and the golden and
   round 3 fixtures did not move. The readers are models; the author has
   not read this.
