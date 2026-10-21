@@ -4,6 +4,45 @@ Newest first. Dates are when the work was committed.
 
 ## 2026-10-21
 
+### Round 3 after the writer: the eleventh reading
+
+When the 40 flagged screens had been fixed and merged, two fresh readers
+read all 295 Round 3 screens again, and the writer's own two blind
+readers finished their pass over the 84 screens it had touched. Between
+them, 21 flags on 17 answers and one situation, all fixed on main:
+
+- Pairs that were one course said twice: both answers measuring the
+  electricity, both practising for the driving test, both ending the shop
+  on what the building would fetch, both holding off on the railway
+  payout, both closing the lottery on the rules, both the considerate
+  answer on the scan, both waiting for the outcome of the father's
+  driving in the same words.
+  - "Take my own readings each week, and check them against the bills."
+    is now "Change one thing a week, and watch what the bill does."
+  - "Get behind the wheel whenever anyone will sit beside me." is now
+    "Drive to work with my partner beside me, test or no test."
+  - "Pay all ten this once, then make the rules stricter." is now "Pay
+    all ten, and set up a standing order so it can't happen again."
+- Shapes that chimed: "Take the house off the market" against "Knock the
+  cost off the price"; "let it out" against "let her take her time
+  moving out"; a timescale plus a hardship on both sides of the roof.
+- One answer plainly the wrong one: a sit-in at the council offices, a
+  trip to A&E for a GP-referred scan beside paying and giving up the
+  slot, a complaint to the MP beside a plan, renting first against a
+  couple buying outright.
+- Facts: a big estate behind the house does not lift its price; and in
+  England since May 2026 a landlord cannot "not renew the leases", so he
+  now says untidy gardens break the tenancy and he'll evict over them.
+- "Find whoever's fitted the most new joints, and get on their list now"
+  pressed the same urgency as "Next month" beside it and read garbled;
+  it now finds the surgeon who has fitted the most of the new ones.
+- A last reader then read the 41 screens of the 16 situations touched
+  after the full read. Only answer and situation text changed; keys,
+  order, weights and coverage are as they were, and the golden and
+  round 3 fixtures did not move. The readers are models; the author has
+  not read this.
+
+
 ### Round 3: every screen a player can meet, read as a pair
 
 Two readers with the author's rulings read all 295 Round 3 screens a player
