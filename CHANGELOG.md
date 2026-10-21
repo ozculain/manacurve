@@ -4,6 +4,46 @@ Newest first. Dates are when the work was committed.
 
 ## 2026-10-21
 
+### Round 1 and 2 questions: both answers read together
+
+A reader judged each Round 1 and 2 screen the way a player meets it, the
+situation and both answers at once, and failed 20 as pairs. In some, both
+answers opened the same way ("Vote ..." twice, "Sign ..." twice, "The ...
+one" twice). In others a word or phrase sat in both ("a week", "six months",
+"seen" and "sketch"), one answer was argued and the other bare, or one
+answer's reason made the other look rash. Seventeen are non-Magic items and
+are fixed here. The three Magic items are on another branch.
+
+- Each of the 17 has one answer rewritten, in the same colour and at the
+  same stakes. "Vote to keep the meadow." is now "Keep the meadow." New
+  Field's Blue answer no longer suspects a course that won't wait a week:
+  "Talk to past students first, even if I lose the place." The Scan's Red
+  answer was "Have it out next week. I'm not carrying it round for six
+  months." and is now "Have it removed next week. A scar doesn't bother me."
+  Prize Draw's Red answer no longer assumes an idea you've sat on for years:
+  "Back an idea of my own. It's the first chance I've had."
+- All 91 non-Magic items were then reread as pairs by the same test, and 38
+  more have an answer rewritten (both answers in Damp Cottage). Sixteen
+  shared a word across the pair: "No test." and "Have the test.", "Don't
+  buy" and "Buy it.", "my Sundays" twice, "Marry." and "marriage". Six
+  opened with the same frame, such as "Turn him down" and "Take him home".
+  Ten set a bare answer against an argued one, or ran to twice the other's
+  length.
+- Checked blind. A reader with the rulings read all 91 as pairs in a
+  shuffled order and flagged 15, and the flagged answer is rewritten in
+  each. Five set a community or virtue reason against a plain one ("so the
+  whole street gets the garden" is now "and chip in for it"), and four were
+  this pass's own first drafts. A second reader stopped at the usage limit.
+  A blind colour match on the changed answers got 49 of 49, two of them at
+  medium confidence, and both of those are rewritten. A last check on the 17
+  newest pairs passed all 17, with every colour matched at high confidence.
+- 56 answers in 55 items; no stem or label changed. Ids, pairs, weights,
+  answer colours and order are as they were, so `tests/fixtures/golden.json`
+  and `tests/fixtures/round12-keys.json` do not move, and
+  `tests/round12-copy.test.js` needed no change. `INSTRUMENT_VERSION` is not
+  raised here.
+- Not measured: whether real players now split differently.
+
 ### Round 3: the pairs a player sees, second pass
 
 A reader went through the short Round 3 situations two answers at a time
